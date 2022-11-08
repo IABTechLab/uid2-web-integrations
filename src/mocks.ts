@@ -1,7 +1,7 @@
 const jsdom = require('jsdom');
-const sdk = require('../static/js/uid2-sdk-1.0.0.js');
+import { UID2 } from './uid2Sdk';
 
-class CookieMock {
+export class CookieMock {
   constructor(document) {
     this.jar = new jsdom.CookieJar();
     this.url = document.URL;
@@ -19,7 +19,7 @@ class CookieMock {
   }
 }
 
-class XhrMock {
+export class XhrMock {
   get DONE() {
     return 4;
   }
@@ -46,7 +46,7 @@ class XhrMock {
   }
 }
 
-class CryptoMock {
+export class CryptoMock {
   constructor(window) {
     this.decryptOutput = "decrypted_message";
     this.getRandomValues = jest.fn();
@@ -81,48 +81,48 @@ class CryptoMock {
 
 }
 
-function setupFakeTime() {
+export function setupFakeTime() {
   jest.useFakeTimers();
   jest.spyOn(global, 'setTimeout');
   jest.spyOn(global, 'clearTimeout');
   jest.setSystemTime(new Date('2021-10-01'));
 }
 
-function resetFakeTime() {
+export function resetFakeTime() {
   setTimeout.mockClear();
   clearTimeout.mockClear();
   jest.clearAllTimers();
   jest.setSystemTime(new Date('2021-10-01'));
 }
 
-function setCookieMock(document) {
+export function setCookieMock(document) {
   return new CookieMock(document);
 }
 
-function setUid2Cookie(value) {
-  document.cookie = sdk.UID2.COOKIE_NAME + '=' + encodeURIComponent(JSON.stringify(value));
+export function setUid2Cookie(value) {
+  document.cookie = UID2.COOKIE_NAME + '=' + encodeURIComponent(JSON.stringify(value));
 }
 
-async function flushPromises() {
+export async function flushPromises() {
   await Promise.resolve();
   await Promise.resolve();
 }
 
-function getUid2Cookie() {
+export function getUid2Cookie() {
   const docCookie = document.cookie;
   if (docCookie) {
-    const payload = docCookie.split('; ').find(row => row.startsWith(sdk.UID2.COOKIE_NAME+'='));
+    const payload = docCookie.split('; ').find(row => row.startsWith(UID2.COOKIE_NAME+'='));
     if (payload) {
       return JSON.parse(decodeURIComponent(payload.split('=')[1]));
     }
   }
 }
 
-function setEuidCookie(value) {
+export function setEuidCookie(value) {
   document.cookie = "__euid" + '=' + encodeURIComponent(JSON.stringify(value));
 }
 
-function getEuidCookie() {
+export function getEuidCookie() {
   const docCookie = document.cookie;
   if (docCookie) {
     const payload = docCookie.split('; ').find(row => row.startsWith("__euid"+'='));
@@ -132,7 +132,7 @@ function getEuidCookie() {
   }
 }
 
-function makeIdentityV1(overrides) {
+export function makeIdentityV1(overrides) {
   return {
      advertising_token: 'test_advertising_token',
      refresh_token: 'test_refresh_token',
@@ -143,7 +143,7 @@ function makeIdentityV1(overrides) {
   };
 }
 
-function makeIdentityV2(overrides) {
+export function makeIdentityV2(overrides) {
   return {
     advertising_token: 'test_advertising_token',
     refresh_token: 'test_refresh_token',
@@ -154,18 +154,3 @@ function makeIdentityV2(overrides) {
     ...(overrides || {}),
   };
 }
-module.exports = {
-  CookieMock,
-  XhrMock,
-  CryptoMock,
-  setupFakeTime,
-  resetFakeTime,
-  setCookieMock,
-  setUid2Cookie,
-  getUid2Cookie,
-  setEuidCookie,
-  getEuidCookie,
-  makeIdentityV1,
-  makeIdentityV2,
-  flushPromises,
-};

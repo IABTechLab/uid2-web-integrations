@@ -1,6 +1,6 @@
 import { afterEach,beforeEach, describe, expect, jest, test } from '@jest/globals';
 
-import * as mocks from '../mocks.js';
+import * as mocks from '../mocks';
 import { sdkWindow, UID2 } from '../uid2Sdk';
 
 let callback: any;
