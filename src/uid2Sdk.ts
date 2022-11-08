@@ -1,7 +1,7 @@
-import { setupGoogleTag } from './GoogleESPIntegration';
 import { Uid2ApiClient } from './uid2ApiClient';
 import { EventType, Uid2CallbackHandler, Uid2CallbackManager } from './uid2CallbackManager';
 import { UID2CookieManager } from './uid2CookieManager';
+import { UID2GoogleESPHandler } from './uid2GoogleESPHandler';
 import { Uid2Identity } from './Uid2Identity';
 import { IdentityStatus, notifyInitCallback } from './Uid2InitCallbacks';
 import { isUID2OptionsOrThrow, Uid2Options } from './Uid2Options';
@@ -26,7 +26,9 @@ export class UID2 {
     }
     static IdentityStatus = IdentityStatus;
     static EventType = EventType;
-    static setupGoogleTag = setupGoogleTag;
+    static setupGoogleTag() {
+        new UID2GoogleESPHandler(window.__uid2 as UID2)
+    }
 
     // Push functions to this array to receive event notifications
     public callbacks: Uid2CallbackHandler[] = [];
@@ -113,6 +115,8 @@ export class UID2 {
         if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
         this._initComplete = true;
         this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
+
+        if (this._opts.enableESP) new UID2GoogleESPHandler(this);
     }
     
     private isLoggedIn() {        
@@ -224,7 +228,5 @@ export function __uid2InternalHandleScriptLoad() {
     if (postUid2CreateCallback) postUid2CreateCallback();
 }
 __uid2InternalHandleScriptLoad();
-
-UID2.setupGoogleTag();
 
 export const sdkWindow = globalThis.window;
