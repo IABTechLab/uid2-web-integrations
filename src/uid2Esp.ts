@@ -23,7 +23,12 @@
 
 export class UID2EncryptedSignalProvider {
   constructor() {
-    if (typeof window.getAdvertisingToken === "function") {
+    if (
+      typeof window.getAdvertisingToken === "function" ||
+      // if the SDK has been initialized before this script loaded and enabled esp, the token will be
+      // send automatically as it might missed initComplete event 
+      this.isUID2SDKIntegrated()
+    ) {
       this.sendSignal();
     }
   }
@@ -47,11 +52,15 @@ export class UID2EncryptedSignalProvider {
         collectorFunction: () => Promise.resolve(uid2Handler()),
       });
     }
-  }
+  };
 
   private isUID2SDKIntegrated = (): boolean => {
-    return !!(window.__uid2 && "getAdvertisingToken" in window.__uid2);
-  }
+    return Boolean(
+      window.__uid2 &&
+      "espEnabled" in window.__uid2 &&
+      window.__uid2.espEnabled
+    );
+  };
 
   private retrieveAdvertisingTokenHandler = (): Function | undefined => {
     if (typeof window.getAdvertisingToken === "function") {
@@ -60,7 +69,7 @@ export class UID2EncryptedSignalProvider {
     if (this.isUID2SDKIntegrated()) {
       return window.__uid2!.getAdvertisingToken!.bind(window.__uid2);
     }
-  }
+  };
 }
 
 declare global {

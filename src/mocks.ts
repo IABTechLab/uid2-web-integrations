@@ -143,7 +143,7 @@ export function makeIdentityV1(overrides) {
   };
 }
 
-export function makeIdentityV2(overrides) {
+export function makeIdentityV2(overrides = {}) {
   return {
     advertising_token: 'test_advertising_token',
     refresh_token: 'test_refresh_token',
