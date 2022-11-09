@@ -1,7 +1,7 @@
 import { afterEach,beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import * as mocks from '../mocks';
-import { __uid2InternalHandleScriptLoad,sdkWindow, UID2 } from '../uid2Sdk';
+import { __uid2InternalHandleScriptLoad, sdkWindow, UID2 } from '../uid2Sdk';
 import { EventType } from '../uid2CallbackManager';
 
 let callback: any;
@@ -13,9 +13,9 @@ mocks.setupFakeTime();
 beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
-  xhrMock = new mocks.XhrMock(window);
-  _cryptoMock = new mocks.CryptoMock(window);
-  mocks.setCookieMock(window.document);
+  xhrMock = new mocks.XhrMock(sdkWindow);
+  _cryptoMock = new mocks.CryptoMock(sdkWindow);
+  mocks.setCookieMock(sdkWindow.document);
 });
 
 afterEach(() => {

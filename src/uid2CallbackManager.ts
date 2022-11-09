@@ -37,7 +37,7 @@ export class Uid2CallbackManager {
         this.safeRunCallback(c, EventType.SdkLoaded, {});
       if (this._sentInit)
         this.safeRunCallback(c, EventType.InitCompleted, {
-          //identity: this._getIdentity() ?? null,
+          identity: this._getIdentity() ?? null,
         });
     }
     return pushResult;

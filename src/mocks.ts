@@ -1,16 +1,24 @@
-const jsdom = require('jsdom');
+import * as jsdom from 'jsdom';
+import { Cookie } from 'tough-cookie';
 import { UID2 } from './uid2Sdk';
+import { Uid2Identity } from './Uid2Identity';
 
 export class CookieMock {
-  constructor(document) {
+  jar: jsdom.CookieJar;
+  url: string;
+  set: (value: string | Cookie) => Cookie;
+  get: () => string;
+  getSetCookieString: (name: string) => string;
+  applyTo: (document: Document) => void;
+  constructor(document: Document) {
     this.jar = new jsdom.CookieJar();
     this.url = document.URL;
-    this.set = (value) => this.jar.setCookieSync(value, this.url, { http: false });
+    this.set = (value: string | Cookie) => this.jar.setCookieSync(value, this.url, { http: false });
     this.get = () => this.jar.getCookieStringSync(this.url, { http: false });
-    this.getSetCookieString = (name) => {
+    this.getSetCookieString = (name: string) => {
       return this.jar.getSetCookieStringsSync(this.url).filter(c => c.startsWith(name+'='))[0];
     };
-    this.applyTo = (document) => {
+    this.applyTo = (document: Document) => {
       jest.spyOn(document, 'cookie', 'get').mockImplementation(() => this.get());
       jest.spyOn(document, 'cookie', 'set').mockImplementation((value) => this.set(value));
     };
@@ -20,16 +28,26 @@ export class CookieMock {
 }
 
 export class XhrMock {
+  responseText: string;
+  onreadystatechange: any;
+  open: jest.Mock<any, any>;
+  send: jest.Mock<any, any>;
+  abort: jest.Mock<any, any>;
+  overrideMimeType: jest.Mock<any, any>;
+  setRequestHeader: jest.Mock<any, any>;
+  status: number;
+  readyState: number;
+  applyTo: (window: any) => void;
   get DONE() {
     return 4;
   }
 
-  sendRefreshApiResponse(identity) {
+  sendRefreshApiResponse(identity: Uid2Identity) {
     this.responseText = btoa(JSON.stringify({ status: 'success', body: identity }));
     this.onreadystatechange(new Event(''));
   }  
 
-  constructor(window) {
+  constructor(window: Window) {
     this.open             = jest.fn();
     this.send             = jest.fn();
     this.abort            = jest.fn();
@@ -47,7 +65,11 @@ export class XhrMock {
 }
 
 export class CryptoMock {
-  constructor(window) {
+  decryptOutput: string;
+  getRandomValues: jest.Mock<any, any>;
+  subtle: { encrypt: jest.Mock<any, any>; decrypt: jest.Mock<any, any>; importKey: jest.Mock<any, any>; };
+  applyTo: (window: any) => void;
+  constructor(window: Window) {
     this.decryptOutput = "decrypted_message";
     this.getRandomValues = jest.fn();
     this.subtle = {
@@ -89,17 +111,19 @@ export function setupFakeTime() {
 }
 
 export function resetFakeTime() {
-  setTimeout.mockClear();
-  clearTimeout.mockClear();
+  const mockSetTimeout = setTimeout as unknown as jest.Mock;
+  const mockClearTimeout = clearTimeout as jest.Mock;
+  mockSetTimeout.mockClear();
+  mockClearTimeout.mockClear();
   jest.clearAllTimers();
   jest.setSystemTime(new Date('2021-10-01'));
 }
 
-export function setCookieMock(document) {
+export function setCookieMock(document: Document) {
   return new CookieMock(document);
 }
 
-export function setUid2Cookie(value) {
+export function setUid2Cookie(value: any) {
   document.cookie = UID2.COOKIE_NAME + '=' + encodeURIComponent(JSON.stringify(value));
 }
 
@@ -118,7 +142,7 @@ export function getUid2Cookie() {
   }
 }
 
-export function setEuidCookie(value) {
+export function setEuidCookie(value: any) {
   document.cookie = "__euid" + '=' + encodeURIComponent(JSON.stringify(value));
 }
 
@@ -132,7 +156,7 @@ export function getEuidCookie() {
   }
 }
 
-export function makeIdentityV1(overrides) {
+export function makeIdentityV1(overrides?: any) {
   return {
      advertising_token: 'test_advertising_token',
      refresh_token: 'test_refresh_token',
@@ -143,7 +167,7 @@ export function makeIdentityV1(overrides) {
   };
 }
 
-export function makeIdentityV2(overrides) {
+export function makeIdentityV2(overrides?: any) {
   return {
     advertising_token: 'test_advertising_token',
     refresh_token: 'test_refresh_token',
