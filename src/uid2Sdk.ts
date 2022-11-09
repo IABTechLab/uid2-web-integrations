@@ -27,11 +27,18 @@ export class UID2 {
     static IdentityStatus = IdentityStatus;
     static EventType = EventType;
     static setupGoogleTag() {
-        new UID2GoogleESPHandler(window.__uid2 as UID2)
+        if (!(window.__uid2 as UID2)._espEnabled) {
+            new UID2GoogleESPHandler(window.__uid2 as UID2)
+        }
     }
 
     // Push functions to this array to receive event notifications
     public callbacks: Uid2CallbackHandler[] = [];
+
+    //
+    get espEnabled(): boolean {
+        return this._espEnabled;
+    }
 
     // Dependencies initialised on construction
     private _tokenPromiseHandler: UID2PromiseHandler;
@@ -45,6 +52,7 @@ export class UID2 {
     private _opts: Uid2Options = {};
     private _identity: Uid2Identity | null | undefined;
     private _initComplete = false;
+    private _espEnabled = false;
 
     constructor(existingCallbacks: Uid2CallbackHandler[] | undefined = undefined) {
         if (existingCallbacks) this.callbacks = existingCallbacks;
@@ -113,10 +121,13 @@ export class UID2 {
         const identity = this._opts.identity ? this._opts.identity : this._cookieManager.loadIdentityFromCookie();
         const validatedIdentity = this.validateAndSetIdentity(identity);
         if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
+        if (this._opts.enableESP && !this._espEnabled) {
+            new UID2GoogleESPHandler(this);
+            this._espEnabled = true
+        }
+
         this._initComplete = true;
         this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
-
-        if (this._opts.enableESP) new UID2GoogleESPHandler(this);
     }
     
     private isLoggedIn() {        
