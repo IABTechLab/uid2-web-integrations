@@ -5,6 +5,9 @@ name: Node.js CI
 
 on: [pull_request, push, workflow_dispatch]
 
+env:
+  WORKING_DIR: ./
+
 
 jobs:
   build:
