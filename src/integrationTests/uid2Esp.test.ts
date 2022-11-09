@@ -190,7 +190,3 @@ describe("when use script with SDK", () => {
     })
   })
 });
-
-describe("When script loaded after SDK loaded", () => {
-  
-});
