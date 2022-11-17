@@ -22,7 +22,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 import {
-    afterEach,
     beforeEach,
     describe,
     expect,
