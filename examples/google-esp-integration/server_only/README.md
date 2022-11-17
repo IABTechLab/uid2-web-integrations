@@ -11,7 +11,7 @@ For an example application using the [Client-Side Identity JavaScript SDK](https
 The easiest way to try the example is to use the following docker build command:
 
 ```
-docker build . -t uid2-publisher-server
+docker build . -t uid2-publisher-server -f.\examples\google-esp-integration\server_only\Dockerfile
 docker run -it --rm -p 3000:3000 \
     -e UID2_BASE_URL="https://operator-integ.uidapi.com" \
     -e UID2_API_KEY="<your-integ-API-key>" \

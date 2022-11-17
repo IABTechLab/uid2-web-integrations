@@ -12,7 +12,7 @@ a requirement. You can use any technology of your choice and refer to the exampl
 The easiest way to try the example is to use the following docker build command:
 
 ```
-docker build . -t uid2-publisher-standard
+docker build . -t uid2-publisher-standard -f .\examples\google-esp-integration\with_sdk_v3\Dockerfile
 docker run -it --rm -p 3000:3000 \
     -e UID2_BASE_URL="https://operator-integ.uidapi.com" \
     -e UID2_API_KEY="<your-integ-API-key>" \
