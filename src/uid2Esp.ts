@@ -66,7 +66,7 @@ export class UID2EncryptedSignalProvider {
     if (typeof window.getAdvertisingToken === "function") {
       return window.getAdvertisingToken!;
     }
-    if (this.isUID2SDKIntegrated()) {
+    if (this.isUID2SDKIntegrated() && 'getAdvertisingToken' in window.__uid2!) {
       return window.__uid2!.getAdvertisingToken!.bind(window.__uid2);
     }
   };
@@ -74,9 +74,6 @@ export class UID2EncryptedSignalProvider {
 
 declare global {
   interface Window {
-    __uid2?: {
-      getAdvertisingToken: () => string;
-    };
     __uid2Esp: UID2EncryptedSignalProvider;
     getAdvertisingToken?: () => string;
   }

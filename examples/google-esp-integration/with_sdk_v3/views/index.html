@@ -8,7 +8,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script async src="/js/mockedGoogleTag.js"></script>
     <script src="/js/bundle.js"></script>
-    <script async src="/js/uid2ESP.js"></script>
+    <script async src="/js/uid2Esp.js"></script>
 
     <script>
       $(document).ready(() => {
@@ -33,22 +33,22 @@
         function onUid2IdentityUpdated(eventType, payload) {
           if (payload?.identity && (eventType === 'InitCompleted' || eventType === 'IdentityUpdated')) {
             ++callbackCounter;
-            registerUid2Handler()
           }
           updateGuiElements(payload);
         }
 
         $("#logout").click(() => {
-          __uid2.disconnect();
+          window.__uid2.disconnect();
           window.googletag.encryptedSignalProviders.clearAllCache();
           updateGuiElements(undefined);
         });
-        __uid2.callbacks.push((eventType, payload) => {
+        window.__uid2 = window.__uid2 || { callbacks: [] };
+        window.__uid2.callbacks.push((eventType, payload) => {
           if (eventType === 'SdkLoaded') {
-            __uid2.init({ baseUrl: "<%- uid2BaseUrl %>" });
+            __uid2.init({ baseUrl: "<%- uid2BaseUrl %>", enableESP: true });
           }
         });
-        __uid2.callbacks.push(onUid2IdentityUpdated);
+        window.__uid2.callbacks.push(onUid2IdentityUpdated);
 
       });
     </script>

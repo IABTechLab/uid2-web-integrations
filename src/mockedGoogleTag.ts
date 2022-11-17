@@ -40,7 +40,7 @@ class MockedEncryptedSignalProviders {
         const now = Date.now();
         let value: string;
         const key = `_GESPSK-${provider.id}`
-        if (localStorage.getItem(key) && (now - JSON.parse(localStorage.getItem(key)??'')[2]) < mockedEncryptedSignalProviders.expired_time) {
+        if (localStorage.getItem(key) && (now - JSON.parse(localStorage.getItem(key)??'')[2]) < MockedEncryptedSignalProviders.expired_time) {
             value = JSON.parse(localStorage.getItem(key)??'')[1]
         } else {
             value = await provider.collectorFunction()

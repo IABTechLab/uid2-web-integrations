@@ -76,6 +76,9 @@ export class UID2 {
     public getAdvertisingToken() {
         return this.getIdentity()?.advertising_token ?? undefined;
     }
+    public setIdentity(identity: Uid2Identity) {
+        this.validateAndSetIdentity(identity)
+    }
     public getIdentity() {
         return this._identity && !this.temporarilyUnavailable() ? this._identity : null;
     }

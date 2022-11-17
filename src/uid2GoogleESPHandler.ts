@@ -9,7 +9,7 @@ export class UID2GoogleESPHandler {
   private _handleEvent(eventType: EventType) {
     if (eventType === EventType.InitCompleted ||
         eventType === EventType.IdentityUpdated) {
-      window.__uid2Esp.sendSignal()
+      window.__uid2Esp?.sendSignal()
     }
   }
 }

@@ -10,7 +10,7 @@
     "build": "webpack --mode=production",
     "build-with-sourcemaps": "webpack --mode=production --env prodSourceMaps=true",
     "watch": "webpack watch --mode=development",
-    "uid2-examples": "webpack watch --mode=development --env outputToExamples=true"
+    "uid2-examples": "webpack --mode=development --env outputToExamples=true"
   },
   "jest": {
     "preset": "ts-jest",

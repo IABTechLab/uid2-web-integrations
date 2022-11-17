@@ -7,7 +7,7 @@
   <link rel="shortcut icon" href="/images/favicon.png" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script async src="/js/mockedGoogleTag.js"></script>
-  <script async src="/js/uid2ESP.js"></script>
+  <script async src="/js/uid2Esp.js"></script>
   <script type="text/javascript">
     const getCookie = (cname) => {
       let name = cname + "=";
@@ -29,12 +29,13 @@
       if (uid2Token === "") return
       return JSON.parse(decodeURIComponent(uid2Token)).advertising_token
     }
+
+    window.getAdvertisingToken = getAdvertisingToken;
   
     $(document).ready(function() {
       if(window.location.href.endsWith('/login')){
         window.googletag.cmd.push(window.googletag.encryptedSignalProviders.clearAllCache)
       }
-      registerUid2Handler();
     }); 
   </script>
 </head>

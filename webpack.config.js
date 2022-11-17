@@ -1,9 +1,10 @@
 const entrypoint = './src/uid2Sdk.ts';
+const espEntryPoint = './src/uid2Esp.ts';
 
 // n.b. if you add more outputs, the path is relative to the dist folder.
 const getExampleOutputs = (env) => !env.outputToExamples ? {} : {
-  publisherStandard: { import: entrypoint, filename: '../../uid2-examples/publisher/standard/public/dist/bundle.js' },
-  publisherServerOnly: { import: entrypoint, filename: '../../uid2-examples/publisher/server_only/public/dist/bundle.js' },
+  espScript: { import: espEntryPoint, filename: 'uid2ESP.js' },
+  mockedGoogleTag: { import: './src/mockedGoogleTag.ts', filename: 'mockedGoogleTag.js' },
 };
 
 module.exports = (env, argv) => {

@@ -13,7 +13,7 @@ The easiest way to try the example is to use the following docker build command:
 ```
 docker build . -t uid2-publisher-server
 docker run -it --rm -p 3000:3000 \
-    -e UID2_BASE_URL="https://integ.uidapi.com" \
+    -e UID2_BASE_URL="https://operator-integ.uidapi.com" \
     -e UID2_API_KEY="<your-integ-API-key>" \
     -e SESSION_KEY="my-session-key" \
     uid2-publisher-server
