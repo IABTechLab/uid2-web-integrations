@@ -1,6 +1,6 @@
-# UID2 SDK Integration Example
+# UID2 SDK ESP Integration Example
 
-This example demonstrates how a content publisher can use the UID2 services and the [Client-Side Identity JavaScript SDK](https://github.com/UnifiedID2/uid2docs/blob/main/api/v1/sdks/client-side-identity-v1.md) (also known as the UID2 SDK) to implement the [standard UID2 integration workflow](https://github.com/UnifiedID2/uid2docs/blob/main/api/v1/guides/publisher-client-side.md).
+This example demonstrates how a content publisher who are working with (Google Publisher Tags) can use the ESP (Google Encrypted Signals for Publishers) and the [Client-Side Identity JavaScript SDK](https://github.com/UnifiedID2/uid2docs/blob/main/api/v1/sdks/client-side-identity-v1.md) (also known as the UID2 SDK) to share UID2 direclty with bidders.
 
 For an example application without using the UID2 SDK, see [Server-Only UID2 Integration Example](../server_only/README.md).
 
@@ -9,7 +9,7 @@ a requirement. You can use any technology of your choice and refer to the exampl
 
 ## Build and Run the Example Application
 
-The easiest way to try the example is to use the following docker build command:
+The easiest way to try the example is to use the following docker build command from root directory:
 
 ```
 docker build . -t uid2-publisher-standard -f .\examples\google-esp-integration\with_sdk_v3\Dockerfile
