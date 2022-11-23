@@ -29,7 +29,7 @@ import {
     test,
   } from "@jest/globals";
   
-  import { UID2EncryptedSignalProvider } from "../uid2Esp";
+  import { Uid2SecureSignalProvider } from "../uid2SecureSignalProvider";
   import { sdkWindow, UID2 } from "../uid2Sdk";
   
   let uid2: UID2;
@@ -37,21 +37,21 @@ import {
     
   beforeEach(() => {
     uid2 = new UID2();
-    sdkWindow.__uid2Esp = new UID2EncryptedSignalProvider();
+    sdkWindow.__uid2Esp = new Uid2SecureSignalProvider();
     sendSignalMock = jest.fn();
   });
   
-  describe("when initialize UID2 with enableESP set to true", () => {
+  describe("when initialize UID2 with enableSecureSignals set to true", () => {
     it("should not fail if uid2ESP script has not loaded", () => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       sdkWindow.__uid2Esp = null;
-      expect(() => uid2.init({ enableESP: true })).not.toThrow(TypeError);
+      expect(() => uid2.init({ enableSecureSignals: true })).not.toThrow(TypeError);
     });
   
-    it("should register callback for google ESP and call sendSignal in uid2ESP script", () => {
-      sdkWindow.__uid2Esp.sendSignal = sendSignalMock;
-      uid2.init({ enableESP: true });
+    it("should register callback for google ESP and call registerSecureSignalProvider in uid2ESP script", () => {
+      sdkWindow.__uid2Esp.registerSecureSignalProvider = sendSignalMock;
+      uid2.init({ enableSecureSignals: true });
       expect(sendSignalMock).toBeCalledTimes(1);
     });
   });
@@ -71,14 +71,14 @@ import {
   
     test("should push identity if uid2ESP script is loaded", () => {
       uid2.init({});
-      sdkWindow.__uid2Esp.sendSignal = sendSignalMock;
+      sdkWindow.__uid2Esp.registerSecureSignalProvider = sendSignalMock;
       UID2.setupGoogleTag();
       expect(sendSignalMock).toBeCalledTimes(1);
     });
   
     test("should only register callback once if uid2 initialized with esp", () => {
-      sdkWindow.__uid2Esp.sendSignal = sendSignalMock;
-      uid2.init({ enableESP: true });
+      sdkWindow.__uid2Esp.registerSecureSignalProvider = sendSignalMock;
+      uid2.init({ enableSecureSignals: true });
       expect(sendSignalMock).toBeCalledTimes(1);
       UID2.setupGoogleTag();
       expect(sendSignalMock).toBeCalledTimes(1);

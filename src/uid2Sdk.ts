@@ -1,7 +1,7 @@
 import { Uid2ApiClient } from './uid2ApiClient';
 import { EventType, Uid2CallbackHandler, Uid2CallbackManager } from './uid2CallbackManager';
 import { UID2CookieManager } from './uid2CookieManager';
-import { UID2GoogleESPHandler } from './uid2GoogleESPHandler';
+import { Uid2SecureSignalHandler } from './uid2SecureSignalHandler';
 import { Uid2Identity } from './Uid2Identity';
 import { IdentityStatus, notifyInitCallback } from './Uid2InitCallbacks';
 import { isUID2OptionsOrThrow, Uid2Options } from './Uid2Options';
@@ -27,8 +27,8 @@ export class UID2 {
     static IdentityStatus = IdentityStatus;
     static EventType = EventType;
     static setupGoogleTag() {
-        if (!(window.__uid2 as UID2)._espEnabled) {
-            new UID2GoogleESPHandler(window.__uid2 as UID2)
+        if (!(window.__uid2 as UID2).secureSignalsEnabled) {
+            new Uid2SecureSignalHandler(window.__uid2 as UID2)
         }
     }
 
@@ -37,7 +37,7 @@ export class UID2 {
 
     //
     get espEnabled(): boolean {
-        return this._espEnabled;
+        return this.secureSignalsEnabled;
     }
 
     // Dependencies initialised on construction
@@ -52,7 +52,7 @@ export class UID2 {
     private _opts: Uid2Options = {};
     private _identity: Uid2Identity | null | undefined;
     private _initComplete = false;
-    private _espEnabled = false;
+    private secureSignalsEnabled = false;
 
     constructor(existingCallbacks: Uid2CallbackHandler[] | undefined = undefined) {
         if (existingCallbacks) this.callbacks = existingCallbacks;
@@ -124,9 +124,9 @@ export class UID2 {
         const identity = this._opts.identity ? this._opts.identity : this._cookieManager.loadIdentityFromCookie();
         const validatedIdentity = this.validateAndSetIdentity(identity);
         if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
-        if (this._opts.enableESP && !this._espEnabled) {
-            new UID2GoogleESPHandler(this);
-            this._espEnabled = true
+        if (this._opts.enableSecureSignals && !this.secureSignalsEnabled) {
+            new Uid2SecureSignalHandler(this);
+            this.secureSignalsEnabled = true
         }
 
         this._initComplete = true;

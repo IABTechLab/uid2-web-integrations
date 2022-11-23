@@ -24,17 +24,17 @@
       return "";
     }
 
-    const getAdvertisingToken = () => {
+    const getUid2AdvertisingToken = () => {
       const uid2Token = getCookie('identity')
       if (uid2Token === "") return
       return JSON.parse(decodeURIComponent(uid2Token)).advertising_token
     }
 
-    window.getAdvertisingToken = getAdvertisingToken;
+    window.getUid2AdvertisingToken = getUid2AdvertisingToken;
   
     $(document).ready(function() {
       if(window.location.href.endsWith('/login')){
-        window.googletag.cmd.push(window.googletag.encryptedSignalProviders.clearAllCache)
+        window.googletag.cmd.push(window.googletag.secureSignalProviders.clearAllCache)
       }
     }); 
   </script>
