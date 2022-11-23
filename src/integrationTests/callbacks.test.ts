@@ -107,5 +107,16 @@ describe("when a callback is provided", () => {
       expect(asyncCallback.mock.calls[callsBeforeRefresh][0]).toBe(UID2.EventType.IdentityUpdated);
       expect(asyncCallback.mock.calls[callsBeforeRefresh][1]).toMatchObject({ identity: null });
     });
+
+    test("it should receive identity updates when set identity is called", () => {
+      uid2.init({ callback: callback });
+      uid2.callbacks.push(asyncCallback);
+      const callsBeforeSetIdentity= asyncCallback.mock.calls.length;
+      uid2.setIdentity(identity)
+
+      expect(asyncCallback.mock.calls.length).toBe(callsBeforeSetIdentity+1);
+      expect(asyncCallback.mock.calls[callsBeforeSetIdentity][0]).toBe(UID2.EventType.IdentityUpdated);
+      expect(asyncCallback.mock.calls[callsBeforeSetIdentity][1]).toMatchObject({ identity: identity });
+    });
   });
 });
