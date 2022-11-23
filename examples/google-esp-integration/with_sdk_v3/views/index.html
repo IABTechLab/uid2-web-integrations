@@ -39,13 +39,13 @@
 
         $("#logout").click(() => {
           window.__uid2.disconnect();
-          window.googletag.encryptedSignalProviders.clearAllCache();
+          window.googletag.secureSignalProviders.clearAllCache();
           updateGuiElements(undefined);
         });
         window.__uid2 = window.__uid2 || { callbacks: [] };
         window.__uid2.callbacks.push((eventType, payload) => {
           if (eventType === 'SdkLoaded') {
-            __uid2.init({ baseUrl: "<%- uid2BaseUrl %>", enableESP: true });
+            __uid2.init({ baseUrl: "<%- uid2BaseUrl %>", enableSecureSignals: true });
           }
         });
         window.__uid2.callbacks.push(onUid2IdentityUpdated);
