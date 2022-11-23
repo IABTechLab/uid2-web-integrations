@@ -31,7 +31,7 @@ import {
 } from "@jest/globals";
 import * as mocks from '../mocks';
 import { EncryptedSignalProvider, MockedGoogleTag } from "../mockedGoogleTag";
-import { Uid2SecureSignalProvider } from '../uid2SecureSignalProvider'
+import { Uid2SecureSignalProvider } from '../uid2SecureSignal'
 import { sdkWindow, UID2 } from "../uid2Sdk";
 
 let consoleWarnMock: any;

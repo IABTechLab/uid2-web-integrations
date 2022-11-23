@@ -29,7 +29,7 @@ import {
     test,
   } from "@jest/globals";
   
-  import { Uid2SecureSignalProvider } from "../uid2SecureSignalProvider";
+  import { Uid2SecureSignalProvider } from "../uid2SecureSignal";
   import { sdkWindow, UID2 } from "../uid2Sdk";
   
   let uid2: UID2;

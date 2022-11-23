@@ -1,5 +1,5 @@
 const entrypoint = './src/uid2Sdk.ts';
-const espEntryPoint = './src/uid2Esp.ts';
+const espEntryPoint = './src/uid2SecureSignal.ts';
 
 const espOutput =  {
   espScript: { import: espEntryPoint, filename: 'uid2SecureSignal.js' },
