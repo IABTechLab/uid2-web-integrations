@@ -1,0 +1,25 @@
+{
+  "name": "uid2-SPA-publisher",
+  "version": "1.0.0",
+  "private": true,
+  "engineStrict": true,
+  "license": "BSD-2-Clause",
+  "scripts": {
+    "start": "node server.js",
+    "lint": "eslint server.js"
+  },
+  "engines": {
+    "node": "14.17.3"
+  },
+  "dependencies": {
+    "axios": "^0.23.0",
+    "ejs": "^3.1.6",
+    "express": "~4.16.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.29.0",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "eslint-plugin-testing-library": "^4.6.0"
+  }
+}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>UID2 Publisher Standard Integration Example</title>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/app.css" />
+    <link rel="shortcut icon" href="/images/favicon.png" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script async src="/js/mockedGoogleTag.js"></script>
+    <script src="/js/bundle.js"></script>
+    <script async src="/js/uid2Esp.js"></script>
+  </head>
+  <body>
+    <%- include('intro.html'); -%>
+    <ul>
+      <li><a href="/" data-link>Main</a></li>
+      <li><a href="/content/1" data-link>Sample Page 1</a></li>
+      <li><a href="/content/2" data-link>Sample Page 2</a></li>
+    </ul>
+    <div id="app"></div>
+    <script type="module" src="/js/index.js"></script>
+  </body>
+</html>

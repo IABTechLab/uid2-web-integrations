@@ -176,6 +176,7 @@ export class UID2 {
             this._cookieManager.removeCookie();
         }
         notifyInitCallback(this._opts, status ?? validity.status, statusText ?? validity.errorMessage, this.getAdvertisingToken());
+        this._callbackManager.runCallbacks(EventType.IdentityUpdated, { identity });
         return validity.identity;
     }
     private triggerRefreshOrSetTimer(validIdentity: Uid2Identity) {
