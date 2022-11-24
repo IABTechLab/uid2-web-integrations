@@ -18,7 +18,7 @@ module.exports = (env, argv) => {
   console.log(`Configuring webpack in ${buildMode} mode (isProduction === ${isProduction}).`);
   return {
     mode: buildMode,
-    devtool: isProduction ? (prodSourceMaps ? 'source-map' : false) : 'eval-source-map',
+    devtool: prodSourceMaps ? 'source-map' : false,
     entry: !env.espOnly ? { 
       main: { import: entrypoint, filename: 'bundle.js' },
       ...getExampleOutputs(env)
@@ -31,6 +31,9 @@ module.exports = (env, argv) => {
           exclude: /node_modules/,
         },
       ],
+    },
+    optimization: {
+      minimize: false
     },
     cache: false,
     resolve: {

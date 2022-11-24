@@ -11,7 +11,7 @@
     "build-with-sourcemaps": "webpack --mode=production --env prodSourceMaps=true",
     "watch": "webpack watch --mode=development",
     "uid2-examples": "webpack --mode=development --env outputToExamples=true",
-    "build:esp": "webpack --mode=production --env espOnly=true"
+    "build:esp": "webpack --env espOnly=true"
   },
   "jest": {
     "preset": "ts-jest",
