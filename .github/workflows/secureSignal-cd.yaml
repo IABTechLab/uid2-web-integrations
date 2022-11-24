@@ -34,6 +34,6 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     environment: Integ
-    uses: ./.github/actions/secureSignal-deployment.yml
+    uses: ./.github/workflows/secureSignal-deployment.yml
     secrets: inherit
         
