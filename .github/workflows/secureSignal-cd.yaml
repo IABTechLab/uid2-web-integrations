@@ -32,8 +32,6 @@ jobs:
         run: yarn run build:esp
   deployment:
     needs: [build]
-    runs-on: ubuntu-latest
     environment: Integ
     uses: ./.github/workflows/secureSignal-deployment.yml
-    secrets: inherit
         
