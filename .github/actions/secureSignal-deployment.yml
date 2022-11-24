@@ -1,14 +1,18 @@
 inputs:
   AWS_BUCKET_NAME: 
     description: 'bucket name'
+    required: true
     default: ''
   AWS_ACCESS_KEY_ID: 
     description: 'aws access key id'
+    required: true
     default: ''
   AWS_SECRET_ACCESS_KEY: 
     description: 'aws access key'
+    required: true
     default: ''
   AWS_DISTRIBUTION_ID: 
+    required: true
     description: 'distribution id'
     default: ''
 runs:
