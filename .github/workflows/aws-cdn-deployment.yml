@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ inputs:artifact }}
+          name: ${{ inputs.artifact }}
       - name: Set AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -43,7 +43,7 @@ jobs:
         uses: chetan/invalidate-cloudfront-action@v2
         env:
           DISTRIBUTION: ${{ secrets.AWS_DISTRIBUTION_ID }}
-          PATHS: ${{ inputs:invalidate_paths }}
+          PATHS: ${{ inputs.invalidate_paths }}
           AWS_REGION: us-east-2
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
