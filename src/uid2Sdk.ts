@@ -80,7 +80,7 @@ export class UID2 {
         const validatedIdentity = this.validateAndSetIdentity(identity)
         if (validatedIdentity) {
             this.triggerRefreshOrSetTimer(validatedIdentity);
-            this._callbackManager.runCallbacks(EventType.IdentityUpdated, { identity: validatedIdentity });
+            this._callbackManager.runCallbacks(EventType.IdentityUpdated, { });
         }
     }
     public getIdentity() {
