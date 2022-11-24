@@ -1,9 +1,13 @@
 const entrypoint = './src/uid2Sdk.ts';
-const espEntryPoint = './src/uid2Esp.ts';
+const espEntryPoint = './src/uid2SecureSignal.ts';
+
+const espOutput =  {
+  espScript: { import: espEntryPoint, filename: 'uid2SecureSignal.js' },
+}
 
 // n.b. if you add more outputs, the path is relative to the dist folder.
 const getExampleOutputs = (env) => !env.outputToExamples ? {} : {
-  espScript: { import: espEntryPoint, filename: 'uid2ESP.js' },
+  ...espOutput,
   mockedGoogleTag: { import: './src/mockedGoogleTag.ts', filename: 'mockedGoogleTag.js' },
 };
 
@@ -15,10 +19,10 @@ module.exports = (env, argv) => {
   return {
     mode: buildMode,
     devtool: isProduction ? (prodSourceMaps ? 'source-map' : false) : 'eval-source-map',
-    entry: { 
+    entry: !env.espOnly ? { 
       main: { import: entrypoint, filename: 'bundle.js' },
       ...getExampleOutputs(env)
-    },
+    } : espOutput,
     module: {
       rules: [
         {

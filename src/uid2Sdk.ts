@@ -77,7 +77,11 @@ export class UID2 {
         return this.getIdentity()?.advertising_token ?? undefined;
     }
     public setIdentity(identity: Uid2Identity) {
-        this.validateAndSetIdentity(identity)
+        const validatedIdentity = this.validateAndSetIdentity(identity)
+        if (validatedIdentity) {
+            this.triggerRefreshOrSetTimer(validatedIdentity);
+            this._callbackManager.runCallbacks(EventType.IdentityUpdated, { identity: validatedIdentity });
+        }
     }
     public getIdentity() {
         return this._identity && !this.temporarilyUnavailable() ? this._identity : null;
