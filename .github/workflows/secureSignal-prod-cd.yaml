@@ -1,4 +1,4 @@
-name: UID2 Secure Signal Integ CD
+name: UID2 Secure Signal Prod CD
 
 on:
   push:
@@ -29,18 +29,18 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build
-        run: yarn run build:esp -- --mode=development
+        run: yarn run build:esp -- --mode=production
       - uses: actions/upload-artifact@v2
         with:
-          name: integSecureSignalScript
+          name: secureSignalScript
           path: ./dist/uid2SecureSignal.js
 
   deployment:
     needs: [build]
     uses: ./.github/workflows/aws-cdn-deployment.yml
     with:
-      environment: Integ
-      artifact: integSecureSignalScript
+      environment: production
+      artifact: secureSignalScript
       invalidate_paths: "/uid2SecureSignal.js"
     secrets: 
       AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
