@@ -3,7 +3,7 @@ name: UID2 Secure Signal Integ CD
 on:
   push:
     branches:
-      - jyg-UID2-518-setup-workflow-for-publish-ESP-script
+      - google-esp-integration
   workflow_dispatch:
 
 env:
