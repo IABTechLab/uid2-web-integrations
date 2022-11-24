@@ -33,7 +33,7 @@ module.exports = (env, argv) => {
       ],
     },
     optimization: {
-      minimize: !isProduction
+      minimize: isProduction
     },
     cache: false,
     resolve: {
