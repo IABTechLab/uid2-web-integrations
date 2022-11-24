@@ -1,37 +1,40 @@
-inputs:
-  AWS_BUCKET_NAME: 
-    description: 'bucket name'
-    required: true
-    default: ''
-  AWS_ACCESS_KEY_ID: 
-    description: 'aws access key id'
-    required: true
-    default: ''
-  AWS_SECRET_ACCESS_KEY: 
-    description: 'aws access key'
-    required: true
-    default: ''
-  AWS_DISTRIBUTION_ID: 
-    required: true
-    description: 'distribution id'
-    default: ''
-runs:
-  using: "composite"
-  steps:
-    - name: Set AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ inputs.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-2
-    - name: Deploy
-      run: aws s3 sync ./dist s3://${{ inputs.AWS_BUCKET_NAME }}
+on:
+  workflow_call:
+  secrets:
+    AWS_BUCKET_NAME: 
+      description: 'bucket name'
+      required: true
+      default: ''
+    AWS_ACCESS_KEY_ID: 
+      description: 'aws access key id'
+      required: true
+      default: ''
+    AWS_SECRET_ACCESS_KEY: 
+      description: 'aws access key'
+      required: true
+      default: ''
+    AWS_DISTRIBUTION_ID: 
+      required: true
+      description: 'distribution id'
+      default: ''
+jobs:
+  deploy_to_CDN:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ inputs.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+      - name: Deploy
+        run: aws s3 sync ./dist s3://${{ inputs.AWS_BUCKET_NAME }}
 
-    - name: Invalidate CloudFront
-      uses: chetan/invalidate-cloudfront-action@v2
-      env:
-        DISTRIBUTION: ${{ inputs.AWS_DISTRIBUTION_ID }}
-        PATHS: "/uid2SecureSignal.js"
-        AWS_REGION: us-east-2
-        AWS_ACCESS_KEY_ID: ${{ inputs.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
+      - name: Invalidate CloudFront
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          DISTRIBUTION: ${{ inputs.AWS_DISTRIBUTION_ID }}
+          PATHS: "/uid2SecureSignal.js"
+          AWS_REGION: us-east-2
+          AWS_ACCESS_KEY_ID: ${{ inputs.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
