@@ -214,6 +214,7 @@ describe("When updateSecureSignal get invoked", () => {
       await uid2ESP.updateSecureSignal()
       expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(0);
     });
+  });
 
   describe("when secureSignal cache is expired", () => {
     uid2ESP = new Uid2SecureSignalProvider();
