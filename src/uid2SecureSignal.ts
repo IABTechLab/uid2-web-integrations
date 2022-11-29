@@ -1,58 +1,78 @@
 export class Uid2SecureSignalProvider {
+  static UID2_COLLECTOR_ID = "uidapi.com";
+  static UID2_SIGNAL_EXPIRATION = 24 * 60 * 60 * 1000;
+  static UID2_SS_STORAGE_KEY = Uid2SecureSignalProvider.UID2_COLLECTOR_ID + "__expires";
+
   constructor() {
-    if (
-      typeof window.getUid2AdvertisingToken === "function" ||
-      // if the SDK has been initialized before this script loaded and enabled esp, the token will be
-      // send automatically as it might missed initComplete event 
-      this.isUID2SDKIntegrated()
-    ) {
-      this.registerSecureSignalProvider();
-    }
+    this.updateSecureSignal()
   }
 
-  public registerSecureSignalProvider = () => {
-    const uid2Handler = this.retrieveAdvertisingTokenHandler();
+  public isCacheExpired = () => {
+    const cache_expires = window.localStorage.getItem(Uid2SecureSignalProvider.UID2_SS_STORAGE_KEY);
+    // SecureSignal cache is not yet expired, we don't push any value to it
+    if (cache_expires && parseInt(cache_expires) > Date.now()) {
+      return false;
+    }
+    return true
+  }
 
-    if (!uid2Handler) {
+  public updateSecureSignal = async () => {
+    if (!this.isCacheExpired()) return
+
+    // Force a token refresh and register the provider with latest token
+    if (this.isUID2SDKIntegrated() && "refreshToken" in window.__uid2!) {
+      window.__uid2!.forceTokenRefresh();
+      return;
+    }
+
+    if (
+      typeof window.getUid2AdvertisingToken !== "function"
+    ) {
       console.warn("Please implement `getUid2AdvertisingToken`");
       return;
     }
 
-    if (uid2Handler()) {
-      window.googletag = window.googletag || {
-        cmd: [],
-      };
-      window.googletag.secureSignalProviders =
-        window.googletag.secureSignalProviders || [];
-      window.googletag.secureSignalProviders.push({
-        id: "uidapi.com",
-        collectorFunction: () => Promise.resolve(uid2Handler()),
-      });
+    try {
+      const token = await window.getUid2AdvertisingToken!();
+      this.registerSecureSignalProvider(token);
+    } catch (e) {
+      console.error(e);
     }
+  };
+
+  public registerSecureSignalProvider = (token: string | null | undefined) => {
+    if (!token) return;
+
+    window.googletag = window.googletag || {
+      cmd: [],
+    };
+    window.googletag.secureSignalProviders =
+      window.googletag.secureSignalProviders || [];
+    window.googletag.secureSignalProviders.push({
+      id: Uid2SecureSignalProvider.UID2_COLLECTOR_ID,
+      collectorFunction: () => {
+        window.localStorage.setItem(
+          Uid2SecureSignalProvider.UID2_SS_STORAGE_KEY,
+          (Date.now() + Uid2SecureSignalProvider.UID2_SIGNAL_EXPIRATION).toString()
+        );
+        return Promise.resolve(token);
+      },
+    });
   };
 
   private isUID2SDKIntegrated = (): boolean => {
     return Boolean(
       window.__uid2 &&
-      "espEnabled" in window.__uid2 &&
-      window.__uid2.espEnabled
+        "secureSignalsEnabled" in window.__uid2 &&
+        window.__uid2.secureSignalsEnabled
     );
-  };
-
-  private retrieveAdvertisingTokenHandler = (): Function | undefined => {
-    if (typeof window.getUid2AdvertisingToken === "function") {
-      return window.getUid2AdvertisingToken!;
-    }
-    if (this.isUID2SDKIntegrated() && 'getAdvertisingToken' in window.__uid2!) {
-      return window.__uid2!.getAdvertisingToken!.bind(window.__uid2);
-    }
   };
 }
 
 declare global {
   interface Window {
     __uid2Esp: Uid2SecureSignalProvider;
-    getUid2AdvertisingToken?: () => string | null | undefined;
+    getUid2AdvertisingToken?: () => Promise<string | null | undefined>;
   }
 }
 

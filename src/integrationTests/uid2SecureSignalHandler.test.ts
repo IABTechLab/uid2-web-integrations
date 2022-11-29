@@ -21,6 +21,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
     beforeEach,
     describe,
@@ -28,60 +29,74 @@ import {
     jest,
     test,
   } from "@jest/globals";
-  
+  import * as mocks from '../mocks';
   import { Uid2SecureSignalProvider } from "../uid2SecureSignal";
   import { sdkWindow, UID2 } from "../uid2Sdk";
   
   let uid2: UID2;
   let sendSignalMock: jest.Mock;
-    
+  let xhrMock: any;
+  let identity: any;
+
   beforeEach(() => {
+    jest.clearAllMocks();
     uid2 = new UID2();
     sdkWindow.__uid2Esp = new Uid2SecureSignalProvider();
     sendSignalMock = jest.fn();
+    xhrMock = new mocks.XhrMock(sdkWindow);
+    identity = mocks.makeIdentityV2();
+    new mocks.CryptoMock(sdkWindow);
+    mocks.setCookieMock(sdkWindow.document);
   });
   
   describe("when initialize UID2 with enableSecureSignals set to true", () => {
     it("should not fail if uid2ESP script has not loaded", () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       sdkWindow.__uid2Esp = null;
       expect(() => uid2.init({ enableSecureSignals: true })).not.toThrow(TypeError);
     });
   
-    it("should register callback for google ESP and call registerSecureSignalProvider in uid2ESP script", () => {
-      sdkWindow.__uid2Esp.registerSecureSignalProvider = sendSignalMock;
-      uid2.init({ enableSecureSignals: true });
-      expect(sendSignalMock).toBeCalledTimes(1);
+    it("should register callback for google ESP and force a refresh is secure signal is expired", () => {
+      sdkWindow.__uid2Esp.isCacheExpired = jest.fn<() => boolean>().mockReturnValue(true);
+      uid2.init({ enableSecureSignals: true, identity });
+      expect(xhrMock.send).toHaveBeenCalledTimes(1);
     });
   });
   
-  describe("When google tag setup is called", () => {
+  describe("When setupGoogleSecureSignals is called", () => {
+    const refreshedIdentity = mocks.makeIdentityV2({ advertising_token: 'refreshed_token' })
     beforeEach(() => {
       sdkWindow.__uid2 = uid2
     });
 
     it("should not fail if uid2ESP script has not loaded", () => {
       uid2.init({});
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       sdkWindow.__uid2Esp = null;
-      expect(() => UID2.setupGoogleTag()).not.toThrow(TypeError);
+      expect(() => uid2.setupGoogleSecureSignals()).not.toThrow(TypeError);
     });
   
-    test("should push identity if uid2ESP script is loaded", () => {
-      uid2.init({});
+    test("should push identity if uid2ESP script is loaded", async () => {
+      uid2.init({ identity });
+      sdkWindow.__uid2Esp.isCacheExpired = jest.fn<() => boolean>().mockReturnValue(true);
       sdkWindow.__uid2Esp.registerSecureSignalProvider = sendSignalMock;
-      UID2.setupGoogleTag();
-      expect(sendSignalMock).toBeCalledTimes(1);
+      uid2.setupGoogleSecureSignals();
+      xhrMock.sendRefreshApiResponse(refreshedIdentity);
+      await mocks.flushPromises();
+
+      expect(sendSignalMock).toHaveBeenCalledTimes(1);
+      expect(sendSignalMock).toBeCalledWith(refreshedIdentity.advertising_token);
     });
   
-    test("should only register callback once if uid2 initialized with esp", () => {
+    test("should only register callback once if uid2 initialized with esp", async () => {
       sdkWindow.__uid2Esp.registerSecureSignalProvider = sendSignalMock;
-      uid2.init({ enableSecureSignals: true });
+      uid2.init({ enableSecureSignals: true, identity });
+      xhrMock.sendRefreshApiResponse(refreshedIdentity);
+      await mocks.flushPromises();
       expect(sendSignalMock).toBeCalledTimes(1);
-      UID2.setupGoogleTag();
+      expect(sendSignalMock).toBeCalledWith(refreshedIdentity.advertising_token);
+      uid2.setupGoogleSecureSignals();
       expect(sendSignalMock).toBeCalledTimes(1);
     });
   });
-  
+/* eslint-enable @typescript-eslint/ban-ts-comment */
