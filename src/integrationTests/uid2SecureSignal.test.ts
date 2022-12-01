@@ -35,7 +35,7 @@ import { Uid2SecureSignalProvider } from '../uid2SecureSignal'
 import { sdkWindow, UID2 } from "../uid2Sdk";
 
 let consoleWarnMock: any;
-let getAdvertisingTokenMock: jest.Mock<() => string>;
+let getAdvertisingTokenMock: jest.Mock<() => Promise<string>>;
 let secureSignalProvidersPushMock: jest.Mock<
   (p: EncryptedSignalProvider) => Promise<void>
 >;
@@ -45,7 +45,7 @@ let xhrMock: any;
 mocks.setupFakeTime();
 
 beforeEach(() => {
-  getAdvertisingTokenMock = jest.fn<() => string>();
+  getAdvertisingTokenMock = jest.fn<() => Promise<string>>();
   secureSignalProvidersResolveMock = jest.fn();
   secureSignalProvidersPushMock = jest.fn(async (p: EncryptedSignalProvider) => {
     secureSignalProvidersResolveMock(await p.collectorFunction())
@@ -63,16 +63,19 @@ afterEach(() => {
   getAdvertisingTokenMock.mockRestore;
   secureSignalProvidersPushMock.mockRestore();
   window.getUid2AdvertisingToken = undefined;
+  window.__uid2SecureSignalProvider = undefined;
 });
 
 describe("when use script without SDK integrated", () => {
+  window.__uid2 = undefined;
+  
   describe("when getUid2AdvertisingToken exists and returns valid advertisingToken", () => {
     test("should send signal to Google ESP", async () => {
       window.getUid2AdvertisingToken = getAdvertisingTokenMock;
-      getAdvertisingTokenMock.mockReturnValue("testToken");
+      getAdvertisingTokenMock.mockReturnValue(Promise.resolve("testToken"));
       uid2ESP = new Uid2SecureSignalProvider();
       //@ts-ignore
-      expect(uid2ESP.retrieveAdvertisingTokenHandler()!()).toBe("testToken");
+      expect(await uid2ESP.retrieveAdvertisingTokenHandler()!()).toBe("testToken");
       expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
       await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -103,7 +106,7 @@ describe("when use script without SDK integrated", () => {
 
   describe("when getUid2AdvertisingToken exists and returns invalid token", () => {
     test("should not send signal to ESP", () => {
-      getAdvertisingTokenMock.mockReturnValue("");
+      getAdvertisingTokenMock.mockReturnValue(Promise.resolve(""));
       new Uid2SecureSignalProvider();
       expect(secureSignalProvidersPushMock).not.toBeCalled();
     });
@@ -111,61 +114,42 @@ describe("when use script without SDK integrated", () => {
 });
 
 describe("when use script with SDK", () => {
-  const refreshFrom = Date.now() + 100;
+  const refreshFrom = Date.now() + 1000;
   const identity = mocks.makeIdentityV2({ refresh_from: refreshFrom });
   const refreshedIdentity = mocks.makeIdentityV2({ advertising_token: 'refreshed_token' })
   let uid2: UID2;
-  beforeEach(() => {
-    uid2ESP = new Uid2SecureSignalProvider();
-    uid2 = new UID2();
-    window.__uid2 = uid2
-  })
 
-  afterEach(() => {
-    //@ts-ignore
-    window.__uid2Esp = undefined
+  beforeEach(() => {
+    window.__uid2SecureSignalProvider = undefined
+    window.__uid2 = undefined;
   })
         
-  describe("when SDK enable esp with identity", () => {
-    describe("When script loaded before SDK loaded", () => {
-      test("should send signal to Google ESP when SDK initialized", async () => {
-        uid2.init({ identity, enableSecureSignals: true });
-        //@ts-ignore
-        expect(uid2ESP.retrieveAdvertisingTokenHandler()!()).toBe(identity.advertising_token);
-        expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
-        await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
-          expect.objectContaining({
-            id: "uidapi.com",
-          })
-        );
-        expect(secureSignalProvidersResolveMock).toHaveBeenCalledWith(identity.advertising_token)
-      })
-    });
+  describe("When script loaded before SDK loaded", () => {
+    test("should send signal to Google ESP when SDK initialized", async () => {
+      window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
+      uid2 = new UID2();
+      window.__uid2 = uid2;
+      uid2.init({ identity });
 
-    describe("When script loaded after SDK loaded", () => {
-      test("should send signal to Google ESP once loaded", async () => {
-        //@ts-ignore
-        uid2.init({ identity, enableSecureSignals: true });
-        window.__uid2Esp = uid2ESP
-        //@ts-ignore
-        expect(uid2ESP.retrieveAdvertisingTokenHandler()!()).toBe(identity.advertising_token);
-        expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
-        await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
-          expect.objectContaining({
-            id: "uidapi.com",
-          })
-        );
-        expect(secureSignalProvidersResolveMock).toHaveBeenCalledWith(identity.advertising_token)
-      })
-    });
-  })
+      //@ts-ignore
+      expect(await window.__uid2SecureSignalProvider.retrieveAdvertisingTokenHandler()!()).toBe(identity.advertising_token);
+      expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
+      await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "uidapi.com",
+        })
+      );
+      expect(secureSignalProvidersResolveMock).toHaveBeenCalledWith(identity.advertising_token)
+    })
+  });
 
-  describe("when SDK updates the identity", () => {
+  describe("When script loaded after SDK loaded", () => {
     beforeEach(() => {
-      window.__uid2Esp = uid2ESP
-      new mocks.CryptoMock(sdkWindow);
-      mocks.setCookieMock(sdkWindow.document);
-      xhrMock = new mocks.XhrMock(sdkWindow);
+      uid2 = new UID2();
+      window.__uid2 = uid2;
+      new mocks.CryptoMock(window);
+      mocks.setCookieMock(window.document);
+      xhrMock = new mocks.XhrMock(window);
       jest.clearAllMocks();
       mocks.resetFakeTime();
       jest.runOnlyPendingTimers();
@@ -173,20 +157,46 @@ describe("when use script with SDK", () => {
 
     afterEach(() => {
       mocks.resetFakeTime();
+      window.__uid2SecureSignalProvider = undefined;
     })
 
-    test("should send signal with updated identity to Google ESP", async() => {
-      uid2.init({ identity, enableSecureSignals: true });
-      await expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
+    test("should send signal to Google ESP once loaded", async () => {
+      //@ts-ignore
+      uid2.init({ identity });
+      window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
+      uid2.setupGoogleSecureSignals();
+      //@ts-ignore
+      expect(await window.__uid2SecureSignalProvider.retrieveAdvertisingTokenHandler()!()).toBe(identity.advertising_token);
+      expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
+      await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "uidapi.com",
+        })
+      );
       expect(secureSignalProvidersResolveMock).toHaveBeenCalledWith(identity.advertising_token)
+    })
+
+    test('should wait for refresh if current identity is outdated', async () => {
+      const outdatedIdentity = mocks.makeIdentityV2({ refresh_from: Date.now() - 1 });
+      uid2.init({ identity: outdatedIdentity });
+      window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
+      expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(0);
+    });
+
+    test("should send signal with updated identity to Google ESP", async() => {
+      const outdatedIdentity = mocks.makeIdentityV2({ refresh_from: Date.now() - 1 });
+      uid2.init({ identity: outdatedIdentity });
+      window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
+      uid2.setupGoogleSecureSignals();
+      await expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(0);
       jest.setSystemTime(refreshFrom);
       jest.runOnlyPendingTimers();
       expect(xhrMock.send).toHaveBeenCalledTimes(1);
       xhrMock.sendRefreshApiResponse(refreshedIdentity);
       await mocks.flushPromises();
 
-      expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(2);
+      expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
       expect(secureSignalProvidersResolveMock).toHaveBeenCalledWith(refreshedIdentity.advertising_token)
     })
-  })
+  });
 });

@@ -26,18 +26,18 @@ export class UID2 {
     }
     static IdentityStatus = IdentityStatus;
     static EventType = EventType;
+
     static setupGoogleTag() {
         if (!(window.__uid2 as UID2).secureSignalsEnabled) {
-            new Uid2SecureSignalHandler(window.__uid2 as UID2)
+            (window.__uid2 as UID2).setupGoogleSecureSignals()
         }
     }
 
     // Push functions to this array to receive event notifications
     public callbacks: Uid2CallbackHandler[] = [];
 
-    //
-    get espEnabled(): boolean {
-        return this.secureSignalsEnabled;
+    get secureSignalsEnabled(): boolean {
+        return this._secureSignalsEnabled;
     }
 
     // Dependencies initialised on construction
@@ -52,7 +52,7 @@ export class UID2 {
     private _opts: Uid2Options = {};
     private _identity: Uid2Identity | null | undefined;
     private _initComplete = false;
-    private secureSignalsEnabled = false;
+    private _secureSignalsEnabled = false;
 
     constructor(existingCallbacks: Uid2CallbackHandler[] | undefined = undefined) {
         if (existingCallbacks) this.callbacks = existingCallbacks;
@@ -115,6 +115,12 @@ export class UID2 {
         if (this._apiClient) this._apiClient.abortActiveRequests();
     }
 
+    public setupGoogleSecureSignals() {
+        if (this._secureSignalsEnabled) return
+        new Uid2SecureSignalHandler(this)
+        this._secureSignalsEnabled = true
+    }
+
     private initInternal(opts: Uid2Options | unknown) {
         if (this._initComplete) {
             throw new TypeError('Calling init() more than once is not allowed');
@@ -128,11 +134,7 @@ export class UID2 {
         const identity = this._opts.identity ? this._opts.identity : this._cookieManager.loadIdentityFromCookie();
         const validatedIdentity = this.validateAndSetIdentity(identity);
         if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
-        if (this._opts.enableSecureSignals && !this.secureSignalsEnabled) {
-            new Uid2SecureSignalHandler(this);
-            this.secureSignalsEnabled = true
-        }
-
+        if (window.__uid2SecureSignalProvider) this.setupGoogleSecureSignals();
         this._initComplete = true;
         this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
     }

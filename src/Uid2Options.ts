@@ -7,7 +7,6 @@ export type Uid2Options = BaseUid2Options & InitCallbackOptions & UID2CookieOpti
 type BaseUid2Options = {
     refreshRetryPeriod?: number;
     identity?: Uid2Identity;
-    enableSecureSignals?: boolean;
 }
 
 export function isUID2OptionsOrThrow(maybeOpts: Uid2Options | unknown): maybeOpts is Uid2Options {

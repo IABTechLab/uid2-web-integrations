@@ -1,11 +1,6 @@
 export class Uid2SecureSignalProvider {
   constructor() {
-    if (
-      typeof window.getUid2AdvertisingToken === "function" ||
-      // if the SDK has been initialized before this script loaded and enabled esp, the token will be
-      // send automatically as it might missed initComplete event 
-      this.isUID2SDKIntegrated()
-    ) {
+    if (typeof window.getUid2AdvertisingToken === "function") {
       this.registerSecureSignalProvider();
     }
   }
@@ -17,45 +12,42 @@ export class Uid2SecureSignalProvider {
       console.warn("Please implement `getUid2AdvertisingToken`");
       return;
     }
-
-    if (uid2Handler()) {
-      window.googletag = window.googletag || {
-        cmd: [],
-      };
-      window.googletag.secureSignalProviders =
-        window.googletag.secureSignalProviders || [];
-      window.googletag.secureSignalProviders.push({
-        id: "uidapi.com",
-        collectorFunction: () => Promise.resolve(uid2Handler()),
-      });
-    }
-  };
-
-  private isUID2SDKIntegrated = (): boolean => {
-    return Boolean(
-      window.__uid2 &&
-      "espEnabled" in window.__uid2 &&
-      window.__uid2.espEnabled
-    );
+    window.googletag = window.googletag || {
+      cmd: [],
+    };
+    window.googletag.secureSignalProviders =
+      window.googletag.secureSignalProviders || [];
+    window.googletag.secureSignalProviders.push({
+      id: "uidapi.com",
+      collectorFunction: uid2Handler,
+    });
   };
 
   private retrieveAdvertisingTokenHandler = (): Function | undefined => {
     if (typeof window.getUid2AdvertisingToken === "function") {
       return window.getUid2AdvertisingToken!;
     }
-    if (this.isUID2SDKIntegrated() && 'getAdvertisingToken' in window.__uid2!) {
-      return window.__uid2!.getAdvertisingToken!.bind(window.__uid2);
+    if (window.__uid2 && "getAdvertisingTokenAsync" in window.__uid2!) {
+      return window.__uid2!.getAdvertisingTokenAsync!.bind(window.__uid2);
     }
   };
 }
 
 declare global {
   interface Window {
-    __uid2Esp: Uid2SecureSignalProvider;
-    getUid2AdvertisingToken?: () => string | null | undefined;
+    __uid2SecureSignalProvider?: Uid2SecureSignalProvider;
+    getUid2AdvertisingToken?: () => Promise<string | null | undefined>;
   }
 }
 
 (function () {
-  window.__uid2Esp = new Uid2SecureSignalProvider();
+  window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
+  
+  // For UID2 SDK integration
+  if (window.__uid2) {
+    window.__uid2.callbacks?.push(() => {
+      //@ts-ignore
+      window.__uid2.setupGoogleSecureSignals();
+    })
+  }
 })();

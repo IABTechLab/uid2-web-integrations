@@ -1,4 +1,4 @@
-export type EncryptedSignalProvider = { id: string, collectorFunction: () => Promise<string> };
+export type EncryptedSignalProvider = { id: string, collectorFunction: Function };
 export type EncryptedSignalHandler = EncryptedSignalProvider & { collectorGeneratedData: string };
 export type EncryptedSignalCallback = (param: Omit<EncryptedSignalHandler, 'collectorFunction'>) => void;
 export class MockedGoogleTag {
