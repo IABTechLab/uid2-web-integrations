@@ -23,64 +23,63 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+import { beforeEach, describe, expect, jest, test } from "@jest/globals";
+import * as mocks from "../mocks";
 import {
-    beforeEach,
-    describe,
-    expect,
-    jest,
-    test,
-  } from "@jest/globals";
-  import * as mocks from '../mocks';
-  import { Uid2SecureSignalProvider, __uid2SSProviderScriptLoad } from "../uid2SecureSignal";
-  import { UID2, __uid2InternalHandleScriptLoad } from "../uid2Sdk";
-  
-  let uid2: UID2;
-  let sendSignalMock: jest.Mock;
-  const identity = mocks.makeIdentityV2({});
-    
-  beforeEach(() => {
-    sendSignalMock = jest.fn();
-    // @ts-ignore
-    window.__uid2SecureSignalProvider = undefined;
-    window.__uid2 = undefined;
-  });
-  
-  describe("when initialize UID2 with uid2SecureSignalProvider loaded", () => {
-    it("should register callback for google ESP and call registerSecureSignalProvider in uid2SecureSignalProvider", () => {
-      __uid2SSProviderScriptLoad();
-      window.__uid2SecureSignalProvider!.registerSecureSignalProvider = sendSignalMock;
-      __uid2InternalHandleScriptLoad();
-      (window.__uid2 as UID2).init({ identity});
-      expect(sendSignalMock).toBeCalledTimes(1);
-    });
-  });
-  
-  describe("When google tag setup is called", () => {
+  Uid2SecureSignalProvider,
+  __uid2SSProviderScriptLoad,
+} from "../uid2SecureSignal";
+import { UID2, __uid2InternalHandleScriptLoad } from "../uid2Sdk";
 
-    it("should not fail if uid2SecureSignalProvider has not loaded", () => {
-      __uid2InternalHandleScriptLoad();
-      (window.__uid2 as UID2).init({});
-      // @ts-ignore
-      expect(() => UID2.setupGoogleTag()).not.toThrow(TypeError);
-    });
-  
-    it("should push identity if uid2SecureSignalProvider script is loaded", () => {
-      __uid2InternalHandleScriptLoad();
-      (window.__uid2 as UID2).init({ identity });
-      window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
-      window.__uid2SecureSignalProvider!.registerSecureSignalProvider = sendSignalMock;
-      (window.__uid2 as UID2).setupGoogleSecureSignals();
-      expect(sendSignalMock).toBeCalledTimes(1);
-    });
-  
-    test("should only register callback once if uid2 initialized with esp", () => {
-      __uid2SSProviderScriptLoad();
-      window.__uid2SecureSignalProvider!.registerSecureSignalProvider = sendSignalMock;
-      __uid2InternalHandleScriptLoad();
-      (window.__uid2 as UID2).init({ identity });
-      expect(sendSignalMock).toBeCalledTimes(1);
-      UID2.setupGoogleTag();
-      expect(sendSignalMock).toBeCalledTimes(1);
-    });
+let uid2: UID2;
+let sendSignalMock: jest.Mock;
+const identity = mocks.makeIdentityV2({});
+
+beforeEach(() => {
+  sendSignalMock = jest.fn();
+  // @ts-ignore
+  window.__uid2SecureSignalProvider = undefined;
+  window.__uid2 = undefined;
+});
+
+describe("when initialize UID2 with uid2SecureSignalProvider loaded", () => {
+  it("should register callback for google ESP and call registerSecureSignalProvider in uid2SecureSignalProvider", () => {
+    __uid2SSProviderScriptLoad();
+    window.__uid2SecureSignalProvider!.registerSecureSignalProvider =
+      sendSignalMock;
+    __uid2InternalHandleScriptLoad();
+    (window.__uid2 as UID2).init({ identity });
+    expect(sendSignalMock).toBeCalledTimes(1);
   });
-  /* eslint-enable @typescript-eslint/ban-ts-comment */
+});
+
+describe("When google tag setup is called", () => {
+  it("should not fail if uid2SecureSignalProvider has not loaded", () => {
+    __uid2InternalHandleScriptLoad();
+    (window.__uid2 as UID2).init({});
+    // @ts-ignore
+    expect(() => UID2.setupGoogleTag()).not.toThrow(TypeError);
+  });
+
+  it("should push identity if uid2SecureSignalProvider script is loaded", () => {
+    __uid2InternalHandleScriptLoad();
+    (window.__uid2 as UID2).init({ identity });
+    window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
+    window.__uid2SecureSignalProvider!.registerSecureSignalProvider =
+      sendSignalMock;
+    (window.__uid2 as UID2).setupGoogleSecureSignals();
+    expect(sendSignalMock).toBeCalledTimes(1);
+  });
+
+  test("should only register callback once if uid2 initialized with esp", () => {
+    __uid2SSProviderScriptLoad();
+    window.__uid2SecureSignalProvider!.registerSecureSignalProvider =
+      sendSignalMock;
+    __uid2InternalHandleScriptLoad();
+    (window.__uid2 as UID2).init({ identity });
+    expect(sendSignalMock).toBeCalledTimes(1);
+    UID2.setupGoogleTag();
+    expect(sendSignalMock).toBeCalledTimes(1);
+  });
+});
+/* eslint-enable @typescript-eslint/ban-ts-comment */
