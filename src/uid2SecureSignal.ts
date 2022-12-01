@@ -40,14 +40,16 @@ declare global {
   }
 }
 
-(function () {
+export function __uid2SSProviderScriptLoad () {
   window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
-  
   // For UID2 SDK integration
-  if (window.__uid2) {
-    window.__uid2.callbacks?.push(() => {
-      //@ts-ignore
-      window.__uid2.setupGoogleSecureSignals();
-    })
-  }
-})();
+  window.__uid2 = window.__uid2 || {
+    callbacks: [],
+  };
+  window.__uid2.callbacks?.push(() => {
+    //@ts-ignore
+    window.__uid2.setupGoogleSecureSignals();
+  })
+}
+
+__uid2SSProviderScriptLoad();

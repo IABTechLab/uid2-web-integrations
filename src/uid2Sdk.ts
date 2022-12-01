@@ -134,7 +134,6 @@ export class UID2 {
         const identity = this._opts.identity ? this._opts.identity : this._cookieManager.loadIdentityFromCookie();
         const validatedIdentity = this.validateAndSetIdentity(identity);
         if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
-        if (window.__uid2SecureSignalProvider) this.setupGoogleSecureSignals();
         this._initComplete = true;
         this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
     }

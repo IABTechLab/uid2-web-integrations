@@ -31,8 +31,8 @@ import {
 } from "@jest/globals";
 import * as mocks from '../mocks';
 import { EncryptedSignalProvider, MockedGoogleTag } from "../mockedGoogleTag";
-import { Uid2SecureSignalProvider } from '../uid2SecureSignal'
-import { sdkWindow, UID2 } from "../uid2Sdk";
+import { Uid2SecureSignalProvider, __uid2SSProviderScriptLoad } from '../uid2SecureSignal'
+import { sdkWindow, UID2, __uid2InternalHandleScriptLoad } from "../uid2Sdk";
 
 let consoleWarnMock: any;
 let getAdvertisingTokenMock: jest.Mock<() => Promise<string>>;
@@ -126,10 +126,9 @@ describe("when use script with SDK", () => {
         
   describe("When script loaded before SDK loaded", () => {
     test("should send signal to Google ESP when SDK initialized", async () => {
-      window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
-      uid2 = new UID2();
-      window.__uid2 = uid2;
-      uid2.init({ identity });
+      __uid2SSProviderScriptLoad();
+      __uid2InternalHandleScriptLoad();
+      (window.__uid2 as UID2).init({ identity });
 
       //@ts-ignore
       expect(await window.__uid2SecureSignalProvider.retrieveAdvertisingTokenHandler()!()).toBe(identity.advertising_token);
