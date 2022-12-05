@@ -3,7 +3,7 @@ name: UID2 Secure Signal Prod CD
 on:
   push:
     branches:
-      - google-esp-integration
+      - main
   workflow_dispatch:
 
 env:

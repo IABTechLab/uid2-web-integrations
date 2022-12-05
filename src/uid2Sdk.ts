@@ -22,7 +22,7 @@ export class UID2 {
         return "__uid_2";
     }
     static get DEFAULT_REFRESH_RETRY_PERIOD_MS() {
-        return 5000;
+        return 2000;
     }
     static IdentityStatus = IdentityStatus;
     static EventType = EventType;
