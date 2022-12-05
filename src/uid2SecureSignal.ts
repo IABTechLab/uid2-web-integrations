@@ -46,10 +46,10 @@ export function __uid2SSProviderScriptLoad () {
   window.__uid2 = window.__uid2 || {
     callbacks: [],
   };
-  window.__uid2.callbacks?.push(() => {
+  window.__uid2.callbacks?.push((eventType) => {
     //@ts-ignore
-    window.__uid2.setupGoogleSecureSignals();
+    if (eventType === 'SdkLoaded') window.__uid2.setupGoogleSecureSignals();
   })
 }
 
-__uid2SSProviderScriptLoad();
+  __uid2SSProviderScriptLoad();

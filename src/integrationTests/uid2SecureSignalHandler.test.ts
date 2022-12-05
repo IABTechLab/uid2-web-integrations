@@ -31,7 +31,6 @@ import {
 } from "../uid2SecureSignal";
 import { UID2, __uid2InternalHandleScriptLoad } from "../uid2Sdk";
 
-let uid2: UID2;
 let sendSignalMock: jest.Mock;
 const identity = mocks.makeIdentityV2({});
 
