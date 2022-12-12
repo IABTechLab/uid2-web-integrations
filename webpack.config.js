@@ -20,7 +20,7 @@ module.exports = (env, argv) => {
     mode: buildMode,
     devtool: prodSourceMaps ? 'source-map' : false,
     entry: !env.espOnly ? { 
-      main: { import: entrypoint, filename: 'bundle.js' },
+      main: { import: entrypoint, filename: `uid2-sdk-${process.env.npm_package_version}.js` },
       ...getExampleOutputs(env)
     } : espOutput,
     module: {

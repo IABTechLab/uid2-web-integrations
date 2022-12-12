@@ -1,0 +1,53 @@
+name: UID2 Secure Signal Integ CD
+
+on:
+  push:
+    branches:
+      - google-esp-integration
+  workflow_dispatch:
+
+env:
+  WORKING_DIR: ./
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
+      - name: Install dependencies
+        run: npm install
+      - name: Get version number
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+      - name: Build
+        run: npm run build -- --mode=production
+      - uses: actions/upload-artifact@v2
+        with:
+          name: uid2SDK-${{ steps.package-version.outputs.current-version}}
+          path: ./dist/uid2-sdk-${{ steps.package-version.outputs.current-version}}.js
+
+  deployment:
+    needs: [build]
+    uses: ./.github/workflows/aws-cdn-deployment.yml
+    with:
+      environment: production
+      artifact: uid2SDK-${{ steps.package-version.outputs.current-version}}
+      invalidate_paths: "/uid2-sdk-${{ steps.package-version.outputs.current-version}}.js"
+    secrets: 
+      AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
+        
