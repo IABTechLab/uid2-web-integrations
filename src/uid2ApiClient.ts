@@ -62,10 +62,10 @@ export class Uid2ApiClient {
       }
     | undefined;
 
-  constructor(uid2Sdk: UID2, opts: Uid2ApiClientOptions) {
+  constructor(opts: Uid2ApiClientOptions, uid2Sdk?: UID2) {
     this._baseUrl = opts.baseUrl ?? "https://prod.uidapi.com";
     this._clientVersion = "uid2-sdk-" + UID2.VERSION;
-    uid2Sdk.callbacks.push(this._handleEvent.bind(this));
+    if (uid2Sdk) uid2Sdk.callbacks.push(this._handleEvent.bind(this));
   }
 
   public getFreshAdvertisingToken() {

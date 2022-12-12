@@ -139,7 +139,7 @@ export class UID2 {
         
         this._opts = opts;
         this._cookieManager = new UID2CookieManager({ ...opts });
-        this._apiClient = new Uid2ApiClient(this, opts);
+        this._apiClient = new Uid2ApiClient(opts, this);
 
         const identity = this._opts.identity ? this._opts.identity : this._cookieManager.loadIdentityFromCookie();
         const validatedIdentity = this.validateAndSetIdentity(identity);
