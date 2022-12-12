@@ -27,8 +27,8 @@ export class Uid2SecureSignalProvider {
     if (typeof window.getUid2AdvertisingToken === "function") {
       return window.getUid2AdvertisingToken!;
     }
-    if (window.__uid2 && "getAdvertisingTokenAsync" in window.__uid2!) {
-      return window.__uid2!.getAdvertisingTokenAsync!.bind(window.__uid2);
+    if (window.__uid2 && "getFreshAdvertisingToken" in window.__uid2!) {
+      return window.__uid2!.getFreshAdvertisingToken!.bind(window.__uid2);
     }
   };
 }
@@ -48,7 +48,9 @@ export function __uid2SSProviderScriptLoad () {
   };
   window.__uid2.callbacks?.push((eventType) => {
     //@ts-ignore
-    if (eventType === 'SdkLoaded') window.__uid2.setupGoogleSecureSignals();
+    if (eventType === 'SdkLoaded') {
+      window.__uid2SecureSignalProvider!.registerSecureSignalProvider();
+    }
   })
 }
 

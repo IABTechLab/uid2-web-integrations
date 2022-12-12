@@ -52,6 +52,7 @@ beforeEach(() => {
   secureSignalProvidersResolveMock = jest.fn();
   secureSignalProvidersPushMock = jest.fn(
     async (p: EncryptedSignalProvider) => {
+      await p.collectorFunction()
       secureSignalProvidersResolveMock(await p.collectorFunction());
     }
   );
@@ -135,21 +136,30 @@ describe("when use script with SDK", () => {
   });
 
   describe("When script loaded before SDK loaded", () => {
+    beforeEach(() => {
+      new mocks.CryptoMock(window);
+      mocks.setCookieMock(window.document);
+      xhrMock = new mocks.XhrMock(window);
+      jest.clearAllMocks();
+      mocks.resetFakeTime();
+      jest.runOnlyPendingTimers();
+    });
+
+    afterEach(() => {
+      mocks.resetFakeTime();
+    });
+
     test("should send signal to Google ESP when SDK initialized", async () => {
       __uid2SSProviderScriptLoad();
       __uid2InternalHandleScriptLoad();
       (window.__uid2 as UID2).init({ identity });
-
-      expect(
-        //@ts-ignore
-        await window.__uid2SecureSignalProvider.retrieveAdvertisingTokenHandler()!()
-      ).toBe(identity.advertising_token);
       expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
       await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
         expect.objectContaining({
           id: "uidapi.com",
         })
       );
+      await mocks.flushPromises();
       expect(secureSignalProvidersResolveMock).toHaveBeenCalledWith(
         identity.advertising_token
       );
@@ -176,7 +186,7 @@ describe("when use script with SDK", () => {
     test("should send signal to Google ESP once loaded", async () => {
       uid2.init({ identity });
       window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
-      uid2.setupGoogleSecureSignals();
+      UID2.setupGoogleSecureSignals();
       expect(
         //@ts-ignore
         await window.__uid2SecureSignalProvider.retrieveAdvertisingTokenHandler()!()
@@ -207,15 +217,13 @@ describe("when use script with SDK", () => {
       });
       uid2.init({ identity: outdatedIdentity });
       window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
-      uid2.setupGoogleSecureSignals();
-      await expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(0);
+      UID2.setupGoogleSecureSignals();
       jest.setSystemTime(refreshFrom);
       jest.runOnlyPendingTimers();
       expect(xhrMock.send).toHaveBeenCalledTimes(1);
       xhrMock.sendRefreshApiResponse(refreshedIdentity);
+      await expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
       await mocks.flushPromises();
-
-      expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
       expect(secureSignalProvidersResolveMock).toHaveBeenCalledWith(
         refreshedIdentity.advertising_token
       );
@@ -226,8 +234,6 @@ describe("when use script with SDK", () => {
     test("should send identity to Google ESP", async () => {
       __uid2InternalHandleScriptLoad();
       __uid2SSProviderScriptLoad();
-
-      await mocks.flushPromises();
       (window.__uid2 as UID2).init({ identity });
 
       expect(
@@ -240,6 +246,7 @@ describe("when use script with SDK", () => {
           id: "uidapi.com",
         })
       );
+      await mocks.flushPromises();
       expect(secureSignalProvidersResolveMock).toHaveBeenCalledWith(
         identity.advertising_token
       );

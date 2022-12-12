@@ -1,5 +1,5 @@
 import { UID2 } from "./uid2Sdk";
-import { EventType, Uid2CallbackPayload } from "./uid2CallbackManager";
+import { EventType } from "./uid2CallbackManager";
 
 export type PromiseOutcome<T> = {
     resolve: (value: T | PromiseLike<T>) => void;
@@ -10,7 +10,7 @@ export type PromiseOutcome<T> = {
 export class UID2PromiseHandler {
     private _promises: PromiseOutcome<string>[] = [];
     private _seenInitOrRejectAll = false;
-    private _handleEvent(eventType: EventType, payload: Uid2CallbackPayload) {
+    private _handleEvent(eventType: EventType) {
         if (eventType === EventType.InitCompleted) {
             this._seenInitOrRejectAll = true;
             this._promises.forEach(p => {
