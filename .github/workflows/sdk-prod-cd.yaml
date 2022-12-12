@@ -1,4 +1,4 @@
-name: UID2 SDK Integ CD
+name: UID2 SDK Prod CD
 
 on:
   push:
