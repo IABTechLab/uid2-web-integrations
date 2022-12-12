@@ -1,3 +1,4 @@
+
 import { afterEach,beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import * as mocks from '../mocks';
@@ -7,6 +8,7 @@ let callback: any;
 let uid2: UID2;
 let xhrMock: any;
 let _cryptoMock;
+let freshTokenPromise: Promise<string | undefined>;
 
 mocks.setupFakeTime();
 
@@ -26,8 +28,12 @@ const getUid2Cookie = mocks.getUid2Cookie;
 const makeIdentity = mocks.makeIdentityV2;
 
 describe('when auto refreshing a non-expired identity which does not require a refresh', () => {
+  const originalIdentity = makeIdentity({
+    advertising_token: 'original_advertising_token',
+  });
   beforeEach(() => {
-    uid2.init({ callback: callback, identity: makeIdentity() });
+    uid2.init({ callback: callback, identity: originalIdentity });
+    freshTokenPromise = uid2.getFreshAdvertisingToken();
     jest.clearAllMocks();
     jest.runOnlyPendingTimers();
   });
@@ -46,6 +52,10 @@ describe('when auto refreshing a non-expired identity which does not require a r
   test('should be in available state', () => {
     (expect(uid2) as any).toBeInAvailableState();
   });
+
+  test('getFreshAdvertisingToken should return current adverstising token', async() => {
+    expect(await freshTokenPromise).toEqual(originalIdentity.advertising_token)
+  })
 });
 
 describe('when auto refreshing a non-expired identity which requires a refresh', () => {
@@ -81,6 +91,7 @@ describe('when auto refreshing a non-expired identity which requires a refresh',
 
   describe('when token refresh succeeds', () => {
     beforeEach(() => {
+      freshTokenPromise = uid2.getFreshAdvertisingToken();
       xhrMock.responseText = btoa(JSON.stringify({ status: 'success', body: updatedIdentity }));
       xhrMock.onreadystatechange(new Event(''));
     });
@@ -102,14 +113,27 @@ describe('when auto refreshing a non-expired identity which requires a refresh',
     test('should be in available state', () => {
       (expect(uid2) as any).toBeInAvailableState(updatedIdentity.advertising_token);
     });
+
+    test('freshTokenPromise should return new advertising token', async() => {
+      expect(await freshTokenPromise).toEqual(updatedIdentity.advertising_token);
+    });
   });
 
   describe('when token refresh returns optout', () => {
-    beforeEach(() => {
-      xhrMock.responseText = btoa(JSON.stringify({ status: 'optout' }));
-      xhrMock.onreadystatechange(new Event(''));
+    let expection: any;
+    beforeEach(async () => {
+      try {
+        freshTokenPromise = uid2.getFreshAdvertisingToken();
+        xhrMock.responseText = btoa(JSON.stringify({ status: 'optout' }));
+        xhrMock.onreadystatechange(new Event(''));
+        await freshTokenPromise;
+      } catch (err) {
+        expection = err;
+      }
     });
-
+    test('freshTokenPromise should reject', () => {
+      expect(expection).toEqual(new Error( 'No identity available.'));
+    });
     test('should invoke the callback', () => {
       expect(callback).toHaveBeenNthCalledWith(1, expect.objectContaining({
         advertisingToken: undefined,
@@ -130,11 +154,20 @@ describe('when auto refreshing a non-expired identity which requires a refresh',
   });
 
   describe('when token refresh returns refresh token expired', () => {
-    beforeEach(() => {
-      xhrMock.responseText = btoa(JSON.stringify({ status: 'expired_token' }));
-      xhrMock.onreadystatechange(new Event(''));
+    let expection: any;
+    beforeEach(async () => {
+      try {
+        freshTokenPromise = uid2.getFreshAdvertisingToken();
+        xhrMock.responseText = btoa(JSON.stringify({ status: 'expired_token' }));
+        xhrMock.onreadystatechange(new Event(''));
+        await freshTokenPromise;
+      } catch (err) {
+        expection = err;
+      }
     });
-
+    test('freshTokenPromise should reject', () => {
+      expect(expection).toEqual(new Error( 'No identity available.'));
+    });
     test('should invoke the callback', () => {
       expect(callback).toHaveBeenNthCalledWith(1, expect.objectContaining({
         advertisingToken: undefined,
@@ -152,12 +185,30 @@ describe('when auto refreshing a non-expired identity which requires a refresh',
     test('should be in unavailable state', () => {
       (expect(uid2) as any).toBeInUnavailableState();
     });
+    test('freshTokenPromise should reject', async() => {
+      expect.assertions(1);
+      try {
+        await freshTokenPromise;
+      } catch (err) {
+        expect(err).toEqual(new Error( 'No identity available.'));
+      }
+    });
   });
 
   describe('when token refresh returns an error status', () => {
-    beforeEach(() => {
-      xhrMock.responseText = JSON.stringify({ status: 'error', body: updatedIdentity });
-      xhrMock.onreadystatechange(new Event(''));
+    let expection: any;
+    beforeEach(async () => {
+      try {
+        freshTokenPromise = uid2.getFreshAdvertisingToken();
+        xhrMock.responseText = JSON.stringify({ status: 'error', body: updatedIdentity });
+        xhrMock.onreadystatechange(new Event(''));
+        await freshTokenPromise;
+      } catch (err) {
+        expection = err;
+      }
+    });
+    test('freshTokenPromise should return current advertising token', async() => {
+      expect(await freshTokenPromise).toEqual(originalIdentity.advertising_token);
     });
 
     test('should not update cookie', () => {
@@ -173,10 +224,21 @@ describe('when auto refreshing a non-expired identity which requires a refresh',
   });
 
   describe('when token refresh fails and current identity expires', () => {
-    beforeEach(() => {
-      jest.setSystemTime(originalIdentity.refresh_expires * 1000 + 1);
-      xhrMock.responseText = JSON.stringify({ status: 'error' });
-      xhrMock.onreadystatechange(new Event(''));
+    let expection: any;
+    beforeEach(async () => {
+      try {
+        freshTokenPromise = uid2.getFreshAdvertisingToken();
+        jest.setSystemTime(originalIdentity.refresh_expires * 1000 + 1);
+        xhrMock.responseText = JSON.stringify({ status: 'error' });
+        xhrMock.onreadystatechange(new Event(''));
+        await freshTokenPromise;
+      } catch (err) {
+        expection = err;
+      }
+    });
+
+    test('freshTokenPromise should reject', () => {
+      expect(expection).toEqual(new Error( 'No identity available.'));
     });
 
     test('should invoke the callback', () => {
@@ -233,6 +295,7 @@ describe('when auto refreshing an expired identity', () => {
 
   describe('when token refresh succeeds', () => {
     beforeEach(() => {
+      freshTokenPromise = uid2.getFreshAdvertisingToken();
       xhrMock.responseText = btoa(JSON.stringify({ status: 'success', body: updatedIdentity }));
       xhrMock.onreadystatechange(new Event(''));
     });
@@ -254,14 +317,26 @@ describe('when auto refreshing an expired identity', () => {
     test('should be in available state', () => {
       (expect(uid2) as any).toBeInAvailableState(updatedIdentity.advertising_token);
     });
+    test('freshTokenPromise should return new advertising token', async() => {
+      expect(await freshTokenPromise).toEqual(updatedIdentity.advertising_token);
+    });
   });
 
   describe('when token refresh returns optout', () => {
-    beforeEach(() => {
-      xhrMock.responseText = btoa(JSON.stringify({ status: 'optout' }));
-      xhrMock.onreadystatechange(new Event(''));
+    let expection: any;
+    beforeEach(async () => {
+      try {
+        freshTokenPromise = uid2.getFreshAdvertisingToken();
+        xhrMock.responseText = btoa(JSON.stringify({ status: 'optout' }));
+        xhrMock.onreadystatechange(new Event(''));
+        await freshTokenPromise;
+      } catch (err) {
+        expection = err;
+      }
     });
-
+    test('freshTokenPromise should reject', () => {
+      expect(expection).toEqual(new Error( 'No identity available.'));
+    });
     test('should invoke the callback', () => {
       expect(callback).toHaveBeenNthCalledWith(1, expect.objectContaining({
         advertisingToken: undefined,
@@ -282,11 +357,20 @@ describe('when auto refreshing an expired identity', () => {
   });
 
   describe('when token refresh returns refresh token expired', () => {
-    beforeEach(() => {
-      xhrMock.responseText = btoa(JSON.stringify({ status: 'expired_token' }));
-      xhrMock.onreadystatechange(new Event(''));
+    let expection: any;
+    beforeEach(async () => {
+      try {
+        freshTokenPromise = uid2.getFreshAdvertisingToken();
+        xhrMock.responseText = btoa(JSON.stringify({ status: 'expired_token' }));
+        xhrMock.onreadystatechange(new Event(''));
+        await freshTokenPromise;
+      } catch (err) {
+        expection = err;
+      }
     });
-
+    test('freshTokenPromise should reject', () => {
+      expect(expection).toEqual(new Error( 'No identity available.'));
+    });
     test('should invoke the callback', () => {
       expect(callback).toHaveBeenNthCalledWith(1, expect.objectContaining({
         advertisingToken: undefined,
@@ -307,11 +391,20 @@ describe('when auto refreshing an expired identity', () => {
   });
 
   describe('when token refresh returns an error status', () => {
-    beforeEach(() => {
-      xhrMock.responseText = JSON.stringify({ status: 'error', body: updatedIdentity });
-      xhrMock.onreadystatechange(new Event(''));
+    let expection: any;
+    beforeEach(async () => {
+      try {
+        freshTokenPromise = uid2.getFreshAdvertisingToken();
+        xhrMock.responseText = JSON.stringify({ status: 'error', body: updatedIdentity });
+        xhrMock.onreadystatechange(new Event(''));
+        await freshTokenPromise;
+      } catch (err) {
+        expection = err;
+      }
     });
-
+    test('freshTokenPromise should reject', () => {
+      expect(expection).toEqual(new Error( 'No identity available.'));
+    });
     test('should not update cookie', () => {
       expect(getUid2Cookie().advertising_token).toBe(originalIdentity.advertising_token);
     });
@@ -325,10 +418,21 @@ describe('when auto refreshing an expired identity', () => {
   });
 
   describe('when token refresh fails and current identity expires', () => {
-    beforeEach(() => {
-      jest.setSystemTime(originalIdentity.refresh_expires * 1000 + 1);
-      xhrMock.responseText = JSON.stringify({ status: 'error' });
-      xhrMock.onreadystatechange(new Event(''));
+    let expection: any;
+    beforeEach(async () => {
+      try {
+        freshTokenPromise = uid2.getFreshAdvertisingToken();
+        jest.setSystemTime(originalIdentity.refresh_expires * 1000 + 1);
+        xhrMock.responseText = JSON.stringify({ status: 'error' });
+        xhrMock.onreadystatechange(new Event(''));
+        await freshTokenPromise;
+      } catch (err) {
+        expection = err;
+      }
+    });
+
+    test('freshTokenPromise should reject', () => {
+      expect(expection).toEqual(new Error( 'No identity available.'));
     });
 
     test('should invoke the callback', () => {
@@ -350,3 +454,4 @@ describe('when auto refreshing an expired identity', () => {
     });
   });
 });
+

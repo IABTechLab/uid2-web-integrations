@@ -1,5 +1,7 @@
 import { UID2 } from "./uid2Sdk";
 import { isValidIdentity, Uid2Identity } from "./Uid2Identity";
+import { PromiseOutcome } from "./uid2PromiseHandler";
+import { EventType, Uid2CallbackPayload } from "./uid2CallbackManager";
 
 export type RefreshResultWithoutIdentity = { status: ResponseStatusWithoutBody };
 export type SuccessRefreshResult = {
@@ -36,9 +38,31 @@ export class Uid2ApiClient {
     private _baseUrl: string;
     private _clientVersion: string;
     private _requestsInFlight: XMLHttpRequest[] = [];
-    constructor(opts: Uid2ApiClientOptions) {
+    public _refreshingPromise: PromiseOutcome<string> | undefined;
+    
+    constructor(uid2Sdk: UID2, opts: Uid2ApiClientOptions) {
         this._baseUrl = opts.baseUrl ?? "https://prod.uidapi.com";
         this._clientVersion = 'uid2-sdk-' + UID2.VERSION;
+        uid2Sdk.callbacks.push(this._handleEvent.bind(this));
+    }
+
+    public getFreshAdvertisingToken() {
+        return new Promise<string>((resolve, reject) => {
+            this._refreshingPromise = { resolve: resolve, reject: reject };
+        });
+    }
+
+    private _handleEvent(eventType: EventType, payload: Uid2CallbackPayload) {
+        if (!this._refreshingPromise) return;
+        if (eventType === EventType.IdentityUpdated) {
+            if (!this._requestsInFlight.length) {
+                if ('identity' in payload && payload.identity) {
+                    this._refreshingPromise.resolve(payload.identity.advertising_token);
+                } else {
+                    this._refreshingPromise.reject(new Error(`No identity available.`));
+                }
+            }
+        }
     }
 
     private createArrayBuffer(text: string) {
@@ -65,6 +89,7 @@ export class Uid2ApiClient {
             req.abort();
         });
         this._requestsInFlight = [];
+        // this.refreshingPromise.reject("Requests abort");
     }
 
     public callRefreshApi(refreshDetails: Uid2Identity): Promise<RefreshResult> {

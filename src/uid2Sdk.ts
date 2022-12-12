@@ -89,9 +89,29 @@ export class UID2 {
     // If the SDK has been initialized, returns a resolved promise with the current token (or rejected if not available)
     // Otherwise, returns a promise which will be resolved after init.
     public getAdvertisingTokenAsync() {
-        const token = this.getAdvertisingToken();
-        return this._tokenPromiseHandler.createMaybeDeferredPromise(token ?? null);
+        const tokenCallback = () => {
+            const token = this.getAdvertisingToken();
+            if (token) return Promise.resolve(token);
+            else return Promise.reject(new Error('Identity not available'));
+        }
+        return this._tokenPromiseHandler.createMaybeDeferredPromise(tokenCallback);
     }
+
+    //If there is a refresh request in flight, return a promise and wait until refreshing to complete
+    // Otherwise, returns a resolved promise with the current token
+    public getFreshAdvertisingToken() {
+        const tokenCallback = () => {
+            if (this._apiClient?.hasActiveRequests()) {
+                return this._apiClient?.getFreshAdvertisingToken();
+            } else {
+                const token = this.getAdvertisingToken();
+                if (token) return Promise.resolve(token);
+                else return Promise.reject(new Error('Identity not available'));
+            }
+        }
+        return this._tokenPromiseHandler.createMaybeDeferredPromise(tokenCallback);
+    }
+
     public isLoginRequired() {
         if (!this._initComplete) return undefined;
         return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
@@ -129,7 +149,7 @@ export class UID2 {
         
         this._opts = opts;
         this._cookieManager = new UID2CookieManager({ ...opts });
-        this._apiClient = new Uid2ApiClient(opts);
+        this._apiClient = new Uid2ApiClient(this, opts);
 
         const identity = this._opts.identity ? this._opts.identity : this._cookieManager.loadIdentityFromCookie();
         const validatedIdentity = this.validateAndSetIdentity(identity);
