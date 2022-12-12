@@ -1,4 +1,4 @@
-name: UID2 Secure Signal Integ CD
+name: UID2 SDK Integ CD
 
 on:
   push:
@@ -37,14 +37,16 @@ jobs:
         with:
           name: uid2SDK-${{ steps.package-version.outputs.current-version}}
           path: ./dist/uid2-sdk-${{ steps.package-version.outputs.current-version}}.js
+    outputs:
+      sdkVersion: ${{ steps.package-version.outputs.current-version}}
 
   deployment:
     needs: [build]
     uses: ./.github/workflows/aws-cdn-deployment.yml
     with:
       environment: production
-      artifact: uid2SDK-${{ steps.package-version.outputs.current-version}}
-      invalidate_paths: "/uid2-sdk-${{ steps.package-version.outputs.current-version}}.js"
+      artifact: uid2SDK-${{ needs.build.outputs.sdkVersion}}
+      invalidate_paths: "/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js"
     secrets: 
       AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
