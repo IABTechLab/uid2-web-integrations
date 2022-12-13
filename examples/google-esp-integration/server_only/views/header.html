@@ -23,7 +23,9 @@
       return "";
     }
 
-    const getUid2AdvertisingToken = () => {
+    const getUid2AdvertisingToken = async () => {
+      await fetch('/getFreshToken')
+        .then(res => res.json())
       const uid2Token = getCookie('identity')
       if (uid2Token === "") return
       return JSON.parse(decodeURIComponent(uid2Token)).advertising_token

@@ -104,6 +104,14 @@ app.get('/content1', protected, (req, res) => {
 app.get('/content2', protected, (req, res) => {
   res.render('content', { identity: req.session.identity, content: 'Second Sample Content' });
 });
+app.get('/getFreshToken', protected, async (req, res) => {
+  if (Date.now() >= req.session.identity.refresh_from || Date.now() >= req.session.identity.identity_expires) {
+    req.session.identity = await refreshIdentity(req.session.identity);
+    res.cookie('identity', JSON.stringify(req.session.identity));
+  }
+  res.json(req.session.identity)
+});
+
 app.get('/login', async (req, res) => {
   if (await verifyIdentity(req)) {
     res.redirect('/');
