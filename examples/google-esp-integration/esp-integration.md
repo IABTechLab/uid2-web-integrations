@@ -1,6 +1,6 @@
-# UID2 ESP Integration 
+# UID2 Secure Signal Integration 
 
-Google ESP is a way for publishers to pass "encrypted" user IDs to google-approved bidders via Google AdManager (GAM) and Adx network. The framework is an optional part of Google PlayTag (GPT) library commonly used by publishers.
+Google Secure Signal is a way for publishers to pass "encrypted" user IDs to google-approved bidders via Google AdManager (GAM) and Adx network. The framework is an optional part of Google PlayTag (GPT) library commonly used by publishers.
 
 The framework allows publishers push user id signals, have them cached on the client side and transparently passed over to GAM which would then forward them over to approved bidders within Adx based on publisher's preferences.
 
@@ -10,32 +10,21 @@ For your GAM account to be eligible for receiving encrypted UIDs, you must make 
 
 ## Publisher Integrations
 
-Once a encrypted signal is cached, ESP does not execute the hanlder to generate new singal, thus it is necessary to clear the cache before login and after logout. Since ESP does not provide a way to delete/invalidate a specific id, publishers to need to call `window.googletag.encryptedSignalProviders.clearAllCache()` to clear all shared encrypted signals as part of their login/logout workflows.
+Once a encrypted signal is cached, Secure Signal does not execute the hanlder to generate new singal, thus it is necessary to clear the cache before login and after logout. Since Secure Signal does not provide a way to delete/invalidate a specific id, publishers to need to call `window.googletag.encryptedSignalProviders.clearAllCache()` to clear all shared encrypted signals as part of their login/logout workflows.
 
 ### Server-Only Integration
 
-In order to share encrypted signals, the hosted auto-loaded ESP script should be able to make a call to `window.getAdvertisingToken` which will return `advertising_token` as a string. 
+In order to share encrypted signals, the hosted auto-loaded Secure Signal script should be able to make a call to async function `window.getUid2AdvertisingToken` and receive `advertising_token` as a string. 
 
 For example:
 ```
-    window.getAdvertisingToken = () => {
-      const uid2Token = getCookie('identity')
-      if (uid2Token === "") return
-      return JSON.parse(decodeURIComponent(uid2Token)).advertising_token
+    window.getUid2AdvertisingToken = async () => {
+      // Make a call to get a fresh identity which could last for at least 12 hrs
+      const identity = await getFreshIdentity
+      return JSON.parse(decodeURIComponent(identity)).advertising_token
     }
 ```
 
-Make sure `window.getAdvertisingToken` only returns a valid token or null, as this will be cached by GPT for 24 hours.
-
-Publishers could as make call to `window.__uid2Esp.sendSignal` to force a push of encrypted signal as part of their login workflow.
-
 ### UID2 SDK Integration
 
-For publishers that utilize the Client-Side Identity JavaScript SDK(UID2 SDK), it only requires enable ESP during the initialization, the SDK will resigster a callback to push UID to GPT when identity is updated
-
-For example:
-```
- __uid2.init({
-   enableESP : true
- });
-```
+For publishers that utilize the Client-Side Identity JavaScript SDK(UID2 SDK) version 3.0.0 onwards, the hosted auto-loaded UID2 Secure Signal script will get the fresh advertising token by using the `getFreshAdvertisingToken` function provided in SDK, and push the token to GAM
