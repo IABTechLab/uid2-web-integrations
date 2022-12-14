@@ -14,17 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get changed files in the src folder
-          id: changed-files-specific
-          uses: tj-actions/changed-files@v34
-          with:
-            files: |
-              src/uid2SecureSignal.ts
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v34
+        with:
+          files: |
+            src/uid2SecureSignal.ts
     outputs:
       isScriptUpdated: ${{ steps.changed-files-specific.outputs.all_changed_files }}
   build:
     needs: [verify]
-    runs-on: ubuntu-latest
     if: needs.verify.outputs.isScriptUpdated == 'true'
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [18.x]
@@ -36,7 +36,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
       - name: Install dependencies
         run: npm install
@@ -53,9 +53,8 @@ jobs:
       environment: Integ
       artifact: integSecureSignalScript
       invalidate_paths: "/uid2SecureSignal.js"
-    secrets: 
+    secrets:
       AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
-        
