@@ -10,8 +10,21 @@ env:
   WORKING_DIR: ./
 
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
+    steps:
+      - name: Get changed files in the src folder
+          id: changed-files-specific
+          uses: tj-actions/changed-files@v34
+          with:
+            files: |
+              src/uid2SecureSignal.ts
+    outputs:
+      isScriptUpdated: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+  build:
+    needs: [verify]
+    runs-on: ubuntu-latest
+    if: needs.verify.outputs.isScriptUpdated == 'true'
     strategy:
       matrix:
         node-version: [18.x]
@@ -19,7 +32,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
@@ -34,7 +46,6 @@ jobs:
         with:
           name: integSecureSignalScript
           path: ./dist/uid2SecureSignal.js
-
   deployment:
     needs: [build]
     uses: ./.github/workflows/aws-cdn-deployment.yml
