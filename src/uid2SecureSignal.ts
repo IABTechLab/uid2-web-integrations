@@ -1,3 +1,4 @@
+const MAXIMUM_RETRY = 3;
 export class Uid2SecureSignalProvider {
   constructor() {
     if (typeof window.getUid2AdvertisingToken === "function") {
@@ -19,7 +20,9 @@ export class Uid2SecureSignalProvider {
       window.googletag.secureSignalProviders || [];
     window.googletag.secureSignalProviders.push({
       id: "uidapi.com",
-      collectorFunction: uid2Handler,
+      collectorFunction: async () => {
+        return getUid2AdvertisingTokenWithRetry(uid2Handler);
+      },
     });
   };
 
@@ -27,8 +30,8 @@ export class Uid2SecureSignalProvider {
     if (typeof window.getUid2AdvertisingToken === "function") {
       return window.getUid2AdvertisingToken!;
     }
-    if (window.__uid2 && "getFreshAdvertisingToken" in window.__uid2!) {
-      return window.__uid2!.getFreshAdvertisingToken!.bind(window.__uid2);
+    if (window.__uid2 && "getAdvertisingTokenAsync" in window.__uid2!) {
+      return window.__uid2!.getAdvertisingTokenAsync!.bind(window.__uid2);
     }
   };
 }
@@ -40,7 +43,7 @@ declare global {
   }
 }
 
-export function __uid2SSProviderScriptLoad () {
+export function __uid2SSProviderScriptLoad() {
   window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
   // For UID2 SDK integration
   window.__uid2 = window.__uid2 || {
@@ -48,10 +51,36 @@ export function __uid2SSProviderScriptLoad () {
   };
   window.__uid2.callbacks?.push((eventType) => {
     //@ts-ignore
-    if (eventType === 'SdkLoaded') {
+    if (eventType === "SdkLoaded") {
       window.__uid2SecureSignalProvider!.registerSecureSignalProvider();
     }
-  })
+  });
 }
 
-  __uid2SSProviderScriptLoad();
+__uid2SSProviderScriptLoad();
+
+export function getUid2AdvertisingTokenWithRetry(
+  uid2Handler: Function,
+  retries: number = MAXIMUM_RETRY
+): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    let attempts = 0;
+
+    function attempt() {
+      attempts++;
+      uid2Handler()
+        .then(resolve)
+        .catch((error: any) => {
+          if (attempts >= retries) {
+            reject(error);
+          } else {
+            attempt();
+          }
+        });
+    }
+
+    while (attempts < retries) {
+      attempt();
+    }
+  });
+}

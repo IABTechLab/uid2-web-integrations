@@ -32,6 +32,7 @@ import {
 import * as mocks from "../mocks";
 import { EncryptedSignalProvider, MockedGoogleTag } from "../mockedGoogleTag";
 import {
+  getUid2AdvertisingTokenWithRetry,
   Uid2SecureSignalProvider,
   __uid2SSProviderScriptLoad,
 } from "../uid2SecureSignal";
@@ -42,19 +43,14 @@ let getAdvertisingTokenMock: jest.Mock<() => Promise<string>>;
 let secureSignalProvidersPushMock: jest.Mock<
   (p: EncryptedSignalProvider) => Promise<void>
 >;
-let secureSignalProvidersResolveMock: jest.Mock<(token: string) => void>;
 let uid2ESP: Uid2SecureSignalProvider;
 let xhrMock: any;
 mocks.setupFakeTime();
 
 beforeEach(() => {
   getAdvertisingTokenMock = jest.fn<() => Promise<string>>();
-  secureSignalProvidersResolveMock = jest.fn();
   secureSignalProvidersPushMock = jest.fn(
-    async (p: EncryptedSignalProvider) => {
-      await p.collectorFunction()
-      secureSignalProvidersResolveMock(await p.collectorFunction());
-    }
+    async (p: EncryptedSignalProvider) => await p.collectorFunction()
   );
   window.googletag = new MockedGoogleTag();
   window.googletag.secureSignalProviders.push = secureSignalProvidersPushMock;
@@ -89,7 +85,7 @@ describe("when use script without SDK integrated", () => {
           id: "uidapi.com",
         })
       );
-      expect(secureSignalProvidersResolveMock).toHaveBeenCalledWith(
+      expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
         "testToken"
       );
     });
@@ -160,7 +156,7 @@ describe("when use script with SDK", () => {
         })
       );
       await mocks.flushPromises();
-      expect(secureSignalProvidersResolveMock).toHaveBeenCalledWith(
+      expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
         identity.advertising_token
       );
     });
@@ -197,7 +193,8 @@ describe("when use script with SDK", () => {
           id: "uidapi.com",
         })
       );
-      expect(secureSignalProvidersResolveMock).toHaveBeenCalledWith(
+      await mocks.flushPromises();
+      expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
         identity.advertising_token
       );
     });
@@ -223,8 +220,10 @@ describe("when use script with SDK", () => {
       expect(xhrMock.send).toHaveBeenCalledTimes(1);
       xhrMock.sendRefreshApiResponse(refreshedIdentity);
       await expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
+
       await mocks.flushPromises();
-      expect(secureSignalProvidersResolveMock).toHaveBeenCalledWith(
+      await mocks.flushPromises();
+      expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
         refreshedIdentity.advertising_token
       );
     });
@@ -247,9 +246,29 @@ describe("when use script with SDK", () => {
         })
       );
       await mocks.flushPromises();
-      expect(secureSignalProvidersResolveMock).toHaveBeenCalledWith(
+      expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
         identity.advertising_token
       );
     });
+  });
+});
+
+describe("getUid2AdvertisingTokenWithRetry", () => {
+  test("should resolve with the result of the promise if it is successful", async () => {
+    const mockPromise = jest.fn(() => Promise.resolve("hello"));
+    const result = await getUid2AdvertisingTokenWithRetry(mockPromise);
+
+    expect(result).toEqual("hello");
+  });
+
+  test("should reject with the error if the promise is not successful after all retries", async () => {
+    const mockPromise = jest.fn(() => Promise.reject(new Error("Oops!")));
+
+    try {
+      await getUid2AdvertisingTokenWithRetry(mockPromise, 5);
+    } catch (error) {
+      expect(error).toEqual(new Error("Oops!"));
+    }
+    expect(mockPromise).toHaveBeenCalledTimes(5);
   });
 });
