@@ -17,6 +17,8 @@ jobs:
         src/uid2*.ts
         src/Uid2*.ts
   build:
+    needs: [verify]
+    if: needs.verify.outputs.isAnyFileModified == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -30,7 +32,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
       - name: Install dependencies
         run: npm install
@@ -53,9 +55,8 @@ jobs:
       environment: production
       artifact: uid2SDK-${{ needs.build.outputs.sdkVersion}}
       invalidate_paths: "/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js"
-    secrets: 
+    secrets:
       AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
-        
