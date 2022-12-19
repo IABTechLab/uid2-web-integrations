@@ -19,6 +19,7 @@ jobs:
         run: |
           for file in ${{ steps.changed-files.outputs.modified_files }}; do
             echo "$file was modified"
+            echo "${{ steps.changed-files.outputs.any_modified }}"
           done
     outputs:
-      isAnyFileModified: ${{ steps.changed-files-specific.outputs.any_modified }}
+      isAnyFileModified: ${{ steps.changed-files.outputs.any_modified }}

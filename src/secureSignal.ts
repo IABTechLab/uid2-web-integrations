@@ -45,7 +45,6 @@ declare global {
 
 export function __uid2SSProviderScriptLoad() {
   window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
-  // For UID2 SDK integration
   window.__uid2 = window.__uid2 || {
     callbacks: [],
   };
