@@ -10,6 +10,12 @@ env:
   WORKING_DIR: ./
 
 jobs:
+  verify:
+    uses: ./.github/workflows/verify-file-changed.yml
+    with:
+      files: |
+        src/uid2*.ts
+        src/Uid2*.ts
   build:
     runs-on: ubuntu-latest
     strategy:

@@ -13,7 +13,7 @@ jobs:
   verify:
     uses: ./.github/workflows/verify-file-changed.yml
     with:
-      files: src/uid2SecureSignal.ts
+      files: src/secureSignal.ts
   build:
     needs: [verify]
     if: needs.verify.outputs.isScriptUpdated == 'true'

@@ -35,7 +35,7 @@ import {
   getUid2AdvertisingTokenWithRetry,
   Uid2SecureSignalProvider,
   __uid2SSProviderScriptLoad,
-} from "../uid2SecureSignal";
+} from "../secureSignal";
 import { UID2, __uid2InternalHandleScriptLoad } from "../uid2Sdk";
 
 let consoleWarnMock: any;
