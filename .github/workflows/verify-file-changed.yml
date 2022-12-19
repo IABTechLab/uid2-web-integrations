@@ -1,0 +1,19 @@
+on:
+  workflow_call:
+    inputs:
+      files:
+        type: string
+        description: file path to check
+        default: src/**
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get changed files in the src folder
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v35
+        with:
+          files: ${{ inputs.files }}
+    outputs:
+      isScriptUpdated: ${{ steps.changed-files-specific.outputs.any_modified }}
