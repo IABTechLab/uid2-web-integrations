@@ -5,6 +5,11 @@ on:
         type: string
         description: file path to check
         default: src/**
+    outputs:
+      isAnyFileModified:
+        description: if any file in the path is modified
+        value: ${{ jobs.verify.outputs.isAnyFileModified }}
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -15,11 +20,10 @@ jobs:
         uses: tj-actions/changed-files@v35
         with:
           files: ${{ inputs.files }}
-      - name: List all added files
+      - name: List all modified files
         run: |
           for file in ${{ steps.changed-files.outputs.modified_files }}; do
             echo "$file was modified"
-            echo "${{ steps.changed-files.outputs.any_modified }}"
           done
     outputs:
       isAnyFileModified: ${{ steps.changed-files.outputs.any_modified }}
