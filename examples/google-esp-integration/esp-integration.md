@@ -27,4 +27,4 @@ For example:
 
 ### UID2 SDK Integration
 
-For publishers that utilize the Client-Side Identity JavaScript SDK(UID2 SDK) version 3.0.0 onwards, the hosted auto-loaded UID2 Secure Signal script will get the fresh advertising token by using the `getFreshAdvertisingToken` function provided in SDK, and push the token to GAM
+For publishers that utilize the Client-Side Identity JavaScript SDK(UID2 SDK) version 3.0.0 onwards, the hosted auto-loaded UID2 Secure Signal script will get the fresh advertising token by using the `getAdvertisingTokenAsync` function provided in SDK, and push the token to GAM
