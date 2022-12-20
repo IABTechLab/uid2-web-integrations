@@ -17,8 +17,8 @@ jobs:
   #       src/uid2*.ts
   #       src/Uid2*.ts
   build:
-    needs: [verify]
-    if: needs.verify.outputs.isAnyFileModified == 'true'
+    # needs: [verify]
+    # if: needs.verify.outputs.isAnyFileModified == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
