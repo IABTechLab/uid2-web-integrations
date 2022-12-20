@@ -96,16 +96,8 @@ export class UID2 {
   // from the most recent refresh request, if there is a request, wait for the
   // new token. Otherwise, returns a promise which will be resolved after init.
   public getAdvertisingTokenAsync() {
-    const tokenCallback = () => {
-      if (this._apiClient?.hasActiveRequests()) {
-        return this._apiClient?.getFreshAdvertisingToken();
-      } else {
-        const token = this.getAdvertisingToken();
-        if (token) return Promise.resolve(token);
-        else return Promise.reject(new Error("Identity not available"));
-      }
-    };
-    return this._tokenPromiseHandler.createMaybeDeferredPromise(tokenCallback);
+    const token = this.getAdvertisingToken();
+    return this._tokenPromiseHandler.createMaybeDeferredPromise(token ?? null);
   }
 
   public isLoginRequired() {
@@ -146,8 +138,8 @@ export class UID2 {
 
     this._opts = opts;
     this._cookieManager = new UID2CookieManager({ ...opts });
-    this._apiClient = new Uid2ApiClient(opts, this);
-
+    this._apiClient = new Uid2ApiClient(opts);
+    this._tokenPromiseHandler.registerApiClient(this._apiClient);
     const identity = this._opts.identity
       ? this._opts.identity
       : this._cookieManager.loadIdentityFromCookie();

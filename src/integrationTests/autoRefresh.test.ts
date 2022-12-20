@@ -151,7 +151,7 @@ describe("when auto refreshing a non-expired identity which requires a refresh",
       }
     });
     test("getAdvertisingTokenPromise should reject", () => {
-      expect(expection).toEqual(new Error("No identity available."));
+      expect(expection).toEqual(new Error("UID2 SDK aborted."));
     });
     test("should invoke the callback", () => {
       expect(callback).toHaveBeenNthCalledWith(
@@ -190,7 +190,7 @@ describe("when auto refreshing a non-expired identity which requires a refresh",
       }
     });
     test("getAdvertisingTokenPromise should reject", () => {
-      expect(expection).toEqual(new Error("No identity available."));
+      expect(expection).toEqual(new Error("UID2 SDK aborted."));
     });
     test("should invoke the callback", () => {
       expect(callback).toHaveBeenNthCalledWith(
@@ -266,7 +266,7 @@ describe("when auto refreshing a non-expired identity which requires a refresh",
     });
 
     test("getAdvertisingTokenPromise should reject", () => {
-      expect(expection).toEqual(new Error("No identity available."));
+      expect(expection).toEqual(new Error("UID2 SDK aborted."));
     });
 
     test("should invoke the callback", () => {
@@ -377,7 +377,7 @@ describe("when auto refreshing an expired identity", () => {
       }
     });
     test("getAdvertisingTokenPromise should reject", () => {
-      expect(expection).toEqual(new Error("No identity available."));
+      expect(expection).toEqual(new Error("UID2 SDK aborted."));
     });
     test("should invoke the callback", () => {
       expect(callback).toHaveBeenNthCalledWith(
@@ -416,7 +416,7 @@ describe("when auto refreshing an expired identity", () => {
       }
     });
     test("getAdvertisingTokenPromise should reject", () => {
-      expect(expection).toEqual(new Error("No identity available."));
+      expect(expection).toEqual(new Error("UID2 SDK aborted."));
     });
     test("should invoke the callback", () => {
       expect(callback).toHaveBeenNthCalledWith(
@@ -489,7 +489,7 @@ describe("when auto refreshing an expired identity", () => {
     });
 
     test("getAdvertisingTokenPromise should reject", () => {
-      expect(expection).toEqual(new Error("No identity available."));
+      expect(expection).toEqual(new Error("UID2 SDK aborted."));
     });
 
     test("should invoke the callback", () => {
