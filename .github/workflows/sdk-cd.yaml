@@ -10,15 +10,15 @@ env:
   WORKING_DIR: ./
 
 jobs:
-  # verify:
-  #   uses: ./.github/workflows/verify-file-changed.yml
-  #   with:
-  #     files: |
-  #       src/uid2*.ts
-  #       src/Uid2*.ts
+  verify:
+    uses: ./.github/workflows/verify-file-changed.yml
+    with:
+      files: |
+        src/uid2*.ts
+        src/Uid2*.ts
   build:
-    # needs: [verify]
-    # if: needs.verify.outputs.isAnyFileModified == 'true'
+    needs: [verify]
+    if: needs.verify.outputs.isAnyFileModified == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:

@@ -10,13 +10,13 @@ env:
   WORKING_DIR: ./
 
 jobs:
-  # verify:
-  #   uses: ./.github/workflows/verify-file-changed.yml
-  #   with:
-  #     files: src/secureSignal.ts
+  verify:
+    uses: ./.github/workflows/verify-file-changed.yml
+    with:
+      files: src/secureSignal.ts
   build:
-    # needs: [verify]
-    # if: needs.verify.outputs.isAnyFileModified == 'true'
+    needs: [verify]
+    if: needs.verify.outputs.isAnyFileModified == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
