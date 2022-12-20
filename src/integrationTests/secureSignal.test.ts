@@ -52,10 +52,6 @@ describe("when use script without SDK integrated", () => {
       window.getUid2AdvertisingToken = getAdvertisingTokenMock;
       getAdvertisingTokenMock.mockReturnValue(Promise.resolve("testToken"));
       uid2ESP = new Uid2SecureSignalProvider();
-      //@ts-ignore
-      expect(await uid2ESP.retrieveAdvertisingTokenHandler()!()).toBe(
-        "testToken"
-      );
       expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
       await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -160,10 +156,6 @@ describe("when use script with SDK", () => {
       uid2.init({ identity });
       window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
       UID2.setupGoogleSecureSignals();
-      expect(
-        //@ts-ignore
-        await window.__uid2SecureSignalProvider.retrieveAdvertisingTokenHandler()!()
-      ).toBe(identity.advertising_token);
       expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
       await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -212,10 +204,6 @@ describe("when use script with SDK", () => {
       __uid2SSProviderScriptLoad();
       (window.__uid2 as UID2).init({ identity });
 
-      expect(
-        //@ts-ignore
-        await window.__uid2SecureSignalProvider.retrieveAdvertisingTokenHandler()!()
-      ).toBe(identity.advertising_token);
       expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
       await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
         expect.objectContaining({
