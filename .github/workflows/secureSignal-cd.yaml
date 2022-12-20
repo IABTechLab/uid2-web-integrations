@@ -10,18 +10,19 @@ env:
   WORKING_DIR: ./
 
 jobs:
-  verify:
-    uses: ./.github/workflows/verify-file-changed.yml
-    with:
-      files: src/secureSignal.ts
+  # verify:
+  #   uses: ./.github/workflows/verify-file-changed.yml
+  #   with:
+  #     files: src/secureSignal.ts
   build:
-    needs: [verify]
-    if: needs.verify.outputs.isAnyFileModified == 'true'
+    # needs: [verify]
+    # if: needs.verify.outputs.isAnyFileModified == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        target: [development, production]
 
     steps:
       - uses: actions/checkout@v3
@@ -34,17 +35,20 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build
-        run: npm run build:esp -- --mode=development
+        run: npm run build:esp -- --mode=${{ matrix.target }}
       - uses: actions/upload-artifact@v2
         with:
-          name: integSecureSignalScript
+          name: ${{ matrix.target }}SecureSignalScript
           path: ./dist/uid2SecureSignal.js
   deployment:
     needs: [build]
+    strategy:
+      matrix:
+        environment: [Integ, production]
     uses: ./.github/workflows/aws-cdn-deployment.yml
     with:
-      environment: Integ
-      artifact: integSecureSignalScript
+      environment: ${{ matrix.environment }}
+      artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
       invalidate_paths: "/uid2SecureSignal.js"
     secrets:
       AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}

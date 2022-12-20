@@ -55,7 +55,7 @@ jobs:
     uses: ./.github/workflows/aws-cdn-deployment.yml
     with:
       environment: ${{ matrix.environment }}
-      artifact: uid2SDK-${{ (matrix.environment == 'development' && 'Integ') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
+      artifact: uid2SDK-${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
       invalidate_paths: "/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js"
     secrets:
       AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
