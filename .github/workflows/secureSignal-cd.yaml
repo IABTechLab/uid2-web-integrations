@@ -1,4 +1,4 @@
-name: UID2 Secure Signal Integ CD
+name: UID2 Secure Signal CD
 
 on:
   push:

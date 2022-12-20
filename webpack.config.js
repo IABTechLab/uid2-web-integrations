@@ -2,7 +2,7 @@ const entrypoint = "./src/uid2Sdk.ts";
 const espEntryPoint = "./src/secureSignal.ts";
 
 const espOutput = {
-  espScript: { import: espEntryPoint, filename: "secureSignal.js" },
+  espScript: { import: espEntryPoint, filename: "uid2SecureSignal.js" },
 };
 
 // n.b. if you add more outputs, the path is relative to the dist folder.
