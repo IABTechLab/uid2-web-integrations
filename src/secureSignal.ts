@@ -63,12 +63,12 @@ export function getUid2AdvertisingTokenWithRetry(
   uid2Handler: Function,
   retries: number = MAXIMUM_RETRY
 ): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<string>(async (resolve, reject) => {
     let attempts = 0;
 
-    function attempt() {
+    async function attempt() {
       attempts++;
-      uid2Handler()
+      return uid2Handler()
         .then(resolve)
         .catch((error: any) => {
           if (attempts >= retries) {
@@ -80,7 +80,7 @@ export function getUid2AdvertisingTokenWithRetry(
     }
 
     while (attempts < retries) {
-      attempt();
+      await attempt();
     }
   });
 }

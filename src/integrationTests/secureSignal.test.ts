@@ -224,6 +224,7 @@ describe("getUid2AdvertisingTokenWithRetry", () => {
     const result = await getUid2AdvertisingTokenWithRetry(mockPromise);
 
     expect(result).toEqual("hello");
+    expect(mockPromise).toHaveBeenCalledTimes(1);
   });
 
   test("should reject with the error if the promise is not successful after all retries", async () => {

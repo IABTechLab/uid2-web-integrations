@@ -53,7 +53,7 @@ describe("when auto refreshing a non-expired identity which does not require a r
   });
   test("should set refresh timer", () => {
     expect(setTimeout).toHaveBeenCalledTimes(1);
-    expect(clearTimeout).not.toHaveBeenCalled();
+    expect(clearTimeout).toHaveBeenCalledTimes(1);
   });
   test("should be in available state", () => {
     (expect(uid2) as any).toBeInAvailableState();
@@ -123,7 +123,7 @@ describe("when auto refreshing a non-expired identity which requires a refresh",
     });
     test("should set refresh timer", () => {
       expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).not.toHaveBeenCalled();
+      expect(clearTimeout).toHaveBeenCalledTimes(1);
     });
     test("should be in available state", () => {
       (expect(uid2) as any).toBeInAvailableState(
@@ -242,7 +242,7 @@ describe("when auto refreshing a non-expired identity which requires a refresh",
     });
     test("should set refresh timer", () => {
       expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).not.toHaveBeenCalled();
+      expect(clearTimeout).toHaveBeenCalledTimes(1);
     });
     test("should be in available state", () => {
       (expect(uid2) as any).toBeInAvailableState(
@@ -350,7 +350,7 @@ describe("when auto refreshing an expired identity", () => {
     });
     test("should set refresh timer", () => {
       expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).not.toHaveBeenCalled();
+      expect(clearTimeout).toHaveBeenCalledTimes(1);
     });
     test("should be in available state", () => {
       (expect(uid2) as any).toBeInAvailableState(
@@ -465,7 +465,7 @@ describe("when auto refreshing an expired identity", () => {
     });
     test("should set refresh timer", () => {
       expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).not.toHaveBeenCalled();
+      expect(clearTimeout).toHaveBeenCalledTimes(1);
     });
     test("should be in temporarily unavailable state", () => {
       (expect(uid2) as any).toBeInTemporarilyUnavailableState(

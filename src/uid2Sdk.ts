@@ -24,7 +24,7 @@ export class UID2 {
     return "__uid_2";
   }
   static get DEFAULT_REFRESH_RETRY_PERIOD_MS() {
-    return 2000;
+    return 5000;
   }
   static IdentityStatus = IdentityStatus;
   static EventType = EventType;
@@ -272,6 +272,9 @@ export class UID2 {
   private setRefreshTimer() {
     const timeout =
       this._opts?.refreshRetryPeriod ?? UID2.DEFAULT_REFRESH_RETRY_PERIOD_MS;
+    if (this._refreshTimerId) {
+      clearTimeout(this._refreshTimerId);
+    }
     this._refreshTimerId = setTimeout(() => {
       if (this.isLoginRequired()) return;
       const validatedIdentity = this.validateAndSetIdentity(
