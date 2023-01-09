@@ -123,7 +123,7 @@ describe("when auto refreshing a non-expired identity which requires a refresh",
     });
     test("should set refresh timer", () => {
       expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
     });
     test("should be in available state", () => {
       (expect(uid2) as any).toBeInAvailableState(
@@ -168,7 +168,7 @@ describe("when auto refreshing a non-expired identity which requires a refresh",
     });
     test("should not set refresh timer", () => {
       expect(setTimeout).not.toHaveBeenCalled();
-      expect(clearTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
     });
     test("should be in unavailable state", () => {
       (expect(uid2) as any).toBeInUnavailableState();
@@ -207,7 +207,7 @@ describe("when auto refreshing a non-expired identity which requires a refresh",
     });
     test("should not set refresh timer", () => {
       expect(setTimeout).not.toHaveBeenCalled();
-      expect(clearTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
     });
     test("should be in unavailable state", () => {
       (expect(uid2) as any).toBeInUnavailableState();
@@ -242,7 +242,7 @@ describe("when auto refreshing a non-expired identity which requires a refresh",
     });
     test("should set refresh timer", () => {
       expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
     });
     test("should be in available state", () => {
       (expect(uid2) as any).toBeInAvailableState(
@@ -284,7 +284,7 @@ describe("when auto refreshing a non-expired identity which requires a refresh",
     });
     test("should not set refresh timer", () => {
       expect(setTimeout).not.toHaveBeenCalled();
-      expect(clearTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
     });
     test("should be in unavailable state", () => {
       (expect(uid2) as any).toBeInUnavailableState();
@@ -350,7 +350,7 @@ describe("when auto refreshing an expired identity", () => {
     });
     test("should set refresh timer", () => {
       expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
     });
     test("should be in available state", () => {
       (expect(uid2) as any).toBeInAvailableState(
@@ -394,7 +394,7 @@ describe("when auto refreshing an expired identity", () => {
     });
     test("should not set refresh timer", () => {
       expect(setTimeout).not.toHaveBeenCalled();
-      expect(clearTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
     });
     test("should be in unavailable state", () => {
       (expect(uid2) as any).toBeInUnavailableState();
@@ -433,7 +433,7 @@ describe("when auto refreshing an expired identity", () => {
     });
     test("should not set refresh timer", () => {
       expect(setTimeout).not.toHaveBeenCalled();
-      expect(clearTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
     });
     test("should be in unavailable state", () => {
       (expect(uid2) as any).toBeInUnavailableState();
@@ -465,7 +465,7 @@ describe("when auto refreshing an expired identity", () => {
     });
     test("should set refresh timer", () => {
       expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
     });
     test("should be in temporarily unavailable state", () => {
       (expect(uid2) as any).toBeInTemporarilyUnavailableState(
@@ -507,7 +507,7 @@ describe("when auto refreshing an expired identity", () => {
     });
     test("should not set refresh timer", () => {
       expect(setTimeout).not.toHaveBeenCalled();
-      expect(clearTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
     });
     test("should be in unavailable state", () => {
       (expect(uid2) as any).toBeInUnavailableState();

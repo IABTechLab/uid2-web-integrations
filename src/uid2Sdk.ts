@@ -281,6 +281,7 @@ export class UID2 {
         this._cookieManager?.loadIdentityFromCookie() ?? null
       );
       if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
+      this._refreshTimerId = null;
     }, timeout);
   }
 
