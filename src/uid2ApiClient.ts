@@ -53,7 +53,6 @@ export class Uid2ApiClient {
   private _baseUrl: string;
   private _clientVersion: string;
   private _requestsInFlight: XMLHttpRequest[] = [];
-
   constructor(opts: Uid2ApiClientOptions) {
     this._baseUrl = opts.baseUrl ?? "https://prod.uidapi.com";
     this._clientVersion = "uid2-sdk-" + UID2.VERSION;
@@ -86,7 +85,6 @@ export class Uid2ApiClient {
       req.abort();
     });
     this._requestsInFlight = [];
-    // this.refreshingPromise.reject("Requests abort");
   }
 
   public callRefreshApi(refreshDetails: Uid2Identity): Promise<RefreshResult> {
