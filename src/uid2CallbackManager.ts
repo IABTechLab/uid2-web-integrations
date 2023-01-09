@@ -7,7 +7,6 @@ export enum EventType {
   SdkLoaded = "SdkLoaded",
 }
 
-
 export type Uid2CallbackPayload = SdkLoadedPayload | PayloadWithIdentity;
 
 export type Uid2CallbackHandler = (
@@ -45,15 +44,23 @@ export class Uid2CallbackManager {
 
   public runCallbacks(event: EventType, payload: Uid2CallbackPayload) {
     if (event === EventType.InitCompleted) this._sentInit = true;
-    if (event === EventType.SdkLoaded) Uid2CallbackManager._sentSdkLoaded = true;
+    if (event === EventType.SdkLoaded)
+      Uid2CallbackManager._sentSdkLoaded = true;
     if (!this._sentInit && event !== EventType.SdkLoaded) return;
 
-    const enrichedPayload = { ...payload, identity: this._getIdentity() ?? null };
+    const enrichedPayload = {
+      ...payload,
+      identity: this._getIdentity() ?? null,
+    };
     for (const callback of this._uid2.callbacks) {
       this.safeRunCallback(callback, event, enrichedPayload);
     }
   }
-  private safeRunCallback(callback: Uid2CallbackHandler, event: EventType, payload: Uid2CallbackPayload) {
+  private safeRunCallback(
+    callback: Uid2CallbackHandler,
+    event: EventType,
+    payload: Uid2CallbackPayload
+  ) {
     if (typeof callback === "function") {
       try {
         callback(event, payload);
