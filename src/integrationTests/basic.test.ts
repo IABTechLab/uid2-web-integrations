@@ -88,9 +88,9 @@ describe("when initialising with invalid options", () => {
     expect(() => uid2.init({ callback: 12345 })).toThrow(TypeError);
   });
   test("should fail on refreshRetryPeriod not being a number", () => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     expect(() =>
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       uid2.init({ callback: () => {}, refreshRetryPeriod: "abc" })
     ).toThrow(TypeError);
   });
