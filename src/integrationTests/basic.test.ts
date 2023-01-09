@@ -39,19 +39,31 @@ describe("When google tag setup is called", () => {
     sdkWindow.googletag = null;
     expect(() => UID2.setupGoogleTag()).not.toThrow(TypeError);
   });
-  test("should not fail when there is no googletag encryptedSignalProviders", () => {
+  test("should not fail when there is no googletag secureSignalProviders and no uid2SecureSignalProvider", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    sdkWindow.googletag = { encryptedSignalProviders: null };
+    sdkWindow.googletag = { secureSignalProviders: null };
     expect(() => UID2.setupGoogleTag()).not.toThrow(TypeError);
   });
-  test("should push if googletag has encryptedSignalProviders", () => {
+
+  test("should not fail when there is no uid2SecureSignalProvider", () => {
     const mockPush = jest.fn();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    sdkWindow.googletag = { encryptedSignalProviders: { push: mockPush } };
+    sdkWindow.googletag = { secureSignalProviders: { push: mockPush } };
+    expect(() => UID2.setupGoogleTag()).not.toThrow(TypeError);
+    expect(mockPush.mock.calls.length).toBe(0);
+  });
+
+  test("should push if googletag has secureSignalProviders", () => {
+    const mockRegister = jest.fn();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    sdkWindow.__uid2SecureSignalProvider = {
+      registerSecureSignalProvider: mockRegister,
+    };
     UID2.setupGoogleTag();
-    expect(mockPush.mock.calls.length).toBe(1);
+    expect(mockRegister.mock.calls.length).toBe(1);
   });
 });
 
