@@ -1,10 +1,10 @@
 expect.extend({
   toBeNonEmptyString(received) {
-    expect(typeof received).toBe('string');
-    expect(received).not.toEqual('');
+    expect(typeof received).toBe("string");
+    expect(received).not.toEqual("");
     return {
       pass: true,
-      message: () => 'Expected non-empty string',
+      message: () => "Expected non-empty string",
     };
   },
 });
@@ -16,14 +16,15 @@ expect.extend({
 
     return {
       pass: true,
-      message: () => 'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns undefined',
+      message: () =>
+        "Expected getAdvertisingToken() returns undefined and isLoginRequired() returns undefined",
     };
   },
 
   toBeInAvailableState(uid2, expectedAdvertisingToken) {
     if (expectedAdvertisingToken) {
       expect(uid2.getAdvertisingToken()).toBe(expectedAdvertisingToken);
-    } else if (uid2.getAdvertisingToken() !== '') {
+    } else if (uid2.getAdvertisingToken() !== "") {
       expect(uid2.getAdvertisingToken()).toBeNonEmptyString();
     }
 
@@ -31,7 +32,8 @@ expect.extend({
 
     return {
       pass: true,
-      message: () => 'Expected getAdvertisingToken() returns a token and isLoginRequired() returns false',
+      message: () =>
+        "Expected getAdvertisingToken() returns a token and isLoginRequired() returns false",
     };
   },
 
@@ -41,7 +43,8 @@ expect.extend({
 
     return {
       pass: true,
-      message: () => 'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns false',
+      message: () =>
+        "Expected getAdvertisingToken() returns undefined and isLoginRequired() returns false",
     };
   },
 
@@ -51,11 +54,12 @@ expect.extend({
 
     return {
       pass: true,
-      message: () => 'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns true',
+      message: () =>
+        "Expected getAdvertisingToken() returns undefined and isLoginRequired() returns true",
     };
   },
 });
-const { TextEncoder, TextDecoder } = require('util');
+const { TextEncoder, TextDecoder } = require("util");
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
