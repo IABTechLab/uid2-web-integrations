@@ -38,22 +38,22 @@ describe("when auto refreshing a non-expired identity which does not require a r
     advertising_token: "original_advertising_token",
   });
   beforeEach(() => {
-    uid2.init({ callback: callback, identity: originalIdentity });
     getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
     jest.clearAllMocks();
     jest.runOnlyPendingTimers();
+    uid2.init({ callback: callback, identity: originalIdentity });
   });
 
-  test("should not invoke the callback", () => {
+  test("should invoke the callback", () => {
     expect(sdkWindow.crypto).toBeDefined();
-    expect(callback).not.toHaveBeenCalled();
+    expect(callback).toHaveBeenCalledTimes(1);
   });
   test("should not initiate token refresh", () => {
     expect(xhrMock.send).not.toHaveBeenCalled();
   });
   test("should set refresh timer", () => {
     expect(setTimeout).toHaveBeenCalledTimes(1);
-    expect(clearTimeout).toHaveBeenCalledTimes(1);
+    expect(clearTimeout).not.toBeCalled();
   });
   test("should be in available state", () => {
     (expect(uid2) as any).toBeInAvailableState();
