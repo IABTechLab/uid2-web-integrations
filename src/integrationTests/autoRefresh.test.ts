@@ -304,15 +304,6 @@ describe("when auto refreshing a non-expired identity which requires a refresh",
       expect(xhrMock.abort).toHaveBeenCalledTimes(1);
     });
 
-    test("should reject the getAdvertisingTokenPromise", async () => {
-      try {
-        await getAdvertisingTokenPromise;
-      } catch (e) {
-        console.log("eee", e);
-        expect(e).toBe("Identity is set by setIdentity");
-      }
-    });
-
     test("should invoke the callback", () => {
       expect(callback).toHaveBeenNthCalledWith(
         1,
@@ -339,7 +330,7 @@ describe("when auto refreshing a non-expired identity which requires a refresh",
     });
 
     test("getAdvertisingTokenAsync should return manual set token", async () => {
-      expect(await uid2.getAdvertisingTokenAsync()).toEqual(
+      expect(await getAdvertisingTokenPromise).toEqual(
         manualSetIdentity.advertising_token
       );
     });
@@ -568,38 +559,3 @@ describe("when auto refreshing an expired identity", () => {
     });
   });
 });
-
-// describe("when a new identity is set during auto refreshing a non-expired identity", () => {
-//   const refreshFrom = Date.now() + 100;
-//   const originalIdentity = makeIdentity({
-//     advertising_token: "original_advertising_token",
-//     refresh_from: refreshFrom,
-//   });
-//   const updatedIdentity = makeIdentity({
-//     advertising_token: "updated_advertising_token",
-//   });
-//   const manualSetIdentity = makeIdentity({
-//     advertising_token: "manual_set_advertising_token",
-//   });
-
-//   beforeEach(() => {
-//     uid2.init({ callback: callback, identity: originalIdentity });
-//     jest.clearAllMocks();
-//     jest.setSystemTime(refreshFrom);
-//     jest.runOnlyPendingTimers();
-//   });
-
-//   test("should not invoke the callback", () => {
-//     expect(callback).not.toHaveBeenCalled();
-//   });
-//   test("should initiate token refresh", () => {
-//     expect(xhrMock.send).toHaveBeenCalledTimes(1);
-//   });
-//   test("should not set refresh timer", () => {
-//     expect(setTimeout).not.toHaveBeenCalled();
-//     expect(clearTimeout).not.toHaveBeenCalled();
-//   });
-//   test("should be in available state", () => {
-//     (expect(uid2) as any).toBeInAvailableState();
-//   });
-// });
