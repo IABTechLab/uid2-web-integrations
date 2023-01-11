@@ -81,6 +81,7 @@ export class UID2 {
     return this.getIdentity()?.advertising_token ?? undefined;
   }
   public setIdentity(identity: Uid2Identity) {
+    this.abort(`Identity is set by setIdentity`);
     const validatedIdentity = this.validateAndSetIdentity(identity);
     if (validatedIdentity) {
       this.triggerRefreshOrSetTimer(validatedIdentity);
