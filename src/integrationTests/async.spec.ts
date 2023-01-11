@@ -56,8 +56,26 @@ describe("when getAdvertisingTokenAsync is called before init", () => {
     });
   });
 
+  describe("when initalising with a non-expired identity which requires a refresh", () => {
+    test("it should resolve updated advertising", () => {
+      const originalIdentity = makeIdentity({
+        refresh_from: Date.now() - 100000,
+      });
+      const updatedIdentity = makeIdentity({
+        advertising_token: "updated_advertising_token",
+      });
+      const p = uid2.getAdvertisingTokenAsync();
+      uid2.init({ identity: originalIdentity });
+      xhrMock.responseText = btoa(
+        JSON.stringify({ status: "success", body: updatedIdentity })
+      );
+      xhrMock.onreadystatechange(new Event(""));
+      return expect(p).resolves.toBe(updatedIdentity.advertising_token);
+    });
+  });
+
   describe("when auto refresh fails, but identity still valid", () => {
-    test("it should reject promise after invoking the callback", () => {
+    test("it should resolve original advertising token", () => {
       const originalIdentity = makeIdentity({
         refresh_from: Date.now() - 100000,
       });
@@ -95,7 +113,7 @@ describe("when getAdvertisingTokenAsync is called before init", () => {
       const p1 = uid2.getAdvertisingTokenAsync();
       const p2 = uid2.getAdvertisingTokenAsync();
       const p3 = uid2.getAdvertisingTokenAsync();
-      uid2.init({ callback: callback, identity: identity });
+      uid2.init({ identity: identity });
       return expect(Promise.all([p1, p2, p3])).resolves.toStrictEqual(
         Array(3).fill(identity.advertising_token)
       );
@@ -107,7 +125,7 @@ describe("when getAdvertisingTokenAsync is called after init completed", () => {
   describe("when initialised with a valid identity", () => {
     const identity = makeIdentity();
     test("it should resolve promise", () => {
-      uid2.init({ callback: callback, identity: identity });
+      uid2.init({ identity: identity });
       return expect(uid2.getAdvertisingTokenAsync()).resolves.toBe(
         identity.advertising_token
       );
@@ -116,7 +134,7 @@ describe("when getAdvertisingTokenAsync is called after init completed", () => {
 
   describe("when initialisation failed", () => {
     test("it should reject promise", () => {
-      uid2.init({ callback: callback });
+      uid2.init({});
       return expect(uid2.getAdvertisingTokenAsync()).rejects.toBeInstanceOf(
         Error
       );
@@ -129,7 +147,7 @@ describe("when getAdvertisingTokenAsync is called after init completed", () => {
         refresh_from: Date.now() - 100000,
         identity_expires: Date.now() - 1,
       });
-      uid2.init({ callback: callback, identity: originalIdentity });
+      uid2.init({ identity: originalIdentity });
       xhrMock.responseText = JSON.stringify({ status: "error" });
       xhrMock.onreadystatechange(new Event(""));
       return expect(uid2.getAdvertisingTokenAsync()).rejects.toBeInstanceOf(
@@ -140,7 +158,7 @@ describe("when getAdvertisingTokenAsync is called after init completed", () => {
 
   describe("when disconnect() has been called", () => {
     test("it should reject promise", () => {
-      uid2.init({ callback: callback, identity: makeIdentity() });
+      uid2.init({ identity: makeIdentity() });
       uid2.disconnect();
       return expect(uid2.getAdvertisingTokenAsync()).rejects.toBeInstanceOf(
         Error
@@ -154,7 +172,7 @@ describe("when getAdvertisingTokenAsync is called before refresh on init complet
     refresh_from: Date.now() - 100000,
   });
   beforeEach(() => {
-    uid2.init({ callback: callback, identity: originalIdentity });
+    uid2.init({ identity: originalIdentity });
   });
 
   describe("when promise obtained after disconnect", () => {

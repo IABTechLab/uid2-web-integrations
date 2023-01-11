@@ -131,5 +131,16 @@ describe("when a callback is provided", () => {
         identity: null,
       });
     });
+
+    test("it should receive identity updates when set identity is called", () => {
+      uid2.init({ callback: callback });
+      uid2.callbacks.push(asyncCallback);
+      const callsBeforeSetIdentity= asyncCallback.mock.calls.length;
+      uid2.setIdentity(identity)
+
+      expect(asyncCallback.mock.calls.length).toBe(callsBeforeSetIdentity+1);
+      expect(asyncCallback.mock.calls[callsBeforeSetIdentity][0]).toBe(UID2.EventType.IdentityUpdated);
+      expect(asyncCallback.mock.calls[callsBeforeSetIdentity][1]).toMatchObject({ identity: identity });
+    });
   });
 });
