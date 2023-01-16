@@ -4,17 +4,20 @@
     <meta charset="UTF-8" />
     <title>UID2 Publisher Standard Integration Example</title>
     <link rel="stylesheet" type="text/css" href="/stylesheets/app.css" />
+    <link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
     <link rel="shortcut icon" href="/images/favicon.png" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script async src="/js/mockedGoogleTag.js"></script>
-    <script src="/js/bundle.js"></script>
+    <!-- <script async src="/js/mockedGoogleTag.js"></script> -->
+    <!-- <script src="/js/bundle.js"></script> -->
 
     <script>
       $(document).ready(() => {
         let callbackCounter = 0;
 
         function updateGuiElements(payload) {
-          $("#targeted_advertising_ready").html(__uid2.getAdvertisingToken() ? "yes" : "no");
+          $("#targeted_advertising_ready").html(
+            __uid2.getAdvertisingToken() ? "yes" : "no"
+          );
           $("#advertising_token").html(String(__uid2.getAdvertisingToken()));
           $("#login_required").html(__uid2.isLoginRequired() ? "yes" : "no");
           $("#update_counter").html(callbackCounter);
@@ -30,7 +33,10 @@
         }
 
         function onUid2IdentityUpdated(eventType, payload) {
-          if (payload?.identity && (eventType === 'InitCompleted' || eventType === 'IdentityUpdated')) {
+          if (
+            payload?.identity &&
+            (eventType === "InitCompleted" || eventType === "IdentityUpdated")
+          ) {
             ++callbackCounter;
           }
           updateGuiElements(payload);
@@ -41,32 +47,79 @@
           window.googletag.secureSignalProviders.clearAllCache();
           updateGuiElements(undefined);
         });
+        $("#login").click(() => {
+          window.googletag.secureSignalProviders.clearAllCache();
+          updateGuiElements(undefined);
+        });
         window.__uid2 = window.__uid2 || { callbacks: [] };
         window.__uid2.callbacks.push((eventType, payload) => {
-          if (eventType === 'SdkLoaded') {
-            __uid2.init({ baseUrl: "<%- uid2BaseUrl %>", enableSecureSignals: true });
+          if (eventType === "SdkLoaded") {
+            __uid2.init({
+              baseUrl: "<%- uid2BaseUrl %>",
+              enableSecureSignals: true,
+            });
           }
         });
         window.__uid2.callbacks.push(onUid2IdentityUpdated);
-
       });
     </script>
   </head>
   <body>
+    <div id="mainContainer">
+      <div id="content">
+        <video id="contentElement">
+          <source src="https://storage.googleapis.com/gvabox/media/samples/stock.mp4"></source>
+        </video>
+      </div>
+      <div id="adContainer"></div>
+    </div>
+      <button id="playButton">Play</button>
+      <script type="text/javascript" src="//imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+      <script async src="https://cdn.integ.uidapi.com/uid2SecureSignal.js"></script>
+      <script async src="https://cdn.integ.uidapi.com/uid2-sdk-3.0.1.js"></script>
+      <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+      <script type="text/javascript" src="ads.js"></script>
     <%- include('intro.html'); -%>
     <table id="uid2_state">
-      <tr><td class="label">Ready for Targeted Advertising:</td><td class="value"><pre id="targeted_advertising_ready"></pre></td></tr>
-      <tr><td class="label">UID2 Advertising Token:</td><td class="value"><pre id="advertising_token"></pre></td></tr>
-      <tr><td class="label">Is UID2 Login Required?</td><td class="value"><pre id="login_required"></pre></td></tr>
-      <tr><td class="label">UID2 Identity Updated Counter:</td><td class="value"><pre id="update_counter"></pre></td></tr>
-      <tr><td class="label">UID2 Identity Callback State:</td><td class="value"><pre id="identity_state"></pre></td></tr>
+      <tr>
+        <td class="label">Ready for Targeted Advertising:</td>
+        <td class="value"><pre id="targeted_advertising_ready"></pre></td>
+      </tr>
+      <tr>
+        <td class="label">UID2 Advertising Token:</td>
+        <td class="value"><pre id="advertising_token"></pre></td>
+      </tr>
+      <tr>
+        <td class="label">Is UID2 Login Required?</td>
+        <td class="value"><pre id="login_required"></pre></td>
+      </tr>
+      <tr>
+        <td class="label">UID2 Identity Updated Counter:</td>
+        <td class="value"><pre id="update_counter"></pre></td>
+      </tr>
+      <tr>
+        <td class="label">UID2 Identity Callback State:</td>
+        <td class="value"><pre id="identity_state"></pre></td>
+      </tr>
     </table>
-    <div id="login_form" style="display:none" class="form"><form action="/login" method="POST">
-      <div class="email_prompt"><input type="text" id="email" name="email" placeholder="Enter an email address" style="border-style: none;"></div>
-      <div><input type="submit" value="Log In" class="button"></div>
-    </form></div>
-    <div id="logout_form" style="display:none" class="form"><form>
-      <button type="button" class="button" id="logout">Log Out</button>
-    </form></div>
+    <div id="login_form" style="display: none" class="form">
+      <form action="/login" method="POST">
+        <div class="email_prompt">
+          <input
+            type="text"
+            id="email"
+            name="email"
+            placeholder="Enter an email address"
+            style="border-style: none"
+          />
+        </div>
+        <div><input type="submit" value="Log In" class="button" id="login" /></div>
+      </form>
+    </div>
+    <div id="logout_form" style="display: none" class="form">
+      <form>
+        <button type="button" class="button" id="logout">Log Out</button>
+      </form>
+    </div>
   </body>
 </html>
