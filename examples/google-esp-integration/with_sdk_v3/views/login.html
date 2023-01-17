@@ -24,7 +24,6 @@
           });
         }
         if (eventType === 'InitCompleted') {
-          console.log('123')
           if (__uid2.isLoginRequired()) __uid2.setIdentity(<%- JSON.stringify(identity) %>)
         }
       });
