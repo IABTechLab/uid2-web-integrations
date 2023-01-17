@@ -81,6 +81,7 @@ export class UID2 {
     return this.getIdentity()?.advertising_token ?? undefined;
   }
   public setIdentity(identity: Uid2Identity) {
+    if (this._apiClient) this._apiClient.abortActiveRequests();
     const validatedIdentity = this.validateAndSetIdentity(identity);
     if (validatedIdentity) {
       this.triggerRefreshOrSetTimer(validatedIdentity);
@@ -281,6 +282,7 @@ export class UID2 {
         this._cookieManager?.loadIdentityFromCookie() ?? null
       );
       if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
+      this._refreshTimerId = null;
     }, timeout);
   }
 
