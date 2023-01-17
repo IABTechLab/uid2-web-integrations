@@ -7,7 +7,6 @@ import {
   test,
 } from "@jest/globals";
 import * as mocks from "../mocks";
-import { EncryptedSignalProvider, MockedGoogleTag } from "../mockedGoogleTag";
 import {
   getUid2AdvertisingTokenWithRetry,
   Uid2SecureSignalProvider,
@@ -17,9 +16,7 @@ import { UID2, __uid2InternalHandleScriptLoad } from "../uid2Sdk";
 
 let consoleWarnMock: any;
 let getAdvertisingTokenMock: jest.Mock<() => Promise<string>>;
-let secureSignalProvidersPushMock: jest.Mock<
-  (p: EncryptedSignalProvider) => Promise<void>
->;
+let secureSignalProvidersPushMock: jest.Mock<(p: any) => Promise<void>>;
 let uid2ESP: Uid2SecureSignalProvider;
 let xhrMock: any;
 mocks.setupFakeTime();
@@ -27,10 +24,13 @@ mocks.setupFakeTime();
 beforeEach(() => {
   getAdvertisingTokenMock = jest.fn<() => Promise<string>>();
   secureSignalProvidersPushMock = jest.fn(
-    async (p: EncryptedSignalProvider) => await p.collectorFunction()
+    async (p: any) => await p.collectorFunction()
   );
-  window.googletag = new MockedGoogleTag();
-  window.googletag.secureSignalProviders.push = secureSignalProvidersPushMock;
+  window.googletag = {
+    secureSignalProviders: {
+      push: secureSignalProvidersPushMock,
+    },
+  };
   consoleWarnMock = jest.spyOn(console, "warn").mockImplementation(() => {
     return;
   });
