@@ -1,4 +1,3 @@
-import { setupGoogleTag } from "./GoogleESPIntegration";
 import { Uid2ApiClient } from "./uid2ApiClient";
 import {
   EventType,
@@ -29,7 +28,15 @@ export class UID2 {
   }
   static IdentityStatus = IdentityStatus;
   static EventType = EventType;
-  static setupGoogleTag = setupGoogleTag;
+
+  static setupGoogleTag() {
+    UID2.setupGoogleSecureSignals();
+  }
+
+  static setupGoogleSecureSignals() {
+    if (window.__uid2SecureSignalProvider)
+      window.__uid2SecureSignalProvider.registerSecureSignalProvider();
+  }
 
   // Push functions to this array to receive event notifications
   public callbacks: Uid2CallbackHandler[] = [];
@@ -73,17 +80,27 @@ export class UID2 {
   public getAdvertisingToken() {
     return this.getIdentity()?.advertising_token ?? undefined;
   }
+  public setIdentity(identity: Uid2Identity) {
+    if (this._apiClient) this._apiClient.abortActiveRequests();
+    const validatedIdentity = this.validateAndSetIdentity(identity);
+    if (validatedIdentity) {
+      this.triggerRefreshOrSetTimer(validatedIdentity);
+      this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
+    }
+  }
   public getIdentity() {
     return this._identity && !this.temporarilyUnavailable()
       ? this._identity
       : null;
   }
-  // If the SDK has been initialized, returns a resolved promise with the current token (or rejected if not available)
-  // Otherwise, returns a promise which will be resolved after init.
+  // When the SDK has been initialized, this function should return the token
+  // from the most recent refresh request, if there is a request, wait for the
+  // new token. Otherwise, returns a promise which will be resolved after init.
   public getAdvertisingTokenAsync() {
     const token = this.getAdvertisingToken();
     return this._tokenPromiseHandler.createMaybeDeferredPromise(token ?? null);
   }
+
   public isLoginRequired() {
     if (!this._initComplete) return undefined;
     return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
@@ -123,7 +140,7 @@ export class UID2 {
     this._opts = opts;
     this._cookieManager = new UID2CookieManager({ ...opts });
     this._apiClient = new Uid2ApiClient(opts);
-
+    this._tokenPromiseHandler.registerApiClient(this._apiClient);
     const identity = this._opts.identity
       ? this._opts.identity
       : this._cookieManager.loadIdentityFromCookie();
@@ -256,12 +273,16 @@ export class UID2 {
   private setRefreshTimer() {
     const timeout =
       this._opts?.refreshRetryPeriod ?? UID2.DEFAULT_REFRESH_RETRY_PERIOD_MS;
+    if (this._refreshTimerId) {
+      clearTimeout(this._refreshTimerId);
+    }
     this._refreshTimerId = setTimeout(() => {
       if (this.isLoginRequired()) return;
       const validatedIdentity = this.validateAndSetIdentity(
         this._cookieManager?.loadIdentityFromCookie() ?? null
       );
       if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
+      this._refreshTimerId = null;
     }, timeout);
   }
 
@@ -334,7 +355,5 @@ export function __uid2InternalHandleScriptLoad() {
   if (postUid2CreateCallback) postUid2CreateCallback();
 }
 __uid2InternalHandleScriptLoad();
-
-UID2.setupGoogleTag();
 
 export const sdkWindow = globalThis.window;
