@@ -3,5 +3,5 @@ version = "3.0.1"
 tag_format = "$major.$minor.$patch$prerelease"
 version_files = [
     "package.json",
-    "src/uid2Sdk.ts:version"
+    "src/uid2Sdk.ts"
 ]
