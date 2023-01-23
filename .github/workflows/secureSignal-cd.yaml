@@ -11,6 +11,7 @@ env:
 
 jobs:
   verify:
+    if: "!startsWith(github.event.head_commit.message, 'bump:')"
     uses: ./.github/workflows/verify-file-changed.yml
     with:
       files: src/secureSignal.ts
