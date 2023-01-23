@@ -1,8 +1,8 @@
-# Server-Only UID2 Integration Example
+# Server-Only UID2 ESP Integration Example
 
-This example demonstrates how a content publisher can use the UID2 services to implement the [custom UID2 integration workflow](https://github.com/UnifiedID2/uid2docs/blob/main/api/v1/guides/custom-publisher-integration.md).
+This example demonstrates how a content publisher who are working with (Google Publisher Tags) can use the ESP (Google Encrypted Signals for Publishers) to share UID2 direclty with bidders.
 
-For an example application using the [Client-Side Identity JavaScript SDK](https://github.com/UnifiedID2/uid2docs/blob/main/api/v1/sdks/client-side-identity-v1.md), see [UID2 SDK Integration Example](../standard/README.md).
+For an example application using the [Client-Side Identity JavaScript SDK](https://github.com/UnifiedID2/uid2docs/blob/main/api/v1/sdks/client-side-identity-v1.md), see [UID2 SDK Integration Example](../with_sdk_v3/README.md).
 
 > NOTE: While the server side of the example application is implemented in JavaScript using node.js, it is not a requirement. You can use any technology of your choice and refer to the example application for illustration of the functionality that needs to be implemented.
 
