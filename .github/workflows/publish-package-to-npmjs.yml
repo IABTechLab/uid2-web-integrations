@@ -4,15 +4,16 @@ on:
     branches:
       - npm-packaging
 jobs:
-  verify:
-    if: "!startsWith(github.event.head_commit.message, 'bump:')"
-    uses: ./.github/workflows/verify-file-changed.yml
-    with:
-      files: |
-        src/uid2*.ts
-        src/Uid2*.ts
+  # verify:
+  #   if: "!startsWith(github.event.head_commit.message, 'bump:')"
+  # uses: ./.github/workflows/verify-file-changed.yml
+  # with:
+  #   files: |
+  #     src/uid2*.ts
+  #     src/Uid2*.ts
   publish:
-    needs: [verify]
+    # needs: [verify]
+    if: "!startsWith(github.event.head_commit.message, 'bump:')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
