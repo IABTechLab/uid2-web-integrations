@@ -1,4 +1,4 @@
-name: Publish Package to NPM
+name: Publish SDK to NPM and CDN
 on:
   push:
     branches:
@@ -11,8 +11,10 @@ jobs:
       files: |
         src/uid2*.ts
         src/Uid2*.ts
+  bump:
   publish:
     needs: [verify]
+    if: needs.verify.outputs.isAnyFileModified == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -33,3 +35,47 @@ jobs:
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    outputs:
+      packageVersion: ${{ steps.cz.outputs.version }}
+  build:
+    needs: [verify, publish]
+    if: needs.verify.outputs.isAnyFileModified == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        target: [development, production]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build -- --mode=${{ matrix.target }}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: uid2SDK-${{ matrix.target }}-${{ needs.publish.packageVersion }}
+          path: ./dist/uid2-sdk-${{ needs.publish.packageVersion }}.js
+    outputs:
+      sdkVersion: ${{ needs.publish.packageVersion }}
+  deployment:
+    needs: [build]
+    strategy:
+      matrix:
+        environment: [Integ, production]
+    uses: ./.github/workflows/aws-cdn-deployment.yml
+    with:
+      environment: ${{ matrix.environment }}
+      artifact: uid2SDK-${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
+      invalidate_paths: "/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js"
+    secrets:
+      AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
