@@ -4,7 +4,9 @@
   "description": "UID2 Client SDK",
   "main": "lib/uid2Sdk.js",
   "types": "lib/uid2Sdk.d.ts",
-  "files": ["/lib"],
+  "files": [
+    "/lib"
+  ],
   "author": "The Trade Desk",
   "license": "Apache 2.0",
   "scripts": {
