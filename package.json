@@ -1,16 +1,23 @@
 {
-  "name": "uid2-sdk",
-  "version": "3.0.0",
+  "name": "@uid2/uid2-sdk",
+  "version": "3.0.3",
   "description": "UID2 Client SDK",
+  "main": "lib/uid2Sdk.js",
+  "types": "lib/uid2Sdk.d.ts",
+  "files": [
+    "/lib"
+  ],
   "author": "The Trade Desk",
   "license": "Apache 2.0",
   "scripts": {
     "lint": "eslint -c .eslintrc.js . ../static/js/uid2-sdk-2.0.0.js ../static/js/uid2-sdk-1.0.0.js",
     "test": "jest",
-    "build": "webpack --mode=production",
+    "build": "webpack",
     "build-with-sourcemaps": "webpack --mode=production --env prodSourceMaps=true",
+    "build-package": "tsc",
     "watch": "webpack watch --mode=development",
-    "uid2-examples": "webpack --mode=development --env outputToExamples=true"
+    "uid2-examples": "webpack --mode=development --env outputToExamples=true",
+    "build:esp": "webpack --env espOnly=true"
   },
   "jest": {
     "preset": "ts-jest",

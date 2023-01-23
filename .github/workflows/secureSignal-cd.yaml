@@ -1,0 +1,58 @@
+name: UID2 Secure Signal CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  WORKING_DIR: ./
+
+jobs:
+  verify:
+    if: "!startsWith(github.event.head_commit.message, 'bump:')"
+    uses: ./.github/workflows/verify-file-changed.yml
+    with:
+      files: src/secureSignal.ts
+  build:
+    needs: [verify]
+    if: needs.verify.outputs.isAnyFileModified == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        target: [development, production]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build:esp -- --mode=${{ matrix.target }}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.target }}SecureSignalScript
+          path: ./dist/uid2SecureSignal.js
+  deployment:
+    needs: [build]
+    strategy:
+      matrix:
+        environment: [Integ, production]
+    uses: ./.github/workflows/aws-cdn-deployment.yml
+    with:
+      environment: ${{ matrix.environment }}
+      artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
+      invalidate_paths: "/uid2SecureSignal.js"
+    secrets:
+      AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
