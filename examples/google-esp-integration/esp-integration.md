@@ -1,12 +1,12 @@
 # UID2 Secure Signal Integration
 
-Google Secure Signal is a way for publishers to pass "encrypted" user IDs to google-approved bidders via Google AdManager (GAM) and Adx network. The framework is an optional part of Google PlayTag (GPT) library commonly used by publishers.
+Google Secure Signal is a way for publishers to pass "encrypted" user ids to google-approved bidders via Google AdManager (GAM) and Adx network. The framework is an optional part of Google PlayTag (GPT) library commonly used by publishers.
 
 The framework allows publishers push user id signals, have them cached on the client side and transparently passed over to GAM which would then forward them over to approved bidders within Adx based on publisher's preferences.
 
 ## Allow secure signal sharing
 
-For your GAM account to be eligible for receiving encrypted UIDs, you must make sure encrypted signals are properly shared with third party bidders on your GAM account. Follow Google’s article [Share encrypted signals with bidders](https://support.google.com/admanager/answer/10488752) and Publisher Onboarding Workflow.
+For your GAM account to be eligible for receiving encrypted UID tokens, you must make sure encrypted signals are properly shared with third party bidders on your GAM account. Follow Google’s article [Share encrypted signals with bidders](https://support.google.com/admanager/answer/10488752) and Publisher Onboarding Workflow.
 
 ## Publisher Integrations
 
