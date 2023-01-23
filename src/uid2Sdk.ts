@@ -9,6 +9,7 @@ import { Uid2Identity } from "./Uid2Identity";
 import { IdentityStatus, notifyInitCallback } from "./Uid2InitCallbacks";
 import { isUID2OptionsOrThrow, Uid2Options } from "./Uid2Options";
 import { UID2PromiseHandler } from "./uid2PromiseHandler";
+import { version } from "../package.json";
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -18,7 +19,7 @@ let postUid2CreateCallback: null | (() => void) = null;
 
 export class UID2 {
   static get VERSION() {
-    return "3.0.2";
+    return version;
   }
   static get COOKIE_NAME() {
     return "__uid_2";

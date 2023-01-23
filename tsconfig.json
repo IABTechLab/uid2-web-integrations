@@ -12,6 +12,7 @@
     "skipLibCheck": true,
     "declaration": true,
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "outDir": "lib"
   },
   "include": ["src"],
