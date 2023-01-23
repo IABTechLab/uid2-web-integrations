@@ -38,6 +38,7 @@ export class Uid2SecureSignalProvider {
 
 declare global {
   interface Window {
+    googletag?: any;
     __uid2SecureSignalProvider?: Uid2SecureSignalProvider;
     getUid2AdvertisingToken?: () => Promise<string | null | undefined>;
   }
