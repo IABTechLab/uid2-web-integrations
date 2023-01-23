@@ -18,7 +18,8 @@ let postUid2CreateCallback: null | (() => void) = null;
 
 export class UID2 {
   static get VERSION() {
-    return "3.0.0";
+    const version = "3.0.2";
+    return version;
   }
   static get COOKIE_NAME() {
     return "__uid_2";
