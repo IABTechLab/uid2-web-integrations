@@ -1,4 +1,4 @@
-# UID2 Secure Signal Integration 
+# UID2 Secure Signal Integration
 
 Google Secure Signal is a way for publishers to pass "encrypted" user IDs to google-approved bidders via Google AdManager (GAM) and Adx network. The framework is an optional part of Google PlayTag (GPT) library commonly used by publishers.
 
@@ -10,13 +10,14 @@ For your GAM account to be eligible for receiving encrypted UIDs, you must make 
 
 ## Publisher Integrations
 
-Once a encrypted signal is cached, Secure Signal does not execute the hanlder to generate new singal, thus it is necessary to clear the cache before login and after logout. Since Secure Signal does not provide a way to delete/invalidate a specific id, publishers to need to call `window.googletag.encryptedSignalProviders.clearAllCache()` to clear all shared encrypted signals as part of their login/logout workflows.
+Once a encrypted signal is cached, Secure Signal does not execute the hanlder to generate new singal, thus it is necessary to clear the cache before login and after logout. Since Secure Signal does not provide a way to delete/invalidate a specific id, publishers to need to call `window.googletag.secureSignalProviders.clearAllCache()` to clear all shared encrypted signals as part of their login/logout workflows.
 
 ### Server-Only Integration
 
-In order to share encrypted signals, the hosted auto-loaded Secure Signal script should be able to make a call to async function `window.getUid2AdvertisingToken` and receive `advertising_token` as a string. 
+In order to share encrypted signals, the hosted auto-loaded Secure Signal script should be able to make a call to async function `window.getUid2AdvertisingToken` and receive `advertising_token` as a string.
 
 For example:
+
 ```
     window.getUid2AdvertisingToken = async () => {
       // Make a call to get a fresh identity which could last for at least 12 hrs
