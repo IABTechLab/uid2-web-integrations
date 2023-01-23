@@ -88,7 +88,7 @@ export class UID2 {
       this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
     }
   }
-  public getIdentity() {
+  public getIdentity(): Uid2Identity | null {
     return this._identity && !this.temporarilyUnavailable()
       ? this._identity
       : null;
