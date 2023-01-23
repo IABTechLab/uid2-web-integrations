@@ -347,7 +347,6 @@ type UID2Setup = {
 declare global {
   interface Window {
     __uid2: UID2 | UID2Setup | undefined;
-    __uid2SecureSignalProvider: any;
   }
 }
 
