@@ -1,0 +1,4 @@
+[tool.commitizen]
+version = "3.0.2"
+tag_format = "$major.$minor.$patch$prerelease"
+version_files = ["package.json"]
