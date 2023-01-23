@@ -38,7 +38,6 @@ jobs:
       packageVersion: ${{ steps.cz.outputs.version }}
   build:
     needs: [publish-package]
-    if: needs.verify.outputs.isAnyFileModified == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
