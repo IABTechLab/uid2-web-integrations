@@ -2,7 +2,7 @@
 
 # UID2 Secure Signal Integration Guide
 
-This guide covers integration steps for organizations using UID2 with Google Secure Signal (GSS, previously known as Google Encrypted Signal, ESP). It includes the following sections:
+This guide covers integration steps for publishers using UID2 with Google Secure Signal (GSS, previously known as Google Encrypted Signal, ESP). It includes the following sections:
 
 * [Overview](#overview)
 * [Allow Secure Signal Sharing](#allow-secure-signal-sharing)
@@ -10,8 +10,8 @@ This guide covers integration steps for organizations using UID2 with Google Sec
 * [Server-Only Integration](#server-only-integration)
 * [UID2 SDK Integration](#uid2-sdk-integration)
 
->NOTE: 
-To use UID2 Secure Signal integration, you must be using the UID2 JavaScript SDK.
+>NOTE: To use UID2 Secure Signal integration, if you are using an SDK you must have your UID2 integration already set up. This does not apply if you are using server-only integration. For details about integration options, see [UID2 Integration Guides](https://github.com/IABTechLab/uid2docs/tree/main/api/v2/guides/README.md).
+
 ## Overview
 
 Google Secure Signal is a way for publishers to pass "encrypted" user IDs to bidders that are approved by Google, via [Google Ad Manager](https://admanager.google.com/home/) and [Google Ad Manager Ad Exchange (Adx)](https://support.google.com/admanager/answer/6321605?hl=en). The framework is an optional part of the Google PlayTag (GPT) library commonly used by publishers.
@@ -20,7 +20,7 @@ With this framework, the following steps occur:
 
 1. Publishers push user ID signals (advertising tokens) to Google Secure Signal.
 2. Google Secure Signal caches them on the client side and then transparently passes them to Google Ad Manager.
-3. Google Ad Manager forwards them to approved bidders within Google Adx based on the publisher's preferences.
+3. Google Ad Manager uses the UID2 tokens to make bid requests -- forwarding the tokens to approved bidders within Google Adx based on the publisher's preferences.
 
 ## Allow Secure Signal Sharing
 
