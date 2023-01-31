@@ -1,8 +1,3 @@
-declare global {
-  interface Window {
-    googletag: any;
-  }
-}
 const MAXIMUM_RETRY = 3;
 export class Uid2SecureSignalProvider {
   constructor() {
