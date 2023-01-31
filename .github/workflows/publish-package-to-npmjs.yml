@@ -1,31 +1,49 @@
-name: UID2 SDK CD
-
+name: Publish SDK to NPM and CDN
 on:
   push:
     branches:
-      - google-esp-integration
-  workflow_dispatch:
-
-env:
-  WORKING_DIR: ./
-
+      - main
 jobs:
   verify:
+    if: "!startsWith(github.event.head_commit.message, 'bump:')"
     uses: ./.github/workflows/verify-file-changed.yml
     with:
       files: |
         src/uid2*.ts
         src/Uid2*.ts
-  build:
+  publish-package:
     needs: [verify]
     if: needs.verify.outputs.isAnyFileModified == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+          registry-url: "https://registry.npmjs.org"
+      - id: cz
+        name: Create bump and changelog
+        uses: commitizen-tools/commitizen-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Print Version
+        run: echo "Bumped to version ${{ steps.cz.outputs.version }}"
+      - run: npm ci
+      - name: Build package
+        run: npm run build-package
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    outputs:
+      packageVersion: ${{ steps.cz.outputs.version }}
+  build:
+    needs: [publish-package]
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
         target: [development, production]
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -36,17 +54,14 @@ jobs:
           cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
       - name: Install dependencies
         run: npm install
-      - name: Get version number
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@main
-      - name: Build
+      - name: Build script
         run: npm run build -- --mode=${{ matrix.target }}
       - uses: actions/upload-artifact@v2
         with:
-          name: uid2SDK-${{ matrix.target }}-${{ steps.package-version.outputs.current-version}}
-          path: ./dist/uid2-sdk-${{ steps.package-version.outputs.current-version}}.js
+          name: uid2SDK-${{ matrix.target }}-${{ needs.publish-package.packageVersion }}
+          path: ./dist/uid2-sdk-${{ needs.publish-package.packageVersion }}.js
     outputs:
-      sdkVersion: ${{ steps.package-version.outputs.current-version}}
+      sdkVersion: ${{ needs.publish-package.packageVersion }}
   deployment:
     needs: [build]
     strategy:

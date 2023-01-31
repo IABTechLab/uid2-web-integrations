@@ -9,6 +9,7 @@ import { Uid2Identity } from "./Uid2Identity";
 import { IdentityStatus, notifyInitCallback } from "./Uid2InitCallbacks";
 import { isUID2OptionsOrThrow, Uid2Options } from "./Uid2Options";
 import { UID2PromiseHandler } from "./uid2PromiseHandler";
+import { version } from "../package.json";
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -18,7 +19,7 @@ let postUid2CreateCallback: null | (() => void) = null;
 
 export class UID2 {
   static get VERSION() {
-    return "3.0.0";
+    return version;
   }
   static get COOKIE_NAME() {
     return "__uid_2";
@@ -77,9 +78,11 @@ export class UID2 {
   public init(opts: Uid2Options) {
     this.initInternal(opts);
   }
+
   public getAdvertisingToken() {
     return this.getIdentity()?.advertising_token ?? undefined;
   }
+
   public setIdentity(identity: Uid2Identity) {
     if (this._apiClient) this._apiClient.abortActiveRequests();
     const validatedIdentity = this.validateAndSetIdentity(identity);
@@ -88,7 +91,8 @@ export class UID2 {
       this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
     }
   }
-  public getIdentity() {
+
+  public getIdentity(): Uid2Identity | null {
     return this._identity && !this.temporarilyUnavailable()
       ? this._identity
       : null;
@@ -105,6 +109,7 @@ export class UID2 {
     if (!this._initComplete) return undefined;
     return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
   }
+
   public disconnect() {
     this.abort(`UID2 SDK disconnected.`);
     // Note: This silently fails to clear the cookie if init hasn't been called and a cookieDomain is used!
@@ -115,6 +120,7 @@ export class UID2 {
       identity: null,
     });
   }
+
   // Note: This doesn't invoke callbacks. It's a hard, silent reset.
   public abort(reason?: string) {
     this._initComplete = true;
@@ -232,6 +238,7 @@ export class UID2 {
       errorMessage: "Identity refreshed",
     };
   }
+
   private validateAndSetIdentity(
     identity: Uid2Identity | null,
     status?: IdentityStatus,
@@ -261,6 +268,7 @@ export class UID2 {
     );
     return validity.identity;
   }
+
   private triggerRefreshOrSetTimer(validIdentity: Uid2Identity) {
     if (hasExpired(validIdentity.refresh_from, Date.now())) {
       this.refreshToken(validIdentity);
@@ -270,6 +278,7 @@ export class UID2 {
   }
 
   private _refreshTimerId: ReturnType<typeof setTimeout> | null = null;
+
   private setRefreshTimer() {
     const timeout =
       this._opts?.refreshRetryPeriod ?? UID2.DEFAULT_REFRESH_RETRY_PERIOD_MS;
