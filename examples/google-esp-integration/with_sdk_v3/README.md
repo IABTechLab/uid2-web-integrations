@@ -38,8 +38,6 @@ If needed, to close the application, terminate the Docker container or use the `
 
 ## Test the Example Application
 
-The example application illustrates the steps documented in the [Google Secure Signal UID2 SDK Integration](https://github.com/IABTechLab/uid2docs/blob/main/api/v2/guides/google-gss-integration.md#uid2-sdk-integration). For an overview of the high-level workflow for establishing UID2 identity, API reference, and explanation of the UID2 cookie format, see [Client-Side Identity JavaScript SDK](https://github.com/UnifiedID2/uid2docs/blob/main/api/v1/sdks/client-side-identity-v1.md).
-
 The following table outlines and annotates the steps you can take to test and explore the example application.
 
 | Step | Description                                                                                                                                        | Comments                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |

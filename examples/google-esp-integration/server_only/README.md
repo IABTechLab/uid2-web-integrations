@@ -40,8 +40,6 @@ If needed, to close the application, terminate the Docker container or use the `
 
 ## Test the Example Application
 
-The example application illustrates the steps documented in the [Google Secure Signal Server-only Integration](https://github.com/IABTechLab/uid2docs/blob/main/api/v2/guides/google-gss-integration.md#server-only-integration).
-
 The application provides three main pages:
 
 - index (main)
