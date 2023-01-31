@@ -39,14 +39,6 @@
       };
 
       window.getUid2AdvertisingToken = getUid2AdvertisingToken;
-
-      $(document).ready(function () {
-        if (window.location.href.endsWith("/login")) {
-          window.googletag.cmd.push(
-            window.googletag.secureSignalProviders.clearAllCache
-          );
-        }
-      });
     </script>
   </head>
   <body>

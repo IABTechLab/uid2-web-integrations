@@ -16,9 +16,9 @@ let videoContent;
  * Initializes IMA setup.
  */
 function init() {
-  videoContent = document.getElementById('contentElement');
-  playButton = document.getElementById('playButton');
-  playButton.addEventListener('click', playAds);
+  videoContent = document.getElementById("contentElement");
+  playButton = document.getElementById("playButton");
+  playButton.addEventListener("click", playAds);
   setUpIMA();
 }
 
@@ -28,31 +28,24 @@ function init() {
 function setUpIMA() {
   // Create the ad display container.
   createAdDisplayContainer();
-  const NETWORK_CODE = '12345678901';
-  const signalCollector = () => {
-  return new Promise((resolve, reject) => {
-    resolve("My encoded signal string");
-  });
-  }
-  if (!window.googletag) window.googletag = {};
-  if (!window.googletag.secureSignalProviders) window.googletag.secureSignalProviders = [];
-  window.googletag.secureSignalProviders.push({
-  networkCode: NETWORK_CODE,
-  collectorFunction: signalCollector
-  });
 
   // Create ads loader.
   adsLoader = new google.ima.AdsLoader(adDisplayContainer);
   // Listen and respond to ads loaded and error events.
   adsLoader.addEventListener(
-      google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
-      onAdsManagerLoaded, false);
+    google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+    onAdsManagerLoaded,
+    false
+  );
   adsLoader.addEventListener(
-      google.ima.AdErrorEvent.Type.AD_ERROR, onAdError, false);
+    google.ima.AdErrorEvent.Type.AD_ERROR,
+    onAdError,
+    false
+  );
 
   // An event listener to tell the SDK that our content video
   // is completed so the SDK can play any post-roll ads.
-  const contentEndedListener = function() {
+  const contentEndedListener = function () {
     // An ad might have been playing in the content element, in which case the
     // content has not actually ended.
     if (isAdPlaying) return;
@@ -63,10 +56,11 @@ function setUpIMA() {
 
   // Request video ads.
   const adsRequest = new google.ima.AdsRequest();
-  adsRequest.adTagUrl = 'https://pubads.g.doubleclick.net/gampad/ads?' +
-      'iu=/21775744923/external/single_ad_samples&sz=640x480&' +
-      'cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&' +
-      'output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=';
+  adsRequest.adTagUrl =
+    "https://pubads.g.doubleclick.net/gampad/ads?" +
+    "iu=/21775744923/external/single_ad_samples&sz=640x480&" +
+    "cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&" +
+    "output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=";
 
   // Specify the linear and nonlinear slot sizes. This helps the SDK to
   // select the correct creative if multiple are returned.
@@ -86,7 +80,9 @@ function createAdDisplayContainer() {
   // We assume the adContainer is the DOM id of the element that will house
   // the ads.
   adDisplayContainer = new google.ima.AdDisplayContainer(
-      document.getElementById('adContainer'), videoContent);
+    document.getElementById("adContainer"),
+    videoContent
+  );
 }
 
 /**
@@ -119,18 +115,25 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
   const adsRenderingSettings = new google.ima.AdsRenderingSettings();
   adsRenderingSettings.restoreCustomPlaybackStateOnAdBreakComplete = true;
   // videoContent should be set to the content video element.
-  adsManager =
-      adsManagerLoadedEvent.getAdsManager(videoContent, adsRenderingSettings);
+  adsManager = adsManagerLoadedEvent.getAdsManager(
+    videoContent,
+    adsRenderingSettings
+  );
 
   // Add listeners to the required events.
   adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
   adsManager.addEventListener(
-      google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, onContentPauseRequested);
+    google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
+    onContentPauseRequested
+  );
   adsManager.addEventListener(
-      google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
-      onContentResumeRequested);
+    google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
+    onContentResumeRequested
+  );
   adsManager.addEventListener(
-      google.ima.AdEvent.Type.ALL_ADS_COMPLETED, onAdEvent);
+    google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
+    onAdEvent
+  );
 
   // Listen to any additional events, if necessary.
   adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, onAdEvent);
@@ -163,11 +166,9 @@ function onAdEvent(adEvent) {
       if (ad.isLinear()) {
         // For a linear ad, a timer can be started to poll for
         // the remaining time.
-        intervalTimer = setInterval(
-            function() {
-              // Example: const remainingTime = adsManager.getRemainingTime();
-            },
-            300);  // every 300ms
+        intervalTimer = setInterval(function () {
+          // Example: const remainingTime = adsManager.getRemainingTime();
+        }, 300); // every 300ms
       }
       break;
     case google.ima.AdEvent.Type.COMPLETE:

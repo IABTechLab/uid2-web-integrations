@@ -24,9 +24,11 @@
           if (__uid2.isLoginRequired()) {
             $("#login_form").show();
             $("#logout_form").hide();
+            $('#googleAdContainer').hide();
           } else {
             $("#login_form").hide();
             $("#logout_form").show();
+            $('#googleAdContainer').show();
           }
         }
 
@@ -63,20 +65,22 @@
     </script>
   </head>
   <body>
-    <div id="mainContainer">
-      <div id="content">
-        <video id="contentElement">
-          <source src="https://storage.googleapis.com/gvabox/media/samples/stock.mp4"></source>
-        </video>
+    <div id="googleAdContainer" style="display: none">
+      <div id="mainContainer">
+        <div id="content">
+          <video id="contentElement">
+            <source src="https://storage.googleapis.com/gvabox/media/samples/stock.mp4"></source>
+          </video>
+        </div>
+        <div id="adContainer"></div>
       </div>
-      <div id="adContainer"></div>
-    </div>
       <button id="playButton">Play</button>
       <script type="text/javascript" src="//imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
       <script async src="https://cdn.integ.uidapi.com/uid2SecureSignal.js"></script>
       <script async src="https://cdn.integ.uidapi.com/uid2-sdk-3.0.1.js"></script>
       <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
       <script type="text/javascript" src="ads.js"></script>
+    </div>
     <%- include('intro.html'); -%>
     <table id="uid2_state">
       <tr>
