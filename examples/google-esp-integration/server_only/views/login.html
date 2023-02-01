@@ -1,21 +1,23 @@
 <%- include('header.html'); -%>
-<div
-  id="login_form"
-  class="form"
-  onsubmit="return window.googletag.secureSignalProviders.clearAllCache()"
->
-  <form action="/login" method="POST">
-    <div class="email_prompt">
-      <input
-        type="text"
-        id="email"
-        name="email"
-        placeholder="Enter an email address"
-        style="border-style: none"
-      />
-    </div>
-    <div><input type="submit" value="Log In" class="button" /></div>
-  </form>
-</div>
+<script>
+  $(document).ready(() => {
+    window.googletag = window.googletag || { cmd: [] };
+    window.googletag.cmd.push(function () {
+      window.googletag.secureSignalProviders.clearAllCache();
+    });
+  });
+</script>
 
+<form action="/login" method="POST">
+  <div class="email_prompt">
+    <input
+      type="text"
+      id="email"
+      name="email"
+      placeholder="Enter an email address"
+      style="border-style: none"
+    />
+  </div>
+  <div><input type="submit" value="Log In" class="button" /></div>
+</form>
 <%- include('footer.html'); -%>
