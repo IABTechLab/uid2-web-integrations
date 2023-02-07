@@ -24,6 +24,12 @@
       window.googletag = window.googletag || { cmd: [] };
       window.googletag.cmd.push(function () {
         console.log("window.googletag", window.googletag);
+        console.log(
+          "secureSignalProviders",
+          window.googletag.secureSignalProviders,
+          "encryptedSignalProviders",
+          window.googletag.encryptedSignalProviders
+        );
         window.googletag.secureSignalProviders =
           window.googletag.secureSignalProviders || [];
         console.log(
