@@ -127,7 +127,7 @@ app.get("/getFreshToken", protected, async (req, res) => {
 
 app.get("/login", async (req, res) => {
   if (await verifyIdentity(req)) {
-    res.redirect("/");
+    res.ok();
   } else {
     res.cookie("identity", "");
     req.session = null;

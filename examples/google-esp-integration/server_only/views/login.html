@@ -1,14 +1,5 @@
 <%- include('header.html'); -%>
-<script>
-  $(document).ready(() => {
-    window.googletag = window.googletag || { cmd: [] };
-    window.googletag.cmd.push(function () {
-      window.googletag.secureSignalProviders.clearAllCache();
-    });
-  });
-</script>
-
-<form action="/login" method="POST">
+<form action="/login" method="POST" id="loginForm">
   <div class="email_prompt">
     <input
       type="text"
@@ -20,4 +11,29 @@
   </div>
   <div><input type="submit" value="Log In" class="button" /></div>
 </form>
+<script>
+  document.forms["loginForm"].addEventListener("submit", (event) => {
+    event.preventDefault();
+    fetch(event.target.action, {
+      method: "POST",
+      body: new URLSearchParams(new FormData(event.target)),
+    }).then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      window.googletag = window.googletag || { cmd: [] };
+      window.googletag.cmd.push(function () {
+        console.log("window.googletag", window.googletag);
+        window.googletag.secureSignalProviders =
+          window.googletag.secureSignalProviders || [];
+        console.log(
+          "window.googletag.secureSignalProviders.clearAllCache",
+          window.googletag.secureSignalProviders.clearAllCache
+        );
+        window.googletag.secureSignalProviders.clearAllCache();
+      });
+      window.location.replace("/");
+    });
+  });
+</script>
 <%- include('footer.html'); -%>
