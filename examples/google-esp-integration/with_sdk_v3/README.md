@@ -11,12 +11,12 @@ For an example application without using the UID2 SDK, see [Server-Only UID2 Int
 The easiest way to try the example is to use the following Docker Build command:
 
 ```
-docker build . -t uid2-publisher-standard
+docker build . -t uid2-esp-standard
 docker run -it --rm -p 3000:3000 \
     -e UID2_BASE_URL="https://operator-integ.uidapi.com" \
     -e UID2_API_KEY="<your-integ-API-key>" \
     -e AD_TAG_URL="<your-IMA-ad-tag-url>" \
-    uid2-publisher-standard
+    uid2-esp-standard
 ```
 
 The following table lists the environment variables that you must specify to start the application.
