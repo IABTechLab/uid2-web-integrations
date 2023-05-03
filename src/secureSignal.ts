@@ -67,21 +67,22 @@ export function getUid2AdvertisingTokenWithRetry(
   return new Promise<string>(async (resolve, reject) => {
     let attempts = 0;
 
-    async function attempt() {
+    async function attempt(error?: unknown) {
+      if (attempts >= retries) {
+        reject(error);
+        return;
+      }
+
       attempts++;
-      return uid2Handler()
-        .then(resolve)
-        .catch((error: any) => {
-          if (attempts >= retries) {
-            reject(error);
-          } else {
-            attempt();
-          }
-        });
+
+      try {
+        const result = await uid2Handler();
+        resolve(result);
+      } catch (error) {
+        attempt(error);
+      }
     }
 
-    while (attempts < retries) {
-      await attempt();
-    }
+    attempt();
   });
 }
