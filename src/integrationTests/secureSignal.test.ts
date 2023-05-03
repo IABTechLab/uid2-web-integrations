@@ -220,6 +220,14 @@ describe("when use script with SDK", () => {
 
 describe("getUid2AdvertisingTokenWithRetry", () => {
   test("should resolve with the result of the promise if it is successful", async () => {
+    const mockPromise = jest.fn(() => Promise.resolve("hello"));
+    const result = await getUid2AdvertisingTokenWithRetry(mockPromise);
+
+    expect(result).toEqual("hello");
+    expect(mockPromise).toHaveBeenCalledTimes(1);
+  });
+
+  test("should retry the request and resolve if the promise is successful", async () => {
     const mockPromise = jest.fn();
     mockPromise
       .mockReturnValueOnce(Promise.reject(new Error("Oops")))
