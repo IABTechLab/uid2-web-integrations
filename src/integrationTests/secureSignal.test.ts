@@ -227,6 +227,17 @@ describe("getUid2AdvertisingTokenWithRetry", () => {
     expect(mockPromise).toHaveBeenCalledTimes(1);
   });
 
+  test("should retry the request and resolve if the promise is successful", async () => {
+    const mockPromise = jest.fn();
+    mockPromise
+      .mockReturnValueOnce(Promise.reject(new Error("Oops")))
+      .mockReturnValueOnce(Promise.resolve("hello"));
+    const result = await getUid2AdvertisingTokenWithRetry(mockPromise);
+
+    expect(result).toEqual("hello");
+    expect(mockPromise).toHaveBeenCalledTimes(2);
+  });
+
   test("should reject with the error if the promise is not successful after all retries", async () => {
     const mockPromise = jest.fn(() => Promise.reject(new Error("Oops!")));
 
