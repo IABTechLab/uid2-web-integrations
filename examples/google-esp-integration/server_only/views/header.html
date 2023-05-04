@@ -39,6 +39,11 @@
       };
 
       window.getUid2AdvertisingToken = getUid2AdvertisingToken;
+
+      // If uid2SecureSignalProvider is initialized before getUid2AdvertisingToken is assigned, call registerSecureSignalProvider
+      if (window.__uid2SecureSignalProvider) {
+        window.__uid2SecureSignalProvider.registerSecureSignalProvider();
+      }
     </script>
   </head>
   <body>
