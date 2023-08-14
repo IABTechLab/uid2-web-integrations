@@ -2,6 +2,7 @@ import { UID2 } from "./uid2Sdk";
 import { isValidIdentity, Uid2Identity } from "./Uid2Identity";
 import { UID2CstgBox } from "./uid2CstgBox";
 import { exportPublicKey } from "./uid2CstgCrypto";
+import { base64ToBytes, bytesToBase64 } from "./uid2Base64";
 
 export type RefreshResultWithoutIdentity = {
   status: ResponseStatusWithoutBody;
@@ -80,14 +81,6 @@ export class Uid2ApiClient {
     this._clientVersion = "uid2-sdk-" + UID2.VERSION;
   }
 
-  private createArrayBuffer(text: string) {
-    const arrayBuffer = new Uint8Array(text.length);
-    for (let i = 0; i < text.length; i++) {
-      arrayBuffer[i] = text.charCodeAt(i);
-    }
-    return arrayBuffer;
-  }
-
   public hasActiveRequests() {
     return this._requestsInFlight.length > 0;
   }
@@ -144,11 +137,11 @@ export class Uid2ApiClient {
           if (typeof result === "string") rejectPromise(result);
           else resolvePromise(result);
         } else {
-          const encodeResp = this.createArrayBuffer(atob(req.responseText));
+          const encodeResp = base64ToBytes(req.responseText);
           window.crypto.subtle
             .importKey(
               "raw",
-              this.createArrayBuffer(atob(refreshDetails.refresh_response_key)),
+              base64ToBytes(refreshDetails.refresh_response_key),
               { name: "AES-GCM" },
               false,
               ["decrypt"]
@@ -213,11 +206,9 @@ export class Uid2ApiClient {
     const exportedPublicKey = await exportPublicKey(box.clientPublicKey);
 
     const requestBody = {
-      payload: Uid2ApiClient.bytesToBase64(new Uint8Array(ciphertext)),
-      iv: Uid2ApiClient.bytesToBase64(new Uint8Array(iv)),
-      public_key: Uid2ApiClient.bytesToBase64(
-        new Uint8Array(exportedPublicKey)
-      ),
+      payload: bytesToBase64(new Uint8Array(ciphertext)),
+      iv: bytesToBase64(new Uint8Array(iv)),
+      public_key: bytesToBase64(new Uint8Array(exportedPublicKey)),
       timestamp: now,
       subscription_id: subscriptionId,
     };
@@ -247,7 +238,7 @@ export class Uid2ApiClient {
           if (typeof result === "string") rejectPromise(result);
           else resolvePromise(result);
         } else {
-          const encodedResp = this.createArrayBuffer(atob(req.responseText));
+          const encodedResp = base64ToBytes(req.responseText);
           const decrypted = await box.decrypt(
             encodedResp.slice(0, 12),
             encodedResp.slice(12)
@@ -267,13 +258,5 @@ export class Uid2ApiClient {
     req.send(JSON.stringify(requestBody));
 
     return await promise;
-  }
-
-  // TODO: See if this is already implemented elsewhere.
-  private static bytesToBase64(bytes: Uint8Array): string {
-    const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join(
-      ""
-    );
-    return btoa(binString);
   }
 }

@@ -1,3 +1,5 @@
+import { base64ToBytes } from "./uid2Base64";
+
 export function generateKeyPair(
   namedCurve: NamedCurve
 ): Promise<CryptoKeyPair> {
@@ -79,9 +81,3 @@ export function decrypt(
     data
   );
 }
-
-// TODO: See uid2ApiClient createArrayBuffer.
-const base64ToBytes = (base64: string): Uint8Array => {
-  const binString = atob(base64);
-  return Uint8Array.from(binString, (m) => m.codePointAt(0)!);
-};

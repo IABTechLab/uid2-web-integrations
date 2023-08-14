@@ -12,6 +12,7 @@ import { UID2PromiseHandler } from "./uid2PromiseHandler";
 import { version } from "../package.json";
 import { isBase64Hash } from "./uid2HashedDii";
 import { isNormalizedPhone, normalizeEmail } from "./uid2DiiNormalization";
+import { bytesToBase64 } from "./uid2Base64";
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -214,20 +215,12 @@ export class UID2 {
     }
   }
 
-  // TODO: See if this is already implemented elsewhere.
-  private static bytesToBase64(bytes: Uint8Array): string {
-    const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join(
-      ""
-    );
-    return btoa(binString);
-  }
-
   private static async hash(value: string) {
     const hash = await window.crypto.subtle.digest(
       "SHA-256",
       new TextEncoder().encode(value)
     );
-    return UID2.bytesToBase64(new Uint8Array(hash));
+    return bytesToBase64(new Uint8Array(hash));
   }
 
   private static async hashDii(
