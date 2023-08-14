@@ -2,6 +2,7 @@ import { UID2 } from "./uid2Sdk";
 import { isValidIdentity, Uid2Identity } from "./Uid2Identity";
 import { UID2CstgBox } from "./uid2CstgBox";
 import { exportPublicKey } from "./uid2CstgCrypto";
+import { ClientSideIdentityOptions } from "./uid2ClientSideIdentityOptions";
 import { base64ToBytes, bytesToBase64 } from "./uid2Base64";
 
 export type RefreshResultWithoutIdentity = {
@@ -185,15 +186,14 @@ export class Uid2ApiClient {
 
   public async callCstgApi(
     data: { emailHash: string } | { phoneHash: string },
-    subscriptionId: string,
-    serverPublicKey: string
+    opts: ClientSideIdentityOptions
   ): Promise<CstgResult> {
     const request =
       "emailHash" in data
         ? { email_hash: data.emailHash }
         : { phone_hash: data.phoneHash };
 
-    const box = await UID2CstgBox.build(serverPublicKey);
+    const box = await UID2CstgBox.build(opts.serverPublicKey);
 
     const encoder = new TextEncoder();
 
@@ -210,7 +210,7 @@ export class Uid2ApiClient {
       iv: bytesToBase64(new Uint8Array(iv)),
       public_key: bytesToBase64(new Uint8Array(exportedPublicKey)),
       timestamp: now,
-      subscription_id: subscriptionId,
+      subscription_id: opts.subscriptionId,
     };
 
     const url = this._baseUrl + "/v2/token/client-generate";

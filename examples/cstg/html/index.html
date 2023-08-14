@@ -8,10 +8,11 @@
     <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script defer src="{{ UID2_JS_SDK_URL }}"></script>
     <script>
-      // CSTG Config
-      const subscriptionId = "abcdefg";
-      const serverPublicKey =
-        "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEsziOqRXZ7II0uJusaMxxCxlxgj8el/MUYLFMtWfB71Q3G1juyrAnzyqruNiPPnIuTETfFOridglP9UQNlwzNQg==";
+      const clientSideIdentityOptions = {
+        subscriptionId: "abcdefg",
+        serverPublicKey:
+          "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEsziOqRXZ7II0uJusaMxxCxlxgj8el/MUYLFMtWfB71Q3G1juyrAnzyqruNiPPnIuTETfFOridglP9UQNlwzNQg==",
+      };
 
       let callbackCounter = 0;
 
@@ -59,11 +60,11 @@
         $("#login").click(async () => {
           const email = $("#email").val();
 
-          __uid2.login({
-            subscriptionId: subscriptionId,
-            serverPublicKey: serverPublicKey,
-            email: email,
-          });
+          try {
+            await __uid2.setIdentityFromEmail(email, clientSideIdentityOptions);
+          } catch (e) {
+            console.error("setIdentityFromEmail failed", e);
+          }
         });
       }
 

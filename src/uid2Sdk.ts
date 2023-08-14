@@ -12,6 +12,10 @@ import { UID2PromiseHandler } from "./uid2PromiseHandler";
 import { version } from "../package.json";
 import { isBase64Hash } from "./uid2HashedDii";
 import { isNormalizedPhone, normalizeEmail } from "./uid2DiiNormalization";
+import {
+  ClientSideIdentityOptions,
+  isClientSideIdentityOptionsOrThrow,
+} from "./uid2ClientSideIdentityOptions";
 import { bytesToBase64 } from "./uid2Base64";
 
 function hasExpired(expiry: number, now = Date.now()) {
@@ -19,35 +23,6 @@ function hasExpired(expiry: number, now = Date.now()) {
 }
 
 let postUid2CreateCallback: null | (() => void) = null;
-
-type LoginOptionsCommon = {
-  readonly serverPublicKey: string;
-  readonly subscriptionId: string;
-};
-
-type EmailLoginOptions = {
-  readonly email: string;
-};
-
-type EmailHashLoginOptions = {
-  readonly emailHash: string;
-};
-
-type PhoneLoginOptions = {
-  readonly phone: string;
-};
-
-type PhoneHashLoginOptions = {
-  readonly phoneHash: string;
-};
-
-export type LoginOptions = LoginOptionsCommon &
-  (
-    | EmailLoginOptions
-    | EmailHashLoginOptions
-    | PhoneLoginOptions
-    | PhoneHashLoginOptions
-  );
 
 export class UID2 {
   static get VERSION() {
@@ -115,8 +90,63 @@ export class UID2 {
     return this.getIdentity()?.advertising_token ?? undefined;
   }
 
-  public login(opts: LoginOptions) {
-    this.loginInternal(opts);
+  public async setIdentityFromEmail(
+    email: string,
+    opts: ClientSideIdentityOptions
+  ) {
+    this.throwIfInitNotComplete("Cannot set identity before calling init.");
+    isClientSideIdentityOptionsOrThrow(opts);
+
+    const normalizedEmail = normalizeEmail(email);
+    if (normalizedEmail === undefined) {
+      throw new Error("Invalid email address");
+    }
+
+    const emailHash = await UID2.hash(email);
+    await this.callCstgAndSetIdentity({ emailHash: emailHash }, opts);
+  }
+
+  public async setIdentityFromEmailHash(
+    emailHash: string,
+    opts: ClientSideIdentityOptions
+  ) {
+    this.throwIfInitNotComplete("Cannot set identity before calling init.");
+    isClientSideIdentityOptionsOrThrow(opts);
+
+    if (!isBase64Hash(emailHash)) {
+      throw new Error("Invalid hash");
+    }
+
+    await this.callCstgAndSetIdentity({ emailHash: emailHash }, opts);
+  }
+
+  public async setIdentityFromPhone(
+    phone: string,
+    opts: ClientSideIdentityOptions
+  ) {
+    this.throwIfInitNotComplete("Cannot set identity before calling init.");
+    isClientSideIdentityOptionsOrThrow(opts);
+
+    if (!isNormalizedPhone(phone)) {
+      throw new Error("Invalid phone number");
+    }
+
+    const phoneHash = await UID2.hash(phone);
+    await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
+  }
+
+  public async setIdentityFromPhoneHash(
+    phoneHash: string,
+    opts: ClientSideIdentityOptions
+  ) {
+    this.throwIfInitNotComplete("Cannot set identity before calling init.");
+    isClientSideIdentityOptionsOrThrow(opts);
+
+    if (!isBase64Hash(phoneHash)) {
+      throw new Error("Invalid hash");
+    }
+
+    await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
   }
 
   public setIdentity(identity: Uid2Identity) {
@@ -170,82 +200,12 @@ export class UID2 {
     if (this._apiClient) this._apiClient.abortActiveRequests();
   }
 
-  private static isEmailLoginOptions(value: any): value is EmailLoginOptions {
-    return "email" in value;
-  }
-
-  private static isEmailHashLoginOptions(
-    value: any
-  ): value is EmailHashLoginOptions {
-    return "emailHash" in value;
-  }
-
-  private static isPhoneLoginOptions(value: any): value is PhoneLoginOptions {
-    return "phone" in value;
-  }
-
-  private static isPhoneHashLoginOptions(
-    value: any
-  ): value is PhoneHashLoginOptions {
-    return "phoneHash" in value;
-  }
-
-  private static validateAndNormalize(
-    dii:
-      | EmailLoginOptions
-      | EmailHashLoginOptions
-      | PhoneLoginOptions
-      | PhoneHashLoginOptions
-  ) {
-    if (this.isEmailHashLoginOptions(dii)) {
-      return isBase64Hash(dii.emailHash) ? dii : undefined;
-    }
-
-    if (this.isPhoneHashLoginOptions(dii)) {
-      return isBase64Hash(dii.phoneHash) ? dii : undefined;
-    }
-
-    if (this.isEmailLoginOptions(dii)) {
-      const normalizedEmail = normalizeEmail(dii.email);
-      return normalizedEmail ? { email: normalizedEmail } : undefined;
-    }
-
-    if (this.isPhoneLoginOptions(dii)) {
-      return isNormalizedPhone(dii.phone) ? dii : undefined;
-    }
-  }
-
   private static async hash(value: string) {
     const hash = await window.crypto.subtle.digest(
       "SHA-256",
       new TextEncoder().encode(value)
     );
     return bytesToBase64(new Uint8Array(hash));
-  }
-
-  private static async hashDii(
-    dii:
-      | EmailLoginOptions
-      | EmailHashLoginOptions
-      | PhoneLoginOptions
-      | PhoneHashLoginOptions
-  ) {
-    if (
-      this.isEmailHashLoginOptions(dii) ||
-      this.isPhoneHashLoginOptions(dii)
-    ) {
-      return dii;
-    }
-
-    if (this.isEmailLoginOptions(dii)) {
-      return { emailHash: await UID2.hash(dii.email) };
-    }
-
-    if (this.isPhoneLoginOptions(dii)) {
-      return { phoneHash: await UID2.hash(dii.phone) };
-    }
-
-    throw new Error("invalid DII");
   }
 
   private initInternal(opts: Uid2Options | unknown) {
@@ -268,26 +228,6 @@ export class UID2 {
     if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
     this._initComplete = true;
     this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
-  }
-
-  private async loginInternal(opts: LoginOptions): Promise<void> {
-    if (!this._initComplete) {
-      throw new Error("Cannot login before calling init.");
-    }
-
-    const validatedNormalizedInput = UID2.validateAndNormalize(opts);
-    if (!validatedNormalizedInput) {
-      // TODO: Better error message.
-      throw new Error("Invalid DII");
-    }
-
-    const identity = await this._apiClient!.callCstgApi(
-      await UID2.hashDii(validatedNormalizedInput),
-      opts.subscriptionId,
-      opts.serverPublicKey
-    );
-
-    this.setIdentity(identity.identity);
   }
 
   private isLoggedIn() {
@@ -480,6 +420,21 @@ export class UID2 {
         (reason) =>
           console.warn(`UID2 callbacks on identity event failed.`, reason)
       );
+  }
+
+  private async callCstgAndSetIdentity(
+    request: { emailHash: string } | { phoneHash: string },
+    opts: ClientSideIdentityOptions
+  ) {
+    const cstgResult = await this._apiClient!.callCstgApi(request, opts);
+
+    this.setIdentity(cstgResult.identity);
+  }
+
+  private throwIfInitNotComplete(message: string) {
+    if (!this._initComplete) {
+      throw new Error(message);
+    }
   }
 }
 
