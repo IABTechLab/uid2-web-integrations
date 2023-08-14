@@ -3,6 +3,12 @@ export type ClientSideIdentityOptions = {
   readonly subscriptionId: string;
 };
 
+const SERVER_PUBLIC_KEY_PREFIX_LENGTH = 9;
+
+export function stripPublicKeyPrefix(serverPublicKey: string) {
+  return serverPublicKey.substring(SERVER_PUBLIC_KEY_PREFIX_LENGTH);
+}
+
 export function isClientSideIdentityOptionsOrThrow(
   maybeOpts: any
 ): maybeOpts is ClientSideIdentityOptions {
@@ -14,8 +20,11 @@ export function isClientSideIdentityOptionsOrThrow(
   if (typeof opts.serverPublicKey !== "string") {
     throw new TypeError("opts.serverPublicKey must be a string");
   }
-  if (opts.serverPublicKey.length === 0) {
-    throw new TypeError("opts.serverPublicKey is empty");
+  const serverPublicKeyPrefix = /^UID2-X-[A-Z]-.+/;
+  if (!serverPublicKeyPrefix.test(opts.serverPublicKey)) {
+    throw new TypeError(
+      `opts.serverPublicKey must match the regular expression ${serverPublicKeyPrefix}`
+    );
   }
   // We don't do any further validation of the public key, as we will find out
   // later if it's valid by using importKey.

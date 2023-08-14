@@ -2,7 +2,10 @@ import { UID2 } from "./uid2Sdk";
 import { isValidIdentity, Uid2Identity } from "./Uid2Identity";
 import { UID2CstgBox } from "./uid2CstgBox";
 import { exportPublicKey } from "./uid2CstgCrypto";
-import { ClientSideIdentityOptions } from "./uid2ClientSideIdentityOptions";
+import {
+  ClientSideIdentityOptions,
+  stripPublicKeyPrefix,
+} from "./uid2ClientSideIdentityOptions";
 import { base64ToBytes, bytesToBase64 } from "./uid2Base64";
 
 export type RefreshResultWithoutIdentity = {
@@ -193,7 +196,9 @@ export class Uid2ApiClient {
         ? { email_hash: data.emailHash }
         : { phone_hash: data.phoneHash };
 
-    const box = await UID2CstgBox.build(opts.serverPublicKey);
+    const box = await UID2CstgBox.build(
+      stripPublicKeyPrefix(opts.serverPublicKey)
+    );
 
     const encoder = new TextEncoder();
 
