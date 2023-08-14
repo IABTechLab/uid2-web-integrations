@@ -33,12 +33,6 @@
       "type": "docker-build",
       "dockerBuild": {
         "context": "${workspaceFolder}/examples/cstg",
-        "buildArgs": {
-          "UID2_BASE_URL": "http://localhost:8080",
-          "UID2_JS_SDK_URL": "http://localhost:9091/uid2-sdk.js",
-          "SERVER_PUBLIC_KEY": "UID2-X-L-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEsziOqRXZ7II0uJusaMxxCxlxgj8el/MUYLFMtWfB71Q3G1juyrAnzyqruNiPPnIuTETfFOridglP9UQNlwzNQg==",
-          "SUBSCRIPTION_ID": "abcdefg"
-        },
         "tag": "uid2-cstg-example"
       }
     },
@@ -62,6 +56,12 @@
             "permissions": "ro"
           }
         ],
+        "env": {
+          "UID2_BASE_URL": "http://localhost:8080",
+          "UID2_JS_SDK_URL": "http://localhost:9091/uid2-sdk.js",
+          "SERVER_PUBLIC_KEY": "UID2-X-L-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEsziOqRXZ7II0uJusaMxxCxlxgj8el/MUYLFMtWfB71Q3G1juyrAnzyqruNiPPnIuTETfFOridglP9UQNlwzNQg==",
+          "SUBSCRIPTION_ID": "abcdefg"
+        },
         "remove": true
       }
     },
