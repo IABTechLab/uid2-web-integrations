@@ -4,7 +4,7 @@ body {
 }
 
 a {
-  color: #00B7FF;
+  color: #00b7ff;
 }
 
 .button {
@@ -18,17 +18,17 @@ a {
   letter-spacing: 0.28px;
   box-sizing: border-box;
   color: white;
-  font-family: 'Raleway', Helvetica, Arial, serif;
+  font-family: "Raleway", Helvetica, Arial, serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 700;
   text-transform: none;
-  text-indent: 0px;
+  text-indent: 0;
   text-shadow: none;
-  margin: 0em;
+  margin: 0;
   padding: 1px 6px;
-  background-color: rgba(2,10,64,1.0);
-  border-image: initial
+  background-color: rgba(2, 10, 64);
+  border-image: initial;
 }
 
 .form {
@@ -39,7 +39,7 @@ a {
   align-items: center;
   align-self: center;
   background-color: white;
-  border: 1px solid rgba(2,10,64,1.0);
+  border: 1px solid rgba(2, 10, 64);
   border-radius: 2px;
   box-sizing: border-box;
   display: inline-flex;
@@ -47,10 +47,10 @@ a {
   flex-shrink: 0;
   height: 40px;
   justify-content: flex-start;
-  margin-right: 1.0px;
+  margin-right: 1px;
   margin-bottom: 20px;
   min-width: 399px;
-  padding: 0 16.0px;
+  padding: 0 16px;
   position: relative;
   width: auto;
 }
@@ -66,8 +66,8 @@ a {
   text-align: left;
   white-space: nowrap;
   width: 351px;
-  color: rgba(2,10,64,1.0);
-  font-family: 'Raleway', Helvetica, Arial, serif;
+  color: rgba(2, 10, 64, 1);
+  font-family: "Raleway", Helvetica, Arial, serif;
   font-size: 12px;
   font-style: normal;
   font-weight: 500;
