@@ -3,14 +3,11 @@ enum EmailParsingState {
   SubDomain,
 }
 
-export type NormalizedPhone = string;
-export type NormalizedEmail = string;
-
-export function isNormalizedPhone(phone: string): phone is NormalizedPhone {
+export function isNormalizedPhone(phone: string): boolean {
   return /^\+[0-9]{10,15}$/.test(phone);
 }
 
-export function normalizeEmail(email: string): NormalizedEmail | undefined {
+export function normalizeEmail(email: string): string | undefined {
   if (email == undefined || email.length <= 0) {
     return undefined;
   }
