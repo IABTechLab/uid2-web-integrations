@@ -9,9 +9,8 @@
     <script defer src="{{ UID2_JS_SDK_URL }}"></script>
     <script>
       const clientSideIdentityOptions = {
-        subscriptionId: "abcdefg",
-        serverPublicKey:
-          "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEsziOqRXZ7II0uJusaMxxCxlxgj8el/MUYLFMtWfB71Q3G1juyrAnzyqruNiPPnIuTETfFOridglP9UQNlwzNQg==",
+        subscriptionId: "{{ SUBSCRIPTION_ID }}",
+        serverPublicKey: "{{ SERVER_PUBLIC_KEY }}",
       };
 
       let callbackCounter = 0;
