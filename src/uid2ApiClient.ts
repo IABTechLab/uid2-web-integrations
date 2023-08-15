@@ -63,12 +63,38 @@ type CstgApiSuccessResponse = {
   status: "success";
   body: Uid2Identity;
 };
+type CstgApiClientErrorResponse = {
+  status: "client_error";
+  message: string;
+};
+
 export type CstgResponse = CstgApiSuccessResponse;
 
-function isValidCstgResponse(response: unknown): response is CstgResponse {
-  const cstgResponse = response as CstgResponse;
+function isCstgApiSuccessResponse(
+  response: unknown
+): response is CstgApiSuccessResponse {
+  if (response === null || typeof response !== "object") {
+    return false;
+  }
+
+  const successResponse = response as CstgApiSuccessResponse;
   return (
-    cstgResponse.status === "success" && isValidIdentity(cstgResponse.body)
+    successResponse.status === "success" &&
+    isValidIdentity(successResponse.body)
+  );
+}
+
+function isCstgApiClientErrorResponse(
+  response: unknown
+): response is CstgApiClientErrorResponse {
+  if (response === null || typeof response !== "object") {
+    return false;
+  }
+
+  const errorResponse = response as CstgApiClientErrorResponse;
+  return (
+    errorResponse.status === "client_error" &&
+    typeof errorResponse.message === "string"
   );
 }
 
@@ -97,17 +123,6 @@ export class Uid2ApiClient {
         return { status: response.status, identity: response.body };
       return response;
     } else return "Response didn't contain a valid status";
-  }
-
-  private ResponseToCstgResult(response: unknown): CstgResult | string {
-    if (isValidCstgResponse(response)) {
-      return {
-        status: response.status,
-        identity: response.body,
-      };
-    }
-
-    return "Response didn't contain a valid status";
   }
 
   public abortActiveRequests() {
@@ -226,8 +241,7 @@ export class Uid2ApiClient {
     req.setRequestHeader("X-UID2-Client-Version", this._clientVersion);
 
     let resolvePromise: (result: CstgResult) => void;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let rejectPromise: (reason?: any) => void;
+    let rejectPromise: (reason: unknown) => void;
     const promise = new Promise<CstgResult>((resolve, reject) => {
       resolvePromise = resolve;
       rejectPromise = reject;
@@ -237,12 +251,7 @@ export class Uid2ApiClient {
       if (req.readyState !== req.DONE) return;
       this._requestsInFlight = this._requestsInFlight.filter((r) => r !== req);
       try {
-        if (req.status !== 200) {
-          const response = JSON.parse(req.responseText) as unknown;
-          const result = this.ResponseToCstgResult(response);
-          if (typeof result === "string") rejectPromise(result);
-          else resolvePromise(result);
-        } else {
+        if (req.status === 200) {
           const encodedResp = base64ToBytes(req.responseText);
           const decrypted = await box.decrypt(
             encodedResp.slice(0, 12),
@@ -250,12 +259,33 @@ export class Uid2ApiClient {
           );
           const decryptedResponse = new TextDecoder().decode(decrypted);
           const response = JSON.parse(decryptedResponse) as unknown;
-          const result = this.ResponseToCstgResult(response);
-          if (typeof result === "string") rejectPromise(result);
-          else resolvePromise(result);
+          if (isCstgApiSuccessResponse(response)) {
+            resolvePromise({
+              status: "success",
+              identity: response.body,
+            });
+          } else {
+            // A 200 should always be a success response.
+            // Something has gone wrong.
+            rejectPromise(
+              `API error: Response body was invalid for HTTP status 200: ${decryptedResponse}`
+            );
+          }
+        } else if (req.status === 400) {
+          const response = JSON.parse(req.responseText);
+          if (isCstgApiClientErrorResponse(response)) {
+            rejectPromise(`Client error: ${response.message}`);
+          } else {
+            // A 400 should always be a client error.
+            // Something has gone wrong.
+            rejectPromise(
+              `API error: Response body was invalid for HTTP status 400: ${req.responseText}`
+            );
+          }
+        } else {
+          rejectPromise(`API error: Unexpected HTTP status ${req.status}`);
         }
       } catch (err) {
-        // TODO: Log error? See callRefreshApi.
         rejectPromise(err);
       }
     };
