@@ -67,6 +67,10 @@ type CstgApiClientErrorResponse = {
   status: "client_error";
   message: string;
 };
+type CstgApiForbiddenResponse = {
+  status: "invalid_http_origin";
+  message: string;
+};
 
 export type CstgResponse = CstgApiSuccessResponse;
 
@@ -95,6 +99,20 @@ function isCstgApiClientErrorResponse(
   return (
     errorResponse.status === "client_error" &&
     typeof errorResponse.message === "string"
+  );
+}
+
+function isCstgApiForbiddenResponse(
+  response: unknown
+): response is CstgApiForbiddenResponse {
+  if (response === null || typeof response !== "object") {
+    return false;
+  }
+
+  const forbiddenResponse = response as CstgApiForbiddenResponse;
+  return (
+    forbiddenResponse.status === "invalid_http_origin" &&
+    typeof forbiddenResponse.message === "string"
   );
 }
 
@@ -280,6 +298,17 @@ export class Uid2ApiClient {
             // Something has gone wrong.
             rejectPromise(
               `API error: Response body was invalid for HTTP status 400: ${req.responseText}`
+            );
+          }
+        } else if (req.status === 403) {
+          const response = JSON.parse(req.responseText);
+          if (isCstgApiForbiddenResponse(response)) {
+            rejectPromise(`Forbidden: ${response.message}`);
+          } else {
+            // A 403 should always be a forbidden response.
+            // Something has gone wrong.
+            rejectPromise(
+              `API error: Response body was invalid for HTTP status 403: ${req.responseText}`
             );
           }
         } else {
