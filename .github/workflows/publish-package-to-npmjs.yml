@@ -1,5 +1,11 @@
 name: Publish SDK to NPM and CDN
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      withTag:
+        description: By default, running npm publish will tag your package with the latest dist-tag. To use another dist-tag, please add tag here
+        required: false
+        default: false
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,8 +20,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
-          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
       - name: Get Package Version
         id: version
         run: |
@@ -39,10 +43,19 @@ jobs:
         with:
           node-version: "18.x"
           registry-url: "https://registry.npmjs.org"
+          cache: "npm"
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
       - run: npm ci
       - name: Build package
         run: npm run build-package
-      - run: npm publish
+      - name: Publish Latest package
+         if: ${{!github.event.inputs.withTag}}
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish Latest package with tag
+         if: ${{github.event.inputs.withTag}}
+        run: npm publish --tag ${{github.event.inputs.withTag}}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   cdn-deployment:
