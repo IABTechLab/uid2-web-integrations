@@ -1,22 +1,7 @@
 name: Publish SDK to NPM and CDN
 on: workflow_dispatch
 jobs:
-  publish-package:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: "18.x"
-          registry-url: "https://registry.npmjs.org"
-      - run: npm ci
-      - name: Build package
-        run: npm run build-package
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   build:
-    needs: [publish-package]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -45,7 +30,22 @@ jobs:
           path: ./dist/uid2-sdk-${{ steps.version.outputs.package_version }}.js
     outputs:
       sdkVersion: ${{ steps.version.outputs.package_version }}
-  deployment:
+  publish-package:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+          registry-url: "https://registry.npmjs.org"
+      - run: npm ci
+      - name: Build package
+        run: npm run build-package
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  cdn-deployment:
     needs: [build]
     strategy:
       matrix:
