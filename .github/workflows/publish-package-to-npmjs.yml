@@ -49,12 +49,12 @@ jobs:
       - name: Build package
         run: npm run build-package
       - name: Publish Latest package
-         if: ${{!github.event.inputs.withTag}}
+        if: ${{!github.event.inputs.withTag}}
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish Latest package with tag
-         if: ${{github.event.inputs.withTag}}
+        if: ${{github.event.inputs.withTag}}
         run: npm publish --tag ${{github.event.inputs.withTag}}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
