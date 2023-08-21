@@ -67,7 +67,8 @@
         });
       }
 
-      window.__uid2 = { callbacks: [] };
+      window.__uid2 = window.__uid2 || {};
+      window.__uid2.callbacks = window.__uid2.callbacks || [];
 
       window.__uid2.callbacks.push(onUid2IdentityUpdated);
       window.__uid2.callbacks.push((eventType, payload) => {
