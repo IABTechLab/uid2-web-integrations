@@ -5,7 +5,6 @@ on:
       withTag:
         description: By default, running npm publish will tag your package with the latest dist-tag. To use another dist-tag, please add tag here
         required: false
-        default: false
 jobs:
   build:
     runs-on: ubuntu-latest
