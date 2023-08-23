@@ -14,14 +14,14 @@ It's better to work with an IDE which understands TypeScript and provides useful
 
 These extension are recommended (or in some cases, required) when working on the JS SDK or other front-end components of UID2.
 
-| extension | Publisher | Free option? | Description |
-| :----- | :-------- | :----------: | :---------- |
-| ESLint | Microsoft | ✔ | This is required. Ensure you have no lint errors before committing, and definitely before raising a PR.
-| npm | Microsoft | ✔ | This extension is marked as deprecated (because the functionality exists in VS Code natively) but the extension gives you a much nicer experience - you can right-click on `package.json` and choose "Install Dependencies" to run `npm install`, and you get a handy `NPM SCRIPTS` sidebar pane if you have `package.json` open. |
-| TypeScript Extension Pack | Loiane Groner | ✔ | It provides a bunch of handy helper extensions for working in TypeScript.. |
-| Wallaby.Js | Wallaby.js | ❓ | Provides live as-you-type code coverage and test results in the IDE. There is a free license for use with open source projects which looks like it's suitable for use with UID2, but make your own decision. This is a game-changer for working with JS/TS projects. |
-| Quokka.js | Wallaby.js | ✔ | Gives you an interactive JavaScript/TypeScript playground. Particularly good for prototyping small bits of TS/JS or for learning syntax. There's a paid option but the free option is very good. |
-| Jest | Orta | ✔ | Only if you don't have Wallaby.js. Adds your Jest tests to the VS Code test window and can provide coverage, results, and other information in the IDE. |
+| extension                 | Publisher     | Free option? | Description                                                                                                                                                                                                                                                                                                                       |
+| :------------------------ | :------------ | :----------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ESLint                    | Microsoft     |      ✔       | This is required. Ensure you have no lint errors before committing, and definitely before raising a PR.                                                                                                                                                                                                                           |
+| npm                       | Microsoft     |      ✔       | This extension is marked as deprecated (because the functionality exists in VS Code natively) but the extension gives you a much nicer experience - you can right-click on `package.json` and choose "Install Dependencies" to run `npm install`, and you get a handy `NPM SCRIPTS` sidebar pane if you have `package.json` open. |
+| TypeScript Extension Pack | Loiane Groner |      ✔       | It provides a bunch of handy helper extensions for working in TypeScript..                                                                                                                                                                                                                                                        |
+| Wallaby.Js                | Wallaby.js    |      ❓      | Provides live as-you-type code coverage and test results in the IDE. There is a free license for use with open source projects which looks like it's suitable for use with UID2, but make your own decision. This is a game-changer for working with JS/TS projects.                                                              |
+| Quokka.js                 | Wallaby.js    |      ✔       | Gives you an interactive JavaScript/TypeScript playground. Particularly good for prototyping small bits of TS/JS or for learning syntax. There's a paid option but the free option is very good.                                                                                                                                  |
+| Jest                      | Orta          |      ✔       | Only if you don't have Wallaby.js. Adds your Jest tests to the VS Code test window and can provide coverage, results, and other information in the IDE.                                                                                                                                                                           |
 
 # Older versions of the SDK
 
@@ -62,9 +62,25 @@ All new source files _must_ be in TypeScript, with useful type information for a
 ## To create a production-ready build of the SDK with source-maps side-by-side:
 
 `npm run build-with-sourcemaps` - the output will end up in `dist/*.js`. Use this if you want to host a version with source maps for easier debugging.
+
 ## To create a development build of the SDK with full source-maps, and monitor for changes:
 
 `npm run watch` - the output will end up in `dist/bundle.js` and will be rebuilt whenever any related files are changed.
+
+## To publish SDK to NPM repo and CDN
+
+1. Bump update version in `package.json` and then run:
+   ```bash
+   npm install
+   ```
+2. Use `Publish SDK to NPM and CDN` Action.
+
+### Prerelease
+
+If you intend to publish a prerelease version:
+
+1. Update the version number in package.json with the desired prerelease tag. For instance: `3.0.3-alpha.0`
+2. When triggering the `Publish SDK to NPM and CDN` Action, ensure to add the relevant tag e.g. `alpha`.
 
 ## To output the development build to the uid2-examples folder, with watch:
 
