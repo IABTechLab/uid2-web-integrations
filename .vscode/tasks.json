@@ -1,0 +1,96 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "webpack-dev-server",
+      "type": "npm",
+      "script": "webpack-dev-server",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "fileLocation": "relative",
+        "pattern": {
+          "regexp": "^([^\\s].*)\\((\\d+|\\,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
+          "file": 1,
+          "location": 2,
+          "severity": 3,
+          "code": 4,
+          "message": 5
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Project is running at",
+          "endsPattern": "compiled successfully"
+        }
+      }
+    },
+    {
+      "label": "Build CSTG Image",
+      "type": "docker-build",
+      "dockerBuild": {
+        "context": "${workspaceFolder}/examples/cstg",
+        "tag": "uid2-cstg-example"
+      }
+    },
+    {
+      "label": "Run CSTG Container",
+      "type": "docker-run",
+      "dependsOn": ["Build CSTG Image"],
+      "dockerRun": {
+        "image": "uid2-cstg-example",
+        "containerName": "uid2-cstg-example",
+        "ports": [
+          {
+            "hostPort": 9090,
+            "containerPort": 80
+          }
+        ],
+        "volumes": [
+          {
+            "localPath": "${workspaceFolder}/examples/cstg/html",
+            "containerPath": "/usr/share/nginx/html",
+            "permissions": "ro"
+          }
+        ],
+        "env": {
+          "UID2_BASE_URL": "http://localhost:8080",
+          "UID2_JS_SDK_URL": "http://localhost:9091/uid2-sdk.js",
+          "SERVER_PUBLIC_KEY": "UID2-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtXJdTSZAYHvoRDWiehMHoWF1BNPuqLs5w2ZHiAZ1IJc7O4/z0ojPTB0V+KYX/wxQK0hxx6kxCvHj335eI/ZQsQ==",
+          "SUBSCRIPTION_ID": "4WvryDGbR5"
+        },
+        "remove": true
+      }
+    },
+    {
+      "label": "Start CSTG",
+      "dependsOn": ["webpack-dev-server", "Run CSTG Container"]
+    },
+    {
+      "label": "Terminate CSTG Container",
+      "type": "shell",
+      "command": "docker stop uid2-cstg-example"
+    },
+    {
+      "label": "Terminate All Tasks",
+      "command": "echo ${input:terminate}",
+      "type": "shell",
+      "problemMatcher": []
+    },
+    {
+      "label": "Terminate CSTG",
+      "dependsOn": ["Terminate All Tasks", "Terminate CSTG Container"]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "terminate",
+      "type": "command",
+      "command": "workbench.action.tasks.terminate",
+      "args": "terminateAll"
+    }
+  ]
+}

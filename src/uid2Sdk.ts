@@ -10,6 +10,13 @@ import { IdentityStatus, notifyInitCallback } from "./Uid2InitCallbacks";
 import { isUID2OptionsOrThrow, Uid2Options } from "./Uid2Options";
 import { UID2PromiseHandler } from "./uid2PromiseHandler";
 import { version } from "../package.json";
+import { isBase64Hash } from "./uid2HashedDii";
+import { isNormalizedPhone, normalizeEmail } from "./uid2DiiNormalization";
+import {
+  ClientSideIdentityOptions,
+  isClientSideIdentityOptionsOrThrow,
+} from "./uid2ClientSideIdentityOptions";
+import { bytesToBase64 } from "./uid2Base64";
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -83,6 +90,65 @@ export class UID2 {
     return this.getIdentity()?.advertising_token ?? undefined;
   }
 
+  public async setIdentityFromEmail(
+    email: string,
+    opts: ClientSideIdentityOptions
+  ) {
+    this.throwIfInitNotComplete("Cannot set identity before calling init.");
+    isClientSideIdentityOptionsOrThrow(opts);
+
+    const normalizedEmail = normalizeEmail(email);
+    if (normalizedEmail === undefined) {
+      throw new Error("Invalid email address");
+    }
+
+    const emailHash = await UID2.hash(email);
+    await this.callCstgAndSetIdentity({ emailHash: emailHash }, opts);
+  }
+
+  public async setIdentityFromEmailHash(
+    emailHash: string,
+    opts: ClientSideIdentityOptions
+  ) {
+    this.throwIfInitNotComplete("Cannot set identity before calling init.");
+    isClientSideIdentityOptionsOrThrow(opts);
+
+    if (!isBase64Hash(emailHash)) {
+      throw new Error("Invalid hash");
+    }
+
+    await this.callCstgAndSetIdentity({ emailHash: emailHash }, opts);
+  }
+
+  public async setIdentityFromPhone(
+    phone: string,
+    opts: ClientSideIdentityOptions
+  ) {
+    this.throwIfInitNotComplete("Cannot set identity before calling init.");
+    isClientSideIdentityOptionsOrThrow(opts);
+
+    if (!isNormalizedPhone(phone)) {
+      throw new Error("Invalid phone number");
+    }
+
+    const phoneHash = await UID2.hash(phone);
+    await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
+  }
+
+  public async setIdentityFromPhoneHash(
+    phoneHash: string,
+    opts: ClientSideIdentityOptions
+  ) {
+    this.throwIfInitNotComplete("Cannot set identity before calling init.");
+    isClientSideIdentityOptionsOrThrow(opts);
+
+    if (!isBase64Hash(phoneHash)) {
+      throw new Error("Invalid hash");
+    }
+
+    await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
+  }
+
   public setIdentity(identity: Uid2Identity) {
     if (this._apiClient) this._apiClient.abortActiveRequests();
     const validatedIdentity = this.validateAndSetIdentity(identity);
@@ -132,6 +198,14 @@ export class UID2 {
       this._refreshTimerId = null;
     }
     if (this._apiClient) this._apiClient.abortActiveRequests();
+  }
+
+  private static async hash(value: string) {
+    const hash = await window.crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(value)
+    );
+    return bytesToBase64(new Uint8Array(hash));
   }
 
   private initInternal(opts: Uid2Options | unknown) {
@@ -346,6 +420,21 @@ export class UID2 {
         (reason) =>
           console.warn(`UID2 callbacks on identity event failed.`, reason)
       );
+  }
+
+  private async callCstgAndSetIdentity(
+    request: { emailHash: string } | { phoneHash: string },
+    opts: ClientSideIdentityOptions
+  ) {
+    const cstgResult = await this._apiClient!.callCstgApi(request, opts);
+
+    this.setIdentity(cstgResult.identity);
+  }
+
+  private throwIfInitNotComplete(message: string) {
+    if (!this._initComplete) {
+      throw new Error(message);
+    }
   }
 }
 

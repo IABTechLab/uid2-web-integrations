@@ -13,7 +13,11 @@
     "declaration": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "outDir": "lib"
+    "outDir": "lib",
+    "sourceMap": true,
+    "typeRoots": [
+      "node_modules/@types"
+    ]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

@@ -1,5 +1,12 @@
 import { UID2 } from "./uid2Sdk";
 import { isValidIdentity, Uid2Identity } from "./Uid2Identity";
+import { UID2CstgBox } from "./uid2CstgBox";
+import { exportPublicKey } from "./uid2CstgCrypto";
+import {
+  ClientSideIdentityOptions,
+  stripPublicKeyPrefix,
+} from "./uid2ClientSideIdentityOptions";
+import { base64ToBytes, bytesToBase64 } from "./uid2Base64";
 
 export type RefreshResultWithoutIdentity = {
   status: ResponseStatusWithoutBody;
@@ -9,6 +16,12 @@ export type SuccessRefreshResult = {
   identity: Uid2Identity;
 };
 export type RefreshResult = SuccessRefreshResult | RefreshResultWithoutIdentity;
+
+export type SuccessCstgResult = {
+  status: "success";
+  identity: Uid2Identity;
+};
+export type CstgResult = SuccessCstgResult;
 
 type RefreshApiResponse =
   | {
@@ -45,6 +58,64 @@ function isUnvalidatedRefreshResponse(
     typeof response === "object" && response !== null && "status" in response
   );
 }
+
+type CstgApiSuccessResponse = {
+  status: "success";
+  body: Uid2Identity;
+};
+type CstgApiClientErrorResponse = {
+  status: "client_error";
+  message: string;
+};
+type CstgApiForbiddenResponse = {
+  status: "invalid_http_origin";
+  message: string;
+};
+
+export type CstgResponse = CstgApiSuccessResponse;
+
+function isCstgApiSuccessResponse(
+  response: unknown
+): response is CstgApiSuccessResponse {
+  if (response === null || typeof response !== "object") {
+    return false;
+  }
+
+  const successResponse = response as CstgApiSuccessResponse;
+  return (
+    successResponse.status === "success" &&
+    isValidIdentity(successResponse.body)
+  );
+}
+
+function isCstgApiClientErrorResponse(
+  response: unknown
+): response is CstgApiClientErrorResponse {
+  if (response === null || typeof response !== "object") {
+    return false;
+  }
+
+  const errorResponse = response as CstgApiClientErrorResponse;
+  return (
+    errorResponse.status === "client_error" &&
+    typeof errorResponse.message === "string"
+  );
+}
+
+function isCstgApiForbiddenResponse(
+  response: unknown
+): response is CstgApiForbiddenResponse {
+  if (response === null || typeof response !== "object") {
+    return false;
+  }
+
+  const forbiddenResponse = response as CstgApiForbiddenResponse;
+  return (
+    forbiddenResponse.status === "invalid_http_origin" &&
+    typeof forbiddenResponse.message === "string"
+  );
+}
+
 export type Uid2ApiClientOptions = {
   baseUrl?: string;
 };
@@ -56,14 +127,6 @@ export class Uid2ApiClient {
   constructor(opts: Uid2ApiClientOptions) {
     this._baseUrl = opts.baseUrl ?? "https://prod.uidapi.com";
     this._clientVersion = "uid2-sdk-" + UID2.VERSION;
-  }
-
-  private createArrayBuffer(text: string) {
-    const arrayBuffer = new Uint8Array(text.length);
-    for (let i = 0; i < text.length; i++) {
-      arrayBuffer[i] = text.charCodeAt(i);
-    }
-    return arrayBuffer;
   }
 
   public hasActiveRequests() {
@@ -111,11 +174,11 @@ export class Uid2ApiClient {
           if (typeof result === "string") rejectPromise(result);
           else resolvePromise(result);
         } else {
-          const encodeResp = this.createArrayBuffer(atob(req.responseText));
+          const encodeResp = base64ToBytes(req.responseText);
           window.crypto.subtle
             .importKey(
               "raw",
-              this.createArrayBuffer(atob(refreshDetails.refresh_response_key)),
+              base64ToBytes(refreshDetails.refresh_response_key),
               { name: "AES-GCM" },
               false,
               ["decrypt"]
@@ -155,5 +218,109 @@ export class Uid2ApiClient {
     };
     req.send(refreshDetails.refresh_token);
     return promise;
+  }
+
+  public async callCstgApi(
+    data: { emailHash: string } | { phoneHash: string },
+    opts: ClientSideIdentityOptions
+  ): Promise<CstgResult> {
+    const request =
+      "emailHash" in data
+        ? { email_hash: data.emailHash }
+        : { phone_hash: data.phoneHash };
+
+    const box = await UID2CstgBox.build(
+      stripPublicKeyPrefix(opts.serverPublicKey)
+    );
+
+    const encoder = new TextEncoder();
+
+    const now = Date.now();
+    const { iv, ciphertext } = await box.encrypt(
+      encoder.encode(JSON.stringify(request)),
+      encoder.encode(JSON.stringify([now]))
+    );
+
+    const exportedPublicKey = await exportPublicKey(box.clientPublicKey);
+
+    const requestBody = {
+      payload: bytesToBase64(new Uint8Array(ciphertext)),
+      iv: bytesToBase64(new Uint8Array(iv)),
+      public_key: bytesToBase64(new Uint8Array(exportedPublicKey)),
+      timestamp: now,
+      subscription_id: opts.subscriptionId,
+    };
+
+    const url = this._baseUrl + "/v2/token/client-generate";
+    const req = new XMLHttpRequest();
+    this._requestsInFlight.push(req);
+    req.overrideMimeType("text/plain");
+    req.open("POST", url, true);
+    req.setRequestHeader("X-UID2-Client-Version", this._clientVersion);
+
+    let resolvePromise: (result: CstgResult) => void;
+    let rejectPromise: (reason: unknown) => void;
+    const promise = new Promise<CstgResult>((resolve, reject) => {
+      resolvePromise = resolve;
+      rejectPromise = reject;
+    });
+
+    req.onreadystatechange = async () => {
+      if (req.readyState !== req.DONE) return;
+      this._requestsInFlight = this._requestsInFlight.filter((r) => r !== req);
+      try {
+        if (req.status === 200) {
+          const encodedResp = base64ToBytes(req.responseText);
+          const decrypted = await box.decrypt(
+            encodedResp.slice(0, 12),
+            encodedResp.slice(12)
+          );
+          const decryptedResponse = new TextDecoder().decode(decrypted);
+          const response = JSON.parse(decryptedResponse) as unknown;
+          if (isCstgApiSuccessResponse(response)) {
+            resolvePromise({
+              status: "success",
+              identity: response.body,
+            });
+          } else {
+            // A 200 should always be a success response.
+            // Something has gone wrong.
+            rejectPromise(
+              `API error: Response body was invalid for HTTP status 200: ${decryptedResponse}`
+            );
+          }
+        } else if (req.status === 400) {
+          const response = JSON.parse(req.responseText);
+          if (isCstgApiClientErrorResponse(response)) {
+            rejectPromise(`Client error: ${response.message}`);
+          } else {
+            // A 400 should always be a client error.
+            // Something has gone wrong.
+            rejectPromise(
+              `API error: Response body was invalid for HTTP status 400: ${req.responseText}`
+            );
+          }
+        } else if (req.status === 403) {
+          const response = JSON.parse(req.responseText);
+          if (isCstgApiForbiddenResponse(response)) {
+            rejectPromise(`Forbidden: ${response.message}`);
+          } else {
+            // A 403 should always be a forbidden response.
+            // Something has gone wrong.
+            rejectPromise(
+              `API error: Response body was invalid for HTTP status 403: ${req.responseText}`
+            );
+          }
+        } else {
+          rejectPromise(`API error: Unexpected HTTP status ${req.status}`);
+        }
+      } catch (err) {
+        rejectPromise(err);
+      }
+    };
+
+    req.send(JSON.stringify(requestBody));
+
+    return await promise;
   }
 }
