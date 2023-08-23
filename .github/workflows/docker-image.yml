@@ -2,8 +2,6 @@ name: Docker Image CI
 
 on:
   workflow_dispatch:
-  push:
-# uncomment the above line to test this action on every push
 
 env:
   REGISTRY: ghcr.io
