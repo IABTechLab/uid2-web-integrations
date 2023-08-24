@@ -1,0 +1,34 @@
+<%- include('header.html'); -%>
+<form action="/login" method="POST" id="loginForm">
+  <div class="email_prompt">
+    <input
+      type="text"
+      id="email"
+      name="email"
+      placeholder="Enter an email address"
+      style="border-style: none"
+    />
+  </div>
+  <div><input type="submit" value="Log In" class="button" /></div>
+</form>
+<script>
+  document.forms["loginForm"].addEventListener("submit", (event) => {
+    event.preventDefault();
+    fetch(event.target.action, {
+      method: "POST",
+      body: new URLSearchParams(new FormData(event.target)),
+    }).then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      window.googletag = window.googletag || { cmd: [] };
+      window.googletag.cmd.push(function () {
+        window.googletag.secureSignalProviders =
+          window.googletag.secureSignalProviders || [];
+        window.googletag.secureSignalProviders.clearAllCache();
+      });
+      window.location.replace("/");
+    });
+  });
+</script>
+<%- include('footer.html'); -%>

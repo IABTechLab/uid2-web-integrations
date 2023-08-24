@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>UID2 Publisher Standard Integration Example</title>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/app.css" />
+    <link rel="shortcut icon" href="/images/favicon.png" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script
+      async
+      src="https://cdn.integ.uidapi.com/uid2SecureSignal.js"
+    ></script>
+    <script
+      async
+      src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"
+    ></script>
+
+    <script type="text/javascript">
+      const getCookie = (cname) => {
+        let name = cname + "=";
+        let ca = document.cookie.split(";");
+        for (let i = 0; i < ca.length; i++) {
+          let c = ca[i];
+          while (c.charAt(0) == " ") {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      };
+
+      const getUid2AdvertisingToken = async () => {
+        await fetch("/getFreshToken").then((res) => res.json());
+        const uid2Token = getCookie("identity");
+        if (uid2Token === "") return;
+        return JSON.parse(decodeURIComponent(uid2Token)).advertising_token;
+      };
+
+      window.getUid2AdvertisingToken = getUid2AdvertisingToken;
+
+      // If uid2SecureSignalProvider is initialized before getUid2AdvertisingToken is assigned, call registerSecureSignalProvider
+      if (window.__uid2SecureSignalProvider) {
+        window.__uid2SecureSignalProvider.registerSecureSignalProvider();
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Server-Only UID2 Integration Example</h1>
+    <p class="intro">
+      This example demonstrates how a content publisher can use the UID2
+      services to implement the
+      <a
+        href="https://github.com/UnifiedID2/uid2docs/blob/main/api/v1/guides/custom-publisher-integration.md"
+        >custom UID2 integration workflow</a
+      >. [<a
+        href="https://github.com/UnifiedID2/uid2-examples/tree/main/publisher/server_only"
+        >Source Code</a
+      >]
+    </p>
+  </body>
+</html>

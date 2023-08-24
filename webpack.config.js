@@ -6,16 +6,7 @@ const espOutput = {
 };
 
 // n.b. if you add more outputs, the path is relative to the dist folder.
-const getExampleOutputs = (env) =>
-  !env.outputToExamples
-    ? {}
-    : {
-        ...espOutput,
-        mockedGoogleTag: {
-          import: "./src/mockedGoogleTag.ts",
-          filename: "mockedGoogleTag.js",
-        },
-      };
+const getExampleOutputs = (env) => (!env.outputToExamples ? {} : espOutput);
 
 module.exports = (env, argv) => {
   const buildMode = argv.mode;
