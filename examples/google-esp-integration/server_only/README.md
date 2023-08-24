@@ -14,20 +14,22 @@ The easiest way to try the example is to use the following Docker Build command:
 docker build . -t uid2-esp-server
 docker run -it --rm -p 3000:3000 \
     -e UID2_BASE_URL="https://operator-integ.uidapi.com" \
-    -e UID2_API_KEY="<your-integ-API-key>" \
-    -e SESSION_KEY="my-session-key" \
+    -e UID2_API_KEY="{INTEG_API_KEY}" \
+    -e UID2_CLIENT_SECRET="{CLIENT_KEY}" \
+    -e SESSION_KEY="{SESSION_KEY}" \
     -e AD_TAG_URL="<your-IMA-ad-tag-url>" \
     uid2-esp-server
 ```
 
 The following table lists the environment variables that you must specify to start the application.
 
-| Parameter       | Data Type | Description                                                                                                                                              |
-| :-------------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `UID2_BASE_URL` | string    | The base URL of the UID2 service. For example:</br>Testing environment: `https://integ.uidapi.com`<br/>Production environment: `https://prod.uidapi.com` |
-| `UID2_API_KEY`  | string    | Your UID2 authentication key for the UID2 service specified in `UID2_BASE_URL`.                                                                          |
-| `SESSION_KEY`   | string    | The key to the encryption session data stored in the application's session cookie.                                                                       |
-| `AD_TAG_URL`    | string    | The ad tag URL to test ad requests.                                                                                                                      |
+| Parameter            | Data Type | Description                                                                                                                                              |
+| :------------------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| `UID2_BASE_URL`      | string    | The base URL of the UID2 service. For example:</br>Testing environment: `https://integ.uidapi.com`<br/>Production environment: `https://prod.uidapi.com` |
+| `UID2_API_KEY`       | string    | Your UID2 authentication key for the UID2 service specified in `UID2_BASE_URL`.                                                                          |
+| `UID2_CLIENT_SECRET` | string    | Your UID2 client secret for the UID2 service specified in `UID2_BASE_URL`.                                                                               |     |
+| `SESSION_KEY`        | string    | The key to the encryption session data stored in the application's session cookie.                                                                       |
+| `AD_TAG_URL`         | string    | The ad tag URL to test ad requests.                                                                                                                      |
 
 Output similar to the following indicates that the example application is up and running.
 
