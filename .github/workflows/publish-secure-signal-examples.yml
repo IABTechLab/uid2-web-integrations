@@ -1,5 +1,4 @@
-name: Docker Image CI
-
+name: Publish Secure Signal Examples
 on:
   workflow_dispatch:
 
