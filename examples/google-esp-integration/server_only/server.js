@@ -217,7 +217,7 @@ app.get("/", protect, (req, res) => {
   res.render("index", { identity: req.session.identity });
 });
 
-app.get("/getFreshToken", protected, async (req, res) => {
+app.get("/getFreshToken", protect, async (req, res) => {
   if (
     Date.now() >= req.session.identity.refresh_from ||
     Date.now() >= req.session.identity.identity_expires
