@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: cstg-example
+  IMAGE_NAME: iabtechlab/cstg-example
 
 jobs:
   build-cstg-example:
@@ -30,7 +30,7 @@ jobs:
           tags: |
             type=sha,format=short
             type=raw,value=latest
-      - name: Build and push Docker server_only image
+      - name: Build and push Docker CSTG Example image
         uses: docker/build-push-action@v2
         with:
           context: examples/cstg
