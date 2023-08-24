@@ -15,7 +15,7 @@ docker build . -t uid2-esp-standard
 docker run -it --rm -p 3000:3000 \
     -e UID2_BASE_URL="https://operator-integ.uidapi.com" \
     -e UID2_API_KEY="<your-integ-API-key>" \
-    -e UID2_CLIENT_SECRET="{CLIENT_SECRET}" \
+    -e UID2_CLIENT_SECRET="<your-integ-client-secret>" \
     -e AD_TAG_URL="<your-IMA-ad-tag-url>" \
     uid2-esp-standard
 ```

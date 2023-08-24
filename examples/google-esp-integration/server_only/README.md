@@ -14,10 +14,10 @@ The easiest way to try the example is to use the following Docker Build command:
 docker build . -t uid2-esp-server
 docker run -it --rm -p 3000:3000 \
     -e UID2_BASE_URL="https://operator-integ.uidapi.com" \
-    -e UID2_API_KEY="{INTEG_API_KEY}" \
-    -e UID2_CLIENT_SECRET="{CLIENT_KEY}" \
+    -e UID2_API_KEY="<your-integ-API-key>" \
+    -e UID2_CLIENT_SECRET="<your-integ-client-secret>" \
     -e SESSION_KEY="my-uid2-session" \
-    -e AD_TAG_URL="" \
+    -e AD_TAG_URL="<your-IMA-ad-tag-url>" \
     uid2-esp-server
 ```
 
