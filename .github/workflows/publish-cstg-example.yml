@@ -2,7 +2,6 @@ name: Publish CSTG Example
 
 on:
   workflow_dispatch:
-  push: # remove this when merging into main
 
 env:
   REGISTRY: ghcr.io
@@ -28,8 +27,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=sha,format=short
-            type=raw,value=latest
+            type=sha,prefix=${{ steps.version.outputs.package_version }}-,format=short
       - name: Build and push Docker CSTG Example image
         uses: docker/build-push-action@v2
         with:
