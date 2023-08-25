@@ -27,7 +27,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=sha,prefix=${{ steps.version.outputs.package_version }}-,format=short
+            type=sha,format=short
       - name: Build and push Docker CSTG Example image
         uses: docker/build-push-action@v2
         with:
