@@ -38,7 +38,7 @@ jobs:
     outputs:
       sdkVersion: ${{ steps.version.outputs.package_version }}
   publish-package:
-    if: ${{github.event.inputs.publishToNPM === 'true'}}
+    if: github.event.inputs.publishToNPM == 'true'
     needs: [build]
     runs-on: ubuntu-latest
     steps:
