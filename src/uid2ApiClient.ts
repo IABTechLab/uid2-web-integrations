@@ -256,7 +256,6 @@ export class Uid2ApiClient {
     this._requestsInFlight.push(req);
     req.overrideMimeType("text/plain");
     req.open("POST", url, true);
-    req.setRequestHeader("X-UID2-Client-Version", this._clientVersion);
 
     let resolvePromise: (result: CstgResult) => void;
     let rejectPromise: (reason: unknown) => void;
