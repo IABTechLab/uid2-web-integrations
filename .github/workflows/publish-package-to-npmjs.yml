@@ -5,6 +5,10 @@ on:
       withTag:
         description: By default, running npm publish will tag your package with the latest dist-tag. To use another dist-tag, please add tag here
         required: false
+      publishToNPM:
+        description: Publish package to NPM
+        required: false
+        default: true
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,6 +38,7 @@ jobs:
     outputs:
       sdkVersion: ${{ steps.version.outputs.package_version }}
   publish-package:
+    if: github.event.inputs.publishToNPM == 'true'
     needs: [build]
     runs-on: ubuntu-latest
     steps:
