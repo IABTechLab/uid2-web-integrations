@@ -1,7 +1,12 @@
 const MAXIMUM_RETRY = 3;
+const INTEG_BASE_URL = "http://localhost:3000/";
 export class Uid2SecureSignalProvider {
-  constructor() {
+  debug: boolean;
+  constructor(debug = false) {
+    this.debug = debug;
+
     if (typeof window.getUid2AdvertisingToken === "function") {
+      this.logging("register SecureSignalProvider");
       this.registerSecureSignalProvider();
     }
   }
@@ -10,20 +15,34 @@ export class Uid2SecureSignalProvider {
     const uid2Handler = this.retrieveAdvertisingTokenHandler();
 
     if (!uid2Handler) {
-      console.warn("Please implement `getUid2AdvertisingToken`");
+      console.warn(
+        "Uid2SecureSignal: Please implement `getUid2AdvertisingToken`"
+      );
       return;
     }
+
     window.googletag = window.googletag || {
       cmd: [],
     };
+
     window.googletag.secureSignalProviders =
       window.googletag.secureSignalProviders || [];
     window.googletag.secureSignalProviders.push({
       id: "uidapi.com",
       collectorFunction: async () => {
-        return getUid2AdvertisingTokenWithRetry(uid2Handler);
+        this.logging("collectorFunction invoked");
+        const uid2AdvertisingToken = await getUid2AdvertisingTokenWithRetry(
+          uid2Handler
+        );
+        this.logging(`collectorFunction pushes: ${uid2AdvertisingToken}`);
+        return uid2AdvertisingToken;
       },
     });
+  };
+
+  public logging = (message: string) => {
+    if (!this.debug) return;
+    console.log(`Uid2SecureSignal: ${message}`);
   };
 
   private retrieveAdvertisingTokenHandler = (): Function | undefined => {
@@ -44,8 +63,21 @@ declare global {
   }
 }
 
+function isDebugModeOn() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const debugParam = urlParams.get("uid2_ss_debug");
+  return (
+    debugParam?.toLocaleUpperCase() === "TRUE" ||
+    (document.currentScript as HTMLScriptElement)?.src.startsWith(
+      INTEG_BASE_URL
+    )
+  );
+}
+
 export function __uid2SSProviderScriptLoad() {
-  window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
+  window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider(
+    isDebugModeOn()
+  );
   // For UID2 SDK integration
   window.__uid2 = window.__uid2 || {
     callbacks: [],
@@ -69,6 +101,10 @@ export function getUid2AdvertisingTokenWithRetry(
 
     async function attempt(error?: unknown) {
       if (attempts >= retries) {
+        window.__uid2SecureSignalProvider?.logging(
+          `getUid2AdvertisingTokenWithRetry failed with error after retry: ${error}`
+        );
+
         reject(error);
         return;
       }
@@ -77,8 +113,14 @@ export function getUid2AdvertisingTokenWithRetry(
 
       try {
         const result = await uid2Handler();
+        window.__uid2SecureSignalProvider?.logging(
+          `getUid2AdvertisingTokenWithRetry resolved with: ${result}`
+        );
         resolve(result);
       } catch (error) {
+        window.__uid2SecureSignalProvider?.logging(
+          `getUid2AdvertisingTokenWithRetry failed with error: ${error}`
+        );
         attempt(error);
       }
     }
