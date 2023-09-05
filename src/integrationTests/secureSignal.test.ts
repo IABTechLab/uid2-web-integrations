@@ -76,7 +76,7 @@ describe("Secure Signal Tests", () => {
           uid2ESP.registerSecureSignalProvider();
           expect(console.warn).toHaveBeenCalledTimes(1);
           expect(consoleWarnMock).toHaveBeenCalledWith(
-            "Please implement `getUid2AdvertisingToken`"
+            "Uid2SecureSignal: Please implement `getUid2AdvertisingToken`"
           );
           expect(secureSignalProvidersPushMock).not.toBeCalled();
         });
