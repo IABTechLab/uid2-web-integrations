@@ -1,5 +1,5 @@
 const MAXIMUM_RETRY = 3;
-const INTEG_BASE_URL = "http://localhost:3000/";
+const INTEG_BASE_URL = "https://cdn.integ.uidapi.com/";
 export class Uid2SecureSignalProvider {
   debug: boolean;
   constructor(debug = false) {
