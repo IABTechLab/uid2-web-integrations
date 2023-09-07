@@ -8,7 +8,17 @@ For an example application without using the UID2 SDK, see [Server-Only UID2 Int
 
 ## Build and Run the Example Application
 
-The easiest way to try the example is to use the following Docker Build command:
+### Using the VS Code Debugger
+
+The easiest way to try the example is to do the following:
+1. Open this repo in VS Code
+1. Click the Run and Debug tab or hit `Crtl+Shift+D`
+1. Select `Launch ESP (Chrome)` from the configuration dropdown
+1. Click `Start Debugging` or hit F5
+
+### Running the Docker commands manually
+
+The other way to try the example is to use the following Docker Build command:
 
 ```
 docker build . -t uid2-esp-standard
@@ -17,6 +27,7 @@ docker run -it --rm -p 3000:3000 \
     -e UID2_API_KEY="<your-integ-API-key>" \
     -e UID2_CLIENT_SECRET="<your-integ-client-secret>" \
     -e AD_TAG_URL="<your-IMA-ad-tag-url>" \
+    -e UID2_JS_SDK_URL="<your-JS-SDK-URL>" \
     uid2-esp-standard
 ```
 
@@ -28,6 +39,7 @@ The following table lists the environment variables that you must specify to sta
 | `UID2_API_KEY`       | string    | Your UID2 authentication key for the UID2 service specified in `UID2_BASE_URL`.                                                                          |
 | `UID2_CLIENT_SECRET` | string    | Your UID2 client secret for the UID2 service specified in `UID2_BASE_URL`.                                                                               |
 | `AD_TAG_URL`         | string    | The ad tag URL to test ad requests.                                                                                                                      |
+| `UID2_JS_SDK_URL`    | string    | The UID2 JS SDK. If this optional parameter it not provided, it will default to the integ URL specified in `server.js`                                                                                                                      |
 
 Output similar to the following indicates that the example application is up and running.
 
