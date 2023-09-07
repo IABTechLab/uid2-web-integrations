@@ -83,13 +83,13 @@
         "ports": [
           {
             "hostPort": 9090,
-            "containerPort": 80
+            "containerPort": 3000
           }
         ],
         "volumes": [
           {
-            "localPath": "${workspaceFolder}/examples/google-esp-integration/with_sdk_v3", // unsure of this, maybe needs `views` in the path
-            "containerPath": "/usr/share/nginx/html", // unsure
+            "localPath": "${workspaceFolder}/examples/google-esp-integration/with_sdk_v3",
+            "containerPath": "/usr/share/nginx/html",
             "permissions": "ro"
           }
         ],
