@@ -157,6 +157,7 @@ app.post("/login", async (req, res) => {
       res.render("login", {
         identity: response.body,
         uid2BaseUrl: uid2BaseUrl,
+        uid2JsSdkUrl: uid2JsSdkUrl,
       });
     }
   } catch (error) {

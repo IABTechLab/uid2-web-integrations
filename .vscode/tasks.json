@@ -93,12 +93,7 @@
             "permissions": "ro"
           }
         ],
-        "env": {
-          "UID2_BASE_URL": "http://localhost:8080",
-          "UID2_JS_SDK_URL": "http://localhost:9091/uid2-sdk.js",
-          "SERVER_PUBLIC_KEY": "UID2-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtXJdTSZAYHvoRDWiehMHoWF1BNPuqLs5w2ZHiAZ1IJc7O4/z0ojPTB0V+KYX/wxQK0hxx6kxCvHj335eI/ZQsQ==",
-          "SUBSCRIPTION_ID": "4WvryDGbR5"
-        },
+        "envFile": "${workspaceFolder}/examples/google-esp-integration/with_sdk_v3/.env",
         "remove": true
       }
     },

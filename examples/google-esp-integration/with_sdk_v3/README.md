@@ -12,6 +12,7 @@ For an example application without using the UID2 SDK, see [Server-Only UID2 Int
 
 The easiest way to try the example is to do the following:
 1. Open this repo in VS Code
+1. Populate `UID2_API_KEY` and `UID2_CLIENT_SECRET` in your `.env` file.
 1. Click the Run and Debug tab or hit `Crtl+Shift+D`
 1. Select `Launch ESP (Chrome)` from the configuration dropdown
 1. Click `Start Debugging` or hit F5
