@@ -88,13 +88,13 @@
         ],
         "volumes": [
           {
-            "localPath": "${workspaceFolder}/examples/google-esp-integration/with_sdk_v3",
-            "containerPath": "/usr/share/nginx/html",
+            "localPath": "${workspaceFolder}/examples/google-esp-integration/with_sdk_v3/views",
+            "containerPath": "/usr/src/app/views",
             "permissions": "ro"
           }
         ],
-        "envFile": "${workspaceFolder}/examples/google-esp-integration/with_sdk_v3/.env",
-        "remove": true
+        "envFiles": ["${workspaceFolder}/examples/google-esp-integration/with_sdk_v3/.env"],
+        "remove": true,
       }
     },
     {
