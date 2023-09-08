@@ -30,7 +30,6 @@ export class Uid2CallbackManager {
   private static _sentSdkLoaded = false;
   private _sentInit = false;
   private callbackPushInterceptor(...args: Uid2CallbackHandler[]) {
-    const pushResult = Array.prototype.push.apply(this._uid2.callbacks, args);
     for (const c of args) {
       if (Uid2CallbackManager._sentSdkLoaded)
         this.safeRunCallback(c, EventType.SdkLoaded, {});
@@ -39,7 +38,7 @@ export class Uid2CallbackManager {
           identity: this._getIdentity() ?? null,
         });
     }
-    return pushResult;
+    return Array.prototype.push.apply(this._uid2.callbacks, args);
   }
 
   public runCallbacks(event: EventType, payload: Uid2CallbackPayload) {
