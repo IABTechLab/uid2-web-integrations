@@ -9,6 +9,7 @@ const port = process.env.PORT || 3000;
 const uid2BaseUrl = process.env.UID2_BASE_URL;
 const uid2ApiKey = process.env.UID2_API_KEY;
 const uid2ClientSecret = process.env.UID2_CLIENT_SECRET;
+const uid2JsSdkUrl = process.env.UID2_JS_SDK_URL || "https://cdn.integ.uidapi.com/uid2-sdk-3.0.1.js";
 
 const ivLength = 12;
 const nonceLength = 8;
@@ -22,7 +23,7 @@ app.engine(".html", ejs.__express);
 app.set("view engine", "html");
 
 app.get("/", (req, res) => {
-  res.render("index", { uid2BaseUrl: uid2BaseUrl });
+  res.render("index", { uid2BaseUrl: uid2BaseUrl, uid2JsSdkUrl: uid2JsSdkUrl });
 });
 
 function bufferToBase64(arrayBuffer) {
@@ -156,6 +157,7 @@ app.post("/login", async (req, res) => {
       res.render("login", {
         identity: response.body,
         uid2BaseUrl: uid2BaseUrl,
+        uid2JsSdkUrl: uid2JsSdkUrl,
       });
     }
   } catch (error) {

@@ -16,6 +16,19 @@
       "sourceMapPathOverrides": {
         "webpack://@uid2/uid2-sdk/./*": "${webRoot}/*"
       }
+    },
+    {
+      "name": "Launch ESP (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:9090",
+      "webRoot": "${workspaceRoot}/",
+      "sourceMaps": true,
+      "preLaunchTask": "Start ESP",
+      "postDebugTask": "Terminate ESP",
+      "sourceMapPathOverrides": {
+        "webpack://@uid2/uid2-sdk/./*": "${webRoot}/*"
+      }
     }
   ]
 }

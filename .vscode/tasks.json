@@ -37,6 +37,14 @@
       }
     },
     {
+      "label": "Build ESP Image",
+      "type": "docker-build",
+      "dockerBuild": {
+        "context": "${workspaceFolder}/examples/google-esp-integration/with_sdk_v3",
+        "tag": "uid2-esp-example"
+      }
+    },
+    {
       "label": "Run CSTG Container",
       "type": "docker-run",
       "dependsOn": ["Build CSTG Image"],
@@ -66,13 +74,45 @@
       }
     },
     {
+      "label": "Run ESP Container",
+      "type": "docker-run",
+      "dependsOn": ["Build ESP Image"],
+      "dockerRun": {
+        "image": "uid2-esp-example",
+        "containerName": "uid2-esp-example",
+        "ports": [
+          {
+            "hostPort": 9090,
+            "containerPort": 3000
+          }
+        ],
+        "volumes": [
+          {
+            "localPath": "${workspaceFolder}/examples/google-esp-integration/with_sdk_v3/views",
+            "containerPath": "/usr/src/app/views",
+            "permissions": "ro"
+          }
+        ],
+        "envFiles": ["${workspaceFolder}/examples/google-esp-integration/with_sdk_v3/.env"],
+        "remove": true,
+      }
+    },
+    {
       "label": "Start CSTG",
       "dependsOn": ["webpack-dev-server", "Run CSTG Container"]
+    },    {
+      "label": "Start ESP",
+      "dependsOn": ["webpack-dev-server", "Run ESP Container"]
     },
     {
       "label": "Terminate CSTG Container",
       "type": "shell",
       "command": "docker stop uid2-cstg-example"
+    },
+    {
+      "label": "Terminate ESP Container",
+      "type": "shell",
+      "command": "docker stop uid2-esp-example"
     },
     {
       "label": "Terminate All Tasks",
@@ -83,6 +123,10 @@
     {
       "label": "Terminate CSTG",
       "dependsOn": ["Terminate All Tasks", "Terminate CSTG Container"]
+    },
+    {
+      "label": "Terminate ESP",
+      "dependsOn": ["Terminate All Tasks", "Terminate ESP Container"]
     }
   ],
   "inputs": [
