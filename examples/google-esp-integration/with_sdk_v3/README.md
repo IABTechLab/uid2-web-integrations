@@ -26,16 +26,16 @@ The easiest way to try the example is to do the following:
 
 ### Running the Docker commands manually
 
-The other way to try the example is to use the following Docker Build command:
+The other way to try the example is to use the following Docker Build command. First, open this folder in your terminal, then run the following:
 
 ```
 docker build . -t uid2-esp-standard
-docker run -it --rm -p 3000:3000 \
-    -e UID2_BASE_URL="https://operator-integ.uidapi.com" \
-    -e UID2_API_KEY="<your-integ-API-key>" \
-    -e UID2_CLIENT_SECRET="<your-integ-client-secret>" \
-    -e AD_TAG_URL="https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/extrernal/adx-test-tag&tfcd=0&npa=0&sz=640x480&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=" \
-    -e UID2_JS_SDK_URL="<your-JS-SDK-URL>" \
+docker run -it --rm -p 3000:3000 `
+    -e UID2_BASE_URL="https://operator-integ.uidapi.com" `
+    -e UID2_API_KEY="<your-integ-API-key>" `
+    -e UID2_CLIENT_SECRET="<your-integ-client-secret>" `
+    -e AD_TAG_URL="https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/extrernal/adx-test-tag&tfcd=0&npa=0&sz=640x480&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=" `
+    -e UID2_JS_SDK_URL="<your-JS-SDK-URL>" `
     uid2-esp-standard
 ```
 
