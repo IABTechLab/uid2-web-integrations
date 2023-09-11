@@ -228,10 +228,9 @@ export class UID2 {
     let identity;
     if (this._opts.identity) {
       identity = this._opts.identity;
-    } else if (opts.useCookie) {
-      identity = this._cookieManager.loadIdentityFromCookie();
     } else {
-      identity = this._localStorageManager.loadIdentityFromLocalStorage();
+      const localStorageIdentity = this._localStorageManager.loadIdentityFromLocalStorage();
+      identity = localStorageIdentity !== null ? localStorageIdentity : this._cookieManager.loadIdentityFromCookie();
     }
     const validatedIdentity = this.validateAndSetIdentity(identity);
     if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
@@ -342,6 +341,7 @@ export class UID2 {
         this._cookieManager.setCookie(validity.identity);
       }
       else {
+        this._cookieManager.removeCookie();
         this._localStorageManager.setValue(validity.identity);
       }
     } else {
