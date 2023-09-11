@@ -256,17 +256,17 @@ export class UID2 {
 
   private getIdentityStatus(identity: Uid2Identity | null):
     | {
-        valid: true;
-        identity: Uid2Identity;
-        errorMessage: string;
-        status: IdentityStatus;
-      }
+      valid: true;
+      identity: Uid2Identity;
+      errorMessage: string;
+      status: IdentityStatus;
+    }
     | {
-        valid: false;
-        errorMessage: string;
-        status: IdentityStatus;
-        identity: null;
-      } {
+      valid: false;
+      errorMessage: string;
+      status: IdentityStatus;
+      identity: null;
+    } {
     if (!identity) {
       return {
         valid: false,
@@ -438,7 +438,7 @@ export class UID2 {
   }
 
   private async callCstgAndSetIdentity(
-    request: { emailHash: string } | { phoneHash: string },
+    request: { emailHash: string; } | { phoneHash: string; },
     opts: ClientSideIdentityOptions
   ) {
     const cstgResult = await this._apiClient!.callCstgApi(request, opts);
