@@ -71,12 +71,20 @@ export class UID2CookieManager {
     }
   }
 
+  private migrateLegacyCookie(identity: LegacyUid2SDKCookie, now: number): Uid2Identity {
+    const newCookie = enrichIdentity(identity, now);
+    this.setCookie(newCookie);
+    return newCookie;
+  }
+
   public loadIdentityFromCookie(): Uid2Identity | null {
     const payload = this.getCookie();
     if (payload) {
       const result = JSON.parse(payload) as unknown;
       if (isValidIdentity(result)) return result;
-      if (isLegacyCookie(result)) return enrichIdentity(result, Date.now());
+      if (isLegacyCookie(result)) {
+        return this.migrateLegacyCookie(result, Date.now());
+      }
     }
     return null;
   }
