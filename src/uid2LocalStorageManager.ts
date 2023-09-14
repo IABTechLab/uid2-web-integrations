@@ -3,13 +3,13 @@ import { isValidIdentity, Uid2Identity } from "./Uid2Identity";
 export class UID2LocalStorageManager {
   public setValue(identity: Uid2Identity) {
     const value = JSON.stringify(identity);
-    localStorage.setItem("identity", value);
+    localStorage.setItem("UID2-identity", value);
   }
   public removeValue() {
-    localStorage.removeItem("identity");
+    localStorage.removeItem("UID2-identity");
   }
   private getValue() {
-    return localStorage.getItem("identity");
+    return localStorage.getItem("UID2-identity");
   }
 
   public loadIdentityFromLocalStorage(): Uid2Identity | null {
