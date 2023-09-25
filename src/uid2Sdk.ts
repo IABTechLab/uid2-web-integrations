@@ -344,8 +344,8 @@ export class UID2 {
       }
       else if (this._opts.useCookie === false) {
         this._localStorageManager.setValue(validity.identity);
-        this._cookieManager.removeCookie();
-      } else if (this._opts.useCookie === undefined) {
+        if (this._localStorageManager.getValue()) this._cookieManager.removeCookie();
+      } else {
         this._localStorageManager.setValue(validity.identity);
       }
     } else {

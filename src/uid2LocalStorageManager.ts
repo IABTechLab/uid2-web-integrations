@@ -1,15 +1,17 @@
 import { isValidIdentity, Uid2Identity } from "./Uid2Identity";
 
+export const localStorageKeyName = 'UID2-sdk-identity'
+
 export class UID2LocalStorageManager {
   public setValue(identity: Uid2Identity) {
     const value = JSON.stringify(identity);
-    localStorage.setItem("UID2-identity", value);
+    localStorage.setItem(localStorageKeyName, value);
   }
   public removeValue() {
-    localStorage.removeItem("UID2-identity");
+    localStorage.removeItem(localStorageKeyName);
   }
-  private getValue() {
-    return localStorage.getItem("UID2-identity");
+  public getValue() {
+    return localStorage.getItem(localStorageKeyName);
   }
 
   public loadIdentityFromLocalStorage(): Uid2Identity | null {

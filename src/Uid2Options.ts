@@ -6,10 +6,11 @@ import { InitCallbackOptions } from "./Uid2InitCallbacks";
 export type Uid2Options = BaseUid2Options &
   InitCallbackOptions &
   UID2CookieOptions &
-  Uid2ApiClientOptions & { useCookie?: boolean; };
+  Uid2ApiClientOptions;
 type BaseUid2Options = {
   refreshRetryPeriod?: number;
   identity?: Uid2Identity;
+  useCookie?: boolean;
 };
 
 export function isUID2OptionsOrThrow(
