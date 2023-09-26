@@ -115,7 +115,7 @@ export class CryptoMock {
     );
 
     this.applyTo = (window) => {
-      Object.defineProperty(window, "crypto", { value: this });
+      Object.defineProperty(window, "crypto", { value: this, writable: true });
     };
 
     this.applyTo(window);
