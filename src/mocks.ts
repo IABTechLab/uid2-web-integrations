@@ -157,6 +157,10 @@ export async function flushPromises() {
   await Promise.resolve();
 }
 
+export function getUid2(useCookie?: boolean) {
+  return useCookie ? getUid2Cookie() : getUid2LocalStorage();
+}
+
 export function getUid2Cookie() {
   const docCookie = document.cookie;
   if (docCookie) {
@@ -180,7 +184,7 @@ export function setUid2LocalStorage(identity: string) {
 
 export function getUid2LocalStorage() {
   const value = localStorage.getItem(localStorageKeyName);
-  return value !== null ? JSON.parse(value) : null;
+  return value !== null ? JSON.parse(value) : undefined;
 }
 
 export function setEuidCookie(value: any) {

@@ -24,14 +24,18 @@ beforeEach(() => {
   xhrMock = new mocks.XhrMock(sdkWindow);
   _cryptoMock = new mocks.CryptoMock(sdkWindow);
   mocks.setCookieMock(sdkWindow.document);
+  removeUid2Cookie();
+  removeUid2LocalStorage();
 });
 
 afterEach(() => {
   mocks.resetFakeTime();
 });
 
-const getUid2Cookie = mocks.getUid2Cookie;
+const getUid2 = mocks.getUid2;
 const makeIdentity = mocks.makeIdentityV2;
+const removeUid2Cookie = mocks.removeUid2Cookie;
+const removeUid2LocalStorage = mocks.removeUid2LocalStorage;
 
 let useCookie: boolean | undefined = undefined;
 
@@ -66,7 +70,7 @@ testCookieAndLocalStorage(() => {
       getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
       jest.clearAllMocks();
       jest.runOnlyPendingTimers();
-      uid2.init({ callback: callback, identity: originalIdentity });
+      uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
     });
 
     test("should invoke the callback", () => {
@@ -102,7 +106,7 @@ testCookieAndLocalStorage(() => {
     });
 
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: originalIdentity });
+      uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
       jest.clearAllMocks();
       jest.setSystemTime(refreshFrom);
       jest.runOnlyPendingTimers();
@@ -141,8 +145,8 @@ testCookieAndLocalStorage(() => {
           })
         );
       });
-      test("should set cookie", () => {
-        expect(getUid2Cookie().advertising_token).toBe(
+      test("should store value", () => {
+        expect(getUid2(useCookie).advertising_token).toBe(
           updatedIdentity.advertising_token
         );
       });
@@ -188,8 +192,8 @@ testCookieAndLocalStorage(() => {
           })
         );
       });
-      test("should clear cookie", () => {
-        expect(getUid2Cookie()).toBeUndefined();
+      test("should clear value", () => {
+        expect(getUid2(useCookie)).toBeUndefined();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -227,8 +231,8 @@ testCookieAndLocalStorage(() => {
           })
         );
       });
-      test("should clear cookie", () => {
-        expect(getUid2Cookie()).toBeUndefined();
+      test("should clear value", () => {
+        expect(getUid2(useCookie)).toBeUndefined();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -260,8 +264,8 @@ testCookieAndLocalStorage(() => {
         );
       });
 
-      test("should not update cookie", () => {
-        expect(getUid2Cookie().advertising_token).toBe(
+      test("should not update value", () => {
+        expect(getUid2(useCookie).advertising_token).toBe(
           originalIdentity.advertising_token
         );
       });
@@ -304,8 +308,8 @@ testCookieAndLocalStorage(() => {
           })
         );
       });
-      test("should clear cookie", () => {
-        expect(getUid2Cookie()).toBeUndefined();
+      test("should clear value", () => {
+        expect(getUid2(useCookie)).toBeUndefined();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -339,8 +343,8 @@ testCookieAndLocalStorage(() => {
           })
         );
       });
-      test("should set cookie", () => {
-        expect(getUid2Cookie().advertising_token).toBe(
+      test("should store value", () => {
+        expect(getUid2(useCookie).advertising_token).toBe(
           manualSetIdentity.advertising_token
         );
       });
@@ -374,7 +378,7 @@ testCookieAndLocalStorage(() => {
     });
 
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: originalIdentity });
+      uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
       jest.clearAllMocks();
       jest.setSystemTime(refreshFrom);
       jest.runOnlyPendingTimers();
@@ -413,8 +417,8 @@ testCookieAndLocalStorage(() => {
           })
         );
       });
-      test("should set cookie", () => {
-        expect(getUid2Cookie().advertising_token).toBe(
+      test("should store value", () => {
+        expect(getUid2(useCookie).advertising_token).toBe(
           updatedIdentity.advertising_token
         );
       });
@@ -459,8 +463,8 @@ testCookieAndLocalStorage(() => {
           })
         );
       });
-      test("should clear cookie", () => {
-        expect(getUid2Cookie()).toBeUndefined();
+      test("should clear value", () => {
+        expect(getUid2(useCookie)).toBeUndefined();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -498,8 +502,8 @@ testCookieAndLocalStorage(() => {
           })
         );
       });
-      test("should clear cookie", () => {
-        expect(getUid2Cookie()).toBeUndefined();
+      test("should clear value", () => {
+        expect(getUid2(useCookie)).toBeUndefined();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -528,8 +532,8 @@ testCookieAndLocalStorage(() => {
       test("getAdvertisingTokenPromise should reject", () => {
         expect(expection).toEqual(new Error("No identity available."));
       });
-      test("should not update cookie", () => {
-        expect(getUid2Cookie().advertising_token).toBe(
+      test("should not update value", () => {
+        expect(getUid2(useCookie).advertising_token).toBe(
           originalIdentity.advertising_token
         );
       });
@@ -572,8 +576,8 @@ testCookieAndLocalStorage(() => {
           })
         );
       });
-      test("should clear cookie", () => {
-        expect(getUid2Cookie()).toBeUndefined();
+      test("should clear value", () => {
+        expect(getUid2(useCookie)).toBeUndefined();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();

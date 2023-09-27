@@ -191,7 +191,7 @@ describe("useCookie option", () => {
     });
     test("should set identity in cookie only", () => {
       expect(getUid2Cookie().advertising_token).toBe(identity.advertising_token);
-      expect(getUid2LocalStorage()).toBeNull();
+      expect(getUid2LocalStorage()).toBeUndefined();
     });
   });
 });
