@@ -28,8 +28,7 @@ afterEach(() => {
 });
 
 const setUid2Cookie = mocks.setUid2Cookie;
-const getUid2Cookie = mocks.getUid2Cookie;
-const getUid2LocalStorage = mocks.getUid2LocalStorage;
+const getUid2 = mocks.getUid2;
 const makeIdentity = mocks.makeIdentityV2;
 
 let useCookie: boolean | undefined = undefined;
@@ -100,11 +99,7 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should set value", () => {
-        if (useCookie) {
-          expect(getUid2Cookie().advertising_token).toBe(updatedIdentity.advertising_token);
-        } else {
-          expect(getUid2LocalStorage().advertising_token).toBe(updatedIdentity.advertising_token);
-        }
+        expect(getUid2(useCookie).advertising_token).toBe(updatedIdentity.advertising_token);
       });
       test("should set refresh timer", () => {
         expect(setTimeout).toHaveBeenCalledTimes(1);
@@ -137,30 +132,16 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should set enriched value", () => {
-        if (useCookie) {
-          const cookie = getUid2Cookie();
-          expect(cookie.refresh_token).toBe(
-            originalIdentity.refresh_token
-          );
-          expect(cookie.refresh_from).toBe(Date.now());
-          expect(cookie.identity_expires).toBeGreaterThan(Date.now());
-          expect(cookie.refresh_expires).toBeGreaterThan(Date.now());
-          expect(cookie.identity_expires).toBeLessThan(
-            cookie.refresh_expires
-          );
-        }
-        else {
-          const localStorageValue = getUid2LocalStorage();
-          expect(localStorageValue.refresh_token).toBe(
-            originalIdentity.refresh_token
-          );
-          expect(localStorageValue.refresh_from).toBe(Date.now());
-          expect(localStorageValue.identity_expires).toBeGreaterThan(Date.now());
-          expect(localStorageValue.refresh_expires).toBeGreaterThan(Date.now());
-          expect(localStorageValue.identity_expires).toBeLessThan(
-            localStorageValue.refresh_expires
-          );
-        }
+        const value = getUid2(useCookie);
+        expect(value.refresh_token).toBe(
+          originalIdentity.refresh_token
+        );
+        expect(value.refresh_from).toBe(Date.now());
+        expect(value.identity_expires).toBeGreaterThan(Date.now());
+        expect(value.refresh_expires).toBeGreaterThan(Date.now());
+        expect(value.identity_expires).toBeLessThan(
+          value.refresh_expires
+        );
       });
       test("should set refresh timer", () => {
         expect(setTimeout).toHaveBeenCalledTimes(1);

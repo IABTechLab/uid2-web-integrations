@@ -177,7 +177,7 @@ export function removeUid2LocalStorage() {
   localStorage.removeItem(localStorageKeyName);
 }
 
-export function setUid2LocalStorage(identity: string) {
+export function setUid2LocalStorage(identity: any) {
   const value = JSON.stringify(identity);
   localStorage.setItem(localStorageKeyName, value);
 }
