@@ -7,7 +7,53 @@ export function isNormalizedPhone(phone: string): boolean {
   return /^\+[0-9]{10,15}$/.test(phone);
 }
 
+type EmailParts = {
+  starting: string;
+  domain: string;
+};
+
+function splitEmailIntoStartingAndDomain(
+  email: string
+): EmailParts | undefined {
+  const parts = email.split("@");
+  if (!parts.length || parts.length > 2) return undefined;
+  if (parts.some((part) => part === "")) return undefined;
+  return {
+    starting: parts[0],
+    domain: parts[1],
+  };
+}
+
+function isGmail(domain: string): boolean {
+  return domain === "gmail.com";
+}
+
+function normalizeStarting(
+  starting: string,
+  removeDot: boolean,
+  dropExtension: boolean
+): string {
+  let parsedStarting = starting.replaceAll(" ", "");
+  if (removeDot) parsedStarting = parsedStarting.replaceAll(".", "");
+  return dropExtension ? parsedStarting.split("+")[0] : parsedStarting;
+}
+
 export function normalizeEmail(email: string): string | undefined {
+  if (!email || !email.length) return undefined;
+  const normalizedEmail = email.trim().toLowerCase();
+  const emailParts = splitEmailIntoStartingAndDomain(normalizedEmail);
+  if (!emailParts) return undefined;
+
+  const { starting, domain } = emailParts;
+
+  return `${normalizeStarting(
+    starting,
+    isGmail(domain),
+    isGmail(domain)
+  )}@${domain}`;
+}
+
+export function normalizeEmailOld(email: string): string | undefined {
   if (email == undefined || email.length <= 0) {
     return undefined;
   }

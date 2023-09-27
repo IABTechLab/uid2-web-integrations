@@ -113,6 +113,14 @@ describe("DiiNormalization Tests", () => {
           originalEmail: "TEst.TEST@Test.com ",
           normalizedEmail: "test.test@test.com",
         },
+        {
+          originalEmail: "test test@Test.com",
+          normalizedEmail: "testtest@test.com",
+        },
+        {
+          originalEmail: "  test test@Te st.com  ",
+          normalizedEmail: "testtest@te st.com",
+        },
       ];
 
       testCases.forEach((testCase) =>
