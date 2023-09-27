@@ -13,8 +13,6 @@ import { sdkWindow, UID2 } from "../uid2Sdk";
 let callback: any;
 let uid2: UID2;
 let xhrMock: any;
-// let _cryptoMock: any;
-// let cryptoMock: any;
 
 mocks.setupFakeTime();
 
@@ -23,8 +21,8 @@ beforeEach(() => {
   uid2 = new UID2();
   xhrMock = new mocks.XhrMock(sdkWindow);
   mocks.setCookieMock(sdkWindow.document);
-  // _cryptoMock = new mocks.CryptoMock(sdkWindow);
-  // cryptoMock = new mocks.CryptoMock(sdkWindow);
+  removeUid2Cookie();
+  removeUid2LocalStorage();
 });
 
 afterEach(() => {
@@ -46,24 +44,18 @@ const testCookieAndLocalStorage = (test: () => void, only = false) => {
   const describeFn = only ? describe.only : describe;
   describeFn('Using default: ', () => {
     beforeEach(() => {
-      removeUid2Cookie();
-      removeUid2LocalStorage();
       useCookie = undefined;
     });
     test();
   });
   describeFn('Using cookies ', () => {
     beforeEach(() => {
-      removeUid2Cookie();
-      removeUid2LocalStorage();
       useCookie = true;
     });
     test();
   });
   describeFn('Using local storage ', () => {
     beforeEach(() => {
-      removeUid2Cookie();
-      removeUid2LocalStorage();
       useCookie = false;
     });
     test();
@@ -160,15 +152,8 @@ testCookieAndLocalStorage(() => {
   describe("when initialised without identity", () => {
     describe("when uid2 cookie is not available", () => {
       beforeEach(() => {
-        removeUid2Cookie();
-        removeUid2LocalStorage();
         uid2.init({ callback: callback, useCookie: useCookie });
       });
-
-      // afterEach(() => {
-      //   removeUid2Cookie();
-      //   removeUid2LocalStorage();
-      // })
 
       test("should invoke the callback", () => {
         expect(callback).toHaveBeenNthCalledWith(
@@ -260,16 +245,9 @@ testCookieAndLocalStorage(() => {
       });
 
       beforeEach(() => {
-        removeUid2Cookie();
-        removeUid2LocalStorage();
         setUid2Cookie(identity);
         uid2.init({ callback: callback, useCookie: useCookie });
       });
-
-      // afterEach(() => {
-      //   removeUid2Cookie();
-      //   removeUid2LocalStorage();
-      // })
 
       test("should invoke the callback", () => {
         expect(callback).toHaveBeenNthCalledWith(
@@ -320,35 +298,24 @@ testCookieAndLocalStorage(() => {
         identity_expires: Date.now() - 100000,
         refresh_from: Date.now() - 100000,
       });
-      // let _cryptoMock: any;
       let cryptoMock: any;
 
-      // const cryptoMock = new mocks.CryptoMock(sdkWindow);
 
       beforeEach(() => {
         xhrMock.open.mockClear();
         xhrMock.send.mockClear();
         cryptoMock = new mocks.CryptoMock(sdkWindow);
-        // _cryptoMock.subtle.importKey.mockClear();
-        removeUid2Cookie();
-        removeUid2LocalStorage();
         setUid2Cookie(identity);
         uid2.init({ callback: callback, useCookie: useCookie });
       });
 
       afterEach(() => {
-        removeUid2Cookie();
-        removeUid2LocalStorage();
         xhrMock.open.mockClear();
         xhrMock.send.mockClear();
-        // _cryptoMock.subtle.importKey.mockClear();
         cryptoMock.subtle.importKey.mockClear();
-        // xhrMock.onreadystatechange = null;
       });
 
-      // this test is only passing on first go
       test("should initiate token refresh", () => {
-        // const cryptoMock = new mocks.CryptoMock(sdkWindow);
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
         const url = "https://prod.uidapi.com/v2/token/refresh";
         expect(xhrMock.open).toHaveBeenLastCalledWith("POST", url, true);
@@ -372,8 +339,6 @@ testCookieAndLocalStorage(() => {
       });
 
       beforeEach(() => {
-        removeUid2Cookie();
-        removeUid2LocalStorage();
         setUid2Cookie(identity);
         uid2.init({ callback: callback, useCookie: useCookie });
       });
@@ -393,8 +358,6 @@ testCookieAndLocalStorage(() => {
   describe("when initialised with specific identity", () => {
     describe("when invalid identity is supplied", () => {
       beforeEach(() => {
-        removeUid2Cookie();
-        removeUid2LocalStorage();
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         uid2.init({ callback: callback, identity: {}, useCookie: useCookie });
@@ -426,8 +389,6 @@ testCookieAndLocalStorage(() => {
       const identity = makeIdentityV2();
 
       beforeEach(() => {
-        removeUid2Cookie();
-        removeUid2LocalStorage();
         uid2.init({ callback: callback, identity: identity, useCookie: useCookie });
       });
 
@@ -471,8 +432,6 @@ testCookieAndLocalStorage(() => {
       });
 
       beforeEach(() => {
-        removeUid2Cookie();
-        removeUid2LocalStorage();
         setUid2Cookie(cookieIdentity);
         uid2.init({ callback: callback, identity: initIdentity, useCookie: useCookie });
       });
@@ -521,8 +480,6 @@ testCookieAndLocalStorage(() => {
     });
 
     beforeEach(() => {
-      removeUid2Cookie();
-      removeUid2LocalStorage();
       uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
     });
 
@@ -533,11 +490,6 @@ testCookieAndLocalStorage(() => {
         );
         xhrMock.onreadystatechange(new Event(""));
       });
-
-      // afterEach(() => {
-      //   removeUid2Cookie();
-      //   removeUid2LocalStorage();
-      // });
 
       test("should invoke the callback", () => {
         expect(callback).toHaveBeenLastCalledWith(
@@ -573,8 +525,6 @@ testCookieAndLocalStorage(() => {
 
     describe("when token refresh returns invalid response", () => {
       beforeEach(() => {
-        // removeUid2Cookie();
-        // removeUid2LocalStorage();
         xhrMock.responseText = "abc";
         xhrMock.onreadystatechange(new Event(""));
       });
