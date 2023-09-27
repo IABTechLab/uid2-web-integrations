@@ -168,7 +168,7 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh returns optout", () => {
-      let expection: any;
+      let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
@@ -176,11 +176,11 @@ testCookieAndLocalStorage(() => {
           xhrMock.onreadystatechange(new Event(""));
           await getAdvertisingTokenPromise;
         } catch (err) {
-          expection = err;
+          exception = err;
         }
       });
       test("getAdvertisingTokenPromise should reject", () => {
-        expect(expection).toEqual(new Error("UID2 SDK aborted."));
+        expect(exception).toEqual(new Error("UID2 SDK aborted."));
       });
       test("should invoke the callback", () => {
         expect(callback).toHaveBeenNthCalledWith(
@@ -205,7 +205,7 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh returns refresh token expired", () => {
-      let expection: any;
+      let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
@@ -215,11 +215,11 @@ testCookieAndLocalStorage(() => {
           xhrMock.onreadystatechange(new Event(""));
           await getAdvertisingTokenPromise;
         } catch (err) {
-          expection = err;
+          exception = err;
         }
       });
       test("getAdvertisingTokenPromise should reject", () => {
-        expect(expection).toEqual(new Error("UID2 SDK aborted."));
+        expect(exception).toEqual(new Error("UID2 SDK aborted."));
       });
       test("should invoke the callback", () => {
         expect(callback).toHaveBeenNthCalledWith(
@@ -244,7 +244,7 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh returns an error status", () => {
-      let expection: any;
+      let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
@@ -255,7 +255,7 @@ testCookieAndLocalStorage(() => {
           xhrMock.onreadystatechange(new Event(""));
           await getAdvertisingTokenPromise;
         } catch (err) {
-          expection = err;
+          exception = err;
         }
       });
       test("getAdvertisingTokenPromise should return current advertising token", async () => {
@@ -281,7 +281,7 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh fails and current identity expires", () => {
-      let expection: any;
+      let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
@@ -290,12 +290,12 @@ testCookieAndLocalStorage(() => {
           xhrMock.onreadystatechange(new Event(""));
           await getAdvertisingTokenPromise;
         } catch (err) {
-          expection = err;
+          exception = err;
         }
       });
 
       test("getAdvertisingTokenPromise should reject", () => {
-        expect(expection).toEqual(new Error("UID2 SDK aborted."));
+        expect(exception).toEqual(new Error("UID2 SDK aborted."));
       });
 
       test("should invoke the callback", () => {
@@ -439,7 +439,7 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh returns optout", () => {
-      let expection: any;
+      let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
@@ -447,11 +447,11 @@ testCookieAndLocalStorage(() => {
           xhrMock.onreadystatechange(new Event(""));
           await getAdvertisingTokenPromise;
         } catch (err) {
-          expection = err;
+          exception = err;
         }
       });
       test("getAdvertisingTokenPromise should reject", () => {
-        expect(expection).toEqual(new Error("UID2 SDK aborted."));
+        expect(exception).toEqual(new Error("UID2 SDK aborted."));
       });
       test("should invoke the callback", () => {
         expect(callback).toHaveBeenNthCalledWith(
@@ -476,7 +476,7 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh returns refresh token expired", () => {
-      let expection: any;
+      let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
@@ -486,11 +486,11 @@ testCookieAndLocalStorage(() => {
           xhrMock.onreadystatechange(new Event(""));
           await getAdvertisingTokenPromise;
         } catch (err) {
-          expection = err;
+          exception = err;
         }
       });
       test("getAdvertisingTokenPromise should reject", () => {
-        expect(expection).toEqual(new Error("UID2 SDK aborted."));
+        expect(exception).toEqual(new Error("UID2 SDK aborted."));
       });
       test("should invoke the callback", () => {
         expect(callback).toHaveBeenNthCalledWith(
@@ -515,7 +515,7 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh returns an error status", () => {
-      let expection: any;
+      let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
@@ -526,11 +526,11 @@ testCookieAndLocalStorage(() => {
           xhrMock.onreadystatechange(new Event(""));
           await getAdvertisingTokenPromise;
         } catch (err) {
-          expection = err;
+          exception = err;
         }
       });
       test("getAdvertisingTokenPromise should reject", () => {
-        expect(expection).toEqual(new Error("No identity available."));
+        expect(exception).toEqual(new Error("No identity available."));
       });
       test("should not update value", () => {
         expect(getUid2(useCookie).advertising_token).toBe(
@@ -549,7 +549,7 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh fails and current identity expires", () => {
-      let expection: any;
+      let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
@@ -558,12 +558,12 @@ testCookieAndLocalStorage(() => {
           xhrMock.onreadystatechange(new Event(""));
           await getAdvertisingTokenPromise;
         } catch (err) {
-          expection = err;
+          exception = err;
         }
       });
 
       test("getAdvertisingTokenPromise should reject", () => {
-        expect(expection).toEqual(new Error("UID2 SDK aborted."));
+        expect(exception).toEqual(new Error("UID2 SDK aborted."));
       });
 
       test("should invoke the callback", () => {
