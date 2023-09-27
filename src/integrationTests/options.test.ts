@@ -26,6 +26,8 @@ beforeEach(() => {
   xhrMock = new mocks.XhrMock(sdkWindow);
   jest.spyOn(document, "URL", "get").mockImplementation(() => mockUrl);
   cookieMock = new mocks.CookieMock(sdkWindow.document);
+  removeUid2Cookie();
+  removeUid2LocalStorage();
 });
 
 afterEach(() => {
@@ -165,11 +167,6 @@ describe("refreshRetryPeriod option", () => {
 
 describe("useCookie option", () => {
   const identity = makeIdentity();
-
-  beforeEach(() => {
-    removeUid2Cookie();
-    removeUid2LocalStorage();
-  });
 
   describe("when using default value", () => {
     beforeEach(() => {

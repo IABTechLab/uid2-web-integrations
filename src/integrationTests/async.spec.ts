@@ -23,6 +23,8 @@ beforeEach(() => {
   xhrMock = new mocks.XhrMock(sdkWindow);
   _cryptoMock = new mocks.CryptoMock(sdkWindow);
   mocks.setCookieMock(sdkWindow.document);
+  removeUid2Cookie();
+  removeUid2LocalStorage();
 });
 
 afterEach(() => {
@@ -40,24 +42,18 @@ const testCookieAndLocalStorage = (test: () => void, only = false) => {
   const describeFn = only ? describe.only : describe;
   describeFn('Using default: ', () => {
     beforeEach(() => {
-      removeUid2Cookie();
-      removeUid2LocalStorage();
       useCookie = undefined;
     });
     test();
   });
   describeFn('Using cookies ', () => {
     beforeEach(() => {
-      removeUid2Cookie();
-      removeUid2LocalStorage();
       useCookie = true;
     });
     test();
   });
   describeFn('Using local storage ', () => {
     beforeEach(() => {
-      removeUid2Cookie();
-      removeUid2LocalStorage();
       useCookie = false;
     });
     test();
@@ -167,11 +163,6 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when initialisation failed", () => {
-
-      // beforeEach(() => {
-      //   removeUid2Cookie();
-      //   removeUid2LocalStorage();
-      // });
       test("it should reject promise", () => {
         uid2.init({});
         return expect(uid2.getAdvertisingTokenAsync()).rejects.toBeInstanceOf(
@@ -239,7 +230,6 @@ testCookieAndLocalStorage(() => {
         console.log("Succeeded");
       }
     });
-    // only passes for cookies
     test("the SDK should be initialized correctly", () => {
       sdkWindow.__uid2 = { callbacks: [] };
       sdkWindow.__uid2.callbacks!.push(callback);
