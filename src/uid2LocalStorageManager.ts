@@ -10,7 +10,7 @@ export class UID2LocalStorageManager {
   public removeValue() {
     localStorage.removeItem(localStorageKeyName);
   }
-  public getValue() {
+  private getValue() {
     return localStorage.getItem(localStorageKeyName);
   }
 

@@ -18,6 +18,7 @@ import {
 } from "./uid2ClientSideIdentityOptions";
 import { bytesToBase64 } from "./uid2Base64";
 import { UID2LocalStorageManager } from "./uid2LocalStorageManager";
+import { UID2StorageManager } from "./uid2StorageManager";
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -55,8 +56,7 @@ export class UID2 {
   private _callbackManager: Uid2CallbackManager;
 
   // Dependencies initialised on call to init due to requirement for options
-  private _cookieManager: UID2CookieManager | undefined;
-  private _localStorageManager: UID2LocalStorageManager | undefined;
+  private _storageManager: UID2StorageManager | undefined;
   private _apiClient: Uid2ApiClient | undefined;
 
   // State
@@ -181,8 +181,8 @@ export class UID2 {
   public disconnect() {
     this.abort(`UID2 SDK disconnected.`);
     // Note: This silently fails to clear the cookie if init hasn't been called and a cookieDomain is used!
-    if (this._cookieManager) this._cookieManager.removeCookie();
-    else new UID2CookieManager({}).removeCookie();
+    if (this._storageManager) this._storageManager.removeValues();
+    else new UID2StorageManager({}).removeValues();
     this._identity = undefined;
     this._callbackManager.runCallbacks(UID2.EventType.IdentityUpdated, {
       identity: null,
@@ -220,8 +220,7 @@ export class UID2 {
       );
 
     this._opts = opts;
-    this._cookieManager = new UID2CookieManager({ ...opts });
-    this._localStorageManager = new UID2LocalStorageManager();
+    this._storageManager = new UID2StorageManager({ ...opts });
     this._apiClient = new Uid2ApiClient(opts);
     this._tokenPromiseHandler.registerApiClient(this._apiClient);
 
@@ -229,10 +228,7 @@ export class UID2 {
     if (this._opts.identity) {
       identity = this._opts.identity;
     } else {
-      const localStorageIdentity = this._localStorageManager.loadIdentityFromLocalStorage();
-      const cookieIdentity = this._cookieManager.loadIdentityFromCookie();
-      const shouldUseCookie = cookieIdentity && (!localStorageIdentity || cookieIdentity.identity_expires > localStorageIdentity.identity_expires);
-      identity = shouldUseCookie ? cookieIdentity : localStorageIdentity;
+      identity = this._storageManager.loadIdentityFromPreferredStorageWithFallback();
     }
     const validatedIdentity = this.validateAndSetIdentity(identity);
     if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
@@ -328,7 +324,7 @@ export class UID2 {
     status?: IdentityStatus,
     statusText?: string
   ): Uid2Identity | null {
-    if (!this._cookieManager || !this._localStorageManager)
+    if (!this._storageManager)
       throw new Error("Cannot set identity before calling init.");
     const validity = this.getIdentityStatus(identity);
     if (
@@ -339,19 +335,10 @@ export class UID2 {
 
     this._identity = validity.identity;
     if (validity.identity) {
-      if (this._opts.useCookie) {
-        this._cookieManager.setCookie(validity.identity);
-      }
-      else if (this._opts.useCookie === false) {
-        this._localStorageManager.setValue(validity.identity);
-        if (this._localStorageManager.getValue()) this._cookieManager.removeCookie();
-      } else {
-        this._localStorageManager.setValue(validity.identity);
-      }
+      this._storageManager.setValue(validity.identity);
     } else {
       this.abort();
-      this._cookieManager.removeCookie();
-      this._localStorageManager.removeValue();
+      this._storageManager.removeValues();
     }
     notifyInitCallback(
       this._opts,
@@ -381,7 +368,7 @@ export class UID2 {
     this._refreshTimerId = setTimeout(() => {
       if (this.isLoginRequired()) return;
       const validatedIdentity = this.validateAndSetIdentity(
-        this._cookieManager?.loadIdentityFromCookie() ?? null
+        this._storageManager?.loadIdentity() ?? null
       );
       if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
       this._refreshTimerId = null;
