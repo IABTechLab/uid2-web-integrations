@@ -130,62 +130,70 @@ describe("DiiNormalization Tests", () => {
       );
     });
 
-    test("should be able to normalized gmail with dots and plus symbol", () => {
-      const testCases = [
-        {
-          originalEmail: "test.test@gmail.com",
-          normalizedEmail: "testtest@gmail.com",
-        },
-        {
-          originalEmail: "test+test@gmail.com",
-          normalizedEmail: "test@gmail.com",
-        },
-        {
-          originalEmail: " test.test@gmail.com",
-          normalizedEmail: "testtest@gmail.com",
-        },
-        {
-          originalEmail: "test.test@gmail.com ",
-          normalizedEmail: "testtest@gmail.com",
-        },
-        {
-          originalEmail: " test.test@gmail.com ",
-          normalizedEmail: "testtest@gmail.com",
-        },
-        {
-          originalEmail: "  test.test@gmail.com  ",
-          normalizedEmail: "testtest@gmail.com",
-        },
-        {
-          originalEmail: "TEstTEst@gmail.com  ",
-          normalizedEmail: "testtest@gmail.com",
-        },
-        {
-          originalEmail: "TEstTEst@GMail.Com  ",
-          normalizedEmail: "testtest@gmail.com",
-        },
-        {
-          originalEmail: " TEstTEst@GMail.Com  ",
-          normalizedEmail: "testtest@gmail.com",
-        },
-        {
-          originalEmail: "TEstTEst@GMail.Com",
-          normalizedEmail: "testtest@gmail.com",
-        },
-        {
-          originalEmail: "TEst.TEst@GMail.Com",
-          normalizedEmail: "testtest@gmail.com",
-        },
-        {
-          originalEmail: "TEst.TEst+123@GMail.Com",
-          normalizedEmail: "testtest@gmail.com",
-        },
-      ];
-      testCases.forEach((testCase) =>
-        expect(normalizeEmail(testCase.originalEmail)).toEqual(
-          testCase.normalizedEmail
-        )
-      );
+    describe("it should be able to normalized gmail", () => {
+      test("it should drop extension in gmail", () => {
+        const testCases = [
+          {
+            originalEmail: "test+test@gmail.com",
+            normalizedEmail: "test@gmail.com",
+          },
+          {
+            originalEmail: "TEst.TEst+123@GMail.Com",
+            normalizedEmail: "testtest@gmail.com",
+          },
+        ];
+        testCases.forEach((testCase) =>
+          expect(normalizeEmail(testCase.originalEmail)).toEqual(
+            testCase.normalizedEmail
+          )
+        );
+      });
+
+      test("it should remove dot from gmail", () => {
+        const testCases = [
+          {
+            originalEmail: "test.test@gmail.com",
+            normalizedEmail: "testtest@gmail.com",
+          },
+          {
+            originalEmail: " test.test@gmail.com",
+            normalizedEmail: "testtest@gmail.com",
+          },
+          {
+            originalEmail: "test.test@gmail.com ",
+            normalizedEmail: "testtest@gmail.com",
+          },
+          {
+            originalEmail: " test.test@gmail.com ",
+            normalizedEmail: "testtest@gmail.com",
+          },
+          {
+            originalEmail: "  test.test@gmail.com  ",
+            normalizedEmail: "testtest@gmail.com",
+          },
+          {
+            originalEmail: "TEstTEst@gmail.com  ",
+            normalizedEmail: "testtest@gmail.com",
+          },
+          {
+            originalEmail: "TEstTEst@GMail.Com  ",
+            normalizedEmail: "testtest@gmail.com",
+          },
+          {
+            originalEmail: " TEstTEst@GMail.Com  ",
+            normalizedEmail: "testtest@gmail.com",
+          },
+          {
+            originalEmail: "TEstTEst@GMail.Com",
+            normalizedEmail: "testtest@gmail.com",
+          },
+        ];
+        testCases.forEach((testCase) =>
+          expect(normalizeEmail(testCase.originalEmail)).toEqual(
+            testCase.normalizedEmail
+          )
+        );
+      });
     });
 
     test("should keep unicode character in email", () => {
