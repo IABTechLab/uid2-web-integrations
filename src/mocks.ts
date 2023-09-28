@@ -161,6 +161,10 @@ export function getUid2(useCookie?: boolean) {
   return useCookie ? getUid2Cookie() : getUid2LocalStorage();
 }
 
+export function setUid2(value: any, useCookie?: boolean) {
+  return useCookie ? setUid2Cookie(value) : setUid2LocalStorage(value);
+}
+
 export function getUid2Cookie() {
   const docCookie = document.cookie;
   if (docCookie) {

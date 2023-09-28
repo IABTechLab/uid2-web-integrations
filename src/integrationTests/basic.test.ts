@@ -29,9 +29,8 @@ afterEach(() => {
   mocks.resetFakeTime();
 });
 
-const setUid2Cookie = mocks.setUid2Cookie;
-const setUid2LocalStorage = mocks.setUid2LocalStorage;
 const getUid2 = mocks.getUid2;
+const setUid2 = mocks.setUid2;
 const removeUid2Cookie = mocks.removeUid2Cookie;
 const removeUid2LocalStorage = mocks.removeUid2LocalStorage;
 const makeIdentityV1 = mocks.makeIdentityV1;
@@ -149,7 +148,7 @@ testCookieAndLocalStorage(() => {
   });
 
   describe("when initialised without identity", () => {
-    describe("when uid2 cookie is not available", () => {
+    describe("when uid2 value is not available", () => {
       beforeEach(() => {
         uid2.init({ callback: callback, useCookie: useCookie });
       });
@@ -176,9 +175,9 @@ testCookieAndLocalStorage(() => {
       });
     });
 
-    describe("when uid2 cookie with invalid JSON is available", () => {
+    describe("when uid2 value with invalid JSON is available", () => {
       beforeEach(() => {
-        setUid2Cookie({}); //todo?
+        setUid2({}, useCookie);
         uid2.init({ callback: callback, useCookie: useCookie });
       });
 
@@ -204,11 +203,11 @@ testCookieAndLocalStorage(() => {
       });
     });
 
-    describe("when uid2 cookie with up-to-date identity is available v2", () => {
+    describe("when uid2 value with up-to-date identity is available v2", () => {
       const identity = makeIdentityV2();
 
       beforeEach(() => {
-        setUid2Cookie(identity);
+        setUid2(identity, useCookie);
         uid2.init({ callback: callback, useCookie: useCookie });
       });
 
@@ -240,7 +239,7 @@ testCookieAndLocalStorage(() => {
       });
 
       beforeEach(() => {
-        setUid2Cookie(identity);
+        setUid2(identity, useCookie);
         uid2.init({ callback: callback, useCookie: useCookie });
       });
 
@@ -272,7 +271,7 @@ testCookieAndLocalStorage(() => {
       });
 
       beforeEach(() => {
-        setUid2Cookie(identity);
+        setUid2(identity, useCookie);
         uid2.init({ callback: callback, useCookie: useCookie });
       });
 
@@ -300,7 +299,7 @@ testCookieAndLocalStorage(() => {
         xhrMock.open.mockClear();
         xhrMock.send.mockClear();
         cryptoMock = new mocks.CryptoMock(sdkWindow);
-        setUid2Cookie(identity);
+        setUid2(identity, useCookie);
         uid2.init({ callback: callback, useCookie: useCookie });
       });
 
@@ -334,7 +333,7 @@ testCookieAndLocalStorage(() => {
       });
 
       beforeEach(() => {
-        setUid2Cookie(identity);
+        setUid2(identity, useCookie);
         uid2.init({ callback: callback, useCookie: useCookie });
       });
 
@@ -380,7 +379,7 @@ testCookieAndLocalStorage(() => {
       });
     });
 
-    describe("when valid v2 identity is supplied and using cookie", () => {
+    describe("when valid v2 identity is supplied", () => {
       const identity = makeIdentityV2();
 
       beforeEach(() => {
@@ -411,16 +410,16 @@ testCookieAndLocalStorage(() => {
       });
     });
 
-    describe("when valid identity is supplied and cookie is available", () => {
+    describe("when valid identity is supplied and existing value is available", () => {
       const initIdentity = makeIdentityV2({
         advertising_token: "init_advertising_token",
       });
-      const cookieIdentity = makeIdentityV2({
-        advertising_token: "cookie_advertising_token",
+      const existingIdentity = makeIdentityV2({
+        advertising_token: "existing_advertising_token",
       });
 
       beforeEach(() => {
-        setUid2Cookie(cookieIdentity);
+        setUid2(existingIdentity, useCookie);
         uid2.init({ callback: callback, identity: initIdentity, useCookie: useCookie });
       });
 
@@ -914,8 +913,7 @@ testCookieAndLocalStorage(() => {
   describe("abort()", () => {
     test("should not clear cookie", () => {
       const identity = makeIdentityV2();
-      setUid2Cookie(identity);
-      setUid2LocalStorage(identity);
+      setUid2(identity, useCookie);
       uid2.abort();
       expect(getUid2(useCookie).advertising_token).toBe(identity.advertising_token);
     });
@@ -959,7 +957,7 @@ testCookieAndLocalStorage(() => {
 
   describe("disconnect()", () => {
     test("should clear cookie", () => {
-      setUid2Cookie(makeIdentityV2());
+      setUid2(makeIdentityV2(), useCookie);
       uid2.disconnect();
       expect(getUid2(useCookie)).toBeUndefined();
     });
