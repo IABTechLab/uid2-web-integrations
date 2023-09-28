@@ -45,7 +45,8 @@ function normalizeStarting(
   let parsedStarting = starting.replaceAll(" ", "");
   if (shouldRemoveDot)
     parsedStarting = parsedStarting.replaceAll(EMAIL_DOT, "");
-  return shouldDropExtension ? dropExtension(parsedStarting) : parsedStarting;
+  if (shouldDropExtension) parsedStarting = dropExtension(parsedStarting);
+  return parsedStarting;
 }
 
 export function normalizeEmail(email: string): string | undefined {
