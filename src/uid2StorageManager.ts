@@ -15,7 +15,7 @@ export class UID2StorageManager {
     this._localStorageManager = new UID2LocalStorageManager();
   }
 
-  public loadIdentityFromPreferredStorageWithFallback(): Uid2Identity | null {
+  public loadIdentityWithFallback(): Uid2Identity | null {
     const localStorageIdentity = this._localStorageManager?.loadIdentityFromLocalStorage();
     const cookieIdentity = this._cookieManager?.loadIdentityFromCookie();
     const shouldUseCookie = cookieIdentity && (!localStorageIdentity || cookieIdentity.identity_expires > localStorageIdentity.identity_expires);
