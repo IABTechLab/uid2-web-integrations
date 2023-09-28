@@ -1,11 +1,10 @@
-enum EmailParsingState {
-  Starting,
-  SubDomain,
-}
-
 export function isNormalizedPhone(phone: string): boolean {
   return /^\+[0-9]{10,15}$/.test(phone);
 }
+
+const EMAIL_EXTENSION_SYMBOL = "+";
+const EMAIL_DOT = ".";
+const GMAIL_DOMAIN = "gmail.com";
 
 type EmailParts = {
   starting: string;
@@ -28,17 +27,25 @@ function splitEmailIntoStartingAndDomain(
 }
 
 function isGmail(domain: string): boolean {
-  return domain === "gmail.com";
+  return domain === GMAIL_DOMAIN;
+}
+
+function dropExtension(
+  starting: string,
+  extensionSymbol: string = EMAIL_EXTENSION_SYMBOL
+): string {
+  return starting.split(extensionSymbol)[0];
 }
 
 function normalizeStarting(
   starting: string,
-  removeDot: boolean,
-  dropExtension: boolean
+  shouldRemoveDot: boolean,
+  shouldDropExtension: boolean
 ): string {
   let parsedStarting = starting.replaceAll(" ", "");
-  if (removeDot) parsedStarting = parsedStarting.replaceAll(".", "");
-  return dropExtension ? parsedStarting.split("+")[0] : parsedStarting;
+  if (shouldRemoveDot)
+    parsedStarting = parsedStarting.replaceAll(EMAIL_DOT, "");
+  return shouldDropExtension ? dropExtension(parsedStarting) : parsedStarting;
 }
 
 export function normalizeEmail(email: string): string | undefined {
