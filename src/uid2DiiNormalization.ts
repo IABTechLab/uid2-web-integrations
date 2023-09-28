@@ -7,13 +7,11 @@ const EMAIL_DOT = ".";
 const GMAIL_DOMAIN = "gmail.com";
 
 type EmailParts = {
-  starting: string;
+  address: string;
   domain: string;
 };
 
-function splitEmailIntoStartingAndDomain(
-  email: string
-): EmailParts | undefined {
+function splitEmailIntoAddressAndDomain(email: string): EmailParts | undefined {
   const normalizedEmail = email.trim().toLowerCase();
 
   const parts = normalizedEmail.split("@");
@@ -21,7 +19,7 @@ function splitEmailIntoStartingAndDomain(
   if (parts.some((part) => part === "")) return;
 
   return {
-    starting: parts[0],
+    address: parts[0],
     domain: parts[1],
   };
 }
@@ -31,37 +29,36 @@ function isGmail(domain: string): boolean {
 }
 
 function dropExtension(
-  starting: string,
+  address: string,
   extensionSymbol: string = EMAIL_EXTENSION_SYMBOL
 ): string {
-  return starting.split(extensionSymbol)[0];
+  return address.split(extensionSymbol)[0];
 }
 
-function normalizeStarting(
-  starting: string,
+function normalizeAddressPart(
+  address: string,
   shouldRemoveDot: boolean,
   shouldDropExtension: boolean
 ): string {
-  let parsedStarting = starting.replaceAll(" ", "");
-  if (shouldRemoveDot)
-    parsedStarting = parsedStarting.replaceAll(EMAIL_DOT, "");
-  if (shouldDropExtension) parsedStarting = dropExtension(parsedStarting);
-  return parsedStarting;
+  let parsedAddress = address.replaceAll(" ", "");
+  if (shouldRemoveDot) parsedAddress = parsedAddress.replaceAll(EMAIL_DOT, "");
+  if (shouldDropExtension) parsedAddress = dropExtension(parsedAddress);
+  return parsedAddress;
 }
 
 export function normalizeEmail(email: string): string | undefined {
   if (!email || !email.length) return;
 
-  const emailParts = splitEmailIntoStartingAndDomain(email);
+  const emailParts = splitEmailIntoAddressAndDomain(email);
   if (!emailParts) return;
 
-  const { starting, domain } = emailParts;
+  const { address, domain } = emailParts;
 
   const emailIsGmail = isGmail(domain);
-  const parsedStarting = normalizeStarting(
-    starting,
+  const parsedAddress = normalizeAddressPart(
+    address,
     emailIsGmail,
     emailIsGmail
   );
-  return parsedStarting ? `${parsedStarting}@${domain}` : undefined;
+  return parsedAddress ? `${parsedAddress}@${domain}` : undefined;
 }
