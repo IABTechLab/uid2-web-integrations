@@ -1,23 +1,21 @@
+import { version } from "../package.json";
+import { Uid2Identity } from "./Uid2Identity";
+import { IdentityStatus, notifyInitCallback } from "./Uid2InitCallbacks";
+import { Uid2Options, isUID2OptionsOrThrow } from "./Uid2Options";
 import { Uid2ApiClient } from "./uid2ApiClient";
+import { bytesToBase64 } from "./uid2Base64";
 import {
   EventType,
   Uid2CallbackHandler,
   Uid2CallbackManager,
 } from "./uid2CallbackManager";
-import { UID2CookieManager } from "./uid2CookieManager";
-import { Uid2Identity } from "./Uid2Identity";
-import { IdentityStatus, notifyInitCallback } from "./Uid2InitCallbacks";
-import { isUID2OptionsOrThrow, Uid2Options } from "./Uid2Options";
-import { UID2PromiseHandler } from "./uid2PromiseHandler";
-import { version } from "../package.json";
-import { isBase64Hash } from "./uid2HashedDii";
-import { isNormalizedPhone, normalizeEmail } from "./uid2DiiNormalization";
 import {
   ClientSideIdentityOptions,
   isClientSideIdentityOptionsOrThrow,
 } from "./uid2ClientSideIdentityOptions";
-import { bytesToBase64 } from "./uid2Base64";
-import { UID2LocalStorageManager } from "./uid2LocalStorageManager";
+import { isNormalizedPhone, normalizeEmail } from "./uid2DiiNormalization";
+import { isBase64Hash } from "./uid2HashedDii";
+import { UID2PromiseHandler } from "./uid2PromiseHandler";
 import { UID2StorageManager } from "./uid2StorageManager";
 
 function hasExpired(expiry: number, now = Date.now()) {
@@ -228,7 +226,7 @@ export class UID2 {
     if (this._opts.identity) {
       identity = this._opts.identity;
     } else {
-      identity = this._storageManager.loadIdentityFromPreferredStorageWithFallback();
+      identity = this._storageManager.loadIdentityWithFallback();
     }
     const validatedIdentity = this.validateAndSetIdentity(identity);
     if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);

@@ -1,6 +1,5 @@
-import { UID2 } from "./uid2Sdk";
-import { isValidIdentity, Uid2Identity } from "./Uid2Identity";
 import { UID2CookieManager } from "./uid2CookieManager";
+import { Uid2Identity } from "./Uid2Identity";
 import { UID2LocalStorageManager } from "./uid2LocalStorageManager";
 import { Uid2Options } from "./Uid2Options";
 
@@ -31,12 +30,14 @@ export class UID2StorageManager {
   public setValue(identity: Uid2Identity) {
     if (this._opts.useCookie) {
       this._cookieManager?.setCookie(identity);
+      return;
     }
-    else if (this._opts.useCookie === false) {
-      this._localStorageManager?.setValue(identity);
-      if (this._localStorageManager?.loadIdentityFromLocalStorage()) this._cookieManager?.removeCookie();
-    } else {
-      this._localStorageManager?.setValue(identity);
+
+    this._localStorageManager?.setValue(identity);
+    if (this._opts.useCookie === false &&
+      this._localStorageManager?.loadIdentityFromLocalStorage()
+    ) {
+      this._cookieManager?.removeCookie();
     }
   }
 
