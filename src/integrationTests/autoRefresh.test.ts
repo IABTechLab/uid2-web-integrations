@@ -9,6 +9,7 @@ import {
 
 import * as mocks from "../mocks";
 import { sdkWindow, UID2 } from "../uid2Sdk";
+import { UID2StorageManager } from "../uid2StorageManager";
 
 let callback: any;
 let uid2: UID2;
@@ -17,6 +18,7 @@ let _cryptoMock;
 let getAdvertisingTokenPromise: Promise<string | undefined>;
 
 mocks.setupFakeTime();
+const uid2StorageManager = new UID2StorageManager({});
 
 beforeEach(() => {
   callback = jest.fn();
@@ -24,8 +26,6 @@ beforeEach(() => {
   xhrMock = new mocks.XhrMock(sdkWindow);
   _cryptoMock = new mocks.CryptoMock(sdkWindow);
   mocks.setCookieMock(sdkWindow.document);
-  removeUid2Cookie();
-  removeUid2LocalStorage();
 });
 
 afterEach(() => {
@@ -34,8 +34,6 @@ afterEach(() => {
 
 const getUid2 = mocks.getUid2;
 const makeIdentity = mocks.makeIdentityV2;
-const removeUid2Cookie = mocks.removeUid2Cookie;
-const removeUid2LocalStorage = mocks.removeUid2LocalStorage;
 
 let useCookie: boolean | undefined = undefined;
 

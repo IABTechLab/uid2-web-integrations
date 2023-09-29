@@ -9,20 +9,23 @@ import {
 
 import * as mocks from "../mocks";
 import { sdkWindow, UID2 } from "../uid2Sdk";
+import { UID2StorageManager } from "../uid2StorageManager";
 
 let callback: any;
 let uid2: UID2;
 let xhrMock: any;
 
 mocks.setupFakeTime();
+const uid2StorageManager = new UID2StorageManager({});
+
+let useCookie: boolean | undefined = undefined;
 
 beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
   xhrMock = new mocks.XhrMock(sdkWindow);
   mocks.setCookieMock(sdkWindow.document);
-  removeUid2Cookie();
-  removeUid2LocalStorage();
+  uid2StorageManager.removeValues();
 });
 
 afterEach(() => {
@@ -31,12 +34,8 @@ afterEach(() => {
 
 const getUid2 = mocks.getUid2;
 const setUid2 = mocks.setUid2;
-const removeUid2Cookie = mocks.removeUid2Cookie;
-const removeUid2LocalStorage = mocks.removeUid2LocalStorage;
 const makeIdentityV1 = mocks.makeIdentityV1;
 const makeIdentityV2 = mocks.makeIdentityV2;
-
-let useCookie: boolean | undefined = undefined;
 
 const testCookieAndLocalStorage = (test: () => void, only = false) => {
   const describeFn = only ? describe.only : describe;

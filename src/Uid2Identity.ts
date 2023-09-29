@@ -5,7 +5,7 @@ interface IdentityBase {
   refresh_token: string;
   refresh_expires: number;
 }
-interface IdentityV2 extends IdentityBase {
+export interface IdentityV2 extends IdentityBase {
   // eslint-disable-next-line camelcase
   refresh_response_key: string;
 }

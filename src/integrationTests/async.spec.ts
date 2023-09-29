@@ -10,12 +10,14 @@ import {
 import * as mocks from "../mocks";
 import { __uid2InternalHandleScriptLoad, sdkWindow, UID2 } from "../uid2Sdk";
 import { EventType } from "../uid2CallbackManager";
+import { UID2StorageManager } from "../uid2StorageManager";
 
 let callback: any;
 let uid2: UID2;
 let xhrMock: any;
 let _cryptoMock: any;
 mocks.setupFakeTime();
+const uid2StorageManager = new UID2StorageManager({});
 
 beforeEach(() => {
   callback = jest.fn();
@@ -23,16 +25,12 @@ beforeEach(() => {
   xhrMock = new mocks.XhrMock(sdkWindow);
   _cryptoMock = new mocks.CryptoMock(sdkWindow);
   mocks.setCookieMock(sdkWindow.document);
-  removeUid2Cookie();
-  removeUid2LocalStorage();
+  uid2StorageManager.removeValues();
 });
 
 afterEach(() => {
   mocks.resetFakeTime();
 });
-
-const removeUid2Cookie = mocks.removeUid2Cookie;
-const removeUid2LocalStorage = mocks.removeUid2LocalStorage;
 
 const makeIdentity = mocks.makeIdentityV2;
 
