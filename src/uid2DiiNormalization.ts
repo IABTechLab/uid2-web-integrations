@@ -12,9 +12,7 @@ type EmailParts = {
 };
 
 function splitEmailIntoAddressAndDomain(email: string): EmailParts | undefined {
-  const normalizedEmail = email.trim().toLowerCase();
-
-  const parts = normalizedEmail.split("@");
+  const parts = email.split("@");
   if (!parts.length || parts.length !== 2) return;
   if (parts.some((part) => part === "")) return;
 
@@ -49,7 +47,10 @@ function normalizeAddressPart(
 export function normalizeEmail(email: string): string | undefined {
   if (!email || !email.length) return;
 
-  const emailParts = splitEmailIntoAddressAndDomain(email);
+  const parsedEmail = email.trim().toLowerCase();
+  if (parsedEmail.indexOf(" ") > 0) return;
+
+  const emailParts = splitEmailIntoAddressAndDomain(parsedEmail);
   if (!emailParts) return;
 
   const { address, domain } = emailParts;

@@ -70,6 +70,18 @@ describe("DiiNormalization Tests", () => {
       );
     });
 
+    test("should return undefined if email has space in between", () => {
+      const testCases = [
+        "test test@test.com",
+        "test@te st.com",
+        "test test@gmail.com",
+      ];
+
+      testCases.forEach((testCase) =>
+        expect(normalizeEmail(testCase)).toBeUndefined()
+      );
+    });
+
     test("should normalized valid email", () => {
       const testCases = [
         {
@@ -112,14 +124,6 @@ describe("DiiNormalization Tests", () => {
         {
           originalEmail: "TEst.TEST@Test.com ",
           normalizedEmail: "test.test@test.com",
-        },
-        {
-          originalEmail: "test test@Test.com",
-          normalizedEmail: "testtest@test.com",
-        },
-        {
-          originalEmail: "  test test@Te st.com  ",
-          normalizedEmail: "testtest@te st.com",
         },
       ];
 
