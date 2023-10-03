@@ -13,8 +13,8 @@ type EmailParts = {
 
 function splitEmailIntoAddressAndDomain(email: string): EmailParts | undefined {
   const parts = email.split("@");
-  if (!parts.length || parts.length !== 2) return;
-  if (parts.some((part) => part === "")) return;
+  if (!parts.length || parts.length !== 2 || parts.some((part) => part === ""))
+    return;
 
   return {
     address: parts[0],
