@@ -1,75 +1,65 @@
-enum EmailParsingState {
-  Starting,
-  SubDomain,
-}
-
 export function isNormalizedPhone(phone: string): boolean {
   return /^\+[0-9]{10,15}$/.test(phone);
 }
 
+const EMAIL_EXTENSION_SYMBOL = "+";
+const EMAIL_DOT = ".";
+const GMAIL_DOMAIN = "gmail.com";
+
+type EmailParts = {
+  address: string;
+  domain: string;
+};
+
+function splitEmailIntoAddressAndDomain(email: string): EmailParts | undefined {
+  const parts = email.split("@");
+  if (!parts.length || parts.length !== 2 || parts.some((part) => part === ""))
+    return;
+
+  return {
+    address: parts[0],
+    domain: parts[1],
+  };
+}
+
+function isGmail(domain: string): boolean {
+  return domain === GMAIL_DOMAIN;
+}
+
+function dropExtension(
+  address: string,
+  extensionSymbol: string = EMAIL_EXTENSION_SYMBOL
+): string {
+  return address.split(extensionSymbol)[0];
+}
+
+function normalizeAddressPart(
+  address: string,
+  shouldRemoveDot: boolean,
+  shouldDropExtension: boolean
+): string {
+  let parsedAddress = address;
+  if (shouldRemoveDot) parsedAddress = parsedAddress.replaceAll(EMAIL_DOT, "");
+  if (shouldDropExtension) parsedAddress = dropExtension(parsedAddress);
+  return parsedAddress;
+}
+
 export function normalizeEmail(email: string): string | undefined {
-  if (email == undefined || email.length <= 0) {
-    return undefined;
-  }
+  if (!email || !email.length) return;
 
-  let preSb = "";
-  let preSbSpecialized = "";
-  let sb = "";
-  let wsBuffer = "";
+  const parsedEmail = email.trim().toLowerCase();
+  if (parsedEmail.indexOf(" ") > 0) return;
 
-  let parsingState = EmailParsingState.Starting;
-  let inExtension = false;
+  const emailParts = splitEmailIntoAddressAndDomain(parsedEmail);
+  if (!emailParts) return;
 
-  for (const cGiven of email) {
-    let c = cGiven;
-    if (cGiven >= "A" && cGiven < "Z") {
-      c = String.fromCharCode(c.charCodeAt(0) + 32);
-    }
+  const { address, domain } = emailParts;
 
-    switch (parsingState) {
-      case EmailParsingState.Starting:
-        if (c == " ") {
-          break;
-        }
-        if (c == "@") {
-          parsingState = EmailParsingState.SubDomain;
-        } else if (c == ".") {
-          preSb += c;
-        } else if (c == "+") {
-          preSb += c;
-          inExtension = true;
-        } else {
-          preSb += c;
-          if (!inExtension) {
-            preSbSpecialized += c;
-          }
-        }
-        break;
-      case EmailParsingState.SubDomain:
-        if (c == "@") {
-          return undefined;
-        } else if (c == " ") {
-          wsBuffer += c;
-          break;
-        } else if (wsBuffer.length > 0) {
-          sb += wsBuffer;
-          wsBuffer = "";
-        }
-        sb += c;
-    }
-  }
-
-  if (sb.length == 0) {
-    return undefined;
-  }
-
-  let domainPart = sb;
-  const GMAILDOMAIN = "gmail.com";
-
-  let addressPartToUse = domainPart == GMAILDOMAIN ? preSbSpecialized : preSb;
-  if (addressPartToUse.length == 0) {
-    return undefined;
-  }
-
-  return addressPartToUse + "@" + domainPart;
+  const emailIsGmail = isGmail(domain);
+  const parsedAddress = normalizeAddressPart(
+    address,
+    emailIsGmail,
+    emailIsGmail
+  );
+  return parsedAddress ? `${parsedAddress}@${domain}` : undefined;
 }
