@@ -38,7 +38,7 @@ function normalizeAddressPart(
   shouldRemoveDot: boolean,
   shouldDropExtension: boolean
 ): string {
-  let parsedAddress = address.replaceAll(" ", "");
+  let parsedAddress = address;
   if (shouldRemoveDot) parsedAddress = parsedAddress.replaceAll(EMAIL_DOT, "");
   if (shouldDropExtension) parsedAddress = dropExtension(parsedAddress);
   return parsedAddress;
