@@ -9,7 +9,6 @@ import {
 
 import * as mocks from "../mocks";
 import { sdkWindow, UID2 } from "../uid2Sdk";
-import { UID2StorageManager } from "../uid2StorageManager";
 
 let callback: any;
 let uid2: UID2;
@@ -21,15 +20,14 @@ mocks.setupFakeTime();
 const mockDomain = "www.uidapi.com";
 const mockUrl = `http://${mockDomain}/test/index.html`;
 
-const uid2StorageManager = new UID2StorageManager({});
-
 beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
   xhrMock = new mocks.XhrMock(sdkWindow);
   jest.spyOn(document, "URL", "get").mockImplementation(() => mockUrl);
   cookieMock = new mocks.CookieMock(sdkWindow.document);
-  uid2StorageManager.removeValues();
+  removeUid2Cookie();
+  removeUid2LocalStorage();
 });
 
 afterEach(() => {
@@ -39,7 +37,8 @@ afterEach(() => {
 const makeIdentity = mocks.makeIdentityV2;
 const getUid2Cookie = mocks.getUid2Cookie;
 const getUid2LocalStorage = mocks.getUid2LocalStorage;
-const setUid2Cookie = mocks.setUid2Cookie;
+const removeUid2Cookie = mocks.removeUid2Cookie;
+const removeUid2LocalStorage = mocks.removeUid2LocalStorage;
 
 describe("cookieDomain option", () => {
   describe("when using default value", () => {
@@ -174,7 +173,7 @@ describe("useCookie option", () => {
       uid2.init({ callback: callback, identity: identity });
     });
     test("should set identity in local storage", () => {
-      expect(getUid2LocalStorage()?.advertising_token).toBe(identity.advertising_token);
+      expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
     });
   });
   describe("when useCookie is false", () => {
@@ -182,7 +181,7 @@ describe("useCookie option", () => {
       uid2.init({ callback: callback, identity: identity, useCookie: false });
     });
     test("should set identity in local storage only", () => {
-      expect(getUid2LocalStorage()?.advertising_token).toBe(identity.advertising_token);
+      expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
       expect(getUid2Cookie()).toBeUndefined();
     });
   });
