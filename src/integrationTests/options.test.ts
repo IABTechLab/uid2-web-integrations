@@ -182,7 +182,7 @@ describe("useCookie option", () => {
     });
     test("should set identity in local storage only", () => {
       expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
-      expect(getUid2Cookie()).toBeUndefined();
+      expect(getUid2Cookie()).toBeNull();
     });
   });
   describe("when useCookie is true", () => {
@@ -191,7 +191,7 @@ describe("useCookie option", () => {
     });
     test("should set identity in cookie only", () => {
       expect(getUid2Cookie().advertising_token).toBe(identity.advertising_token);
-      expect(getUid2LocalStorage()).toBeUndefined();
+      expect(getUid2LocalStorage()).toBeNull();
     });
   });
 });

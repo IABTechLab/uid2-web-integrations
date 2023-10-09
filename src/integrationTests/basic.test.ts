@@ -164,7 +164,7 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should not set value", () => {
-        expect(getUid2(useCookie)).toBeUndefined();
+        expect(getUid2(useCookie)).toBeNull();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -192,7 +192,7 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should clear value", () => {
-        expect(getUid2(useCookie)).toBeUndefined();
+        expect(getUid2(useCookie)).toBeNull();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -254,7 +254,7 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should clear value", () => {
-        expect(getUid2(useCookie)).toBeUndefined();
+        expect(getUid2(useCookie)).toBeNull();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -368,7 +368,7 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should clear value", () => {
-        expect(getUid2(useCookie)).toBeUndefined();
+        expect(getUid2(useCookie)).toBeNull();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -544,7 +544,7 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should not set cookie", () => {
-        expect(getUid2(useCookie)).toBeUndefined();
+        expect(getUid2(useCookie)).toBeNull();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -572,7 +572,7 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should not set cookie", () => {
-        expect(getUid2(useCookie)).toBeUndefined();
+        expect(getUid2(useCookie)).toBeNull();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -731,7 +731,7 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should not set cookie", () => {
-        expect(getUid2(useCookie)).toBeUndefined();
+        expect(getUid2(useCookie)).toBeNull();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -807,7 +807,7 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should not set cookie", () => {
-        expect(getUid2(useCookie)).toBeUndefined();
+        expect(getUid2(useCookie)).toBeNull();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -836,7 +836,7 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should not set cookie", () => {
-        expect(getUid2(useCookie)).toBeUndefined();
+        expect(getUid2(useCookie)).toBeNull();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -898,7 +898,7 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should not set cookie", () => {
-        expect(getUid2(useCookie)).toBeUndefined();
+        expect(getUid2(useCookie)).toBeNull();
       });
       test("should not set refresh timer", () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -959,7 +959,7 @@ testCookieAndLocalStorage(() => {
     test("should clear cookie", () => {
       setUid2(makeIdentityV2(), useCookie);
       uid2.disconnect();
-      expect(getUid2(useCookie)).toBeUndefined();
+      expect(getUid2(useCookie)).toBeNull();
     });
     test("should abort refresh timer", () => {
       uid2.init({ callback: callback, identity: makeIdentityV2(), useCookie: useCookie });

@@ -175,6 +175,7 @@ export function getUid2Cookie() {
       return JSON.parse(decodeURIComponent(payload.split("=")[1]));
     }
   }
+  return null;
 }
 
 export function removeUid2LocalStorage() {
@@ -188,7 +189,7 @@ export function setUid2LocalStorage(identity: any) {
 
 export function getUid2LocalStorage() {
   const value = localStorage.getItem(localStorageKeyName);
-  return value !== null ? JSON.parse(value) : undefined;
+  return value !== null ? JSON.parse(value) : null;
 }
 
 export function setEuidCookie(value: any) {
