@@ -1,22 +1,22 @@
+import { version } from "../package.json";
+import { Uid2Identity } from "./Uid2Identity";
+import { IdentityStatus, notifyInitCallback } from "./Uid2InitCallbacks";
+import { Uid2Options, isUID2OptionsOrThrow } from "./Uid2Options";
 import { Uid2ApiClient } from "./uid2ApiClient";
+import { bytesToBase64 } from "./uid2Base64";
 import {
   EventType,
   Uid2CallbackHandler,
   Uid2CallbackManager,
 } from "./uid2CallbackManager";
-import { UID2CookieManager } from "./uid2CookieManager";
-import { Uid2Identity } from "./Uid2Identity";
-import { IdentityStatus, notifyInitCallback } from "./Uid2InitCallbacks";
-import { isUID2OptionsOrThrow, Uid2Options } from "./Uid2Options";
-import { UID2PromiseHandler } from "./uid2PromiseHandler";
-import { version } from "../package.json";
-import { isBase64Hash } from "./uid2HashedDii";
-import { isNormalizedPhone, normalizeEmail } from "./uid2DiiNormalization";
 import {
   ClientSideIdentityOptions,
   isClientSideIdentityOptionsOrThrow,
 } from "./uid2ClientSideIdentityOptions";
-import { bytesToBase64 } from "./uid2Base64";
+import { isNormalizedPhone, normalizeEmail } from "./uid2DiiNormalization";
+import { isBase64Hash } from "./uid2HashedDii";
+import { UID2PromiseHandler } from "./uid2PromiseHandler";
+import { UID2StorageManager } from "./uid2StorageManager";
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -54,7 +54,7 @@ export class UID2 {
   private _callbackManager: Uid2CallbackManager;
 
   // Dependencies initialised on call to init due to requirement for options
-  private _cookieManager: UID2CookieManager | undefined;
+  private _storageManager: UID2StorageManager | undefined;
   private _apiClient: Uid2ApiClient | undefined;
 
   // State
@@ -179,8 +179,8 @@ export class UID2 {
   public disconnect() {
     this.abort(`UID2 SDK disconnected.`);
     // Note: This silently fails to clear the cookie if init hasn't been called and a cookieDomain is used!
-    if (this._cookieManager) this._cookieManager.removeCookie();
-    else new UID2CookieManager({}).removeCookie();
+    if (this._storageManager) this._storageManager.removeValues();
+    else new UID2StorageManager({}).removeValues();
     this._identity = undefined;
     this._callbackManager.runCallbacks(UID2.EventType.IdentityUpdated, {
       identity: null,
@@ -218,12 +218,16 @@ export class UID2 {
       );
 
     this._opts = opts;
-    this._cookieManager = new UID2CookieManager({ ...opts });
+    this._storageManager = new UID2StorageManager({ ...opts });
     this._apiClient = new Uid2ApiClient(opts);
     this._tokenPromiseHandler.registerApiClient(this._apiClient);
-    const identity = this._opts.identity
-      ? this._opts.identity
-      : this._cookieManager.loadIdentityFromCookie();
+
+    let identity;
+    if (this._opts.identity) {
+      identity = this._opts.identity;
+    } else {
+      identity = this._storageManager.loadIdentityWithFallback();
+    }
     const validatedIdentity = this.validateAndSetIdentity(identity);
     if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
     this._initComplete = true;
@@ -247,17 +251,17 @@ export class UID2 {
 
   private getIdentityStatus(identity: Uid2Identity | null):
     | {
-        valid: true;
-        identity: Uid2Identity;
-        errorMessage: string;
-        status: IdentityStatus;
-      }
+      valid: true;
+      identity: Uid2Identity;
+      errorMessage: string;
+      status: IdentityStatus;
+    }
     | {
-        valid: false;
-        errorMessage: string;
-        status: IdentityStatus;
-        identity: null;
-      } {
+      valid: false;
+      errorMessage: string;
+      status: IdentityStatus;
+      identity: null;
+    } {
     if (!identity) {
       return {
         valid: false,
@@ -318,7 +322,7 @@ export class UID2 {
     status?: IdentityStatus,
     statusText?: string
   ): Uid2Identity | null {
-    if (!this._cookieManager)
+    if (!this._storageManager)
       throw new Error("Cannot set identity before calling init.");
     const validity = this.getIdentityStatus(identity);
     if (
@@ -329,10 +333,10 @@ export class UID2 {
 
     this._identity = validity.identity;
     if (validity.identity) {
-      this._cookieManager.setCookie(validity.identity);
+      this._storageManager.setValue(validity.identity);
     } else {
       this.abort();
-      this._cookieManager.removeCookie();
+      this._storageManager.removeValues();
     }
     notifyInitCallback(
       this._opts,
@@ -362,7 +366,7 @@ export class UID2 {
     this._refreshTimerId = setTimeout(() => {
       if (this.isLoginRequired()) return;
       const validatedIdentity = this.validateAndSetIdentity(
-        this._cookieManager?.loadIdentityFromCookie() ?? null
+        this._storageManager?.loadIdentity() ?? null
       );
       if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
       this._refreshTimerId = null;
@@ -423,7 +427,7 @@ export class UID2 {
   }
 
   private async callCstgAndSetIdentity(
-    request: { emailHash: string } | { phoneHash: string },
+    request: { emailHash: string; } | { phoneHash: string; },
     opts: ClientSideIdentityOptions
   ) {
     const cstgResult = await this._apiClient!.callCstgApi(request, opts);

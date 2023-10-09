@@ -26,6 +26,8 @@ beforeEach(() => {
   xhrMock = new mocks.XhrMock(sdkWindow);
   jest.spyOn(document, "URL", "get").mockImplementation(() => mockUrl);
   cookieMock = new mocks.CookieMock(sdkWindow.document);
+  removeUid2Cookie();
+  removeUid2LocalStorage();
 });
 
 afterEach(() => {
@@ -33,11 +35,15 @@ afterEach(() => {
 });
 
 const makeIdentity = mocks.makeIdentityV2;
+const getUid2Cookie = mocks.getUid2Cookie;
+const getUid2LocalStorage = mocks.getUid2LocalStorage;
+const removeUid2Cookie = mocks.removeUid2Cookie;
+const removeUid2LocalStorage = mocks.removeUid2LocalStorage;
 
 describe("cookieDomain option", () => {
   describe("when using default value", () => {
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: makeIdentity() });
+      uid2.init({ callback: callback, identity: makeIdentity(), useCookie: true });
     });
 
     test("should not mention domain in the cookie string", () => {
@@ -55,6 +61,7 @@ describe("cookieDomain option", () => {
         callback: callback,
         identity: makeIdentity(),
         cookieDomain: domain,
+        useCookie: true
       });
     });
 
@@ -68,7 +75,7 @@ describe("cookieDomain option", () => {
 describe("cookiePath option", () => {
   describe("when using default value", () => {
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: makeIdentity() });
+      uid2.init({ callback: callback, identity: makeIdentity(), useCookie: true });
     });
 
     test("should use the default path in the cookie string", () => {
@@ -85,6 +92,7 @@ describe("cookiePath option", () => {
         callback: callback,
         identity: makeIdentity(),
         cookiePath: path,
+        useCookie: true
       });
     });
 
@@ -153,6 +161,37 @@ describe("refreshRetryPeriod option", () => {
     test("it should use the default retry period", () => {
       expect(setTimeout).toHaveBeenCalledTimes(1);
       expect(setTimeout).toBeCalledWith(expect.any(Function), 12345);
+    });
+  });
+});
+
+describe("useCookie option", () => {
+  const identity = makeIdentity();
+
+  describe("when using default value", () => {
+    beforeEach(() => {
+      uid2.init({ callback: callback, identity: identity });
+    });
+    test("should set identity in local storage", () => {
+      expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    });
+  });
+  describe("when useCookie is false", () => {
+    beforeEach(() => {
+      uid2.init({ callback: callback, identity: identity, useCookie: false });
+    });
+    test("should set identity in local storage only", () => {
+      expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+      expect(getUid2Cookie()).toBeNull();
+    });
+  });
+  describe("when useCookie is true", () => {
+    beforeEach(() => {
+      uid2.init({ callback: callback, identity: identity, useCookie: true });
+    });
+    test("should set identity in cookie only", () => {
+      expect(getUid2Cookie().advertising_token).toBe(identity.advertising_token);
+      expect(getUid2LocalStorage()).toBeNull();
     });
   });
 });

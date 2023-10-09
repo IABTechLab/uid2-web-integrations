@@ -10,6 +10,7 @@ export type Uid2Options = BaseUid2Options &
 type BaseUid2Options = {
   refreshRetryPeriod?: number;
   identity?: Uid2Identity;
+  useCookie?: boolean;
 };
 
 export function isUID2OptionsOrThrow(

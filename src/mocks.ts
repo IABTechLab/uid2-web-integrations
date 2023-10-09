@@ -2,6 +2,7 @@ import * as jsdom from "jsdom";
 import { Cookie } from "tough-cookie";
 import { UID2 } from "./uid2Sdk";
 import { Uid2Identity } from "./Uid2Identity";
+import { localStorageKeyName } from "./uid2LocalStorageManager";
 
 export class CookieMock {
   jar: jsdom.CookieJar;
@@ -114,7 +115,7 @@ export class CryptoMock {
     );
 
     this.applyTo = (window) => {
-      Object.defineProperty(window, "crypto", { value: this });
+      Object.defineProperty(window, "crypto", { value: this, writable: true });
     };
 
     this.applyTo(window);
@@ -146,9 +147,22 @@ export function setUid2Cookie(value: any) {
     UID2.COOKIE_NAME + "=" + encodeURIComponent(JSON.stringify(value));
 }
 
+export function removeUid2Cookie() {
+  document.cookie =
+    document.cookie + "=;expires=Tue, 1 Jan 1980 23:59:59 GMT";
+}
+
 export async function flushPromises() {
   await Promise.resolve();
   await Promise.resolve();
+}
+
+export function getUid2(useCookie?: boolean) {
+  return useCookie ? getUid2Cookie() : getUid2LocalStorage();
+}
+
+export function setUid2(value: any, useCookie?: boolean) {
+  return useCookie ? setUid2Cookie(value) : setUid2LocalStorage(value);
 }
 
 export function getUid2Cookie() {
@@ -161,6 +175,21 @@ export function getUid2Cookie() {
       return JSON.parse(decodeURIComponent(payload.split("=")[1]));
     }
   }
+  return null;
+}
+
+export function removeUid2LocalStorage() {
+  localStorage.removeItem(localStorageKeyName);
+}
+
+export function setUid2LocalStorage(identity: any) {
+  const value = JSON.stringify(identity);
+  localStorage.setItem(localStorageKeyName, value);
+}
+
+export function getUid2LocalStorage() {
+  const value = localStorage.getItem(localStorageKeyName);
+  return value !== null ? JSON.parse(value) : null;
 }
 
 export function setEuidCookie(value: any) {

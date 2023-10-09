@@ -65,7 +65,7 @@ describe("Secure Signal Tests", () => {
       });
     });
 
-    describe("when getUid2AdvertisingToken is not definied", () => {
+    describe("when getUid2AdvertisingToken is not defined", () => {
       test("should not send signal to ESP", () => {
         uid2ESP = new Uid2SecureSignalProvider();
         expect(secureSignalProvidersPushMock).not.toBeCalled();
