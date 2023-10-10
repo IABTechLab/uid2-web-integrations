@@ -9,7 +9,9 @@ const port = process.env.PORT || 3000;
 const uid2BaseUrl = process.env.UID2_BASE_URL;
 const uid2ApiKey = process.env.UID2_API_KEY;
 const uid2ClientSecret = process.env.UID2_CLIENT_SECRET;
-const uid2JsSdkUrl = process.env.UID2_JS_SDK_URL || "https://cdn.integ.uidapi.com/uid2-sdk-3.0.1.js";
+const uid2JsSdkUrl =
+  process.env.UID2_JS_SDK_URL ||
+  "https://cdn.integ.uidapi.com/uid2-sdk-3.2.0.js";
 
 const ivLength = 12;
 const nonceLength = 8;
