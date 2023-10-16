@@ -148,8 +148,7 @@ export function setUid2Cookie(value: any) {
 }
 
 export function removeUid2Cookie() {
-  document.cookie =
-    document.cookie + "=;expires=Tue, 1 Jan 1980 23:59:59 GMT";
+  document.cookie = document.cookie + "=;expires=Tue, 1 Jan 1980 23:59:59 GMT";
 }
 
 export async function flushPromises() {
@@ -227,6 +226,15 @@ export function makeIdentityV2(overrides = {}) {
     refresh_from: Date.now() + 100000,
     identity_expires: Date.now() + 200000,
     refresh_expires: Date.now() + 300000,
+    ...(overrides || {}),
+  };
+}
+
+export function makeCstgOption(overrides?: any) {
+  return {
+    serverPublicKey:
+      "UID2-X-L-24B8a/eLYBmRkXA9yPgRZt+ouKbXewG2OPs23+ov3JC8mtYJBCx6AxGwJ4MlwUcguebhdDp2CvzsCgS9ogwwGA==",
+    subscriptionId: "subscription-id",
     ...(overrides || {}),
   };
 }
