@@ -35,6 +35,11 @@ export class CookieMock {
   }
 }
 
+type MockApiResponse = {
+  identity?: Uid2Identity;
+  responseText?: string;
+  status?: number;
+};
 export class XhrMock {
   responseText: string;
   onreadystatechange: any;
@@ -55,6 +60,13 @@ export class XhrMock {
       JSON.stringify({ status: "success", body: identity })
     );
     this.onreadystatechange(new Event(""));
+  }
+
+  sendCstgApiResponse(override?: MockApiResponse) {
+    this.status = override?.status || 200;
+    this.responseText =
+      override?.responseText ||
+      btoa(JSON.stringify({ status: "success", body: override?.identity }));
   }
 
   constructor(window: Window) {
@@ -81,6 +93,10 @@ export class CryptoMock {
     encrypt: jest.Mock<any, any>;
     decrypt: jest.Mock<any, any>;
     importKey: jest.Mock<any, any>;
+    generateKey: jest.Mock<any, any>;
+    exportKey: jest.Mock<any, any>;
+    deriveKey: jest.Mock<any, any>;
+    digest: jest.Mock<any, any>;
   };
   applyTo: (window: any) => void;
   constructor(window: Window) {
@@ -90,6 +106,10 @@ export class CryptoMock {
       encrypt: jest.fn(),
       decrypt: jest.fn(),
       importKey: jest.fn(),
+      generateKey: jest.fn(),
+      exportKey: jest.fn(),
+      deriveKey: jest.fn(),
+      digest: jest.fn(),
     };
     let mockDecryptResponse = jest.fn();
     mockDecryptResponse.mockImplementation((fn) => fn(this.decryptOutput));
