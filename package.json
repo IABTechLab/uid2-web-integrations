@@ -20,6 +20,9 @@
     "uid2-examples": "webpack --mode=development --env outputToExamples=true",
     "build:esp": "webpack --env espOnly=true"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "jsdom",
@@ -33,7 +36,6 @@
   },
   "devDependencies": {
     "@jest/globals": "^29.2.2",
-    "@peculiar/webcrypto": "^1.4.3",
     "@types/jest": "^29.2.0",
     "@types/node": "^18.11.3",
     "@typescript-eslint/eslint-plugin": "^5.40.1",

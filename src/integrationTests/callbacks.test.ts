@@ -9,7 +9,7 @@ import {
 
 import * as mocks from "../mocks";
 import { sdkWindow, UID2 } from "../uid2Sdk";
-import { Uid2CallbackHandler } from "../uid2CallbackManager";
+import { EventType, Uid2CallbackHandler } from "../uid2CallbackManager";
 
 let callback: any;
 let asyncCallback: jest.Mock<Uid2CallbackHandler>;
@@ -17,8 +17,6 @@ let uid2: UID2;
 let xhrMock: any;
 
 const debugOutput = false;
-
-let _cryptoMock;
 
 mocks.setupFakeTime();
 
@@ -30,7 +28,6 @@ beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
   xhrMock = new mocks.XhrMock(sdkWindow);
-  _cryptoMock = new mocks.CryptoMock(sdkWindow);
   mocks.setCookieMock(sdkWindow.document);
   sdkWindow.__uid2 = { callbacks: [] };
   asyncCallback = jest.fn((event, payload) => {
@@ -51,19 +48,19 @@ let useCookie: boolean | undefined = undefined;
 
 const testCookieAndLocalStorage = (test: () => void, only = false) => {
   const describeFn = only ? describe.only : describe;
-  describeFn('Using default: ', () => {
+  describeFn("Using default: ", () => {
     beforeEach(() => {
       useCookie = undefined;
     });
     test();
   });
-  describeFn('Using cookies ', () => {
+  describeFn("Using cookies ", () => {
     beforeEach(() => {
       useCookie = true;
     });
     test();
   });
-  describeFn('Using local storage ', () => {
+  describeFn("Using local storage ", () => {
     beforeEach(() => {
       useCookie = false;
     });
@@ -83,19 +80,31 @@ testCookieAndLocalStorage(() => {
       test("it should be called at the end of init", () => {
         uid2.callbacks.push(asyncCallback);
         const calls = asyncCallback.mock.calls.length;
-        uid2.init({ callback: callback, identity: identity, useCookie: useCookie });
+        uid2.init({
+          callback: callback,
+          identity: identity,
+          useCookie: useCookie,
+        });
         expect(asyncCallback.mock.calls.length).toBe(calls + 1);
       });
       test("it should be called with a 'successful init' message", () => {
         uid2.callbacks.push(asyncCallback);
-        uid2.init({ callback: callback, identity: identity, useCookie: useCookie });
+        uid2.init({
+          callback: callback,
+          identity: identity,
+          useCookie: useCookie,
+        });
         expect(asyncCallback.mock.calls.slice(-1)[0][0]).toBe(
           UID2.EventType.InitCompleted
         );
       });
       test("it should be provided with the loaded identity", () => {
         uid2.callbacks.push(asyncCallback);
-        uid2.init({ callback: callback, identity: identity, useCookie: useCookie });
+        uid2.init({
+          callback: callback,
+          identity: identity,
+          useCookie: useCookie,
+        });
         expect(asyncCallback.mock.calls.slice(-1)[0][1]).toMatchObject({
           identity,
         });
@@ -104,45 +113,62 @@ testCookieAndLocalStorage(() => {
 
     describe("after init is called", () => {
       test("it should be called with SdkLoaded and InitComplete immediately", () => {
-        uid2.init({ callback: callback, identity: identity, useCookie: useCookie });
+        uid2.init({
+          callback: callback,
+          identity: identity,
+          useCookie: useCookie,
+        });
         expect(asyncCallback.mock.calls.length).toBe(0);
         uid2.callbacks.push(asyncCallback);
         expect(asyncCallback.mock.calls.length).toBe(2);
         expect(asyncCallback.mock.calls[0][0]).toBe(UID2.EventType.SdkLoaded);
-        expect(asyncCallback.mock.calls[1][0]).toBe(UID2.EventType.InitCompleted);
+        expect(asyncCallback.mock.calls[1][0]).toBe(
+          UID2.EventType.InitCompleted
+        );
       });
 
       test("it should be provided with the loaded identity", () => {
-        uid2.init({ callback: callback, identity: identity, useCookie: useCookie });
+        uid2.init({
+          callback: callback,
+          identity: identity,
+          useCookie: useCookie,
+        });
         uid2.callbacks.push(asyncCallback);
 
         expect(asyncCallback.mock.calls.slice(-1)[0][1]).toMatchObject({
           identity,
         });
       });
-      // this test is only passing for cookies
-      test("it should receive subsequent identity updates", async () => {
-        uid2.init({ callback: callback, identity: identity, useCookie: useCookie });
-        uid2.callbacks.push(asyncCallback);
 
-        const callsBeforeRefresh = asyncCallback.mock.calls.length;
+      test("it should receive subsequent identity updates", (done) => {
+        uid2.init({
+          callback: callback,
+          identity: identity,
+          useCookie: useCookie,
+        });
+
+        uid2.callbacks.push((eventType, payload) => {
+          if (eventType === EventType.IdentityUpdated) {
+            expect(payload.identity).toStrictEqual(refreshedIdentity);
+            done();
+          }
+        });
+
         jest.setSystemTime(refreshFrom);
         jest.runOnlyPendingTimers();
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
-        xhrMock.sendRefreshApiResponse(refreshedIdentity);
-        await mocks.flushPromises();
-
-        expect(asyncCallback.mock.calls.length).toBe(callsBeforeRefresh + 1);
-        expect(asyncCallback.mock.calls[callsBeforeRefresh][0]).toBe(
-          UID2.EventType.IdentityUpdated
+        xhrMock.sendRefreshApiResponse(
+          refreshedIdentity,
+          identity.refresh_response_key
         );
-        expect(asyncCallback.mock.calls[callsBeforeRefresh][1]).toMatchObject({
-          identity: refreshedIdentity,
-        });
       });
 
       test("it should receive a null identity update if opt-out is called", () => {
-        uid2.init({ callback: callback, identity: identity, useCookie: useCookie });
+        uid2.init({
+          callback: callback,
+          identity: identity,
+          useCookie: useCookie,
+        });
         uid2.callbacks.push(asyncCallback);
         const callsBeforeRefresh = asyncCallback.mock.calls.length;
 
@@ -163,9 +189,17 @@ testCookieAndLocalStorage(() => {
         const callsBeforeSetIdentity = asyncCallback.mock.calls.length;
         uid2.setIdentity(identity);
 
-        expect(asyncCallback.mock.calls.length).toBe(callsBeforeSetIdentity + 1);
-        expect(asyncCallback.mock.calls[callsBeforeSetIdentity][0]).toBe(UID2.EventType.IdentityUpdated);
-        expect(asyncCallback.mock.calls[callsBeforeSetIdentity][1]).toMatchObject({ identity: identity });
+        expect(asyncCallback.mock.calls.length).toBe(
+          callsBeforeSetIdentity + 1
+        );
+        expect(asyncCallback.mock.calls[callsBeforeSetIdentity][0]).toBe(
+          UID2.EventType.IdentityUpdated
+        );
+        expect(
+          asyncCallback.mock.calls[callsBeforeSetIdentity][1]
+        ).toMatchObject({
+          identity: identity,
+        });
       });
     });
   });

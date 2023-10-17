@@ -13,7 +13,6 @@ import { sdkWindow, UID2 } from "../uid2Sdk";
 let callback: any;
 let uid2: UID2;
 let xhrMock: any;
-let _cryptoMock;
 let getAdvertisingTokenPromise: Promise<string | undefined>;
 
 mocks.setupFakeTime();
@@ -22,7 +21,6 @@ beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
   xhrMock = new mocks.XhrMock(sdkWindow);
-  _cryptoMock = new mocks.CryptoMock(sdkWindow);
   mocks.setCookieMock(sdkWindow.document);
   removeUid2Cookie();
   removeUid2LocalStorage();
@@ -41,19 +39,19 @@ let useCookie: boolean | undefined = undefined;
 
 const testCookieAndLocalStorage = (test: () => void, only = false) => {
   const describeFn = only ? describe.only : describe;
-  describeFn('Using default: ', () => {
+  describeFn("Using default: ", () => {
     beforeEach(() => {
       useCookie = undefined;
     });
     test();
   });
-  describeFn('Using cookies ', () => {
+  describeFn("Using cookies ", () => {
     beforeEach(() => {
       useCookie = true;
     });
     test();
   });
-  describeFn('Using local storage ', () => {
+  describeFn("Using local storage ", () => {
     beforeEach(() => {
       useCookie = false;
     });
@@ -70,7 +68,11 @@ testCookieAndLocalStorage(() => {
       getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
       jest.clearAllMocks();
       jest.runOnlyPendingTimers();
-      uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: originalIdentity,
+        useCookie: useCookie,
+      });
     });
 
     test("should invoke the callback", () => {
@@ -106,7 +108,11 @@ testCookieAndLocalStorage(() => {
     });
 
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: originalIdentity,
+        useCookie: useCookie,
+      });
       jest.clearAllMocks();
       jest.setSystemTime(refreshFrom);
       jest.runOnlyPendingTimers();
@@ -126,13 +132,13 @@ testCookieAndLocalStorage(() => {
       (expect(uid2) as any).toBeInAvailableState();
     });
 
-    describe("when token refresh succeeds", () => {
-      beforeEach(() => {
+    describe.only("when token refresh succeeds", () => {
+      beforeEach(async () => {
         getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-        xhrMock.responseText = btoa(
-          JSON.stringify({ status: "success", body: updatedIdentity })
+        await xhrMock.sendRefreshApiResponse(
+          updatedIdentity,
+          originalIdentity.refresh_response_key
         );
-        xhrMock.onreadystatechange(new Event(""));
       });
 
       test("should invoke the callback", () => {
@@ -378,7 +384,11 @@ testCookieAndLocalStorage(() => {
     });
 
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: originalIdentity,
+        useCookie: useCookie,
+      });
       jest.clearAllMocks();
       jest.setSystemTime(refreshFrom);
       jest.runOnlyPendingTimers();

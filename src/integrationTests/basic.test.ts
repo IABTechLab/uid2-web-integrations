@@ -40,19 +40,19 @@ let useCookie: boolean | undefined = undefined;
 
 const testCookieAndLocalStorage = (test: () => void, only = false) => {
   const describeFn = only ? describe.only : describe;
-  describeFn('Using default: ', () => {
+  describeFn("Using default: ", () => {
     beforeEach(() => {
       useCookie = undefined;
     });
     test();
   });
-  describeFn('Using cookies ', () => {
+  describeFn("Using cookies ", () => {
     beforeEach(() => {
       useCookie = true;
     });
     test();
   });
-  describeFn('Using local storage ', () => {
+  describeFn("Using local storage ", () => {
     beforeEach(() => {
       useCookie = false;
     });
@@ -132,19 +132,19 @@ testCookieAndLocalStorage(() => {
       expect(() =>
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        uid2.init({ callback: () => { }, refreshRetryPeriod: "abc" })
+        uid2.init({ callback: () => {}, refreshRetryPeriod: "abc" })
       ).toThrow(TypeError);
     });
     test("should fail on refreshRetryPeriod being less than 1 second", () => {
       expect(() =>
-        uid2.init({ callback: () => { }, refreshRetryPeriod: 1 })
+        uid2.init({ callback: () => {}, refreshRetryPeriod: 1 })
       ).toThrow(RangeError);
     });
   });
 
   test("init() should fail if called multiple times", () => {
-    uid2.init({ callback: () => { } });
-    expect(() => uid2.init({ callback: () => { } })).toThrow();
+    uid2.init({ callback: () => {} });
+    expect(() => uid2.init({ callback: () => {} })).toThrow();
   });
 
   describe("when initialised without identity", () => {
@@ -222,7 +222,9 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should set value", () => {
-        expect(getUid2(useCookie).advertising_token).toBe(identity.advertising_token);
+        expect(getUid2(useCookie).advertising_token).toBe(
+          identity.advertising_token
+        );
       });
       test("should set refresh timer", () => {
         expect(setTimeout).toHaveBeenCalledTimes(1);
@@ -292,13 +294,10 @@ testCookieAndLocalStorage(() => {
         identity_expires: Date.now() - 100000,
         refresh_from: Date.now() - 100000,
       });
-      let cryptoMock: any;
-
 
       beforeEach(() => {
         xhrMock.open.mockClear();
         xhrMock.send.mockClear();
-        cryptoMock = new mocks.CryptoMock(sdkWindow);
         setUid2(identity, useCookie);
         uid2.init({ callback: callback, useCookie: useCookie });
       });
@@ -306,7 +305,6 @@ testCookieAndLocalStorage(() => {
       afterEach(() => {
         xhrMock.open.mockClear();
         xhrMock.send.mockClear();
-        cryptoMock.subtle.importKey.mockClear();
       });
 
       test("should initiate token refresh", () => {
@@ -338,13 +336,11 @@ testCookieAndLocalStorage(() => {
       });
 
       test("should initiate token refresh", () => {
-        const cryptoMock = new mocks.CryptoMock(sdkWindow);
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
         const url = "https://prod.uidapi.com/v2/token/refresh";
         expect(xhrMock.open).toHaveBeenLastCalledWith("POST", url, true);
         expect(xhrMock.send).toHaveBeenLastCalledWith(identity.refresh_token);
         xhrMock.onreadystatechange();
-        expect(cryptoMock.subtle.importKey).toHaveBeenCalledTimes(0);
       });
     });
   });
@@ -383,7 +379,11 @@ testCookieAndLocalStorage(() => {
       const identity = makeIdentityV2();
 
       beforeEach(() => {
-        uid2.init({ callback: callback, identity: identity, useCookie: useCookie });
+        uid2.init({
+          callback: callback,
+          identity: identity,
+          useCookie: useCookie,
+        });
       });
 
       test("should invoke the callback", () => {
@@ -420,7 +420,11 @@ testCookieAndLocalStorage(() => {
 
       beforeEach(() => {
         setUid2(existingIdentity, useCookie);
-        uid2.init({ callback: callback, identity: initIdentity, useCookie: useCookie });
+        uid2.init({
+          callback: callback,
+          identity: initIdentity,
+          useCookie: useCookie,
+        });
       });
 
       test("should invoke the callback", () => {
@@ -460,7 +464,11 @@ testCookieAndLocalStorage(() => {
     });
 
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: originalIdentity,
+        useCookie: useCookie,
+      });
     });
 
     describe("when token refresh succeeds", () => {
@@ -754,7 +762,11 @@ testCookieAndLocalStorage(() => {
     });
 
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: originalIdentity,
+        useCookie: useCookie,
+      });
     });
 
     describe("when token refresh succeeds", () => {
@@ -915,10 +927,16 @@ testCookieAndLocalStorage(() => {
       const identity = makeIdentityV2();
       setUid2(identity, useCookie);
       uid2.abort();
-      expect(getUid2(useCookie).advertising_token).toBe(identity.advertising_token);
+      expect(getUid2(useCookie).advertising_token).toBe(
+        identity.advertising_token
+      );
     });
     test("should abort refresh timer", () => {
-      uid2.init({ callback: callback, identity: makeIdentityV2(), useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: makeIdentityV2(),
+        useCookie: useCookie,
+      });
       expect(setTimeout).toHaveBeenCalledTimes(1);
       expect(clearTimeout).not.toHaveBeenCalled();
       uid2.abort();
@@ -929,7 +947,7 @@ testCookieAndLocalStorage(() => {
       uid2.init({
         callback: callback,
         identity: makeIdentityV2({ refresh_from: Date.now() - 100000 }),
-        useCookie: useCookie
+        useCookie: useCookie,
       });
       expect(setTimeout).not.toHaveBeenCalled();
       expect(clearTimeout).not.toHaveBeenCalled();
@@ -941,7 +959,7 @@ testCookieAndLocalStorage(() => {
       uid2.init({
         callback: callback,
         identity: makeIdentityV2({ refresh_from: Date.now() - 100000 }),
-        useCookie: useCookie
+        useCookie: useCookie,
       });
       expect(xhrMock.send).toHaveBeenCalledTimes(1);
       expect(xhrMock.abort).not.toHaveBeenCalled();
@@ -951,7 +969,7 @@ testCookieAndLocalStorage(() => {
     });
     test("should prevent subsequent calls to init()", () => {
       uid2.abort();
-      expect(() => uid2.init({ callback: () => { } })).toThrow();
+      expect(() => uid2.init({ callback: () => {} })).toThrow();
     });
   });
 
@@ -962,7 +980,11 @@ testCookieAndLocalStorage(() => {
       expect(getUid2(useCookie)).toBeNull();
     });
     test("should abort refresh timer", () => {
-      uid2.init({ callback: callback, identity: makeIdentityV2(), useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: makeIdentityV2(),
+        useCookie: useCookie,
+      });
       expect(setTimeout).toHaveBeenCalledTimes(1);
       expect(clearTimeout).not.toHaveBeenCalled();
       uid2.disconnect();
@@ -973,7 +995,7 @@ testCookieAndLocalStorage(() => {
       uid2.init({
         callback: callback,
         identity: makeIdentityV2({ refresh_from: Date.now() - 100000 }),
-        useCookie: useCookie
+        useCookie: useCookie,
       });
       expect(xhrMock.send).toHaveBeenCalledTimes(1);
       expect(xhrMock.abort).not.toHaveBeenCalled();
@@ -983,10 +1005,14 @@ testCookieAndLocalStorage(() => {
     });
     test("should prevent subsequent calls to init()", () => {
       uid2.disconnect();
-      expect(() => uid2.init({ callback: () => { } })).toThrow();
+      expect(() => uid2.init({ callback: () => {} })).toThrow();
     });
     test("should switch to unavailable state", () => {
-      uid2.init({ callback: callback, identity: makeIdentityV2(), useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: makeIdentityV2(),
+        useCookie: useCookie,
+      });
       uid2.disconnect();
       (expect(uid2) as any).toBeInUnavailableState();
     });

@@ -3,6 +3,7 @@ import { Cookie } from "tough-cookie";
 import { UID2 } from "./uid2Sdk";
 import { Uid2Identity } from "./Uid2Identity";
 import { localStorageKeyName } from "./uid2LocalStorageManager";
+import { base64ToBytes, bytesToBase64 } from "./uid2Base64";
 
 export class CookieMock {
   jar: jsdom.CookieJar;
@@ -14,21 +15,14 @@ export class CookieMock {
   constructor(document: Document) {
     this.jar = new jsdom.CookieJar();
     this.url = document.URL;
-    this.set = (value: string | Cookie) =>
-      this.jar.setCookieSync(value, this.url, { http: false });
+    this.set = (value: string | Cookie) => this.jar.setCookieSync(value, this.url, { http: false });
     this.get = () => this.jar.getCookieStringSync(this.url, { http: false });
     this.getSetCookieString = (name: string) => {
-      return this.jar
-        .getSetCookieStringsSync(this.url)
-        .filter((c) => c.startsWith(name + "="))[0];
+      return this.jar.getSetCookieStringsSync(this.url).filter((c) => c.startsWith(name + "="))[0];
     };
     this.applyTo = (document: Document) => {
-      jest
-        .spyOn(document, "cookie", "get")
-        .mockImplementation(() => this.get());
-      jest
-        .spyOn(document, "cookie", "set")
-        .mockImplementation((value) => this.set(value));
+      jest.spyOn(document, "cookie", "get").mockImplementation(() => this.get());
+      jest.spyOn(document, "cookie", "set").mockImplementation((value) => this.set(value));
     };
 
     this.applyTo(document);
@@ -55,10 +49,41 @@ export class XhrMock {
     return 4;
   }
 
-  sendRefreshApiResponse(identity: Uid2Identity) {
-    this.responseText = btoa(
-      JSON.stringify({ status: "success", body: identity })
+  async sendRefreshApiResponse(identity: Uid2Identity, previousRefreshResponseToken: string) {
+    const refreshKey = await crypto.subtle.importKey(
+      "raw",
+      base64ToBytes(previousRefreshResponseToken),
+      { name: "AES-GCM" },
+      false,
+      ["encrypt", "decrypt"]
     );
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+
+    // Mock the response data as an object
+    const responseData = { status: "success", body: identity };
+
+    // Encrypt the response data
+    const textEncoder = new TextEncoder();
+    const plaintext = textEncoder.encode(JSON.stringify(responseData));
+
+    const ciphertext = await crypto.subtle.encrypt(
+      {
+        name: "AES-GCM",
+        iv,
+        tagLength: 128,
+      },
+      refreshKey,
+      plaintext
+    );
+    // Combine the IV and ciphertext, and encode it as base64
+    const combinedData = new Uint8Array(iv.length + ciphertext.byteLength);
+    combinedData.set(iv, 0);
+    combinedData.set(new Uint8Array(ciphertext), iv.length);
+
+    const encodedResponse = bytesToBase64(combinedData);
+
+    // Assign the encoded response to this.responseText
+    this.responseText = encodedResponse;
     this.onreadystatechange(new Event(""));
   }
 
@@ -86,62 +111,6 @@ export class XhrMock {
   }
 }
 
-export class CryptoMock {
-  decryptOutput: string;
-  getRandomValues: jest.Mock<any, any>;
-  subtle: {
-    encrypt: jest.Mock<any, any>;
-    decrypt: jest.Mock<any, any>;
-    importKey: jest.Mock<any, any>;
-    generateKey: jest.Mock<any, any>;
-    exportKey: jest.Mock<any, any>;
-    deriveKey: jest.Mock<any, any>;
-    digest: jest.Mock<any, any>;
-  };
-  applyTo: (window: any) => void;
-  constructor(window: Window) {
-    this.decryptOutput = "decrypted_message";
-    this.getRandomValues = jest.fn();
-    this.subtle = {
-      encrypt: jest.fn(),
-      decrypt: jest.fn(),
-      importKey: jest.fn(),
-      generateKey: jest.fn(),
-      exportKey: jest.fn(),
-      deriveKey: jest.fn(),
-      digest: jest.fn(),
-    };
-    let mockDecryptResponse = jest.fn();
-    mockDecryptResponse.mockImplementation((fn) => fn(this.decryptOutput));
-
-    this.subtle.decrypt.mockImplementation((settings, key, data) => {
-      return {
-        then: jest.fn().mockImplementation((func) => {
-          func(Buffer.concat([settings.iv, data]));
-          return { catch: jest.fn() };
-        }),
-      };
-    });
-
-    this.subtle.importKey.mockImplementation(
-      (_format, _key, _algorithm, _extractable, _keyUsages) => {
-        return {
-          then: jest.fn().mockImplementation((func) => {
-            func("key");
-            return { catch: jest.fn() };
-          }),
-        };
-      }
-    );
-
-    this.applyTo = (window) => {
-      Object.defineProperty(window, "crypto", { value: this, writable: true });
-    };
-
-    this.applyTo(window);
-  }
-}
-
 export function setupFakeTime() {
   jest.useFakeTimers();
   jest.spyOn(global, "setTimeout");
@@ -163,8 +132,7 @@ export function setCookieMock(document: Document) {
 }
 
 export function setUid2Cookie(value: any) {
-  document.cookie =
-    UID2.COOKIE_NAME + "=" + encodeURIComponent(JSON.stringify(value));
+  document.cookie = UID2.COOKIE_NAME + "=" + encodeURIComponent(JSON.stringify(value));
 }
 
 export function removeUid2Cookie() {
@@ -187,9 +155,7 @@ export function setUid2(value: any, useCookie?: boolean) {
 export function getUid2Cookie() {
   const docCookie = document.cookie;
   if (docCookie) {
-    const payload = docCookie
-      .split("; ")
-      .find((row) => row.startsWith(UID2.COOKIE_NAME + "="));
+    const payload = docCookie.split("; ").find((row) => row.startsWith(UID2.COOKIE_NAME + "="));
     if (payload) {
       return JSON.parse(decodeURIComponent(payload.split("=")[1]));
     }
@@ -218,9 +184,7 @@ export function setEuidCookie(value: any) {
 export function getEuidCookie() {
   const docCookie = document.cookie;
   if (docCookie) {
-    const payload = docCookie
-      .split("; ")
-      .find((row) => row.startsWith("__euid" + "="));
+    const payload = docCookie.split("; ").find((row) => row.startsWith("__euid" + "="));
     if (payload) {
       return JSON.parse(decodeURIComponent(payload.split("=")[1]));
     }
@@ -242,7 +206,7 @@ export function makeIdentityV2(overrides = {}) {
   return {
     advertising_token: "test_advertising_token",
     refresh_token: "test_refresh_token",
-    refresh_response_key: btoa("test_refresh_response_key"),
+    refresh_response_key: bytesToBase64(crypto.getRandomValues(new Uint8Array(32))),
     refresh_from: Date.now() + 100000,
     identity_expires: Date.now() + 200000,
     refresh_expires: Date.now() + 300000,

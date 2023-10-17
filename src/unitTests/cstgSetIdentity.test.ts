@@ -1,17 +1,8 @@
 import { makeCstgOption } from "../mocks";
-import {
-  ClientSideIdentityOptions,
-  isClientSideIdentityOptionsOrThrow,
-} from "../uid2ClientSideIdentityOptions";
+import { isClientSideIdentityOptionsOrThrow } from "../uid2ClientSideIdentityOptions";
 import { UID2 } from "../uid2Sdk";
 
 let uid2: UID2;
-
-const clientSideOpt: ClientSideIdentityOptions = {
-  serverPublicKey:
-    "UID2-X-L-24B8a/eLYBmRkXA9yPgRZt+ouKbXewG2OPs23+ov3JC8mtYJBCx6AxGwJ4MlwUcguebhdDp2CvzsCgS9ogwwGA==",
-  subscriptionId: "subscription-id",
-};
 
 describe("CSTG Set Identity Tests", () => {
   beforeEach(() => {

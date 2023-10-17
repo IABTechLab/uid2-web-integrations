@@ -1,17 +1,9 @@
 import * as mocks from "../mocks";
-import { ClientSideIdentityOptions } from "../uid2ClientSideIdentityOptions";
 import { sdkWindow, UID2 } from "../uid2Sdk";
 
 let callback: any;
 let uid2: UID2;
 let xhrMock: any;
-let _cryptoMock;
-
-const clientSideOpt: ClientSideIdentityOptions = {
-  serverPublicKey:
-    "UID2-X-L-24B8a/eLYBmRkXA9yPgRZt+ouKbXewG2OPs23+ov3JC8mtYJBCx6AxGwJ4MlwUcguebhdDp2CvzsCgS9ogwwGA==",
-  subscriptionId: "subscription-id",
-};
 
 mocks.setupFakeTime();
 
@@ -19,7 +11,6 @@ beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
   xhrMock = new mocks.XhrMock(sdkWindow);
-  _cryptoMock = new mocks.CryptoMock(sdkWindow);
   mocks.setCookieMock(sdkWindow.document);
   removeUid2LocalStorage();
 });
