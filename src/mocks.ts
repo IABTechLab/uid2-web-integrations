@@ -135,7 +135,7 @@ export class XhrMock {
     this.onreadystatechange(new Event(""));
   }
 
-  constructor() {
+  constructor(window: Window) {
     this.open = jest.fn();
     this.send = jest.fn();
     this.abort = jest.fn();
