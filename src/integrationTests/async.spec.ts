@@ -114,7 +114,7 @@ testCookieAndLocalStorage(() => {
         {
           name: "API returns encoded error response",
           setApiResponses: () => {
-            xhrMock.sendEncodedResponse(
+            xhrMock.sendEncodedRefreshApiResponse(
               "error",
               originalIdentity.refresh_response_key
             );

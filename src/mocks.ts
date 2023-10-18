@@ -98,7 +98,7 @@ export class XhrMock {
     return 4;
   }
 
-  async sendEncodedResponse(
+  async sendEncodedRefreshApiResponse(
     status: string,
     currentRefreshResponseToken: string
   ) {

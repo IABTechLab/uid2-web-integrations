@@ -543,7 +543,7 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           advertisingTokenRefreshedPromise = uid2.getAdvertisingTokenAsync();
-          await xhrMock.sendEncodedResponse(
+          await xhrMock.sendEncodedRefreshApiResponse(
             "optout",
             originalIdentity.refresh_response_key
           );
@@ -820,7 +820,7 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           advertisingTokenRefreshedPromise = uid2.getAdvertisingTokenAsync();
-          await xhrMock.sendEncodedResponse(
+          await xhrMock.sendEncodedRefreshApiResponse(
             "optout",
             originalIdentity.refresh_response_key
           );
