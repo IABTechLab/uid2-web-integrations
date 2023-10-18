@@ -9,10 +9,12 @@ import {
 
 import * as mocks from "../mocks";
 import { sdkWindow, UID2 } from "../uid2Sdk";
+import { EventType } from "../uid2CallbackManager";
 
 let callback: any;
 let uid2: UID2;
 let xhrMock: any;
+let advertisingTokenRefreshedPromise: Promise<string | undefined>;
 
 mocks.setupFakeTime();
 
@@ -40,19 +42,19 @@ let useCookie: boolean | undefined = undefined;
 
 const testCookieAndLocalStorage = (test: () => void, only = false) => {
   const describeFn = only ? describe.only : describe;
-  describeFn('Using default: ', () => {
+  describeFn("Using default: ", () => {
     beforeEach(() => {
       useCookie = undefined;
     });
     test();
   });
-  describeFn('Using cookies ', () => {
+  describeFn("Using cookies ", () => {
     beforeEach(() => {
       useCookie = true;
     });
     test();
   });
-  describeFn('Using local storage ', () => {
+  describeFn("Using local storage ", () => {
     beforeEach(() => {
       useCookie = false;
     });
@@ -132,19 +134,19 @@ testCookieAndLocalStorage(() => {
       expect(() =>
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        uid2.init({ callback: () => { }, refreshRetryPeriod: "abc" })
+        uid2.init({ callback: () => {}, refreshRetryPeriod: "abc" })
       ).toThrow(TypeError);
     });
     test("should fail on refreshRetryPeriod being less than 1 second", () => {
       expect(() =>
-        uid2.init({ callback: () => { }, refreshRetryPeriod: 1 })
+        uid2.init({ callback: () => {}, refreshRetryPeriod: 1 })
       ).toThrow(RangeError);
     });
   });
 
   test("init() should fail if called multiple times", () => {
-    uid2.init({ callback: () => { } });
-    expect(() => uid2.init({ callback: () => { } })).toThrow();
+    uid2.init({ callback: () => {} });
+    expect(() => uid2.init({ callback: () => {} })).toThrow();
   });
 
   describe("when initialised without identity", () => {
@@ -222,7 +224,9 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should set value", () => {
-        expect(getUid2(useCookie).advertising_token).toBe(identity.advertising_token);
+        expect(getUid2(useCookie).advertising_token).toBe(
+          identity.advertising_token
+        );
       });
       test("should set refresh timer", () => {
         expect(setTimeout).toHaveBeenCalledTimes(1);
@@ -292,13 +296,13 @@ testCookieAndLocalStorage(() => {
         identity_expires: Date.now() - 100000,
         refresh_from: Date.now() - 100000,
       });
-      let cryptoMock: any;
-
+      const updatedIdentity = makeIdentityV2({
+        advertising_token: "updated_advertising_token",
+      });
 
       beforeEach(() => {
         xhrMock.open.mockClear();
         xhrMock.send.mockClear();
-        cryptoMock = new mocks.CryptoMock(sdkWindow);
         setUid2(identity, useCookie);
         uid2.init({ callback: callback, useCookie: useCookie });
       });
@@ -306,16 +310,21 @@ testCookieAndLocalStorage(() => {
       afterEach(() => {
         xhrMock.open.mockClear();
         xhrMock.send.mockClear();
-        cryptoMock.subtle.importKey.mockClear();
       });
 
-      test("should initiate token refresh", () => {
+      test("should initiate token refresh", (done) => {
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
         const url = "https://prod.uidapi.com/v2/token/refresh";
         expect(xhrMock.open).toHaveBeenLastCalledWith("POST", url, true);
         expect(xhrMock.send).toHaveBeenLastCalledWith(identity.refresh_token);
-        xhrMock.onreadystatechange();
-        expect(cryptoMock.subtle.importKey).toHaveBeenCalled();
+        uid2.callbacks.push((event) => {
+          expect(event).toBe(EventType.IdentityUpdated);
+          done();
+        });
+        xhrMock.sendIdentityInEncodedResponse(
+          updatedIdentity,
+          identity.refresh_response_key
+        );
       });
 
       test("should not set refresh timer", () => {
@@ -331,20 +340,30 @@ testCookieAndLocalStorage(() => {
         identity_expires: Date.now() - 100000,
         refresh_from: Date.now() - 100000,
       });
-
+      const updatedIdentity = makeIdentityV2({
+        advertising_token: "updated_advertising_token",
+      });
       beforeEach(() => {
         setUid2(identity, useCookie);
         uid2.init({ callback: callback, useCookie: useCookie });
       });
 
-      test("should initiate token refresh", () => {
-        const cryptoMock = new mocks.CryptoMock(sdkWindow);
+      test("should initiate token refresh", (done) => {
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
         const url = "https://prod.uidapi.com/v2/token/refresh";
         expect(xhrMock.open).toHaveBeenLastCalledWith("POST", url, true);
         expect(xhrMock.send).toHaveBeenLastCalledWith(identity.refresh_token);
         xhrMock.onreadystatechange();
-        expect(cryptoMock.subtle.importKey).toHaveBeenCalledTimes(0);
+        uid2.callbacks.push((event) => {
+          expect(event).toBe(EventType.IdentityUpdated);
+          done();
+        });
+        xhrMock.sendRefreshApiResponse({
+          responseText: JSON.stringify({
+            status: "success",
+            body: updatedIdentity,
+          }),
+        });
       });
     });
   });
@@ -383,7 +402,11 @@ testCookieAndLocalStorage(() => {
       const identity = makeIdentityV2();
 
       beforeEach(() => {
-        uid2.init({ callback: callback, identity: identity, useCookie: useCookie });
+        uid2.init({
+          callback: callback,
+          identity: identity,
+          useCookie: useCookie,
+        });
       });
 
       test("should invoke the callback", () => {
@@ -420,7 +443,11 @@ testCookieAndLocalStorage(() => {
 
       beforeEach(() => {
         setUid2(existingIdentity, useCookie);
-        uid2.init({ callback: callback, identity: initIdentity, useCookie: useCookie });
+        uid2.init({
+          callback: callback,
+          identity: initIdentity,
+          useCookie: useCookie,
+        });
       });
 
       test("should invoke the callback", () => {
@@ -460,15 +487,21 @@ testCookieAndLocalStorage(() => {
     });
 
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: originalIdentity,
+        useCookie: useCookie,
+      });
     });
 
     describe("when token refresh succeeds", () => {
-      beforeEach(() => {
-        xhrMock.responseText = btoa(
-          JSON.stringify({ status: "success", body: updatedIdentity })
+      beforeEach(async () => {
+        advertisingTokenRefreshedPromise = uid2.getAdvertisingTokenAsync();
+        await xhrMock.sendIdentityInEncodedResponse(
+          updatedIdentity,
+          originalIdentity.refresh_response_key
         );
-        xhrMock.onreadystatechange(new Event(""));
+        await advertisingTokenRefreshedPromise;
       });
 
       test("should invoke the callback", () => {
@@ -497,9 +530,11 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh returns invalid response", () => {
-      beforeEach(() => {
+      beforeEach(async () => {
+        advertisingTokenRefreshedPromise = uid2.getAdvertisingTokenAsync();
         xhrMock.responseText = "abc";
         xhrMock.onreadystatechange(new Event(""));
+        await advertisingTokenRefreshedPromise;
       });
 
       test("should invoke the callback", () => {
@@ -529,9 +564,17 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh returns optout", () => {
-      beforeEach(() => {
-        xhrMock.responseText = btoa(JSON.stringify({ status: "optout" }));
-        xhrMock.onreadystatechange(new Event(""));
+      beforeEach(async () => {
+        try {
+          advertisingTokenRefreshedPromise = uid2.getAdvertisingTokenAsync();
+          await xhrMock.sendEncodedResponse(
+            "optout",
+            originalIdentity.refresh_response_key
+          );
+          await advertisingTokenRefreshedPromise;
+        } catch (_err) {
+          // it will throw uid2 abort error
+        }
       });
 
       test("should invoke the callback", () => {
@@ -754,15 +797,21 @@ testCookieAndLocalStorage(() => {
     });
 
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: originalIdentity,
+        useCookie: useCookie,
+      });
     });
 
     describe("when token refresh succeeds", () => {
-      beforeEach(() => {
-        xhrMock.responseText = btoa(
-          JSON.stringify({ status: "success", body: updatedIdentity })
+      beforeEach(async () => {
+        const getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
+        await xhrMock.sendIdentityInEncodedResponse(
+          updatedIdentity,
+          originalIdentity.refresh_response_key
         );
-        xhrMock.onreadystatechange(new Event(""));
+        await getAdvertisingTokenPromise;
       });
 
       test("should invoke the callback", () => {
@@ -792,9 +841,17 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh returns optout", () => {
-      beforeEach(() => {
-        xhrMock.responseText = btoa(JSON.stringify({ status: "optout" }));
-        xhrMock.onreadystatechange(new Event(""));
+      beforeEach(async () => {
+        try {
+          advertisingTokenRefreshedPromise = uid2.getAdvertisingTokenAsync();
+          await xhrMock.sendEncodedResponse(
+            "optout",
+            originalIdentity.refresh_response_key
+          );
+          await advertisingTokenRefreshedPromise;
+        } catch (_err) {
+          // it will throw uid2 abort error
+        }
       });
 
       test("should invoke the callback", () => {
@@ -915,10 +972,16 @@ testCookieAndLocalStorage(() => {
       const identity = makeIdentityV2();
       setUid2(identity, useCookie);
       uid2.abort();
-      expect(getUid2(useCookie).advertising_token).toBe(identity.advertising_token);
+      expect(getUid2(useCookie).advertising_token).toBe(
+        identity.advertising_token
+      );
     });
     test("should abort refresh timer", () => {
-      uid2.init({ callback: callback, identity: makeIdentityV2(), useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: makeIdentityV2(),
+        useCookie: useCookie,
+      });
       expect(setTimeout).toHaveBeenCalledTimes(1);
       expect(clearTimeout).not.toHaveBeenCalled();
       uid2.abort();
@@ -929,7 +992,7 @@ testCookieAndLocalStorage(() => {
       uid2.init({
         callback: callback,
         identity: makeIdentityV2({ refresh_from: Date.now() - 100000 }),
-        useCookie: useCookie
+        useCookie: useCookie,
       });
       expect(setTimeout).not.toHaveBeenCalled();
       expect(clearTimeout).not.toHaveBeenCalled();
@@ -941,7 +1004,7 @@ testCookieAndLocalStorage(() => {
       uid2.init({
         callback: callback,
         identity: makeIdentityV2({ refresh_from: Date.now() - 100000 }),
-        useCookie: useCookie
+        useCookie: useCookie,
       });
       expect(xhrMock.send).toHaveBeenCalledTimes(1);
       expect(xhrMock.abort).not.toHaveBeenCalled();
@@ -951,7 +1014,7 @@ testCookieAndLocalStorage(() => {
     });
     test("should prevent subsequent calls to init()", () => {
       uid2.abort();
-      expect(() => uid2.init({ callback: () => { } })).toThrow();
+      expect(() => uid2.init({ callback: () => {} })).toThrow();
     });
   });
 
@@ -962,7 +1025,11 @@ testCookieAndLocalStorage(() => {
       expect(getUid2(useCookie)).toBeNull();
     });
     test("should abort refresh timer", () => {
-      uid2.init({ callback: callback, identity: makeIdentityV2(), useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: makeIdentityV2(),
+        useCookie: useCookie,
+      });
       expect(setTimeout).toHaveBeenCalledTimes(1);
       expect(clearTimeout).not.toHaveBeenCalled();
       uid2.disconnect();
@@ -973,7 +1040,7 @@ testCookieAndLocalStorage(() => {
       uid2.init({
         callback: callback,
         identity: makeIdentityV2({ refresh_from: Date.now() - 100000 }),
-        useCookie: useCookie
+        useCookie: useCookie,
       });
       expect(xhrMock.send).toHaveBeenCalledTimes(1);
       expect(xhrMock.abort).not.toHaveBeenCalled();
@@ -983,10 +1050,14 @@ testCookieAndLocalStorage(() => {
     });
     test("should prevent subsequent calls to init()", () => {
       uid2.disconnect();
-      expect(() => uid2.init({ callback: () => { } })).toThrow();
+      expect(() => uid2.init({ callback: () => {} })).toThrow();
     });
     test("should switch to unavailable state", () => {
-      uid2.init({ callback: callback, identity: makeIdentityV2(), useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: makeIdentityV2(),
+        useCookie: useCookie,
+      });
       uid2.disconnect();
       (expect(uid2) as any).toBeInUnavailableState();
     });

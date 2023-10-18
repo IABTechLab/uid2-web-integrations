@@ -206,10 +206,11 @@ export class Uid2ApiClient {
                       if (typeof result === "string") rejectPromise(result);
                       else resolvePromise(result);
                     },
-                    (reason) => console.warn(`Call to UID2 API failed`, reason)
+                    (reason) =>
+                      rejectPromise(`Call to UID2 API failed` + reason)
                   );
               },
-              (reason) => console.warn(`Call to UID2 API failed`, reason)
+              (reason) => rejectPromise(`Call to UID2 API failed` + reason)
             );
         }
       } catch (err) {

@@ -107,7 +107,6 @@ describe("Secure Signal Tests", () => {
 
     describe("When script loaded before SDK loaded", () => {
       beforeEach(() => {
-        new mocks.CryptoMock(window);
         mocks.setCookieMock(window.document);
         xhrMock = new mocks.XhrMock(window);
         jest.clearAllMocks();
@@ -140,7 +139,6 @@ describe("Secure Signal Tests", () => {
       beforeEach(() => {
         uid2 = new UID2();
         window.__uid2 = uid2;
-        new mocks.CryptoMock(window);
         mocks.setCookieMock(window.document);
         xhrMock = new mocks.XhrMock(window);
         jest.clearAllMocks();
@@ -178,23 +176,28 @@ describe("Secure Signal Tests", () => {
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(0);
       });
 
-      test("should send signal with updated identity to Google ESP", async () => {
+      test("should send signal with updated identity to Google ESP", (done) => {
         const outdatedIdentity = mocks.makeIdentityV2({
           refresh_from: Date.now() - 1,
         });
+        const callback = jest.fn();
         uid2.init({ identity: outdatedIdentity });
         window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
         UID2.setupGoogleSecureSignals();
+        uid2.callbacks.push(callback);
         jest.setSystemTime(refreshFrom);
         jest.runOnlyPendingTimers();
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
-        xhrMock.sendRefreshApiResponse(refreshedIdentity);
-        await expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
 
-        await mocks.flushPromises();
-        await mocks.flushPromises();
-        expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
-          refreshedIdentity.advertising_token
+        callback.mockImplementation(async () => {
+          expect(
+            await secureSignalProvidersPushMock.mock.results[0].value
+          ).toBe(refreshedIdentity.advertising_token);
+          done();
+        });
+        xhrMock.sendIdentityInEncodedResponse(
+          refreshedIdentity,
+          outdatedIdentity.refresh_response_key
         );
       });
     });

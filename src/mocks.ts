@@ -3,7 +3,8 @@ import { Cookie } from "tough-cookie";
 import { UID2 } from "./uid2Sdk";
 import { Uid2Identity } from "./Uid2Identity";
 import { localStorageKeyName } from "./uid2LocalStorageManager";
-
+import { base64ToBytes, bytesToBase64 } from "./uid2Base64";
+import * as crypto from "crypto";
 export class CookieMock {
   jar: jsdom.CookieJar;
   url: string;
@@ -34,6 +35,53 @@ export class CookieMock {
     this.applyTo(document);
   }
 }
+type MockXhrResponse = {
+  status?: number;
+  responseText: string;
+};
+
+type MockApiResponse = {
+  body?: Uid2Identity;
+  status?: string;
+  message?: string;
+};
+
+const importRefreshKey = (refreshResponseKey: string) => {
+  return crypto.subtle.importKey(
+    "raw",
+    base64ToBytes(refreshResponseKey),
+    { name: "AES-GCM" },
+    false,
+    ["encrypt", "decrypt"]
+  );
+};
+
+const encodeApiResponse = async (
+  refreshResponse: MockApiResponse,
+  refreshResponseKey: string
+) => {
+  const refreshKey = await importRefreshKey(refreshResponseKey);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const textEncoder = new TextEncoder();
+  const plaintext = textEncoder.encode(JSON.stringify(refreshResponse));
+
+  const ciphertext = await crypto.subtle.encrypt(
+    {
+      name: "AES-GCM",
+      iv,
+      tagLength: 128,
+    },
+    refreshKey,
+    plaintext
+  );
+
+  const combinedData = new Uint8Array(iv.length + ciphertext.byteLength);
+
+  combinedData.set(iv, 0);
+  combinedData.set(new Uint8Array(ciphertext), iv.length);
+
+  return bytesToBase64(combinedData);
+};
 
 export class XhrMock {
   responseText: string;
@@ -50,10 +98,34 @@ export class XhrMock {
     return 4;
   }
 
-  sendRefreshApiResponse(identity: Uid2Identity) {
-    this.responseText = btoa(
-      JSON.stringify({ status: "success", body: identity })
+  async sendEncodedResponse(
+    status: string,
+    currentRefreshResponseToken: string
+  ) {
+    const encodedResponse = await encodeApiResponse(
+      { status },
+      currentRefreshResponseToken
     );
+
+    return this.sendRefreshApiResponse({ responseText: encodedResponse });
+  }
+
+  async sendIdentityInEncodedResponse(
+    identity: Uid2Identity,
+    currentRefreshResponseToken: string,
+    status?: string
+  ) {
+    const encodedResponse = await encodeApiResponse(
+      { body: identity, status: status ?? "success" },
+      currentRefreshResponseToken
+    );
+
+    return this.sendRefreshApiResponse({ responseText: encodedResponse });
+  }
+
+  async sendRefreshApiResponse(response: MockXhrResponse) {
+    this.status = response.status || 200;
+    this.responseText = response.responseText;
     this.onreadystatechange(new Event(""));
   }
 
@@ -68,54 +140,6 @@ export class XhrMock {
     this.readyState = this.DONE;
     this.applyTo = (window) => {
       jest.spyOn(window, "XMLHttpRequest").mockImplementation(() => this);
-    };
-
-    this.applyTo(window);
-  }
-}
-
-export class CryptoMock {
-  decryptOutput: string;
-  getRandomValues: jest.Mock<any, any>;
-  subtle: {
-    encrypt: jest.Mock<any, any>;
-    decrypt: jest.Mock<any, any>;
-    importKey: jest.Mock<any, any>;
-  };
-  applyTo: (window: any) => void;
-  constructor(window: Window) {
-    this.decryptOutput = "decrypted_message";
-    this.getRandomValues = jest.fn();
-    this.subtle = {
-      encrypt: jest.fn(),
-      decrypt: jest.fn(),
-      importKey: jest.fn(),
-    };
-    let mockDecryptResponse = jest.fn();
-    mockDecryptResponse.mockImplementation((fn) => fn(this.decryptOutput));
-
-    this.subtle.decrypt.mockImplementation((settings, key, data) => {
-      return {
-        then: jest.fn().mockImplementation((func) => {
-          func(Buffer.concat([settings.iv, data]));
-          return { catch: jest.fn() };
-        }),
-      };
-    });
-
-    this.subtle.importKey.mockImplementation(
-      (_format, _key, _algorithm, _extractable, _keyUsages) => {
-        return {
-          then: jest.fn().mockImplementation((func) => {
-            func("key");
-            return { catch: jest.fn() };
-          }),
-        };
-      }
-    );
-
-    this.applyTo = (window) => {
-      Object.defineProperty(window, "crypto", { value: this, writable: true });
     };
 
     this.applyTo(window);
@@ -148,8 +172,7 @@ export function setUid2Cookie(value: any) {
 }
 
 export function removeUid2Cookie() {
-  document.cookie =
-    document.cookie + "=;expires=Tue, 1 Jan 1980 23:59:59 GMT";
+  document.cookie = document.cookie + "=;expires=Tue, 1 Jan 1980 23:59:59 GMT";
 }
 
 export async function flushPromises() {
@@ -223,7 +246,9 @@ export function makeIdentityV2(overrides = {}) {
   return {
     advertising_token: "test_advertising_token",
     refresh_token: "test_refresh_token",
-    refresh_response_key: btoa("test_refresh_response_key"),
+    refresh_response_key: bytesToBase64(
+      crypto.getRandomValues(new Uint8Array(32))
+    ),
     refresh_from: Date.now() + 100000,
     identity_expires: Date.now() + 200000,
     refresh_expires: Date.now() + 300000,
