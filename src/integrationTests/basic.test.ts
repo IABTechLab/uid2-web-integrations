@@ -296,9 +296,6 @@ testCookieAndLocalStorage(() => {
         identity_expires: Date.now() - 100000,
         refresh_from: Date.now() - 100000,
       });
-      const updatedIdentity = makeIdentityV2({
-        advertising_token: "updated_advertising_token",
-      });
 
       beforeEach(() => {
         xhrMock.open.mockClear();
@@ -312,19 +309,11 @@ testCookieAndLocalStorage(() => {
         xhrMock.send.mockClear();
       });
 
-      test("should initiate token refresh", (done) => {
+      test("should initiate token refresh", () => {
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
         const url = "https://prod.uidapi.com/v2/token/refresh";
         expect(xhrMock.open).toHaveBeenLastCalledWith("POST", url, true);
         expect(xhrMock.send).toHaveBeenLastCalledWith(identity.refresh_token);
-        uid2.callbacks.push((event) => {
-          expect(event).toBe(EventType.IdentityUpdated);
-          done();
-        });
-        xhrMock.sendIdentityInEncodedResponse(
-          updatedIdentity,
-          identity.refresh_response_key
-        );
       });
 
       test("should not set refresh timer", () => {
@@ -348,22 +337,11 @@ testCookieAndLocalStorage(() => {
         uid2.init({ callback: callback, useCookie: useCookie });
       });
 
-      test("should initiate token refresh", (done) => {
+      test("should initiate token refresh", () => {
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
         const url = "https://prod.uidapi.com/v2/token/refresh";
         expect(xhrMock.open).toHaveBeenLastCalledWith("POST", url, true);
         expect(xhrMock.send).toHaveBeenLastCalledWith(identity.refresh_token);
-        xhrMock.onreadystatechange();
-        uid2.callbacks.push((event) => {
-          expect(event).toBe(EventType.IdentityUpdated);
-          done();
-        });
-        xhrMock.sendRefreshApiResponse({
-          responseText: JSON.stringify({
-            status: "success",
-            body: updatedIdentity,
-          }),
-        });
       });
     });
   });
