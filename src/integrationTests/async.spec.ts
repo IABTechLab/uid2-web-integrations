@@ -98,7 +98,7 @@ testCookieAndLocalStorage(() => {
         });
         const p = uid2.getAdvertisingTokenAsync();
         uid2.init({ identity: originalIdentity, useCookie: useCookie });
-        await xhrMock.sendIdentityInEncodedResponse(
+        xhrMock.sendIdentityInEncodedResponse(
           updatedIdentity,
           originalIdentity.refresh_response_key
         );
@@ -106,67 +106,71 @@ testCookieAndLocalStorage(() => {
       });
     });
 
-    const refreshFailedScenarios = [
-      {
-        name: "API returns encoded response",
-        setApiResponses: () => {
-          xhrMock.sendRefreshApiResponse({
-            responseText: JSON.stringify({ status: "error" }),
-          });
+    describe("When auto refresh fails", () => {
+      const originalIdentity = makeIdentity({
+        refresh_from: Date.now() - 100000,
+      });
+      const refreshFailedScenarios = [
+        {
+          name: "API returns encoded error response",
+          setApiResponses: () => {
+            xhrMock.sendEncodedRefreshApiResponse(
+              "error",
+              originalIdentity.refresh_response_key
+            );
+          },
         },
-      },
-      {
-        name: "API returns invalid response",
-        setApiResponses: () => {
-          xhrMock.sendRefreshApiResponse({
-            responseText: JSON.stringify({ status: "error" }),
-          });
+        {
+          name: "API returns invalid response",
+          setApiResponses: () => {
+            xhrMock.sendRefreshApiResponse({
+              responseText: JSON.stringify({ status: "error" }),
+            });
+          },
         },
-      },
-    ];
-
-    describe("when auto refresh fails, but identity still valid", () => {
-      refreshFailedScenarios.forEach((scenario) => {
-        describe(`When ${scenario.name}`, () => {
-          test("it should resolve original advertising token", () => {
-            const originalIdentity = makeIdentity({
-              refresh_from: Date.now() - 100000,
+      ];
+      describe("when identity still valid", () => {
+        refreshFailedScenarios.forEach((scenario) => {
+          describe(`When ${scenario.name}`, () => {
+            test("it should resolve original advertising token", () => {
+              const p = uid2.getAdvertisingTokenAsync().then((token: any) => {
+                expect(callback).toHaveBeenCalled();
+                return token;
+              });
+              uid2.init({
+                callback: callback,
+                identity: originalIdentity,
+                useCookie: useCookie,
+              });
+              scenario.setApiResponses();
+              return expect(p).resolves.toBe(
+                originalIdentity.advertising_token
+              );
             });
-            const p = uid2.getAdvertisingTokenAsync().then((token: any) => {
-              expect(callback).toHaveBeenCalled();
-              return token;
-            });
-            uid2.init({
-              callback: callback,
-              identity: originalIdentity,
-              useCookie: useCookie,
-            });
-            scenario.setApiResponses();
-            return expect(p).resolves.toBe(originalIdentity.advertising_token);
           });
         });
       });
-    });
 
-    describe("when auto refresh fails, but identity already expired", () => {
-      refreshFailedScenarios.forEach((scenario) => {
-        describe(`When ${scenario.name}`, () => {
-          test("it should reject promise after invoking the callback", () => {
-            const originalIdentity = makeIdentity({
-              refresh_from: Date.now() - 100000,
-              identity_expires: Date.now() - 1,
+      describe("when identity already expired", () => {
+        refreshFailedScenarios.forEach((scenario) => {
+          describe(`When ${scenario.name}`, () => {
+            test("it should reject promise after invoking the callback", () => {
+              const originalIdentity = makeIdentity({
+                refresh_from: Date.now() - 100000,
+                identity_expires: Date.now() - 1,
+              });
+              const p = uid2.getAdvertisingTokenAsync().catch((e: any) => {
+                expect(callback).toHaveBeenCalled();
+                throw e;
+              });
+              uid2.init({
+                callback: callback,
+                identity: originalIdentity,
+                useCookie: useCookie,
+              });
+              scenario.setApiResponses();
+              return expect(p).rejects.toBeInstanceOf(Error);
             });
-            const p = uid2.getAdvertisingTokenAsync().catch((e: any) => {
-              expect(callback).toHaveBeenCalled();
-              throw e;
-            });
-            uid2.init({
-              callback: callback,
-              identity: originalIdentity,
-              useCookie: useCookie,
-            });
-            scenario.setApiResponses();
-            return expect(p).rejects.toBeInstanceOf(Error);
           });
         });
       });

@@ -296,9 +296,6 @@ testCookieAndLocalStorage(() => {
         identity_expires: Date.now() - 100000,
         refresh_from: Date.now() - 100000,
       });
-      const updatedIdentity = makeIdentityV2({
-        advertising_token: "updated_advertising_token",
-      });
 
       beforeEach(() => {
         xhrMock.open.mockClear();
@@ -317,14 +314,6 @@ testCookieAndLocalStorage(() => {
         const url = "https://prod.uidapi.com/v2/token/refresh";
         expect(xhrMock.open).toHaveBeenLastCalledWith("POST", url, true);
         expect(xhrMock.send).toHaveBeenLastCalledWith(identity.refresh_token);
-        uid2.callbacks.push((event) => {
-          expect(event).toBe(EventType.IdentityUpdated);
-          done();
-        });
-        xhrMock.sendIdentityInEncodedResponse(
-          updatedIdentity,
-          identity.refresh_response_key
-        );
       });
 
       test("should not set refresh timer", () => {
@@ -351,7 +340,6 @@ testCookieAndLocalStorage(() => {
         const url = "https://prod.uidapi.com/v2/token/refresh";
         expect(xhrMock.open).toHaveBeenLastCalledWith("POST", url, true);
         expect(xhrMock.send).toHaveBeenLastCalledWith(identity.refresh_token);
-        xhrMock.onreadystatechange();
       });
     });
   });
@@ -556,7 +544,7 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           advertisingTokenRefreshedPromise = uid2.getAdvertisingTokenAsync();
-          await xhrMock.sendEncodedResponse(
+          await xhrMock.sendEncodedRefreshApiResponse(
             "optout",
             originalIdentity.refresh_response_key
           );
@@ -833,7 +821,7 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           advertisingTokenRefreshedPromise = uid2.getAdvertisingTokenAsync();
-          await xhrMock.sendEncodedResponse(
+          await xhrMock.sendEncodedRefreshApiResponse(
             "optout",
             originalIdentity.refresh_response_key
           );

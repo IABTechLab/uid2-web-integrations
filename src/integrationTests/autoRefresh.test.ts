@@ -178,7 +178,7 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          await xhrMock.sendEncodedResponse(
+          await xhrMock.sendEncodedRefreshApiResponse(
             "optout",
             originalIdentity.refresh_response_key
           );
@@ -217,7 +217,7 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          await xhrMock.sendEncodedResponse(
+          await xhrMock.sendEncodedRefreshApiResponse(
             "expired_token",
             originalIdentity.refresh_response_key
           );
@@ -256,7 +256,7 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          await xhrMock.sendEncodedResponse(
+          await xhrMock.sendEncodedRefreshApiResponse(
             "error",
             originalIdentity.refresh_response_key
           );
@@ -293,7 +293,7 @@ testCookieAndLocalStorage(() => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
           jest.setSystemTime(originalIdentity.refresh_expires * 1000 + 1);
-          await xhrMock.sendEncodedResponse(
+          await xhrMock.sendEncodedRefreshApiResponse(
             "error",
             originalIdentity.refresh_response_key
           );
@@ -457,7 +457,7 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          await xhrMock.sendEncodedResponse(
+          await xhrMock.sendEncodedRefreshApiResponse(
             "optout",
             originalIdentity.refresh_response_key
           );
@@ -496,7 +496,7 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          await xhrMock.sendEncodedResponse(
+          await xhrMock.sendEncodedRefreshApiResponse(
             "expired_token",
             originalIdentity.refresh_response_key
           );
@@ -535,7 +535,7 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          await xhrMock.sendEncodedResponse(
+          await xhrMock.sendEncodedRefreshApiResponse(
             "error",
             originalIdentity.refresh_response_key
           );
@@ -569,7 +569,7 @@ testCookieAndLocalStorage(() => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
           jest.setSystemTime(originalIdentity.refresh_expires * 1000 + 1);
-          await xhrMock.sendEncodedResponse(
+          await xhrMock.sendEncodedRefreshApiResponse(
             "error",
             originalIdentity.refresh_response_key
           );

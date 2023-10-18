@@ -98,7 +98,7 @@ export class XhrMock {
     return 4;
   }
 
-  async sendEncodedResponse(
+  async sendEncodedRefreshApiResponse(
     status: string,
     currentRefreshResponseToken: string
   ) {
@@ -129,13 +129,13 @@ export class XhrMock {
     this.onreadystatechange(new Event(""));
   }
 
-  sendCstgApiResponse(response: MockXhrResponse) {
+  async sendCstgApiResponse(response: MockXhrResponse) {
     this.status = response.status || 200;
     this.responseText = response.responseText;
     this.onreadystatechange(new Event(""));
   }
 
-  constructor(window: Window) {
+  constructor() {
     this.open = jest.fn();
     this.send = jest.fn();
     this.abort = jest.fn();

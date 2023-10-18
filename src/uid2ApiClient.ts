@@ -207,10 +207,10 @@ export class Uid2ApiClient {
                       else resolvePromise(result);
                     },
                     (reason) =>
-                      rejectPromise(`Call to UID2 API failed` + reason)
+                      rejectPromise(`Call to UID2 API failed: ` + reason)
                   );
               },
-              (reason) => rejectPromise(`Call to UID2 API failed` + reason)
+              (reason) => rejectPromise(`Call to UID2 API failed: ` + reason)
             );
         }
       } catch (err) {
