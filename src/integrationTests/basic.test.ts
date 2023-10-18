@@ -9,7 +9,6 @@ import {
 
 import * as mocks from "../mocks";
 import { sdkWindow, UID2 } from "../uid2Sdk";
-import { EventType } from "../uid2CallbackManager";
 
 let callback: any;
 let uid2: UID2;

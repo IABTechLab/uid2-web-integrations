@@ -46,7 +46,7 @@ type MockApiResponse = {
   message?: string;
 };
 
-const importRefreshKey = (refreshResponseKey: string) => {
+export const importRefreshKey = (refreshResponseKey: string) => {
   return crypto.subtle.importKey(
     "raw",
     base64ToBytes(refreshResponseKey),
