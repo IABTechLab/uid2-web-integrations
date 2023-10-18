@@ -329,9 +329,7 @@ testCookieAndLocalStorage(() => {
         identity_expires: Date.now() - 100000,
         refresh_from: Date.now() - 100000,
       });
-      const updatedIdentity = makeIdentityV2({
-        advertising_token: "updated_advertising_token",
-      });
+
       beforeEach(() => {
         setUid2(identity, useCookie);
         uid2.init({ callback: callback, useCookie: useCookie });
