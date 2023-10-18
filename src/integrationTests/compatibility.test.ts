@@ -35,19 +35,19 @@ let useCookie: boolean | undefined = undefined;
 
 const testCookieAndLocalStorage = (test: () => void, only = false) => {
   const describeFn = only ? describe.only : describe;
-  describeFn('Using default: ', () => {
+  describeFn("Using default: ", () => {
     beforeEach(() => {
       useCookie = undefined;
     });
     test();
   });
-  describeFn('Using cookies ', () => {
+  describeFn("Using cookies ", () => {
     beforeEach(() => {
       useCookie = true;
     });
     test();
   });
-  describeFn('Using local storage ', () => {
+  describeFn("Using local storage ", () => {
     beforeEach(() => {
       useCookie = false;
     });
@@ -99,7 +99,9 @@ testCookieAndLocalStorage(() => {
         );
       });
       test("should set value", () => {
-        expect(getUid2(useCookie).advertising_token).toBe(updatedIdentity.advertising_token);
+        expect(getUid2(useCookie).advertising_token).toBe(
+          updatedIdentity.advertising_token
+        );
       });
       test("should set refresh timer", () => {
         expect(setTimeout).toHaveBeenCalledTimes(1);
@@ -133,15 +135,11 @@ testCookieAndLocalStorage(() => {
       });
       test("should set enriched value", () => {
         const value = getUid2(useCookie);
-        expect(value.refresh_token).toBe(
-          originalIdentity.refresh_token
-        );
+        expect(value.refresh_token).toBe(originalIdentity.refresh_token);
         expect(value.refresh_from).toBe(Date.now());
         expect(value.identity_expires).toBeGreaterThan(Date.now());
         expect(value.refresh_expires).toBeGreaterThan(Date.now());
-        expect(value.identity_expires).toBeLessThan(
-          value.refresh_expires
-        );
+        expect(value.identity_expires).toBeLessThan(value.refresh_expires);
       });
       test("should set refresh timer", () => {
         expect(setTimeout).toHaveBeenCalledTimes(1);

@@ -157,7 +157,7 @@ testCookieAndLocalStorage(() => {
         jest.setSystemTime(refreshFrom);
         jest.runOnlyPendingTimers();
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
-        xhrMock.sendRefreshApiResponse(
+        xhrMock.sendIdentityInEncodedResponse(
           refreshedIdentity,
           identity.refresh_response_key
         );

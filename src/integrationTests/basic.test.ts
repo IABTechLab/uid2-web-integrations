@@ -9,10 +9,12 @@ import {
 
 import * as mocks from "../mocks";
 import { sdkWindow, UID2 } from "../uid2Sdk";
+import { EventType } from "../uid2CallbackManager";
 
 let callback: any;
 let uid2: UID2;
 let xhrMock: any;
+let advertisingTokenRefreshedPromise: Promise<string | undefined>;
 
 mocks.setupFakeTime();
 
@@ -294,6 +296,9 @@ testCookieAndLocalStorage(() => {
         identity_expires: Date.now() - 100000,
         refresh_from: Date.now() - 100000,
       });
+      const updatedIdentity = makeIdentityV2({
+        advertising_token: "updated_advertising_token",
+      });
 
       beforeEach(() => {
         xhrMock.open.mockClear();
@@ -307,13 +312,19 @@ testCookieAndLocalStorage(() => {
         xhrMock.send.mockClear();
       });
 
-      test("should initiate token refresh", () => {
+      test("should initiate token refresh", (done) => {
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
         const url = "https://prod.uidapi.com/v2/token/refresh";
         expect(xhrMock.open).toHaveBeenLastCalledWith("POST", url, true);
         expect(xhrMock.send).toHaveBeenLastCalledWith(identity.refresh_token);
-        xhrMock.onreadystatechange();
-        expect(cryptoMock.subtle.importKey).toHaveBeenCalled();
+        uid2.callbacks.push((event) => {
+          expect(event).toBe(EventType.IdentityUpdated);
+          done();
+        });
+        xhrMock.sendIdentityInEncodedResponse(
+          updatedIdentity,
+          identity.refresh_response_key
+        );
       });
 
       test("should not set refresh timer", () => {
@@ -472,11 +483,13 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh succeeds", () => {
-      beforeEach(() => {
-        xhrMock.responseText = btoa(
-          JSON.stringify({ status: "success", body: updatedIdentity })
+      beforeEach(async () => {
+        advertisingTokenRefreshedPromise = uid2.getAdvertisingTokenAsync();
+        await xhrMock.sendIdentityInEncodedResponse(
+          updatedIdentity,
+          originalIdentity.refresh_response_key
         );
-        xhrMock.onreadystatechange(new Event(""));
+        await advertisingTokenRefreshedPromise;
       });
 
       test("should invoke the callback", () => {
@@ -488,6 +501,7 @@ testCookieAndLocalStorage(() => {
           })
         );
       });
+
       test("should set value", () => {
         expect(getUid2(useCookie).advertising_token).toBe(
           updatedIdentity.advertising_token
@@ -505,9 +519,11 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh returns invalid response", () => {
-      beforeEach(() => {
+      beforeEach(async () => {
+        advertisingTokenRefreshedPromise = uid2.getAdvertisingTokenAsync();
         xhrMock.responseText = "abc";
         xhrMock.onreadystatechange(new Event(""));
+        await advertisingTokenRefreshedPromise;
       });
 
       test("should invoke the callback", () => {
@@ -537,9 +553,17 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh returns optout", () => {
-      beforeEach(() => {
-        xhrMock.responseText = btoa(JSON.stringify({ status: "optout" }));
-        xhrMock.onreadystatechange(new Event(""));
+      beforeEach(async () => {
+        try {
+          advertisingTokenRefreshedPromise = uid2.getAdvertisingTokenAsync();
+          await xhrMock.sendEncodedResponse(
+            "optout",
+            originalIdentity.refresh_response_key
+          );
+          await advertisingTokenRefreshedPromise;
+        } catch (_err) {
+          // it will throw uid2 abort error
+        }
       });
 
       test("should invoke the callback", () => {
@@ -770,11 +794,13 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh succeeds", () => {
-      beforeEach(() => {
-        xhrMock.responseText = btoa(
-          JSON.stringify({ status: "success", body: updatedIdentity })
+      beforeEach(async () => {
+        const getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
+        await xhrMock.sendIdentityInEncodedResponse(
+          updatedIdentity,
+          originalIdentity.refresh_response_key
         );
-        xhrMock.onreadystatechange(new Event(""));
+        await getAdvertisingTokenPromise;
       });
 
       test("should invoke the callback", () => {
@@ -804,9 +830,17 @@ testCookieAndLocalStorage(() => {
     });
 
     describe("when token refresh returns optout", () => {
-      beforeEach(() => {
-        xhrMock.responseText = btoa(JSON.stringify({ status: "optout" }));
-        xhrMock.onreadystatechange(new Event(""));
+      beforeEach(async () => {
+        try {
+          advertisingTokenRefreshedPromise = uid2.getAdvertisingTokenAsync();
+          await xhrMock.sendEncodedResponse(
+            "optout",
+            originalIdentity.refresh_response_key
+          );
+          await advertisingTokenRefreshedPromise;
+        } catch (_err) {
+          // it will throw uid2 abort error
+        }
       });
 
       test("should invoke the callback", () => {

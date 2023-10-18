@@ -98,7 +98,7 @@ testCookieAndLocalStorage(() => {
         });
         const p = uid2.getAdvertisingTokenAsync();
         uid2.init({ identity: originalIdentity, useCookie: useCookie });
-        await xhrMock.sendRefreshApiResponse(
+        await xhrMock.sendIdentityInEncodedResponse(
           updatedIdentity,
           originalIdentity.refresh_response_key
         );
@@ -106,44 +106,69 @@ testCookieAndLocalStorage(() => {
       });
     });
 
+    const refreshFailedScenarios = [
+      {
+        name: "API returns encoded response",
+        setApiResponses: () => {
+          xhrMock.sendRefreshApiResponse({
+            responseText: JSON.stringify({ status: "error" }),
+          });
+        },
+      },
+      {
+        name: "API returns invalid response",
+        setApiResponses: () => {
+          xhrMock.sendRefreshApiResponse({
+            responseText: JSON.stringify({ status: "error" }),
+          });
+        },
+      },
+    ];
+
     describe("when auto refresh fails, but identity still valid", () => {
-      test("it should resolve original advertising token", () => {
-        const originalIdentity = makeIdentity({
-          refresh_from: Date.now() - 100000,
+      refreshFailedScenarios.forEach((scenario) => {
+        describe(`When ${scenario.name}`, () => {
+          test("it should resolve original advertising token", () => {
+            const originalIdentity = makeIdentity({
+              refresh_from: Date.now() - 100000,
+            });
+            const p = uid2.getAdvertisingTokenAsync().then((token: any) => {
+              expect(callback).toHaveBeenCalled();
+              return token;
+            });
+            uid2.init({
+              callback: callback,
+              identity: originalIdentity,
+              useCookie: useCookie,
+            });
+            scenario.setApiResponses();
+            return expect(p).resolves.toBe(originalIdentity.advertising_token);
+          });
         });
-        const p = uid2.getAdvertisingTokenAsync().then((token: any) => {
-          expect(callback).toHaveBeenCalled();
-          return token;
-        });
-        uid2.init({
-          callback: callback,
-          identity: originalIdentity,
-          useCookie: useCookie,
-        });
-        xhrMock.responseText = JSON.stringify({ status: "error" });
-        xhrMock.onreadystatechange(new Event(""));
-        return expect(p).resolves.toBe(originalIdentity.advertising_token);
       });
     });
 
     describe("when auto refresh fails, but identity already expired", () => {
-      test("it should reject promise after invoking the callback", () => {
-        const originalIdentity = makeIdentity({
-          refresh_from: Date.now() - 100000,
-          identity_expires: Date.now() - 1,
+      refreshFailedScenarios.forEach((scenario) => {
+        describe(`When ${scenario.name}`, () => {
+          test("it should reject promise after invoking the callback", () => {
+            const originalIdentity = makeIdentity({
+              refresh_from: Date.now() - 100000,
+              identity_expires: Date.now() - 1,
+            });
+            const p = uid2.getAdvertisingTokenAsync().catch((e: any) => {
+              expect(callback).toHaveBeenCalled();
+              throw e;
+            });
+            uid2.init({
+              callback: callback,
+              identity: originalIdentity,
+              useCookie: useCookie,
+            });
+            scenario.setApiResponses();
+            return expect(p).rejects.toBeInstanceOf(Error);
+          });
         });
-        const p = uid2.getAdvertisingTokenAsync().catch((e: any) => {
-          expect(callback).toHaveBeenCalled();
-          throw e;
-        });
-        uid2.init({
-          callback: callback,
-          identity: originalIdentity,
-          useCookie: useCookie,
-        });
-        xhrMock.responseText = JSON.stringify({ status: "error" });
-        xhrMock.onreadystatechange(new Event(""));
-        return expect(p).rejects.toBeInstanceOf(Error);
       });
     });
 
@@ -188,8 +213,9 @@ testCookieAndLocalStorage(() => {
           identity_expires: Date.now() - 1,
         });
         uid2.init({ identity: originalIdentity, useCookie: useCookie });
-        xhrMock.responseText = JSON.stringify({ status: "error" });
-        xhrMock.onreadystatechange(new Event(""));
+        xhrMock.sendRefreshApiResponse({
+          responseText: JSON.stringify({ status: "error" }),
+        });
         return expect(uid2.getAdvertisingTokenAsync()).rejects.toBeInstanceOf(
           Error
         );
