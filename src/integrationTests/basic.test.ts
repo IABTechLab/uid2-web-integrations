@@ -309,7 +309,7 @@ testCookieAndLocalStorage(() => {
         xhrMock.send.mockClear();
       });
 
-      test("should initiate token refresh", (done) => {
+      test("should initiate token refresh", () => {
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
         const url = "https://prod.uidapi.com/v2/token/refresh";
         expect(xhrMock.open).toHaveBeenLastCalledWith("POST", url, true);
