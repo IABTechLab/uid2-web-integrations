@@ -14,16 +14,14 @@ interface IdentityV1 extends IdentityBase {
   refresh_response_key: never;
 }
 export type Uid2Identity = IdentityV1 | IdentityV2;
-export function isValidIdentity(
-  identity: Uid2Identity | unknown,
-): identity is Uid2Identity {
+export function isValidIdentity(identity: Uid2Identity | unknown): identity is Uid2Identity {
   return (
-    typeof identity === "object" &&
+    typeof identity === 'object' &&
     identity !== null &&
-    "advertising_token" in identity &&
-    "identity_expires" in identity &&
-    "refresh_from" in identity &&
-    "refresh_token" in identity &&
-    "refresh_expires" in identity
+    'advertising_token' in identity &&
+    'identity_expires' in identity &&
+    'refresh_from' in identity &&
+    'refresh_token' in identity &&
+    'refresh_expires' in identity
   );
 }

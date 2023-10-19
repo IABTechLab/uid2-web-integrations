@@ -1,14 +1,7 @@
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  jest,
-  test,
-} from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
-import * as mocks from "../mocks";
-import { sdkWindow, UID2 } from "../uid2Sdk";
+import * as mocks from '../mocks';
+import { sdkWindow, UID2 } from '../uid2Sdk';
 
 let callback: any;
 let uid2: UID2;
@@ -41,19 +34,19 @@ let useCookie: boolean | undefined = undefined;
 
 const testCookieAndLocalStorage = (test: () => void, only = false) => {
   const describeFn = only ? describe.only : describe;
-  describeFn("Using default: ", () => {
+  describeFn('Using default: ', () => {
     beforeEach(() => {
       useCookie = undefined;
     });
     test();
   });
-  describeFn("Using cookies ", () => {
+  describeFn('Using cookies ', () => {
     beforeEach(() => {
       useCookie = true;
     });
     test();
   });
-  describeFn("Using local storage ", () => {
+  describeFn('Using local storage ', () => {
     beforeEach(() => {
       useCookie = false;
     });
@@ -62,9 +55,9 @@ const testCookieAndLocalStorage = (test: () => void, only = false) => {
 };
 
 testCookieAndLocalStorage(() => {
-  describe("when auto refreshing a non-expired identity which does not require a refresh", () => {
+  describe('when auto refreshing a non-expired identity which does not require a refresh', () => {
     const originalIdentity = makeIdentity({
-      advertising_token: "original_advertising_token",
+      advertising_token: 'original_advertising_token',
     });
     beforeEach(() => {
       getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
@@ -77,36 +70,34 @@ testCookieAndLocalStorage(() => {
       });
     });
 
-    test("should invoke the callback", () => {
+    test('should invoke the callback', () => {
       expect(sdkWindow.crypto).toBeDefined();
       expect(callback).toHaveBeenCalledTimes(1);
     });
-    test("should not initiate token refresh", () => {
+    test('should not initiate token refresh', () => {
       expect(xhrMock.send).not.toHaveBeenCalled();
     });
-    test("should set refresh timer", () => {
+    test('should set refresh timer', () => {
       expect(setTimeout).toHaveBeenCalledTimes(1);
       expect(clearTimeout).not.toBeCalled();
     });
-    test("should be in available state", () => {
+    test('should be in available state', () => {
       (expect(uid2) as any).toBeInAvailableState();
     });
 
-    test("getAdvertisingTokenAsync should return current advertising token", async () => {
-      expect(await getAdvertisingTokenPromise).toEqual(
-        originalIdentity.advertising_token,
-      );
+    test('getAdvertisingTokenAsync should return current advertising token', async () => {
+      expect(await getAdvertisingTokenPromise).toEqual(originalIdentity.advertising_token);
     });
   });
 
-  describe("when auto refreshing a non-expired identity which requires a refresh", () => {
+  describe('when auto refreshing a non-expired identity which requires a refresh', () => {
     const refreshFrom = Date.now() + 100;
     const originalIdentity = makeIdentity({
-      advertising_token: "original_advertising_token",
+      advertising_token: 'original_advertising_token',
       refresh_from: refreshFrom,
     });
     const updatedIdentity = makeIdentity({
-      advertising_token: "updated_advertising_token",
+      advertising_token: 'updated_advertising_token',
     });
 
     beforeEach(() => {
@@ -120,30 +111,28 @@ testCookieAndLocalStorage(() => {
       jest.runOnlyPendingTimers();
     });
 
-    test("should not invoke the callback", () => {
+    test('should not invoke the callback', () => {
       expect(callback).not.toHaveBeenCalled();
     });
-    test("should initiate token refresh", () => {
+    test('should initiate token refresh', () => {
       expect(xhrMock.send).toHaveBeenCalledTimes(1);
     });
-    test("should not set refresh timer", () => {
+    test('should not set refresh timer', () => {
       expect(setTimeout).not.toHaveBeenCalled();
       expect(clearTimeout).not.toHaveBeenCalled();
     });
-    test("should be in available state", () => {
+    test('should be in available state', () => {
       (expect(uid2) as any).toBeInAvailableState();
     });
 
-    describe("when token refresh succeeds", () => {
+    describe('when token refresh succeeds', () => {
       beforeEach(() => {
         getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-        xhrMock.responseText = btoa(
-          JSON.stringify({ status: "success", body: updatedIdentity }),
-        );
-        xhrMock.onreadystatechange(new Event(""));
+        xhrMock.responseText = btoa(JSON.stringify({ status: 'success', body: updatedIdentity }));
+        xhrMock.onreadystatechange(new Event(''));
       });
 
-      test("should invoke the callback", () => {
+      test('should invoke the callback', () => {
         expect(callback).toHaveBeenNthCalledWith(
           1,
           expect.objectContaining({
@@ -153,44 +142,38 @@ testCookieAndLocalStorage(() => {
           }),
         );
       });
-      test("should store value", () => {
-        expect(getUid2(useCookie).advertising_token).toBe(
-          updatedIdentity.advertising_token,
-        );
+      test('should store value', () => {
+        expect(getUid2(useCookie).advertising_token).toBe(updatedIdentity.advertising_token);
       });
-      test("should set refresh timer", () => {
+      test('should set refresh timer', () => {
         expect(setTimeout).toHaveBeenCalledTimes(1);
         expect(clearTimeout).not.toHaveBeenCalled();
       });
-      test("should be in available state", () => {
-        (expect(uid2) as any).toBeInAvailableState(
-          updatedIdentity.advertising_token,
-        );
+      test('should be in available state', () => {
+        (expect(uid2) as any).toBeInAvailableState(updatedIdentity.advertising_token);
       });
 
-      test("getAdvertisingTokenAsync should return new advertising token", async () => {
-        expect(await getAdvertisingTokenPromise).toEqual(
-          updatedIdentity.advertising_token,
-        );
+      test('getAdvertisingTokenAsync should return new advertising token', async () => {
+        expect(await getAdvertisingTokenPromise).toEqual(updatedIdentity.advertising_token);
       });
     });
 
-    describe("when token refresh returns optout", () => {
+    describe('when token refresh returns optout', () => {
       let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          xhrMock.responseText = btoa(JSON.stringify({ status: "optout" }));
-          xhrMock.onreadystatechange(new Event(""));
+          xhrMock.responseText = btoa(JSON.stringify({ status: 'optout' }));
+          xhrMock.onreadystatechange(new Event(''));
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
         }
       });
-      test("getAdvertisingTokenPromise should reject", () => {
-        expect(exception).toEqual(new Error("UID2 SDK aborted."));
+      test('getAdvertisingTokenPromise should reject', () => {
+        expect(exception).toEqual(new Error('UID2 SDK aborted.'));
       });
-      test("should invoke the callback", () => {
+      test('should invoke the callback', () => {
         expect(callback).toHaveBeenNthCalledWith(
           1,
           expect.objectContaining({
@@ -200,36 +183,34 @@ testCookieAndLocalStorage(() => {
           }),
         );
       });
-      test("should clear value", () => {
+      test('should clear value', () => {
         expect(getUid2(useCookie)).toBeNull();
       });
-      test("should not set refresh timer", () => {
+      test('should not set refresh timer', () => {
         expect(setTimeout).not.toHaveBeenCalled();
         expect(clearTimeout).not.toHaveBeenCalled();
       });
-      test("should be in unavailable state", () => {
+      test('should be in unavailable state', () => {
         (expect(uid2) as any).toBeInUnavailableState();
       });
     });
 
-    describe("when token refresh returns refresh token expired", () => {
+    describe('when token refresh returns refresh token expired', () => {
       let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          xhrMock.responseText = btoa(
-            JSON.stringify({ status: "expired_token" }),
-          );
-          xhrMock.onreadystatechange(new Event(""));
+          xhrMock.responseText = btoa(JSON.stringify({ status: 'expired_token' }));
+          xhrMock.onreadystatechange(new Event(''));
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
         }
       });
-      test("getAdvertisingTokenPromise should reject", () => {
-        expect(exception).toEqual(new Error("UID2 SDK aborted."));
+      test('getAdvertisingTokenPromise should reject', () => {
+        expect(exception).toEqual(new Error('UID2 SDK aborted.'));
       });
-      test("should invoke the callback", () => {
+      test('should invoke the callback', () => {
         expect(callback).toHaveBeenNthCalledWith(
           1,
           expect.objectContaining({
@@ -239,74 +220,68 @@ testCookieAndLocalStorage(() => {
           }),
         );
       });
-      test("should clear value", () => {
+      test('should clear value', () => {
         expect(getUid2(useCookie)).toBeNull();
       });
-      test("should not set refresh timer", () => {
+      test('should not set refresh timer', () => {
         expect(setTimeout).not.toHaveBeenCalled();
         expect(clearTimeout).not.toHaveBeenCalled();
       });
-      test("should be in unavailable state", () => {
+      test('should be in unavailable state', () => {
         (expect(uid2) as any).toBeInUnavailableState();
       });
     });
 
-    describe("when token refresh returns an error status", () => {
+    describe('when token refresh returns an error status', () => {
       let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
           xhrMock.responseText = JSON.stringify({
-            status: "error",
+            status: 'error',
             body: updatedIdentity,
           });
-          xhrMock.onreadystatechange(new Event(""));
+          xhrMock.onreadystatechange(new Event(''));
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
         }
       });
-      test("getAdvertisingTokenPromise should return current advertising token", async () => {
-        expect(await getAdvertisingTokenPromise).toEqual(
-          originalIdentity.advertising_token,
-        );
+      test('getAdvertisingTokenPromise should return current advertising token', async () => {
+        expect(await getAdvertisingTokenPromise).toEqual(originalIdentity.advertising_token);
       });
 
-      test("should not update value", () => {
-        expect(getUid2(useCookie).advertising_token).toBe(
-          originalIdentity.advertising_token,
-        );
+      test('should not update value', () => {
+        expect(getUid2(useCookie).advertising_token).toBe(originalIdentity.advertising_token);
       });
-      test("should set refresh timer", () => {
+      test('should set refresh timer', () => {
         expect(setTimeout).toHaveBeenCalledTimes(1);
         expect(clearTimeout).not.toHaveBeenCalled();
       });
-      test("should be in available state", () => {
-        (expect(uid2) as any).toBeInAvailableState(
-          originalIdentity.advertising_token,
-        );
+      test('should be in available state', () => {
+        (expect(uid2) as any).toBeInAvailableState(originalIdentity.advertising_token);
       });
     });
 
-    describe("when token refresh fails and current identity expires", () => {
+    describe('when token refresh fails and current identity expires', () => {
       let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
           jest.setSystemTime(originalIdentity.refresh_expires * 1000 + 1);
-          xhrMock.responseText = JSON.stringify({ status: "error" });
-          xhrMock.onreadystatechange(new Event(""));
+          xhrMock.responseText = JSON.stringify({ status: 'error' });
+          xhrMock.onreadystatechange(new Event(''));
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
         }
       });
 
-      test("getAdvertisingTokenPromise should reject", () => {
-        expect(exception).toEqual(new Error("UID2 SDK aborted."));
+      test('getAdvertisingTokenPromise should reject', () => {
+        expect(exception).toEqual(new Error('UID2 SDK aborted.'));
       });
 
-      test("should invoke the callback", () => {
+      test('should invoke the callback', () => {
         expect(callback).toHaveBeenNthCalledWith(
           1,
           expect.objectContaining({
@@ -316,32 +291,32 @@ testCookieAndLocalStorage(() => {
           }),
         );
       });
-      test("should clear value", () => {
+      test('should clear value', () => {
         expect(getUid2(useCookie)).toBeNull();
       });
-      test("should not set refresh timer", () => {
+      test('should not set refresh timer', () => {
         expect(setTimeout).not.toHaveBeenCalled();
         expect(clearTimeout).not.toHaveBeenCalled();
       });
-      test("should be in unavailable state", () => {
+      test('should be in unavailable state', () => {
         (expect(uid2) as any).toBeInUnavailableState();
       });
     });
 
-    describe("when a new token is set using setIdentity", () => {
+    describe('when a new token is set using setIdentity', () => {
       const manualSetIdentity = makeIdentity({
-        advertising_token: "manual_set_advertising_token",
+        advertising_token: 'manual_set_advertising_token',
       });
       beforeEach(() => {
         uid2.setIdentity(manualSetIdentity);
         getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
       });
 
-      test("should abort the refreshing request", () => {
+      test('should abort the refreshing request', () => {
         expect(xhrMock.abort).toHaveBeenCalledTimes(1);
       });
 
-      test("should invoke the callback", () => {
+      test('should invoke the callback', () => {
         expect(callback).toHaveBeenNthCalledWith(
           1,
           expect.objectContaining({
@@ -351,38 +326,32 @@ testCookieAndLocalStorage(() => {
           }),
         );
       });
-      test("should store value", () => {
-        expect(getUid2(useCookie).advertising_token).toBe(
-          manualSetIdentity.advertising_token,
-        );
+      test('should store value', () => {
+        expect(getUid2(useCookie).advertising_token).toBe(manualSetIdentity.advertising_token);
       });
-      test("should set refresh timer", () => {
+      test('should set refresh timer', () => {
         expect(setTimeout).toHaveBeenCalledTimes(1);
         expect(clearTimeout).not.toHaveBeenCalled();
       });
-      test("should be in available state", () => {
-        (expect(uid2) as any).toBeInAvailableState(
-          manualSetIdentity.advertising_token,
-        );
+      test('should be in available state', () => {
+        (expect(uid2) as any).toBeInAvailableState(manualSetIdentity.advertising_token);
       });
 
-      test("getAdvertisingTokenAsync should return manual set token", async () => {
-        expect(await getAdvertisingTokenPromise).toEqual(
-          manualSetIdentity.advertising_token,
-        );
+      test('getAdvertisingTokenAsync should return manual set token', async () => {
+        expect(await getAdvertisingTokenPromise).toEqual(manualSetIdentity.advertising_token);
       });
     });
   });
 
-  describe("when auto refreshing an expired identity", () => {
+  describe('when auto refreshing an expired identity', () => {
     const refreshFrom = Date.now() + 100;
     const originalIdentity = makeIdentity({
-      advertising_token: "original_advertising_token",
+      advertising_token: 'original_advertising_token',
       identity_expires: refreshFrom,
       refresh_from: refreshFrom,
     });
     const updatedIdentity = makeIdentity({
-      advertising_token: "updated_advertising_token",
+      advertising_token: 'updated_advertising_token',
     });
 
     beforeEach(() => {
@@ -396,30 +365,28 @@ testCookieAndLocalStorage(() => {
       jest.runOnlyPendingTimers();
     });
 
-    test("should not invoke the callback", () => {
+    test('should not invoke the callback', () => {
       expect(callback).not.toHaveBeenCalled();
     });
-    test("should initiate token refresh", () => {
+    test('should initiate token refresh', () => {
       expect(xhrMock.send).toHaveBeenCalledTimes(1);
     });
-    test("should not set refresh timer", () => {
+    test('should not set refresh timer', () => {
       expect(setTimeout).not.toHaveBeenCalled();
       expect(clearTimeout).not.toHaveBeenCalled();
     });
-    test("should be in available state", () => {
+    test('should be in available state', () => {
       (expect(uid2) as any).toBeInTemporarilyUnavailableState();
     });
 
-    describe("when token refresh succeeds", () => {
+    describe('when token refresh succeeds', () => {
       beforeEach(() => {
         getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-        xhrMock.responseText = btoa(
-          JSON.stringify({ status: "success", body: updatedIdentity }),
-        );
-        xhrMock.onreadystatechange(new Event(""));
+        xhrMock.responseText = btoa(JSON.stringify({ status: 'success', body: updatedIdentity }));
+        xhrMock.onreadystatechange(new Event(''));
       });
 
-      test("should invoke the callback", () => {
+      test('should invoke the callback', () => {
         expect(callback).toHaveBeenNthCalledWith(
           1,
           expect.objectContaining({
@@ -429,43 +396,37 @@ testCookieAndLocalStorage(() => {
           }),
         );
       });
-      test("should store value", () => {
-        expect(getUid2(useCookie).advertising_token).toBe(
-          updatedIdentity.advertising_token,
-        );
+      test('should store value', () => {
+        expect(getUid2(useCookie).advertising_token).toBe(updatedIdentity.advertising_token);
       });
-      test("should set refresh timer", () => {
+      test('should set refresh timer', () => {
         expect(setTimeout).toHaveBeenCalledTimes(1);
         expect(clearTimeout).not.toHaveBeenCalled();
       });
-      test("should be in available state", () => {
-        (expect(uid2) as any).toBeInAvailableState(
-          updatedIdentity.advertising_token,
-        );
+      test('should be in available state', () => {
+        (expect(uid2) as any).toBeInAvailableState(updatedIdentity.advertising_token);
       });
-      test("getAdvertisingTokenPromise should return new advertising token", async () => {
-        expect(await getAdvertisingTokenPromise).toEqual(
-          updatedIdentity.advertising_token,
-        );
+      test('getAdvertisingTokenPromise should return new advertising token', async () => {
+        expect(await getAdvertisingTokenPromise).toEqual(updatedIdentity.advertising_token);
       });
     });
 
-    describe("when token refresh returns optout", () => {
+    describe('when token refresh returns optout', () => {
       let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          xhrMock.responseText = btoa(JSON.stringify({ status: "optout" }));
-          xhrMock.onreadystatechange(new Event(""));
+          xhrMock.responseText = btoa(JSON.stringify({ status: 'optout' }));
+          xhrMock.onreadystatechange(new Event(''));
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
         }
       });
-      test("getAdvertisingTokenPromise should reject", () => {
-        expect(exception).toEqual(new Error("UID2 SDK aborted."));
+      test('getAdvertisingTokenPromise should reject', () => {
+        expect(exception).toEqual(new Error('UID2 SDK aborted.'));
       });
-      test("should invoke the callback", () => {
+      test('should invoke the callback', () => {
         expect(callback).toHaveBeenNthCalledWith(
           1,
           expect.objectContaining({
@@ -475,36 +436,34 @@ testCookieAndLocalStorage(() => {
           }),
         );
       });
-      test("should clear value", () => {
+      test('should clear value', () => {
         expect(getUid2(useCookie)).toBeNull();
       });
-      test("should not set refresh timer", () => {
+      test('should not set refresh timer', () => {
         expect(setTimeout).not.toHaveBeenCalled();
         expect(clearTimeout).not.toHaveBeenCalled();
       });
-      test("should be in unavailable state", () => {
+      test('should be in unavailable state', () => {
         (expect(uid2) as any).toBeInUnavailableState();
       });
     });
 
-    describe("when token refresh returns refresh token expired", () => {
+    describe('when token refresh returns refresh token expired', () => {
       let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          xhrMock.responseText = btoa(
-            JSON.stringify({ status: "expired_token" }),
-          );
-          xhrMock.onreadystatechange(new Event(""));
+          xhrMock.responseText = btoa(JSON.stringify({ status: 'expired_token' }));
+          xhrMock.onreadystatechange(new Event(''));
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
         }
       });
-      test("getAdvertisingTokenPromise should reject", () => {
-        expect(exception).toEqual(new Error("UID2 SDK aborted."));
+      test('getAdvertisingTokenPromise should reject', () => {
+        expect(exception).toEqual(new Error('UID2 SDK aborted.'));
       });
-      test("should invoke the callback", () => {
+      test('should invoke the callback', () => {
         expect(callback).toHaveBeenNthCalledWith(
           1,
           expect.objectContaining({
@@ -514,71 +473,67 @@ testCookieAndLocalStorage(() => {
           }),
         );
       });
-      test("should clear value", () => {
+      test('should clear value', () => {
         expect(getUid2(useCookie)).toBeNull();
       });
-      test("should not set refresh timer", () => {
+      test('should not set refresh timer', () => {
         expect(setTimeout).not.toHaveBeenCalled();
         expect(clearTimeout).not.toHaveBeenCalled();
       });
-      test("should be in unavailable state", () => {
+      test('should be in unavailable state', () => {
         (expect(uid2) as any).toBeInUnavailableState();
       });
     });
 
-    describe("when token refresh returns an error status", () => {
+    describe('when token refresh returns an error status', () => {
       let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
           xhrMock.responseText = JSON.stringify({
-            status: "error",
+            status: 'error',
             body: updatedIdentity,
           });
-          xhrMock.onreadystatechange(new Event(""));
+          xhrMock.onreadystatechange(new Event(''));
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
         }
       });
-      test("getAdvertisingTokenPromise should reject", () => {
-        expect(exception).toEqual(new Error("No identity available."));
+      test('getAdvertisingTokenPromise should reject', () => {
+        expect(exception).toEqual(new Error('No identity available.'));
       });
-      test("should not update value", () => {
-        expect(getUid2(useCookie).advertising_token).toBe(
-          originalIdentity.advertising_token,
-        );
+      test('should not update value', () => {
+        expect(getUid2(useCookie).advertising_token).toBe(originalIdentity.advertising_token);
       });
-      test("should set refresh timer", () => {
+      test('should set refresh timer', () => {
         expect(setTimeout).toHaveBeenCalledTimes(1);
         expect(clearTimeout).not.toHaveBeenCalled();
       });
-      test("should be in temporarily unavailable state", () => {
-        (expect(uid2) as any).toBeInTemporarilyUnavailableState(
-          originalIdentity.advertising_token,
-        );
+      test('should be in temporarily unavailable state', () => {
+        (expect(uid2) as any).toBeInTemporarilyUnavailableState(originalIdentity.advertising_token);
       });
     });
 
-    describe("when token refresh fails and current identity expires", () => {
+    describe('when token refresh fails and current identity expires', () => {
       let exception: any;
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
           jest.setSystemTime(originalIdentity.refresh_expires * 1000 + 1);
-          xhrMock.responseText = JSON.stringify({ status: "error" });
-          xhrMock.onreadystatechange(new Event(""));
+          xhrMock.responseText = JSON.stringify({ status: 'error' });
+          xhrMock.onreadystatechange(new Event(''));
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
         }
       });
 
-      test("getAdvertisingTokenPromise should reject", () => {
-        expect(exception).toEqual(new Error("UID2 SDK aborted."));
+      test('getAdvertisingTokenPromise should reject', () => {
+        expect(exception).toEqual(new Error('UID2 SDK aborted.'));
       });
 
-      test("should invoke the callback", () => {
+      test('should invoke the callback', () => {
         expect(callback).toHaveBeenNthCalledWith(
           1,
           expect.objectContaining({
@@ -588,14 +543,14 @@ testCookieAndLocalStorage(() => {
           }),
         );
       });
-      test("should clear value", () => {
+      test('should clear value', () => {
         expect(getUid2(useCookie)).toBeNull();
       });
-      test("should not set refresh timer", () => {
+      test('should not set refresh timer', () => {
         expect(setTimeout).not.toHaveBeenCalled();
         expect(clearTimeout).not.toHaveBeenCalled();
       });
-      test("should be in unavailable state", () => {
+      test('should be in unavailable state', () => {
         (expect(uid2) as any).toBeInUnavailableState();
       });
     });
