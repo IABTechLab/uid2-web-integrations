@@ -22,7 +22,7 @@ export function exportPublicKey(publicKey: CryptoKey): Promise<ArrayBuffer> {
 
 export function deriveKey(
   serverPublicKey: CryptoKey,
-  clientPrivateKey: CryptoKey,
+  clientPrivateKey: CryptoKey
 ): Promise<CryptoKey> {
   return window.crypto.subtle.deriveKey(
     {
@@ -35,7 +35,7 @@ export function deriveKey(
       length: 256,
     },
     false,
-    ['encrypt', 'decrypt'],
+    ['encrypt', 'decrypt']
   );
 }
 
@@ -43,7 +43,7 @@ export function encrypt(
   data: Uint8Array,
   key: CryptoKey,
   iv: Uint8Array,
-  additionalData: Uint8Array,
+  additionalData: Uint8Array
 ): Promise<ArrayBuffer> {
   return window.crypto.subtle.encrypt(
     {
@@ -52,7 +52,7 @@ export function encrypt(
       additionalData: additionalData,
     },
     key,
-    data,
+    data
   );
 }
 
@@ -63,6 +63,6 @@ export function decrypt(data: Uint8Array, key: CryptoKey, iv: Uint8Array): Promi
       iv: iv,
     },
     key,
-    data,
+    data
   );
 }

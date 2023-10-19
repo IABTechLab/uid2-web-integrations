@@ -116,7 +116,7 @@ describe('DiiNormalization Tests', () => {
       ];
 
       testCases.forEach((testCase) =>
-        expect(normalizeEmail(testCase.originalEmail)).toEqual(testCase.normalizedEmail),
+        expect(normalizeEmail(testCase.originalEmail)).toEqual(testCase.normalizedEmail)
       );
     });
 
@@ -133,7 +133,7 @@ describe('DiiNormalization Tests', () => {
           },
         ];
         testCases.forEach((testCase) =>
-          expect(normalizeEmail(testCase.originalEmail)).toEqual(testCase.normalizedEmail),
+          expect(normalizeEmail(testCase.originalEmail)).toEqual(testCase.normalizedEmail)
         );
       });
 
@@ -177,7 +177,7 @@ describe('DiiNormalization Tests', () => {
           },
         ];
         testCases.forEach((testCase) =>
-          expect(normalizeEmail(testCase.originalEmail)).toEqual(testCase.normalizedEmail),
+          expect(normalizeEmail(testCase.originalEmail)).toEqual(testCase.normalizedEmail)
         );
       });
     });
@@ -199,7 +199,7 @@ describe('DiiNormalization Tests', () => {
       ];
 
       testCases.forEach((testCase) =>
-        expect(normalizeEmail(testCase.originalEmail)).toEqual(testCase.normalizedEmail),
+        expect(normalizeEmail(testCase.originalEmail)).toEqual(testCase.normalizedEmail)
       );
     });
   });
