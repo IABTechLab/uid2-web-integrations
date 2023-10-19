@@ -4,6 +4,6 @@ export function base64ToBytes(base64: string): Uint8Array {
 }
 
 export function bytesToBase64(bytes: Uint8Array): string {
-  const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join("");
+  const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join('');
   return btoa(binString);
 }

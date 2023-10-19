@@ -9,41 +9,34 @@
     <script defer src="{{ UID2_JS_SDK_URL }}"></script>
     <script>
       const clientSideIdentityOptions = {
-        subscriptionId: "{{ SUBSCRIPTION_ID }}",
-        serverPublicKey: "{{ SERVER_PUBLIC_KEY }}",
+        subscriptionId: '{{ SUBSCRIPTION_ID }}',
+        serverPublicKey: '{{ SERVER_PUBLIC_KEY }}',
       };
 
       let callbackCounter = 0;
 
       function updateGuiElements(state) {
-        $("#targeted_advertising_ready").text(
-          __uid2.getAdvertisingToken() ? "yes" : "no",
+        $('#targeted_advertising_ready').text(__uid2.getAdvertisingToken() ? 'yes' : 'no');
+        $('#advertising_token').text(String(__uid2.getAdvertisingToken()));
+        $('#login_required').text(
+          __uid2.isLoginRequired() || __uid2.isLoginRequired() === undefined ? 'yes' : 'no',
         );
-        $("#advertising_token").text(String(__uid2.getAdvertisingToken()));
-        $("#login_required").text(
-          __uid2.isLoginRequired() || __uid2.isLoginRequired() === undefined
-            ? "yes"
-            : "no",
-        );
-        $("#update_counter").text(callbackCounter);
-        $("#identity_state").text(String(JSON.stringify(state, null, 2)));
+        $('#update_counter').text(callbackCounter);
+        $('#identity_state').text(String(JSON.stringify(state, null, 2)));
 
-        if (
-          __uid2.isLoginRequired() ||
-          __uid2.isLoginRequired() === undefined
-        ) {
-          $("#login_form").show();
-          $("#logout_form").hide();
+        if (__uid2.isLoginRequired() || __uid2.isLoginRequired() === undefined) {
+          $('#login_form').show();
+          $('#logout_form').hide();
         } else {
-          $("#login_form").hide();
-          $("#logout_form").show();
+          $('#login_form').hide();
+          $('#logout_form').show();
         }
       }
 
       function onUid2IdentityUpdated(eventType, payload) {
         if (
           payload?.identity &&
-          (eventType === "InitCompleted" || eventType === "IdentityUpdated")
+          (eventType === 'InitCompleted' || eventType === 'IdentityUpdated')
         ) {
           ++callbackCounter;
         }
@@ -51,18 +44,18 @@
       }
 
       function onDocumentReady() {
-        $("#logout").click(() => {
+        $('#logout').click(() => {
           __uid2.disconnect();
           updateGuiElements(undefined);
         });
 
-        $("#login").click(async () => {
-          const email = $("#email").val();
+        $('#login').click(async () => {
+          const email = $('#email').val();
 
           try {
             await __uid2.setIdentityFromEmail(email, clientSideIdentityOptions);
           } catch (e) {
-            console.error("setIdentityFromEmail failed", e);
+            console.error('setIdentityFromEmail failed', e);
           }
         });
       }
@@ -72,9 +65,9 @@
 
       window.__uid2.callbacks.push(onUid2IdentityUpdated);
       window.__uid2.callbacks.push((eventType, payload) => {
-        if (eventType === "SdkLoaded") {
+        if (eventType === 'SdkLoaded') {
           window.__uid2.init({
-            baseUrl: "{{ UID2_BASE_URL }}",
+            baseUrl: '{{ UID2_BASE_URL }}',
           });
           $(document).ready(onDocumentReady);
         }
@@ -117,9 +110,7 @@
           value="test@example.com"
         />
       </div>
-      <div>
-        <button type="button" class="button" id="login">Log In</button>>
-      </div>
+      <div><button type="button" class="button" id="login">Log In</button>></div>
     </div>
     <div id="logout_form" style="display: none" class="form">
       <form>

@@ -1,10 +1,9 @@
-import * as jsdom from "jsdom";
-import { Cookie } from "tough-cookie";
-import { UID2 } from "./uid2Sdk";
-import { Uid2Identity } from "./Uid2Identity";
-import { localStorageKeyName } from "./uid2LocalStorageManager";
-import { base64ToBytes, bytesToBase64 } from "./uid2Base64";
-import * as crypto from "crypto";
+import * as jsdom from 'jsdom';
+import { Cookie } from 'tough-cookie';
+import { UID2 } from './uid2Sdk';
+import { Uid2Identity } from './Uid2Identity';
+import { localStorageKeyName } from './uid2LocalStorageManager';
+
 export class CookieMock {
   jar: jsdom.CookieJar;
   url: string;
@@ -15,21 +14,14 @@ export class CookieMock {
   constructor(document: Document) {
     this.jar = new jsdom.CookieJar();
     this.url = document.URL;
-    this.set = (value: string | Cookie) =>
-      this.jar.setCookieSync(value, this.url, { http: false });
+    this.set = (value: string | Cookie) => this.jar.setCookieSync(value, this.url, { http: false });
     this.get = () => this.jar.getCookieStringSync(this.url, { http: false });
     this.getSetCookieString = (name: string) => {
-      return this.jar
-        .getSetCookieStringsSync(this.url)
-        .filter((c) => c.startsWith(name + "="))[0];
+      return this.jar.getSetCookieStringsSync(this.url).filter((c) => c.startsWith(name + '='))[0];
     };
     this.applyTo = (document: Document) => {
-      jest
-        .spyOn(document, "cookie", "get")
-        .mockImplementation(() => this.get());
-      jest
-        .spyOn(document, "cookie", "set")
-        .mockImplementation((value) => this.set(value));
+      jest.spyOn(document, 'cookie', 'get').mockImplementation(() => this.get());
+      jest.spyOn(document, 'cookie', 'set').mockImplementation((value) => this.set(value));
     };
 
     this.applyTo(document);
@@ -48,18 +40,15 @@ type MockApiResponse = {
 
 const importRefreshKey = (refreshResponseKey: string) => {
   return crypto.subtle.importKey(
-    "raw",
+    'raw',
     base64ToBytes(refreshResponseKey),
-    { name: "AES-GCM" },
+    { name: 'AES-GCM' },
     false,
-    ["encrypt", "decrypt"]
+    ['encrypt', 'decrypt']
   );
 };
 
-const encodeApiResponse = async (
-  refreshResponse: MockApiResponse,
-  refreshResponseKey: string
-) => {
+const encodeApiResponse = async (refreshResponse: MockApiResponse, refreshResponseKey: string) => {
   const refreshKey = await importRefreshKey(refreshResponseKey);
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const textEncoder = new TextEncoder();
@@ -67,7 +56,7 @@ const encodeApiResponse = async (
 
   const ciphertext = await crypto.subtle.encrypt(
     {
-      name: "AES-GCM",
+      name: 'AES-GCM',
       iv,
       tagLength: 128,
     },
@@ -98,35 +87,9 @@ export class XhrMock {
     return 4;
   }
 
-  async sendEncodedRefreshApiResponse(
-    status: string,
-    currentRefreshResponseToken: string
-  ) {
-    const encodedResponse = await encodeApiResponse(
-      { status },
-      currentRefreshResponseToken
-    );
-
-    return this.sendRefreshApiResponse({ responseText: encodedResponse });
-  }
-
-  async sendIdentityInEncodedResponse(
-    identity: Uid2Identity,
-    currentRefreshResponseToken: string,
-    status?: string
-  ) {
-    const encodedResponse = await encodeApiResponse(
-      { body: identity, status: status ?? "success" },
-      currentRefreshResponseToken
-    );
-
-    return this.sendRefreshApiResponse({ responseText: encodedResponse });
-  }
-
-  async sendRefreshApiResponse(response: MockXhrResponse) {
-    this.status = response.status || 200;
-    this.responseText = response.responseText;
-    this.onreadystatechange(new Event(""));
+  sendRefreshApiResponse(identity: Uid2Identity) {
+    this.responseText = btoa(JSON.stringify({ status: 'success', body: identity }));
+    this.onreadystatechange(new Event(''));
   }
 
   constructor(window: Window) {
@@ -136,10 +99,58 @@ export class XhrMock {
     this.overrideMimeType = jest.fn();
     this.setRequestHeader = jest.fn();
     this.status = 200;
-    this.responseText = btoa("response_text");
+    this.responseText = btoa('response_text');
     this.readyState = this.DONE;
     this.applyTo = (window) => {
-      jest.spyOn(window, "XMLHttpRequest").mockImplementation(() => this);
+      jest.spyOn(window, 'XMLHttpRequest').mockImplementation(() => this);
+    };
+
+    this.applyTo(window);
+  }
+}
+
+export class CryptoMock {
+  decryptOutput: string;
+  getRandomValues: jest.Mock<any, any>;
+  subtle: {
+    encrypt: jest.Mock<any, any>;
+    decrypt: jest.Mock<any, any>;
+    importKey: jest.Mock<any, any>;
+  };
+  applyTo: (window: any) => void;
+  constructor(window: Window) {
+    this.decryptOutput = 'decrypted_message';
+    this.getRandomValues = jest.fn();
+    this.subtle = {
+      encrypt: jest.fn(),
+      decrypt: jest.fn(),
+      importKey: jest.fn(),
+    };
+    let mockDecryptResponse = jest.fn();
+    mockDecryptResponse.mockImplementation((fn) => fn(this.decryptOutput));
+
+    this.subtle.decrypt.mockImplementation((settings, key, data) => {
+      return {
+        then: jest.fn().mockImplementation((func) => {
+          func(Buffer.concat([settings.iv, data]));
+          return { catch: jest.fn() };
+        }),
+      };
+    });
+
+    this.subtle.importKey.mockImplementation(
+      (_format, _key, _algorithm, _extractable, _keyUsages) => {
+        return {
+          then: jest.fn().mockImplementation((func) => {
+            func('key');
+            return { catch: jest.fn() };
+          }),
+        };
+      }
+    );
+
+    this.applyTo = (window) => {
+      Object.defineProperty(window, 'crypto', { value: this, writable: true });
     };
 
     this.applyTo(window);
@@ -148,9 +159,9 @@ export class XhrMock {
 
 export function setupFakeTime() {
   jest.useFakeTimers();
-  jest.spyOn(global, "setTimeout");
-  jest.spyOn(global, "clearTimeout");
-  jest.setSystemTime(new Date("2021-10-01"));
+  jest.spyOn(global, 'setTimeout');
+  jest.spyOn(global, 'clearTimeout');
+  jest.setSystemTime(new Date('2021-10-01'));
 }
 
 export function resetFakeTime() {
@@ -159,7 +170,7 @@ export function resetFakeTime() {
   mockSetTimeout.mockClear();
   mockClearTimeout.mockClear();
   jest.clearAllTimers();
-  jest.setSystemTime(new Date("2021-10-01"));
+  jest.setSystemTime(new Date('2021-10-01'));
 }
 
 export function setCookieMock(document: Document) {
@@ -167,12 +178,11 @@ export function setCookieMock(document: Document) {
 }
 
 export function setUid2Cookie(value: any) {
-  document.cookie =
-    UID2.COOKIE_NAME + "=" + encodeURIComponent(JSON.stringify(value));
+  document.cookie = UID2.COOKIE_NAME + '=' + encodeURIComponent(JSON.stringify(value));
 }
 
 export function removeUid2Cookie() {
-  document.cookie = document.cookie + "=;expires=Tue, 1 Jan 1980 23:59:59 GMT";
+  document.cookie = document.cookie + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT';
 }
 
 export async function flushPromises() {
@@ -191,11 +201,9 @@ export function setUid2(value: any, useCookie?: boolean) {
 export function getUid2Cookie() {
   const docCookie = document.cookie;
   if (docCookie) {
-    const payload = docCookie
-      .split("; ")
-      .find((row) => row.startsWith(UID2.COOKIE_NAME + "="));
+    const payload = docCookie.split('; ').find((row) => row.startsWith(UID2.COOKIE_NAME + '='));
     if (payload) {
-      return JSON.parse(decodeURIComponent(payload.split("=")[1]));
+      return JSON.parse(decodeURIComponent(payload.split('=')[1]));
     }
   }
   return null;
@@ -216,25 +224,23 @@ export function getUid2LocalStorage() {
 }
 
 export function setEuidCookie(value: any) {
-  document.cookie = "__euid" + "=" + encodeURIComponent(JSON.stringify(value));
+  document.cookie = '__euid' + '=' + encodeURIComponent(JSON.stringify(value));
 }
 
 export function getEuidCookie() {
   const docCookie = document.cookie;
   if (docCookie) {
-    const payload = docCookie
-      .split("; ")
-      .find((row) => row.startsWith("__euid" + "="));
+    const payload = docCookie.split('; ').find((row) => row.startsWith('__euid' + '='));
     if (payload) {
-      return JSON.parse(decodeURIComponent(payload.split("=")[1]));
+      return JSON.parse(decodeURIComponent(payload.split('=')[1]));
     }
   }
 }
 
 export function makeIdentityV1(overrides?: any) {
   return {
-    advertising_token: "test_advertising_token",
-    refresh_token: "test_refresh_token",
+    advertising_token: 'test_advertising_token',
+    refresh_token: 'test_refresh_token',
     refresh_from: Date.now() + 100000,
     identity_expires: Date.now() + 200000,
     refresh_expires: Date.now() + 300000,
@@ -244,11 +250,9 @@ export function makeIdentityV1(overrides?: any) {
 
 export function makeIdentityV2(overrides = {}) {
   return {
-    advertising_token: "test_advertising_token",
-    refresh_token: "test_refresh_token",
-    refresh_response_key: bytesToBase64(
-      crypto.getRandomValues(new Uint8Array(32))
-    ),
+    advertising_token: 'test_advertising_token',
+    refresh_token: 'test_refresh_token',
+    refresh_response_key: btoa('test_refresh_response_key'),
     refresh_from: Date.now() + 100000,
     identity_expires: Date.now() + 200000,
     refresh_expires: Date.now() + 300000,

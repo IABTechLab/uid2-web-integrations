@@ -1,6 +1,6 @@
-import { isValidIdentity, Uid2Identity } from "./Uid2Identity";
+import { isValidIdentity, Uid2Identity } from './Uid2Identity';
 
-export const localStorageKeyName = "UID2-sdk-identity";
+export const localStorageKeyName = 'UID2-sdk-identity';
 
 export class UID2LocalStorageManager {
   public setValue(identity: Uid2Identity) {
