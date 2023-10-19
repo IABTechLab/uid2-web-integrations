@@ -15,7 +15,7 @@ interface IdentityV1 extends IdentityBase {
 }
 export type Uid2Identity = IdentityV1 | IdentityV2;
 export function isValidIdentity(
-  identity: Uid2Identity | unknown
+  identity: Uid2Identity | unknown,
 ): identity is Uid2Identity {
   return (
     typeof identity === "object" &&

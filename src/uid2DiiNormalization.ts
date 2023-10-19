@@ -28,7 +28,7 @@ function isGmail(domain: string): boolean {
 
 function dropExtension(
   address: string,
-  extensionSymbol: string = EMAIL_EXTENSION_SYMBOL
+  extensionSymbol: string = EMAIL_EXTENSION_SYMBOL,
 ): string {
   return address.split(extensionSymbol)[0];
 }
@@ -36,7 +36,7 @@ function dropExtension(
 function normalizeAddressPart(
   address: string,
   shouldRemoveDot: boolean,
-  shouldDropExtension: boolean
+  shouldDropExtension: boolean,
 ): string {
   let parsedAddress = address;
   if (shouldRemoveDot) parsedAddress = parsedAddress.replaceAll(EMAIL_DOT, "");
@@ -59,7 +59,7 @@ export function normalizeEmail(email: string): string | undefined {
   const parsedAddress = normalizeAddressPart(
     address,
     emailIsGmail,
-    emailIsGmail
+    emailIsGmail,
   );
   return parsedAddress ? `${parsedAddress}@${domain}` : undefined;
 }

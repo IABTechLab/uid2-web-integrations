@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -17,13 +17,13 @@
 
       function updateGuiElements(state) {
         $("#targeted_advertising_ready").text(
-          __uid2.getAdvertisingToken() ? "yes" : "no"
+          __uid2.getAdvertisingToken() ? "yes" : "no",
         );
         $("#advertising_token").text(String(__uid2.getAdvertisingToken()));
         $("#login_required").text(
           __uid2.isLoginRequired() || __uid2.isLoginRequired() === undefined
             ? "yes"
-            : "no"
+            : "no",
         );
         $("#update_counter").text(callbackCounter);
         $("#identity_state").text(String(JSON.stringify(state, null, 2)));

@@ -4,23 +4,23 @@ on:
       environment:
         type: string
         description: environment to deploy to
-        default: 'Integ'
+        default: "Integ"
       artifact:
         type: string
         description: name of the artifact
-        default: 'secureSignalScript'
+        default: "secureSignalScript"
       invalidate_paths:
         type: string
         description: paths that get invlidate in cloud front
-        default: ''
+        default: ""
     secrets:
-      AWS_BUCKET_NAME: 
+      AWS_BUCKET_NAME:
         required: true
-      AWS_ACCESS_KEY_ID: 
+      AWS_ACCESS_KEY_ID:
         required: true
-      AWS_SECRET_ACCESS_KEY: 
+      AWS_SECRET_ACCESS_KEY:
         required: true
-      AWS_DISTRIBUTION_ID: 
+      AWS_DISTRIBUTION_ID:
         required: true
 jobs:
   deploy_to_CDN:

@@ -30,7 +30,7 @@ describe("DiiNormalization Tests", () => {
       ];
 
       testCases.forEach((testCase) =>
-        expect(isNormalizedPhone(testCase)).toBeFalsy()
+        expect(isNormalizedPhone(testCase)).toBeFalsy(),
       );
     });
 
@@ -44,7 +44,7 @@ describe("DiiNormalization Tests", () => {
         "+123456789012345",
       ];
       testCases.forEach((testCase) =>
-        expect(isNormalizedPhone(testCase)).toBeTruthy()
+        expect(isNormalizedPhone(testCase)).toBeTruthy(),
       );
     });
   });
@@ -66,7 +66,7 @@ describe("DiiNormalization Tests", () => {
       ];
 
       testCases.forEach((testCase) =>
-        expect(normalizeEmail(testCase)).toBeUndefined()
+        expect(normalizeEmail(testCase)).toBeUndefined(),
       );
     });
 
@@ -78,7 +78,7 @@ describe("DiiNormalization Tests", () => {
       ];
 
       testCases.forEach((testCase) =>
-        expect(normalizeEmail(testCase)).toBeUndefined()
+        expect(normalizeEmail(testCase)).toBeUndefined(),
       );
     });
 
@@ -129,8 +129,8 @@ describe("DiiNormalization Tests", () => {
 
       testCases.forEach((testCase) =>
         expect(normalizeEmail(testCase.originalEmail)).toEqual(
-          testCase.normalizedEmail
-        )
+          testCase.normalizedEmail,
+        ),
       );
     });
 
@@ -148,8 +148,8 @@ describe("DiiNormalization Tests", () => {
         ];
         testCases.forEach((testCase) =>
           expect(normalizeEmail(testCase.originalEmail)).toEqual(
-            testCase.normalizedEmail
-          )
+            testCase.normalizedEmail,
+          ),
         );
       });
 
@@ -194,8 +194,8 @@ describe("DiiNormalization Tests", () => {
         ];
         testCases.forEach((testCase) =>
           expect(normalizeEmail(testCase.originalEmail)).toEqual(
-            testCase.normalizedEmail
-          )
+            testCase.normalizedEmail,
+          ),
         );
       });
     });
@@ -218,8 +218,8 @@ describe("DiiNormalization Tests", () => {
 
       testCases.forEach((testCase) =>
         expect(normalizeEmail(testCase.originalEmail)).toEqual(
-          testCase.normalizedEmail
-        )
+          testCase.normalizedEmail,
+        ),
       );
     });
   });

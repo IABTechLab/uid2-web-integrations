@@ -63,13 +63,13 @@ export class UID2 {
   private _initComplete = false;
 
   constructor(
-    existingCallbacks: Uid2CallbackHandler[] | undefined = undefined
+    existingCallbacks: Uid2CallbackHandler[] | undefined = undefined,
   ) {
     if (existingCallbacks) this.callbacks = existingCallbacks;
 
     this._tokenPromiseHandler = new UID2PromiseHandler(this);
     this._callbackManager = new Uid2CallbackManager(this, () =>
-      this.getIdentity()
+      this.getIdentity(),
     );
     const runCallbacks = () => {
       this._callbackManager.runCallbacks(EventType.SdkLoaded, {});
@@ -92,7 +92,7 @@ export class UID2 {
 
   public async setIdentityFromEmail(
     email: string,
-    opts: ClientSideIdentityOptions
+    opts: ClientSideIdentityOptions,
   ) {
     this.throwIfInitNotComplete("Cannot set identity before calling init.");
     isClientSideIdentityOptionsOrThrow(opts);
@@ -108,7 +108,7 @@ export class UID2 {
 
   public async setIdentityFromEmailHash(
     emailHash: string,
-    opts: ClientSideIdentityOptions
+    opts: ClientSideIdentityOptions,
   ) {
     this.throwIfInitNotComplete("Cannot set identity before calling init.");
     isClientSideIdentityOptionsOrThrow(opts);
@@ -122,7 +122,7 @@ export class UID2 {
 
   public async setIdentityFromPhone(
     phone: string,
-    opts: ClientSideIdentityOptions
+    opts: ClientSideIdentityOptions,
   ) {
     this.throwIfInitNotComplete("Cannot set identity before calling init.");
     isClientSideIdentityOptionsOrThrow(opts);
@@ -137,7 +137,7 @@ export class UID2 {
 
   public async setIdentityFromPhoneHash(
     phoneHash: string,
-    opts: ClientSideIdentityOptions
+    opts: ClientSideIdentityOptions,
   ) {
     this.throwIfInitNotComplete("Cannot set identity before calling init.");
     isClientSideIdentityOptionsOrThrow(opts);
@@ -191,7 +191,7 @@ export class UID2 {
   public abort(reason?: string) {
     this._initComplete = true;
     this._tokenPromiseHandler.rejectAllPromises(
-      reason ?? new Error(`UID2 SDK aborted.`)
+      reason ?? new Error(`UID2 SDK aborted.`),
     );
     if (this._refreshTimerId) {
       clearTimeout(this._refreshTimerId);
@@ -203,7 +203,7 @@ export class UID2 {
   private static async hash(value: string) {
     const hash = await window.crypto.subtle.digest(
       "SHA-256",
-      new TextEncoder().encode(value)
+      new TextEncoder().encode(value),
     );
     return bytesToBase64(new Uint8Array(hash));
   }
@@ -214,7 +214,7 @@ export class UID2 {
     }
     if (!isUID2OptionsOrThrow(opts))
       throw new TypeError(
-        `Options provided to UID2 init couldn't be validated.`
+        `Options provided to UID2 init couldn't be validated.`,
       );
 
     this._opts = opts;
@@ -251,17 +251,17 @@ export class UID2 {
 
   private getIdentityStatus(identity: Uid2Identity | null):
     | {
-      valid: true;
-      identity: Uid2Identity;
-      errorMessage: string;
-      status: IdentityStatus;
-    }
+        valid: true;
+        identity: Uid2Identity;
+        errorMessage: string;
+        status: IdentityStatus;
+      }
     | {
-      valid: false;
-      errorMessage: string;
-      status: IdentityStatus;
-      identity: null;
-    } {
+        valid: false;
+        errorMessage: string;
+        status: IdentityStatus;
+        identity: null;
+      } {
     if (!identity) {
       return {
         valid: false,
@@ -320,7 +320,7 @@ export class UID2 {
   private validateAndSetIdentity(
     identity: Uid2Identity | null,
     status?: IdentityStatus,
-    statusText?: string
+    statusText?: string,
   ): Uid2Identity | null {
     if (!this._storageManager)
       throw new Error("Cannot set identity before calling init.");
@@ -342,7 +342,7 @@ export class UID2 {
       this._opts,
       status ?? validity.status,
       statusText ?? validity.errorMessage,
-      this.getAdvertisingToken()
+      this.getAdvertisingToken(),
     );
     return validity.identity;
   }
@@ -366,7 +366,7 @@ export class UID2 {
     this._refreshTimerId = setTimeout(() => {
       if (this.isLoginRequired()) return;
       const validatedIdentity = this.validateAndSetIdentity(
-        this._storageManager?.loadIdentity() ?? null
+        this._storageManager?.loadIdentity() ?? null,
       );
       if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
       this._refreshTimerId = null;
@@ -387,7 +387,7 @@ export class UID2 {
               this.validateAndSetIdentity(
                 response.identity,
                 IdentityStatus.REFRESHED,
-                "Identity refreshed"
+                "Identity refreshed",
               );
               this.setRefreshTimer();
               break;
@@ -395,14 +395,14 @@ export class UID2 {
               this.validateAndSetIdentity(
                 null,
                 IdentityStatus.OPTOUT,
-                "User opted out"
+                "User opted out",
               );
               break;
             case "expired_token":
               this.validateAndSetIdentity(
                 null,
                 IdentityStatus.REFRESH_EXPIRED,
-                "Refresh token expired"
+                "Refresh token expired",
               );
               break;
           }
@@ -410,25 +410,25 @@ export class UID2 {
         (reason) => {
           console.warn(
             `Encountered an error refreshing the UID2 token`,
-            reason
+            reason,
           );
           this.validateAndSetIdentity(identity);
           if (!hasExpired(identity.refresh_expires, Date.now()))
             this.setRefreshTimer();
-        }
+        },
       )
       .then(
         () => {
           this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
         },
         (reason) =>
-          console.warn(`UID2 callbacks on identity event failed.`, reason)
+          console.warn(`UID2 callbacks on identity event failed.`, reason),
       );
   }
 
   private async callCstgAndSetIdentity(
-    request: { emailHash: string; } | { phoneHash: string; },
-    opts: ClientSideIdentityOptions
+    request: { emailHash: string } | { phoneHash: string },
+    opts: ClientSideIdentityOptions,
   ) {
     const cstgResult = await this._apiClient!.callCstgApi(request, opts);
 

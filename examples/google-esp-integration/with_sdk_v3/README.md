@@ -11,15 +11,16 @@ For an example application without using the UID2 SDK, see [Server-Only UID2 Int
 ### Using the VS Code Debugger
 
 The easiest way to try the example is to do the following:
+
 1. Open this repo in VS Code
 1. Create a `.env` file in this folder and populate `UID2_API_KEY` and `UID2_CLIENT_SECRET`:
-    ```
-    UID2_BASE_URL=http://localhost:8080
-    UID2_API_KEY=<your-integ-API-key>
-    UID2_CLIENT_SECRET=<your-integ-client-secret>
-    AD_TAG_URL=https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/extrernal/adx-test-tag&tfcd=0&npa=0&sz=640x480&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=
-    UID2_JS_SDK_URL=http://localhost:9091/uid2-sdk.js
-    ```
+   ```
+   UID2_BASE_URL=http://localhost:8080
+   UID2_API_KEY=<your-integ-API-key>
+   UID2_CLIENT_SECRET=<your-integ-client-secret>
+   AD_TAG_URL=https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/extrernal/adx-test-tag&tfcd=0&npa=0&sz=640x480&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=
+   UID2_JS_SDK_URL=http://localhost:9091/uid2-sdk.js
+   ```
 1. Click the Run and Debug tab or hit `Crtl+Shift+D`
 1. Select `Launch ESP (Chrome)` from the configuration dropdown
 1. Click `Start Debugging` or hit F5

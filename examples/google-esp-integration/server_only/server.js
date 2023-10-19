@@ -32,7 +32,7 @@ function encryptRequest(message, base64Key) {
   const cipher = crypto.createCipheriv(
     encryptionAlgo,
     base64ToBuffer(base64Key),
-    iv
+    iv,
   );
   const ciphertext = Buffer.concat([
     cipher.update(message),
@@ -57,7 +57,7 @@ function decrypt(base64Response, base64Key, isRefreshResponse, nonceInRequest) {
   const decipher = crypto.createDecipheriv(
     encryptionAlgo,
     base64ToBuffer(base64Key),
-    iv
+    iv,
   );
 
   const tagLength = 16;
@@ -66,7 +66,7 @@ function decrypt(base64Response, base64Key, isRefreshResponse, nonceInRequest) {
 
   const decrypted = Buffer.concat([
     decipher.update(
-      responseBytes.subarray(ivLength, responseBytes.length - tagLength)
+      responseBytes.subarray(ivLength, responseBytes.length - tagLength),
     ),
     decipher.final(),
   ]);
@@ -78,7 +78,7 @@ function decrypt(base64Response, base64Key, isRefreshResponse, nonceInRequest) {
     //const _date = new Date(Number(timestamp));
     const nonceInResponse = decrypted.subarray(
       timestampLength,
-      timestampLength + nonceLength
+      timestampLength + nonceLength,
     );
     if (!isEqual(nonceInRequest, new Uint8Array(nonceInResponse))) {
       throw new Error("Nonce in request does not match nonce in response");
@@ -90,7 +90,7 @@ function decrypt(base64Response, base64Key, isRefreshResponse, nonceInRequest) {
 
   const responseString = String.fromCharCode.apply(
     String,
-    new Uint8Array(payload)
+    new Uint8Array(payload),
   );
   return JSON.parse(responseString);
 }
@@ -116,7 +116,7 @@ function createEnvelope(payload) {
       envelopeVersion,
       iv,
       Buffer.from(new Uint8Array(ciphertext)),
-    ])
+    ]),
   );
   return { envelope: envelope, nonce: nonce };
 }
@@ -125,7 +125,7 @@ app.use(
   session({
     keys: [process.env.SESSION_KEY],
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-  })
+  }),
 );
 
 app.use(express.static("public"));
@@ -155,7 +155,7 @@ async function refreshIdentity(identity) {
     const encryptedResponse = await axios.post(
       uid2BaseUrl + "/v2/token/refresh",
       identity.refresh_token,
-      headers
+      headers,
     ); //if HTTP response code is not 200, this throws and is caught in the catch handler below.
 
     let response;
@@ -163,7 +163,7 @@ async function refreshIdentity(identity) {
       response = decrypt(
         encryptedResponse.data,
         identity.refresh_response_key,
-        true
+        true,
       );
     } else {
       //If refresh_response_key doesn't exist, assume refresh_token came from a v1/token/generate query. In that scenario, /v2/token/refresh will return an unencrypted response.
@@ -174,14 +174,14 @@ async function refreshIdentity(identity) {
       return undefined;
     } else if (response.status !== "success") {
       throw new Error(
-        "Got unexpected token refresh status: " + response.status
+        "Got unexpected token refresh status: " + response.status,
       );
     } else if (
       !isRefreshableIdentity(response.body) ||
       response.body.identity_expires <= Date.now()
     ) {
       throw new Error(
-        "Invalid identity in token refresh response: " + response
+        "Invalid identity in token refresh response: " + response,
       );
     }
     return response.body;
@@ -243,7 +243,7 @@ function _GenerateTokenV1(req, res) {
       uid2BaseUrl +
         "/v1/token/generate?email=" +
         encodeURIComponent(req.body.email),
-      { headers: { Authorization: "Bearer " + uid2ApiKey } }
+      { headers: { Authorization: "Bearer " + uid2ApiKey } },
     )
     .then((response) => {
       if (response.data.status !== "success") {
@@ -282,13 +282,13 @@ app.post("/login", async (req, res) => {
     const encryptedResponse = await axios.post(
       uid2BaseUrl + "/v2/token/generate",
       envelope,
-      headers
+      headers,
     ); //if HTTP response code is not 200, this throws and is caught in the catch handler below.
     const response = decrypt(
       encryptedResponse.data,
       uid2ClientSecret,
       false,
-      nonce
+      nonce,
     );
 
     if (response.status !== "success") {

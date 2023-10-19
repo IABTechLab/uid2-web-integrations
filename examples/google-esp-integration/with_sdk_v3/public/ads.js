@@ -35,12 +35,12 @@ function setUpIMA() {
   adsLoader.addEventListener(
     google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
     onAdsManagerLoaded,
-    false
+    false,
   );
   adsLoader.addEventListener(
     google.ima.AdErrorEvent.Type.AD_ERROR,
     onAdError,
-    false
+    false,
   );
 
   // An event listener to tell the SDK that our content video
@@ -77,7 +77,7 @@ function createAdDisplayContainer() {
   // the ads.
   adDisplayContainer = new google.ima.AdDisplayContainer(
     document.getElementById("adContainer"),
-    videoContent
+    videoContent,
   );
 }
 
@@ -113,22 +113,22 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
   // videoContent should be set to the content video element.
   adsManager = adsManagerLoadedEvent.getAdsManager(
     videoContent,
-    adsRenderingSettings
+    adsRenderingSettings,
   );
 
   // Add listeners to the required events.
   adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
   adsManager.addEventListener(
     google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
-    onContentPauseRequested
+    onContentPauseRequested,
   );
   adsManager.addEventListener(
     google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
-    onContentResumeRequested
+    onContentResumeRequested,
   );
   adsManager.addEventListener(
     google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
-    onAdEvent
+    onAdEvent,
   );
 
   // Listen to any additional events, if necessary.

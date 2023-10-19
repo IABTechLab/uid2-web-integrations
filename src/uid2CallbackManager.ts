@@ -11,7 +11,7 @@ export type Uid2CallbackPayload = SdkLoadedPayload | PayloadWithIdentity;
 
 export type Uid2CallbackHandler = (
   event: EventType,
-  payload: Uid2CallbackPayload
+  payload: Uid2CallbackPayload,
 ) => void;
 type SdkLoadedPayload = Record<string, never>;
 type PayloadWithIdentity = {
@@ -58,7 +58,7 @@ export class Uid2CallbackManager {
   private safeRunCallback(
     callback: Uid2CallbackHandler,
     event: EventType,
-    payload: Uid2CallbackPayload
+    payload: Uid2CallbackPayload,
   ) {
     if (typeof callback === "function") {
       try {

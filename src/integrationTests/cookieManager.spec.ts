@@ -37,6 +37,6 @@ describe("When validating a legacy cookie,", () => {
     ({ expectedValid, data }) => {
       const result = isLegacyCookie(data);
       expect(result).toBe(expectedValid);
-    }
+    },
   );
 });
