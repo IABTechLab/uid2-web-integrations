@@ -178,15 +178,10 @@ describe('Secure Signal Tests', () => {
         jest.runOnlyPendingTimers();
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
 
-        callback.mockImplementation(async () => {
-          expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
-            refreshedIdentity.advertising_token
-          );
-          done();
-        });
-        xhrMock.sendIdentityInEncodedResponse(
-          refreshedIdentity,
-          outdatedIdentity.refresh_response_key
+        await mocks.flushPromises();
+        await mocks.flushPromises();
+        expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
+          refreshedIdentity.advertising_token
         );
       });
     });

@@ -291,7 +291,7 @@ export class UID2 {
   private validateAndSetIdentity(
     identity: Uid2Identity | null,
     status?: IdentityStatus,
-    statusText?: string,
+    statusText?: string
   ): Uid2Identity | null {
     if (!this._storageManager) throw new Error('Cannot set identity before calling init.');
     const validity = this.getIdentityStatus(identity);
@@ -312,7 +312,7 @@ export class UID2 {
       this._opts,
       status ?? validity.status,
       statusText ?? validity.errorMessage,
-      this.getAdvertisingToken(),
+      this.getAdvertisingToken()
     );
     return validity.identity;
   }
@@ -335,7 +335,7 @@ export class UID2 {
     this._refreshTimerId = setTimeout(() => {
       if (this.isLoginRequired()) return;
       const validatedIdentity = this.validateAndSetIdentity(
-        this._storageManager?.loadIdentity() ?? null,
+        this._storageManager?.loadIdentity() ?? null
       );
       if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
       this._refreshTimerId = null;
@@ -355,7 +355,7 @@ export class UID2 {
               this.validateAndSetIdentity(
                 response.identity,
                 IdentityStatus.REFRESHED,
-                'Identity refreshed',
+                'Identity refreshed'
               );
               this.setRefreshTimer();
               break;
@@ -366,7 +366,7 @@ export class UID2 {
               this.validateAndSetIdentity(
                 null,
                 IdentityStatus.REFRESH_EXPIRED,
-                'Refresh token expired',
+                'Refresh token expired'
               );
               break;
           }
@@ -375,19 +375,19 @@ export class UID2 {
           console.warn(`Encountered an error refreshing the UID2 token`, reason);
           this.validateAndSetIdentity(identity);
           if (!hasExpired(identity.refresh_expires, Date.now())) this.setRefreshTimer();
-        },
+        }
       )
       .then(
         () => {
           this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
         },
-        (reason) => console.warn(`UID2 callbacks on identity event failed.`, reason),
+        (reason) => console.warn(`UID2 callbacks on identity event failed.`, reason)
       );
   }
 
   private async callCstgAndSetIdentity(
     request: { emailHash: string } | { phoneHash: string },
-    opts: ClientSideIdentityOptions,
+    opts: ClientSideIdentityOptions
   ) {
     const cstgResult = await this._apiClient!.callCstgApi(request, opts);
 

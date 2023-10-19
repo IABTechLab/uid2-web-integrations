@@ -91,7 +91,7 @@ function createEnvelope(payload) {
 
   const envelopeVersion = Buffer.alloc(1, 1);
   const envelope = bufferToBase64(
-    Buffer.concat([envelopeVersion, iv, Buffer.from(new Uint8Array(ciphertext))]),
+    Buffer.concat([envelopeVersion, iv, Buffer.from(new Uint8Array(ciphertext))])
   );
   return { envelope: envelope, nonce: nonce };
 }
@@ -108,7 +108,7 @@ app.post('/login', async (req, res) => {
     const encryptedResponse = await axios.post(
       uid2BaseUrl + '/v2/token/generate',
       envelope,
-      headers,
+      headers
     ); //if HTTP response code is not 200, this throws and is caught in the catch handler below.
     const response = decrypt(encryptedResponse.data, uid2ClientSecret, nonce);
 

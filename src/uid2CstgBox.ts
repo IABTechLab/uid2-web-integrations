@@ -20,7 +20,7 @@ export class UID2CstgBox {
 
   public async encrypt(
     plaintext: Uint8Array,
-    additionalData: Uint8Array,
+    additionalData: Uint8Array
   ): Promise<{ iv: Uint8Array; ciphertext: ArrayBuffer }> {
     const iv = window.crypto.getRandomValues(new Uint8Array(12));
     const ciphertext = await encrypt(plaintext, this._sharedKey, iv, additionalData);
