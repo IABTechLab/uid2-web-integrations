@@ -1,22 +1,18 @@
-import { version } from "../package.json";
-import { Uid2Identity } from "./Uid2Identity";
-import { IdentityStatus, notifyInitCallback } from "./Uid2InitCallbacks";
-import { Uid2Options, isUID2OptionsOrThrow } from "./Uid2Options";
-import { Uid2ApiClient } from "./uid2ApiClient";
-import { bytesToBase64 } from "./uid2Base64";
-import {
-  EventType,
-  Uid2CallbackHandler,
-  Uid2CallbackManager,
-} from "./uid2CallbackManager";
+import { version } from '../package.json';
+import { Uid2Identity } from './Uid2Identity';
+import { IdentityStatus, notifyInitCallback } from './Uid2InitCallbacks';
+import { Uid2Options, isUID2OptionsOrThrow } from './Uid2Options';
+import { Uid2ApiClient } from './uid2ApiClient';
+import { bytesToBase64 } from './uid2Base64';
+import { EventType, Uid2CallbackHandler, Uid2CallbackManager } from './uid2CallbackManager';
 import {
   ClientSideIdentityOptions,
   isClientSideIdentityOptionsOrThrow,
-} from "./uid2ClientSideIdentityOptions";
-import { isNormalizedPhone, normalizeEmail } from "./uid2DiiNormalization";
-import { isBase64Hash } from "./uid2HashedDii";
-import { UID2PromiseHandler } from "./uid2PromiseHandler";
-import { UID2StorageManager } from "./uid2StorageManager";
+} from './uid2ClientSideIdentityOptions';
+import { isNormalizedPhone, normalizeEmail } from './uid2DiiNormalization';
+import { isBase64Hash } from './uid2HashedDii';
+import { UID2PromiseHandler } from './uid2PromiseHandler';
+import { UID2StorageManager } from './uid2StorageManager';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -29,7 +25,7 @@ export class UID2 {
     return version;
   }
   static get COOKIE_NAME() {
-    return "__uid_2";
+    return '__uid_2';
   }
   static get DEFAULT_REFRESH_RETRY_PERIOD_MS() {
     return 5000;
@@ -62,15 +58,11 @@ export class UID2 {
   private _identity: Uid2Identity | null | undefined;
   private _initComplete = false;
 
-  constructor(
-    existingCallbacks: Uid2CallbackHandler[] | undefined = undefined
-  ) {
+  constructor(existingCallbacks: Uid2CallbackHandler[] | undefined = undefined) {
     if (existingCallbacks) this.callbacks = existingCallbacks;
 
     this._tokenPromiseHandler = new UID2PromiseHandler(this);
-    this._callbackManager = new Uid2CallbackManager(this, () =>
-      this.getIdentity()
-    );
+    this._callbackManager = new Uid2CallbackManager(this, () => this.getIdentity());
     const runCallbacks = () => {
       this._callbackManager.runCallbacks(EventType.SdkLoaded, {});
     };
@@ -90,60 +82,48 @@ export class UID2 {
     return this.getIdentity()?.advertising_token ?? undefined;
   }
 
-  public async setIdentityFromEmail(
-    email: string,
-    opts: ClientSideIdentityOptions
-  ) {
-    this.throwIfInitNotComplete("Cannot set identity before calling init.");
+  public async setIdentityFromEmail(email: string, opts: ClientSideIdentityOptions) {
+    this.throwIfInitNotComplete('Cannot set identity before calling init.');
     isClientSideIdentityOptionsOrThrow(opts);
 
     const normalizedEmail = normalizeEmail(email);
     if (normalizedEmail === undefined) {
-      throw new Error("Invalid email address");
+      throw new Error('Invalid email address');
     }
 
     const emailHash = await UID2.hash(email);
     await this.callCstgAndSetIdentity({ emailHash: emailHash }, opts);
   }
 
-  public async setIdentityFromEmailHash(
-    emailHash: string,
-    opts: ClientSideIdentityOptions
-  ) {
-    this.throwIfInitNotComplete("Cannot set identity before calling init.");
+  public async setIdentityFromEmailHash(emailHash: string, opts: ClientSideIdentityOptions) {
+    this.throwIfInitNotComplete('Cannot set identity before calling init.');
     isClientSideIdentityOptionsOrThrow(opts);
 
     if (!isBase64Hash(emailHash)) {
-      throw new Error("Invalid hash");
+      throw new Error('Invalid hash');
     }
 
     await this.callCstgAndSetIdentity({ emailHash: emailHash }, opts);
   }
 
-  public async setIdentityFromPhone(
-    phone: string,
-    opts: ClientSideIdentityOptions
-  ) {
-    this.throwIfInitNotComplete("Cannot set identity before calling init.");
+  public async setIdentityFromPhone(phone: string, opts: ClientSideIdentityOptions) {
+    this.throwIfInitNotComplete('Cannot set identity before calling init.');
     isClientSideIdentityOptionsOrThrow(opts);
 
     if (!isNormalizedPhone(phone)) {
-      throw new Error("Invalid phone number");
+      throw new Error('Invalid phone number');
     }
 
     const phoneHash = await UID2.hash(phone);
     await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
   }
 
-  public async setIdentityFromPhoneHash(
-    phoneHash: string,
-    opts: ClientSideIdentityOptions
-  ) {
-    this.throwIfInitNotComplete("Cannot set identity before calling init.");
+  public async setIdentityFromPhoneHash(phoneHash: string, opts: ClientSideIdentityOptions) {
+    this.throwIfInitNotComplete('Cannot set identity before calling init.');
     isClientSideIdentityOptionsOrThrow(opts);
 
     if (!isBase64Hash(phoneHash)) {
-      throw new Error("Invalid hash");
+      throw new Error('Invalid hash');
     }
 
     await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
@@ -159,9 +139,7 @@ export class UID2 {
   }
 
   public getIdentity(): Uid2Identity | null {
-    return this._identity && !this.temporarilyUnavailable()
-      ? this._identity
-      : null;
+    return this._identity && !this.temporarilyUnavailable() ? this._identity : null;
   }
   // When the SDK has been initialized, this function should return the token
   // from the most recent refresh request, if there is a request, wait for the
@@ -190,9 +168,7 @@ export class UID2 {
   // Note: This doesn't invoke callbacks. It's a hard, silent reset.
   public abort(reason?: string) {
     this._initComplete = true;
-    this._tokenPromiseHandler.rejectAllPromises(
-      reason ?? new Error(`UID2 SDK aborted.`)
-    );
+    this._tokenPromiseHandler.rejectAllPromises(reason ?? new Error(`UID2 SDK aborted.`));
     if (this._refreshTimerId) {
       clearTimeout(this._refreshTimerId);
       this._refreshTimerId = null;
@@ -201,21 +177,16 @@ export class UID2 {
   }
 
   private static async hash(value: string) {
-    const hash = await window.crypto.subtle.digest(
-      "SHA-256",
-      new TextEncoder().encode(value)
-    );
+    const hash = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
     return bytesToBase64(new Uint8Array(hash));
   }
 
   private initInternal(opts: Uid2Options | unknown) {
     if (this._initComplete) {
-      throw new TypeError("Calling init() more than once is not allowed");
+      throw new TypeError('Calling init() more than once is not allowed');
     }
     if (!isUID2OptionsOrThrow(opts))
-      throw new TypeError(
-        `Options provided to UID2 init couldn't be validated.`
-      );
+      throw new TypeError(`Options provided to UID2 init couldn't be validated.`);
 
     this._opts = opts;
     this._storageManager = new UID2StorageManager({ ...opts });
@@ -251,21 +222,21 @@ export class UID2 {
 
   private getIdentityStatus(identity: Uid2Identity | null):
     | {
-      valid: true;
-      identity: Uid2Identity;
-      errorMessage: string;
-      status: IdentityStatus;
-    }
+        valid: true;
+        identity: Uid2Identity;
+        errorMessage: string;
+        status: IdentityStatus;
+      }
     | {
-      valid: false;
-      errorMessage: string;
-      status: IdentityStatus;
-      identity: null;
-    } {
+        valid: false;
+        errorMessage: string;
+        status: IdentityStatus;
+        identity: null;
+      } {
     if (!identity) {
       return {
         valid: false,
-        errorMessage: "Identity not available",
+        errorMessage: 'Identity not available',
         status: UID2.IdentityStatus.NO_IDENTITY,
         identity: null,
       };
@@ -273,7 +244,7 @@ export class UID2 {
     if (!identity.advertising_token) {
       return {
         valid: false,
-        errorMessage: "advertising_token is not available or is not valid",
+        errorMessage: 'advertising_token is not available or is not valid',
         status: IdentityStatus.INVALID,
         identity: null,
       };
@@ -281,7 +252,7 @@ export class UID2 {
     if (!identity.refresh_token) {
       return {
         valid: false,
-        errorMessage: "refresh_token is not available or is not valid",
+        errorMessage: 'refresh_token is not available or is not valid',
         status: IdentityStatus.INVALID,
         identity: null,
       };
@@ -289,7 +260,7 @@ export class UID2 {
     if (hasExpired(identity.refresh_expires, Date.now())) {
       return {
         valid: false,
-        errorMessage: "Identity expired, refresh expired",
+        errorMessage: 'Identity expired, refresh expired',
         status: IdentityStatus.REFRESH_EXPIRED,
         identity: null,
       };
@@ -297,33 +268,32 @@ export class UID2 {
     if (hasExpired(identity.identity_expires, Date.now())) {
       return {
         valid: true,
-        errorMessage: "Identity expired, refresh still valid",
+        errorMessage: 'Identity expired, refresh still valid',
         status: IdentityStatus.EXPIRED,
         identity,
       };
     }
-    if (typeof this._identity === "undefined")
+    if (typeof this._identity === 'undefined')
       return {
         valid: true,
         identity,
         status: IdentityStatus.ESTABLISHED,
-        errorMessage: "Identity established",
+        errorMessage: 'Identity established',
       };
     return {
       valid: true,
       identity,
       status: IdentityStatus.REFRESHED,
-      errorMessage: "Identity refreshed",
+      errorMessage: 'Identity refreshed',
     };
   }
 
   private validateAndSetIdentity(
     identity: Uid2Identity | null,
     status?: IdentityStatus,
-    statusText?: string
+    statusText?: string,
   ): Uid2Identity | null {
-    if (!this._storageManager)
-      throw new Error("Cannot set identity before calling init.");
+    if (!this._storageManager) throw new Error('Cannot set identity before calling init.');
     const validity = this.getIdentityStatus(identity);
     if (
       validity.identity &&
@@ -342,7 +312,7 @@ export class UID2 {
       this._opts,
       status ?? validity.status,
       statusText ?? validity.errorMessage,
-      this.getAdvertisingToken()
+      this.getAdvertisingToken(),
     );
     return validity.identity;
   }
@@ -358,15 +328,14 @@ export class UID2 {
   private _refreshTimerId: ReturnType<typeof setTimeout> | null = null;
 
   private setRefreshTimer() {
-    const timeout =
-      this._opts?.refreshRetryPeriod ?? UID2.DEFAULT_REFRESH_RETRY_PERIOD_MS;
+    const timeout = this._opts?.refreshRetryPeriod ?? UID2.DEFAULT_REFRESH_RETRY_PERIOD_MS;
     if (this._refreshTimerId) {
       clearTimeout(this._refreshTimerId);
     }
     this._refreshTimerId = setTimeout(() => {
       if (this.isLoginRequired()) return;
       const validatedIdentity = this.validateAndSetIdentity(
-        this._storageManager?.loadIdentity() ?? null
+        this._storageManager?.loadIdentity() ?? null,
       );
       if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
       this._refreshTimerId = null;
@@ -375,60 +344,50 @@ export class UID2 {
 
   private refreshToken(identity: Uid2Identity) {
     const apiClient = this._apiClient;
-    if (!apiClient)
-      throw new Error("Cannot refresh the token before calling init.");
+    if (!apiClient) throw new Error('Cannot refresh the token before calling init.');
 
     apiClient
       .callRefreshApi(identity)
       .then(
         (response) => {
           switch (response.status) {
-            case "success":
+            case 'success':
               this.validateAndSetIdentity(
                 response.identity,
                 IdentityStatus.REFRESHED,
-                "Identity refreshed"
+                'Identity refreshed',
               );
               this.setRefreshTimer();
               break;
-            case "optout":
-              this.validateAndSetIdentity(
-                null,
-                IdentityStatus.OPTOUT,
-                "User opted out"
-              );
+            case 'optout':
+              this.validateAndSetIdentity(null, IdentityStatus.OPTOUT, 'User opted out');
               break;
-            case "expired_token":
+            case 'expired_token':
               this.validateAndSetIdentity(
                 null,
                 IdentityStatus.REFRESH_EXPIRED,
-                "Refresh token expired"
+                'Refresh token expired',
               );
               break;
           }
         },
         (reason) => {
-          console.warn(
-            `Encountered an error refreshing the UID2 token`,
-            reason
-          );
+          console.warn(`Encountered an error refreshing the UID2 token`, reason);
           this.validateAndSetIdentity(identity);
-          if (!hasExpired(identity.refresh_expires, Date.now()))
-            this.setRefreshTimer();
-        }
+          if (!hasExpired(identity.refresh_expires, Date.now())) this.setRefreshTimer();
+        },
       )
       .then(
         () => {
           this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
         },
-        (reason) =>
-          console.warn(`UID2 callbacks on identity event failed.`, reason)
+        (reason) => console.warn(`UID2 callbacks on identity event failed.`, reason),
       );
   }
 
   private async callCstgAndSetIdentity(
-    request: { emailHash: string; } | { phoneHash: string; },
-    opts: ClientSideIdentityOptions
+    request: { emailHash: string } | { phoneHash: string },
+    opts: ClientSideIdentityOptions,
   ) {
     const cstgResult = await this._apiClient!.callCstgApi(request, opts);
 

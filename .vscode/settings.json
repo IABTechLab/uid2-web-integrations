@@ -1,11 +1,9 @@
 {
-  "cSpell.words": [
-    "googletag",
-    "initialised",
-    "initialising",
-    "optout",
-    "refreshable"
-  ],
+  "cSpell.words": ["googletag", "initialised", "initialising", "optout", "refreshable"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "editor.tabSize": 2
 }

@@ -45,8 +45,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: "18.x"
-          registry-url: "https://registry.npmjs.org"
+          node-version: '18.x'
+          registry-url: 'https://registry.npmjs.org'
       - run: npm ci
       - name: Build package
         run: npm run build-package
@@ -69,7 +69,7 @@ jobs:
     with:
       environment: ${{ matrix.environment }}
       artifact: uid2SDK-${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
-      invalidate_paths: "/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js"
+      invalidate_paths: '/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js'
     secrets:
       AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

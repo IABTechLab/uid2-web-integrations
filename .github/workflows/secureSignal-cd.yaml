@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          cache: 'npm'
           cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
       - name: Install dependencies
         run: npm install
@@ -50,7 +50,7 @@ jobs:
     with:
       environment: ${{ matrix.environment }}
       artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
-      invalidate_paths: "/uid2SecureSignal.js"
+      invalidate_paths: '/uid2SecureSignal.js'
     secrets:
       AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

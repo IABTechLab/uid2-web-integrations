@@ -1,19 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
     <title>UID2 Publisher Standard Integration Example Login Result</title>
     <link rel="stylesheet" type="text/css" href="/stylesheets/app.css" />
     <link rel="shortcut icon" href="/images/favicon.png" />
-    <script
-      async
-      src="https://cdn.integ.uidapi.com/uid2SecureSignal.js"
-    ></script>
+    <script async src="https://cdn.integ.uidapi.com/uid2SecureSignal.js"></script>
     <script async src="<%- uid2JsSdkUrl %>"></script>
-    <script
-      async
-      src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"
-    ></script>
+    <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
 
     <script>
       window.__uid2 = window.__uid2 || { callbacks: [] };
@@ -36,8 +30,8 @@
     <pre><%- JSON.stringify(identity, null, 2) %></pre>
     <p><a href="/">Back to the main page</a></p>
     <p>
-      Normally user would be redirected automatically, but this example
-      demonstrates one way UID2 login could be handled.
+      Normally user would be redirected automatically, but this example demonstrates one way UID2
+      login could be handled.
     </p>
   </body>
 </html>

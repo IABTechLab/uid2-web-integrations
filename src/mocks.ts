@@ -1,8 +1,8 @@
-import * as jsdom from "jsdom";
-import { Cookie } from "tough-cookie";
-import { UID2 } from "./uid2Sdk";
-import { Uid2Identity } from "./Uid2Identity";
-import { localStorageKeyName } from "./uid2LocalStorageManager";
+import * as jsdom from 'jsdom';
+import { Cookie } from 'tough-cookie';
+import { UID2 } from './uid2Sdk';
+import { Uid2Identity } from './Uid2Identity';
+import { localStorageKeyName } from './uid2LocalStorageManager';
 
 export class CookieMock {
   jar: jsdom.CookieJar;
@@ -14,21 +14,14 @@ export class CookieMock {
   constructor(document: Document) {
     this.jar = new jsdom.CookieJar();
     this.url = document.URL;
-    this.set = (value: string | Cookie) =>
-      this.jar.setCookieSync(value, this.url, { http: false });
+    this.set = (value: string | Cookie) => this.jar.setCookieSync(value, this.url, { http: false });
     this.get = () => this.jar.getCookieStringSync(this.url, { http: false });
     this.getSetCookieString = (name: string) => {
-      return this.jar
-        .getSetCookieStringsSync(this.url)
-        .filter((c) => c.startsWith(name + "="))[0];
+      return this.jar.getSetCookieStringsSync(this.url).filter((c) => c.startsWith(name + '='))[0];
     };
     this.applyTo = (document: Document) => {
-      jest
-        .spyOn(document, "cookie", "get")
-        .mockImplementation(() => this.get());
-      jest
-        .spyOn(document, "cookie", "set")
-        .mockImplementation((value) => this.set(value));
+      jest.spyOn(document, 'cookie', 'get').mockImplementation(() => this.get());
+      jest.spyOn(document, 'cookie', 'set').mockImplementation((value) => this.set(value));
     };
 
     this.applyTo(document);
@@ -51,10 +44,8 @@ export class XhrMock {
   }
 
   sendRefreshApiResponse(identity: Uid2Identity) {
-    this.responseText = btoa(
-      JSON.stringify({ status: "success", body: identity })
-    );
-    this.onreadystatechange(new Event(""));
+    this.responseText = btoa(JSON.stringify({ status: 'success', body: identity }));
+    this.onreadystatechange(new Event(''));
   }
 
   constructor(window: Window) {
@@ -64,10 +55,10 @@ export class XhrMock {
     this.overrideMimeType = jest.fn();
     this.setRequestHeader = jest.fn();
     this.status = 200;
-    this.responseText = btoa("response_text");
+    this.responseText = btoa('response_text');
     this.readyState = this.DONE;
     this.applyTo = (window) => {
-      jest.spyOn(window, "XMLHttpRequest").mockImplementation(() => this);
+      jest.spyOn(window, 'XMLHttpRequest').mockImplementation(() => this);
     };
 
     this.applyTo(window);
@@ -84,7 +75,7 @@ export class CryptoMock {
   };
   applyTo: (window: any) => void;
   constructor(window: Window) {
-    this.decryptOutput = "decrypted_message";
+    this.decryptOutput = 'decrypted_message';
     this.getRandomValues = jest.fn();
     this.subtle = {
       encrypt: jest.fn(),
@@ -107,15 +98,15 @@ export class CryptoMock {
       (_format, _key, _algorithm, _extractable, _keyUsages) => {
         return {
           then: jest.fn().mockImplementation((func) => {
-            func("key");
+            func('key');
             return { catch: jest.fn() };
           }),
         };
-      }
+      },
     );
 
     this.applyTo = (window) => {
-      Object.defineProperty(window, "crypto", { value: this, writable: true });
+      Object.defineProperty(window, 'crypto', { value: this, writable: true });
     };
 
     this.applyTo(window);
@@ -124,9 +115,9 @@ export class CryptoMock {
 
 export function setupFakeTime() {
   jest.useFakeTimers();
-  jest.spyOn(global, "setTimeout");
-  jest.spyOn(global, "clearTimeout");
-  jest.setSystemTime(new Date("2021-10-01"));
+  jest.spyOn(global, 'setTimeout');
+  jest.spyOn(global, 'clearTimeout');
+  jest.setSystemTime(new Date('2021-10-01'));
 }
 
 export function resetFakeTime() {
@@ -135,7 +126,7 @@ export function resetFakeTime() {
   mockSetTimeout.mockClear();
   mockClearTimeout.mockClear();
   jest.clearAllTimers();
-  jest.setSystemTime(new Date("2021-10-01"));
+  jest.setSystemTime(new Date('2021-10-01'));
 }
 
 export function setCookieMock(document: Document) {
@@ -143,13 +134,11 @@ export function setCookieMock(document: Document) {
 }
 
 export function setUid2Cookie(value: any) {
-  document.cookie =
-    UID2.COOKIE_NAME + "=" + encodeURIComponent(JSON.stringify(value));
+  document.cookie = UID2.COOKIE_NAME + '=' + encodeURIComponent(JSON.stringify(value));
 }
 
 export function removeUid2Cookie() {
-  document.cookie =
-    document.cookie + "=;expires=Tue, 1 Jan 1980 23:59:59 GMT";
+  document.cookie = document.cookie + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT';
 }
 
 export async function flushPromises() {
@@ -168,11 +157,9 @@ export function setUid2(value: any, useCookie?: boolean) {
 export function getUid2Cookie() {
   const docCookie = document.cookie;
   if (docCookie) {
-    const payload = docCookie
-      .split("; ")
-      .find((row) => row.startsWith(UID2.COOKIE_NAME + "="));
+    const payload = docCookie.split('; ').find((row) => row.startsWith(UID2.COOKIE_NAME + '='));
     if (payload) {
-      return JSON.parse(decodeURIComponent(payload.split("=")[1]));
+      return JSON.parse(decodeURIComponent(payload.split('=')[1]));
     }
   }
   return null;
@@ -193,25 +180,23 @@ export function getUid2LocalStorage() {
 }
 
 export function setEuidCookie(value: any) {
-  document.cookie = "__euid" + "=" + encodeURIComponent(JSON.stringify(value));
+  document.cookie = '__euid' + '=' + encodeURIComponent(JSON.stringify(value));
 }
 
 export function getEuidCookie() {
   const docCookie = document.cookie;
   if (docCookie) {
-    const payload = docCookie
-      .split("; ")
-      .find((row) => row.startsWith("__euid" + "="));
+    const payload = docCookie.split('; ').find((row) => row.startsWith('__euid' + '='));
     if (payload) {
-      return JSON.parse(decodeURIComponent(payload.split("=")[1]));
+      return JSON.parse(decodeURIComponent(payload.split('=')[1]));
     }
   }
 }
 
 export function makeIdentityV1(overrides?: any) {
   return {
-    advertising_token: "test_advertising_token",
-    refresh_token: "test_refresh_token",
+    advertising_token: 'test_advertising_token',
+    refresh_token: 'test_refresh_token',
     refresh_from: Date.now() + 100000,
     identity_expires: Date.now() + 200000,
     refresh_expires: Date.now() + 300000,
@@ -221,9 +206,9 @@ export function makeIdentityV1(overrides?: any) {
 
 export function makeIdentityV2(overrides = {}) {
   return {
-    advertising_token: "test_advertising_token",
-    refresh_token: "test_refresh_token",
-    refresh_response_key: btoa("test_refresh_response_key"),
+    advertising_token: 'test_advertising_token',
+    refresh_token: 'test_refresh_token',
+    refresh_response_key: btoa('test_refresh_response_key'),
     refresh_from: Date.now() + 100000,
     identity_expires: Date.now() + 200000,
     refresh_expires: Date.now() + 300000,

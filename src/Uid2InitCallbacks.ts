@@ -23,7 +23,7 @@ export function notifyInitCallback(
   options: InitCallbackOptions,
   status: IdentityStatus,
   statusText: string,
-  advertisingToken: string | undefined
+  advertisingToken: string | undefined,
 ) {
   if (options.callback) {
     const payload = {
@@ -35,7 +35,7 @@ export function notifyInitCallback(
     try {
       options.callback(payload);
     } catch (exception) {
-      console.warn("UID2 init callback threw an exception", exception);
+      console.warn('UID2 init callback threw an exception', exception);
     }
   }
 }

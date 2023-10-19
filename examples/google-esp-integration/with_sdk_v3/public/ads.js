@@ -16,9 +16,9 @@ let videoContent;
  * Initializes IMA setup.
  */
 function init() {
-  videoContent = document.getElementById("contentElement");
-  playButton = document.getElementById("playButton");
-  playButton.addEventListener("click", playAds);
+  videoContent = document.getElementById('contentElement');
+  playButton = document.getElementById('playButton');
+  playButton.addEventListener('click', playAds);
   setUpIMA();
 }
 
@@ -35,13 +35,9 @@ function setUpIMA() {
   adsLoader.addEventListener(
     google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
     onAdsManagerLoaded,
-    false
+    false,
   );
-  adsLoader.addEventListener(
-    google.ima.AdErrorEvent.Type.AD_ERROR,
-    onAdError,
-    false
-  );
+  adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError, false);
 
   // An event listener to tell the SDK that our content video
   // is completed so the SDK can play any post-roll ads.
@@ -56,7 +52,7 @@ function setUpIMA() {
 
   // Request video ads.
   const adsRequest = new google.ima.AdsRequest();
-  adsRequest.adTagUrl = "${AD_TAG_URL}";
+  adsRequest.adTagUrl = '${AD_TAG_URL}';
 
   // Specify the linear and nonlinear slot sizes. This helps the SDK to
   // select the correct creative if multiple are returned.
@@ -76,8 +72,8 @@ function createAdDisplayContainer() {
   // We assume the adContainer is the DOM id of the element that will house
   // the ads.
   adDisplayContainer = new google.ima.AdDisplayContainer(
-    document.getElementById("adContainer"),
-    videoContent
+    document.getElementById('adContainer'),
+    videoContent,
   );
 }
 
@@ -111,25 +107,19 @@ function onAdsManagerLoaded(adsManagerLoadedEvent) {
   const adsRenderingSettings = new google.ima.AdsRenderingSettings();
   adsRenderingSettings.restoreCustomPlaybackStateOnAdBreakComplete = true;
   // videoContent should be set to the content video element.
-  adsManager = adsManagerLoadedEvent.getAdsManager(
-    videoContent,
-    adsRenderingSettings
-  );
+  adsManager = adsManagerLoadedEvent.getAdsManager(videoContent, adsRenderingSettings);
 
   // Add listeners to the required events.
   adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
   adsManager.addEventListener(
     google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
-    onContentPauseRequested
+    onContentPauseRequested,
   );
   adsManager.addEventListener(
     google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
-    onContentResumeRequested
+    onContentResumeRequested,
   );
-  adsManager.addEventListener(
-    google.ima.AdEvent.Type.ALL_ADS_COMPLETED,
-    onAdEvent
-  );
+  adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, onAdEvent);
 
   // Listen to any additional events, if necessary.
   adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, onAdEvent);

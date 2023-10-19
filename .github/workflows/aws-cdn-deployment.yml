@@ -14,13 +14,13 @@ on:
         description: paths that get invlidate in cloud front
         default: ''
     secrets:
-      AWS_BUCKET_NAME: 
+      AWS_BUCKET_NAME:
         required: true
-      AWS_ACCESS_KEY_ID: 
+      AWS_ACCESS_KEY_ID:
         required: true
-      AWS_SECRET_ACCESS_KEY: 
+      AWS_SECRET_ACCESS_KEY:
         required: true
-      AWS_DISTRIBUTION_ID: 
+      AWS_DISTRIBUTION_ID:
         required: true
 jobs:
   deploy_to_CDN:

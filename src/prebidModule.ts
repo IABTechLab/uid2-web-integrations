@@ -1,5 +1,5 @@
-import { Uid2ApiClient } from "./uid2ApiClient";
-import { Uid2Identity } from "./Uid2Identity";
+import { Uid2ApiClient } from './uid2ApiClient';
+import { Uid2Identity } from './Uid2Identity';
 
 function getStorageManager(config: any): Storage {
   return {} as Storage;
@@ -14,10 +14,10 @@ type Storage = {
   getDataFromLocalStorage: (name: string) => any;
 };
 
-const MODULE_NAME = "uid2";
+const MODULE_NAME = 'uid2';
 const GVLID = 887;
-const LOG_PRE_FIX = "UID2: ";
-const ADVERTISING_COOKIE = "__uid2_advertising_token";
+const LOG_PRE_FIX = 'UID2: ';
+const ADVERTISING_COOKIE = '__uid2_advertising_token';
 
 function readCookie(): StoredValue | null {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
@@ -39,10 +39,8 @@ function readFromLocalStorage(): StoredValue | null {
 }
 
 function storeValue(value: any) {
-  if (storage.cookiesAreEnabled())
-    storage.setCookie(ADVERTISING_COOKIE, JSON.stringify(value));
-  else if (storage.localStorageIsEnabled())
-    storage.setLocalStorage(ADVERTISING_COOKIE, value);
+  if (storage.cookiesAreEnabled()) storage.setCookie(ADVERTISING_COOKIE, JSON.stringify(value));
+  else if (storage.localStorageIsEnabled()) storage.setLocalStorage(ADVERTISING_COOKIE, value);
 }
 
 function getStorage() {
@@ -67,7 +65,7 @@ type StoredUid2 = {
 };
 
 type PrebidUid2Config = {
-  name: "uid2";
+  name: 'uid2';
   uid2Token?: Uid2Identity;
   uid2ServerCookie?: string;
   uid2ApiBase?: string;
@@ -77,7 +75,7 @@ export const uid2IdSubmodule = {
   name: MODULE_NAME,
   gvlid: GVLID,
   decode(value: StoredValue) {
-    if ("uid2" in value) return value;
+    if ('uid2' in value) return value;
     if (Date.now() < value.latestToken.identity_expires)
       return { uid2: { id: value.latestToken.advertising_token } };
     return null;
@@ -85,14 +83,14 @@ export const uid2IdSubmodule = {
 
   getId(config: PrebidUid2Config) {
     let suppliedToken: Uid2Identity | null = null;
-    if ("uid2Token" in config && config.uid2Token) {
+    if ('uid2Token' in config && config.uid2Token) {
       suppliedToken = config.uid2Token;
-    } else if ("uid2ServerCookie" in config && config.uid2ServerCookie) {
+    } else if ('uid2ServerCookie' in config && config.uid2ServerCookie) {
       suppliedToken = readServerProvidedCookie(config.uid2ServerCookie);
     }
 
     let storedTokens = readCookie() || readFromLocalStorage();
-    if (storedTokens && "uid2" in storedTokens) {
+    if (storedTokens && 'uid2' in storedTokens) {
       // Legacy value stored, this must be an old integration. If no token supplied, just use the legacy value.
       if (!suppliedToken) return { id: storedTokens };
       // Otherwise, ignore the legacy value.
@@ -100,10 +98,7 @@ export const uid2IdSubmodule = {
     }
 
     if (suppliedToken && storedTokens) {
-      if (
-        storedTokens.originalToken.advertising_token !==
-        suppliedToken.advertising_token
-      ) {
+      if (storedTokens.originalToken.advertising_token !== suppliedToken.advertising_token) {
         // Stored token wasn't originally sourced from the provided token - ignore the stored value.
         storedTokens = null;
       }
@@ -111,10 +106,7 @@ export const uid2IdSubmodule = {
 
     // At this point, any legacy values or superseded stored tokens have been nulled out.
     const newestAvailableToken = storedTokens?.latestToken ?? suppliedToken;
-    if (
-      !newestAvailableToken ||
-      Date.now() > newestAvailableToken.refresh_expires
-    ) {
+    if (!newestAvailableToken || Date.now() > newestAvailableToken.refresh_expires) {
       // Newest available token is expired and not refreshable.
       return { id: null };
     }

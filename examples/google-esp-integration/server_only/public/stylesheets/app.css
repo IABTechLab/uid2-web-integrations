@@ -1,6 +1,10 @@
 body {
   padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font:
+    14px 'Lucida Grande',
+    Helvetica,
+    Arial,
+    sans-serif;
 }
 
 a {
@@ -18,7 +22,7 @@ a {
   letter-spacing: 0.28px;
   box-sizing: border-box;
   color: white;
-  font-family: "Raleway", Helvetica, Arial, serif;
+  font-family: 'Raleway', Helvetica, Arial, serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 700;
@@ -67,7 +71,7 @@ a {
   white-space: nowrap;
   width: 351px;
   color: rgba(2, 10, 64, 1);
-  font-family: "Raleway", Helvetica, Arial, serif;
+  font-family: 'Raleway', Helvetica, Arial, serif;
   font-size: 12px;
   font-style: normal;
   font-weight: 500;
