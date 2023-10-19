@@ -165,7 +165,7 @@ describe('Secure Signal Tests', () => {
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(0);
       });
 
-      test('should send signal with updated identity to Google ESP', (done) => {
+      test('should send signal with updated identity to Google ESP', async () => {
         const outdatedIdentity = mocks.makeIdentityV2({
           refresh_from: Date.now() - 1,
         });
@@ -177,8 +177,10 @@ describe('Secure Signal Tests', () => {
         jest.setSystemTime(refreshFrom);
         jest.runOnlyPendingTimers();
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
-
-        await mocks.flushPromises();
+        xhrMock.sendIdentityInEncodedResponse(
+          refreshedIdentity,
+          outdatedIdentity.refresh_response_key
+        );
         await mocks.flushPromises();
         expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
           refreshedIdentity.advertising_token

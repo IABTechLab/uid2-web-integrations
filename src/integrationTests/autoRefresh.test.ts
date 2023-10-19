@@ -6,7 +6,6 @@ import { sdkWindow, UID2 } from '../uid2Sdk';
 let callback: any;
 let uid2: UID2;
 let xhrMock: any;
-let _cryptoMock;
 let getAdvertisingTokenPromise: Promise<string | undefined>;
 
 mocks.setupFakeTime();
@@ -15,7 +14,6 @@ beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
   xhrMock = new mocks.XhrMock(sdkWindow);
-  _cryptoMock = new mocks.CryptoMock(sdkWindow);
   mocks.setCookieMock(sdkWindow.document);
   removeUid2Cookie();
   removeUid2LocalStorage();
@@ -126,10 +124,13 @@ testCookieAndLocalStorage(() => {
     });
 
     describe('when token refresh succeeds', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-        xhrMock.responseText = btoa(JSON.stringify({ status: 'success', body: updatedIdentity }));
-        xhrMock.onreadystatechange(new Event(''));
+        await xhrMock.sendIdentityInEncodedResponse(
+          updatedIdentity,
+          originalIdentity.refresh_response_key
+        );
+        await getAdvertisingTokenPromise;
       });
 
       test('should invoke the callback', () => {
@@ -163,8 +164,10 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          xhrMock.responseText = btoa(JSON.stringify({ status: 'optout' }));
-          xhrMock.onreadystatechange(new Event(''));
+          await xhrMock.sendEncodedRefreshApiResponse(
+            'optout',
+            originalIdentity.refresh_response_key
+          );
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
@@ -200,8 +203,10 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          xhrMock.responseText = btoa(JSON.stringify({ status: 'expired_token' }));
-          xhrMock.onreadystatechange(new Event(''));
+          await xhrMock.sendEncodedRefreshApiResponse(
+            'expired_token',
+            originalIdentity.refresh_response_key
+          );
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
@@ -237,11 +242,10 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          xhrMock.responseText = JSON.stringify({
-            status: 'error',
-            body: updatedIdentity,
-          });
-          xhrMock.onreadystatechange(new Event(''));
+          await xhrMock.sendEncodedRefreshApiResponse(
+            'error',
+            originalIdentity.refresh_response_key
+          );
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
@@ -269,8 +273,10 @@ testCookieAndLocalStorage(() => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
           jest.setSystemTime(originalIdentity.refresh_expires * 1000 + 1);
-          xhrMock.responseText = JSON.stringify({ status: 'error' });
-          xhrMock.onreadystatechange(new Event(''));
+          await xhrMock.sendEncodedRefreshApiResponse(
+            'error',
+            originalIdentity.refresh_response_key
+          );
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
@@ -380,10 +386,13 @@ testCookieAndLocalStorage(() => {
     });
 
     describe('when token refresh succeeds', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-        xhrMock.responseText = btoa(JSON.stringify({ status: 'success', body: updatedIdentity }));
-        xhrMock.onreadystatechange(new Event(''));
+        await xhrMock.sendIdentityInEncodedResponse(
+          updatedIdentity,
+          originalIdentity.refresh_response_key
+        );
+        await getAdvertisingTokenPromise;
       });
 
       test('should invoke the callback', () => {
@@ -416,8 +425,10 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          xhrMock.responseText = btoa(JSON.stringify({ status: 'optout' }));
-          xhrMock.onreadystatechange(new Event(''));
+          await xhrMock.sendEncodedRefreshApiResponse(
+            'optout',
+            originalIdentity.refresh_response_key
+          );
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
@@ -453,8 +464,10 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          xhrMock.responseText = btoa(JSON.stringify({ status: 'expired_token' }));
-          xhrMock.onreadystatechange(new Event(''));
+          await xhrMock.sendEncodedRefreshApiResponse(
+            'expired_token',
+            originalIdentity.refresh_response_key
+          );
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
@@ -490,11 +503,10 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          xhrMock.responseText = JSON.stringify({
-            status: 'error',
-            body: updatedIdentity,
-          });
-          xhrMock.onreadystatechange(new Event(''));
+          await xhrMock.sendEncodedRefreshApiResponse(
+            'error',
+            originalIdentity.refresh_response_key
+          );
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
@@ -521,8 +533,10 @@ testCookieAndLocalStorage(() => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
           jest.setSystemTime(originalIdentity.refresh_expires * 1000 + 1);
-          xhrMock.responseText = JSON.stringify({ status: 'error' });
-          xhrMock.onreadystatechange(new Event(''));
+          await xhrMock.sendEncodedRefreshApiResponse(
+            'error',
+            originalIdentity.refresh_response_key
+          );
           await getAdvertisingTokenPromise;
         } catch (err) {
           exception = err;
