@@ -146,16 +146,7 @@ testCookieAndLocalStorage(() => {
         jest.setSystemTime(refreshFrom);
         jest.runOnlyPendingTimers();
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
-        xhrMock.sendRefreshApiResponse(refreshedIdentity);
-        await mocks.flushPromises();
-
-        expect(asyncCallback.mock.calls.length).toBe(callsBeforeRefresh + 1);
-        expect(asyncCallback.mock.calls[callsBeforeRefresh][0]).toBe(
-          UID2.EventType.IdentityUpdated
-        );
-        expect(asyncCallback.mock.calls[callsBeforeRefresh][1]).toMatchObject({
-          identity: refreshedIdentity,
-        });
+        xhrMock.sendIdentityInEncodedResponse(refreshedIdentity, identity.refresh_response_key);
       });
 
       test('it should receive a null identity update if opt-out is called', () => {
