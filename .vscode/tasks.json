@@ -93,9 +93,7 @@
             "permissions": "ro"
           }
         ],
-        "envFiles": [
-          "${workspaceFolder}/examples/google-esp-integration/with_sdk_v3/.env"
-        ],
+        "envFiles": ["${workspaceFolder}/examples/google-esp-integration/with_sdk_v3/.env"],
         "remove": true
       }
     },
