@@ -13,7 +13,7 @@ module.exports = (env, argv) => {
   const isProduction = buildMode === "production";
   const prodSourceMaps = !!env.prodSourceMaps;
   console.log(
-    `Configuring webpack in ${buildMode} mode (isProduction === ${isProduction}).`
+    `Configuring webpack in ${buildMode} mode (isProduction === ${isProduction}).`,
   );
   return {
     mode: buildMode,

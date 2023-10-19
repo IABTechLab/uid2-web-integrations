@@ -10,7 +10,7 @@ export function stripPublicKeyPrefix(serverPublicKey: string) {
 }
 
 export function isClientSideIdentityOptionsOrThrow(
-  maybeOpts: any
+  maybeOpts: any,
 ): maybeOpts is ClientSideIdentityOptions {
   if (typeof maybeOpts !== "object" || maybeOpts === null) {
     throw new TypeError("opts must be an object");
@@ -23,7 +23,7 @@ export function isClientSideIdentityOptionsOrThrow(
   const serverPublicKeyPrefix = /^UID2-X-[A-Z]-.+/;
   if (!serverPublicKeyPrefix.test(opts.serverPublicKey)) {
     throw new TypeError(
-      `opts.serverPublicKey must match the regular expression ${serverPublicKeyPrefix}`
+      `opts.serverPublicKey must match the regular expression ${serverPublicKeyPrefix}`,
     );
   }
   // We don't do any further validation of the public key, as we will find out

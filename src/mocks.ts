@@ -52,7 +52,7 @@ export class XhrMock {
 
   sendRefreshApiResponse(identity: Uid2Identity) {
     this.responseText = btoa(
-      JSON.stringify({ status: "success", body: identity })
+      JSON.stringify({ status: "success", body: identity }),
     );
     this.onreadystatechange(new Event(""));
   }
@@ -111,7 +111,7 @@ export class CryptoMock {
             return { catch: jest.fn() };
           }),
         };
-      }
+      },
     );
 
     this.applyTo = (window) => {
@@ -148,8 +148,7 @@ export function setUid2Cookie(value: any) {
 }
 
 export function removeUid2Cookie() {
-  document.cookie =
-    document.cookie + "=;expires=Tue, 1 Jan 1980 23:59:59 GMT";
+  document.cookie = document.cookie + "=;expires=Tue, 1 Jan 1980 23:59:59 GMT";
 }
 
 export async function flushPromises() {

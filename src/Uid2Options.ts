@@ -14,7 +14,7 @@ type BaseUid2Options = {
 };
 
 export function isUID2OptionsOrThrow(
-  maybeOpts: Uid2Options | unknown
+  maybeOpts: Uid2Options | unknown,
 ): maybeOpts is Uid2Options {
   if (typeof maybeOpts !== "object" || maybeOpts === null) {
     throw new TypeError("opts must be an object");

@@ -1,7 +1,7 @@
 import { base64ToBytes } from "./uid2Base64";
 
 export function generateKeyPair(
-  namedCurve: NamedCurve
+  namedCurve: NamedCurve,
 ): Promise<CryptoKeyPair> {
   const params: EcKeyGenParams = {
     name: "ECDH",
@@ -12,7 +12,7 @@ export function generateKeyPair(
 
 export function importPublicKey(
   publicKey: string,
-  namedCurve: NamedCurve
+  namedCurve: NamedCurve,
 ): Promise<CryptoKey> {
   const params: EcKeyGenParams = {
     name: "ECDH",
@@ -23,7 +23,7 @@ export function importPublicKey(
     base64ToBytes(publicKey),
     params,
     false,
-    []
+    [],
   );
 }
 
@@ -33,7 +33,7 @@ export function exportPublicKey(publicKey: CryptoKey): Promise<ArrayBuffer> {
 
 export function deriveKey(
   serverPublicKey: CryptoKey,
-  clientPrivateKey: CryptoKey
+  clientPrivateKey: CryptoKey,
 ): Promise<CryptoKey> {
   return window.crypto.subtle.deriveKey(
     {
@@ -46,7 +46,7 @@ export function deriveKey(
       length: 256,
     },
     false,
-    ["encrypt", "decrypt"]
+    ["encrypt", "decrypt"],
   );
 }
 
@@ -54,7 +54,7 @@ export function encrypt(
   data: Uint8Array,
   key: CryptoKey,
   iv: Uint8Array,
-  additionalData: Uint8Array
+  additionalData: Uint8Array,
 ): Promise<ArrayBuffer> {
   return window.crypto.subtle.encrypt(
     {
@@ -63,14 +63,14 @@ export function encrypt(
       additionalData: additionalData,
     },
     key,
-    data
+    data,
   );
 }
 
 export function decrypt(
   data: Uint8Array,
   key: CryptoKey,
-  iv: Uint8Array
+  iv: Uint8Array,
 ): Promise<ArrayBuffer> {
   return window.crypto.subtle.decrypt(
     {
@@ -78,6 +78,6 @@ export function decrypt(
       iv: iv,
     },
     key,
-    data
+    data,
   );
 }

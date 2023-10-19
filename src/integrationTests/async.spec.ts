@@ -40,19 +40,19 @@ let useCookie: boolean | undefined = undefined;
 
 const testCookieAndLocalStorage = (test: () => void, only = false) => {
   const describeFn = only ? describe.only : describe;
-  describeFn('Using default: ', () => {
+  describeFn("Using default: ", () => {
     beforeEach(() => {
       useCookie = undefined;
     });
     test();
   });
-  describeFn('Using cookies ', () => {
+  describeFn("Using cookies ", () => {
     beforeEach(() => {
       useCookie = true;
     });
     test();
   });
-  describeFn('Using local storage ', () => {
+  describeFn("Using local storage ", () => {
     beforeEach(() => {
       useCookie = false;
     });
@@ -69,7 +69,11 @@ testCookieAndLocalStorage(() => {
           expect(callback).toHaveBeenCalled();
           return token;
         });
-        uid2.init({ callback: callback, identity: identity, useCookie: useCookie });
+        uid2.init({
+          callback: callback,
+          identity: identity,
+          useCookie: useCookie,
+        });
         jest.runAllTimers();
         return expect(p).resolves.toBe(identity.advertising_token);
       });
@@ -97,7 +101,7 @@ testCookieAndLocalStorage(() => {
         const p = uid2.getAdvertisingTokenAsync();
         uid2.init({ identity: originalIdentity, useCookie: useCookie });
         xhrMock.responseText = btoa(
-          JSON.stringify({ status: "success", body: updatedIdentity })
+          JSON.stringify({ status: "success", body: updatedIdentity }),
         );
         xhrMock.onreadystatechange(new Event(""));
         return expect(p).resolves.toBe(updatedIdentity.advertising_token);
@@ -113,7 +117,11 @@ testCookieAndLocalStorage(() => {
           expect(callback).toHaveBeenCalled();
           return token;
         });
-        uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
+        uid2.init({
+          callback: callback,
+          identity: originalIdentity,
+          useCookie: useCookie,
+        });
         xhrMock.responseText = JSON.stringify({ status: "error" });
         xhrMock.onreadystatechange(new Event(""));
         return expect(p).resolves.toBe(originalIdentity.advertising_token);
@@ -130,7 +138,11 @@ testCookieAndLocalStorage(() => {
           expect(callback).toHaveBeenCalled();
           throw e;
         });
-        uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
+        uid2.init({
+          callback: callback,
+          identity: originalIdentity,
+          useCookie: useCookie,
+        });
         xhrMock.responseText = JSON.stringify({ status: "error" });
         xhrMock.onreadystatechange(new Event(""));
         return expect(p).rejects.toBeInstanceOf(Error);
@@ -145,7 +157,7 @@ testCookieAndLocalStorage(() => {
         const p3 = uid2.getAdvertisingTokenAsync();
         uid2.init({ identity: identity, useCookie: useCookie });
         return expect(Promise.all([p1, p2, p3])).resolves.toStrictEqual(
-          Array(3).fill(identity.advertising_token)
+          Array(3).fill(identity.advertising_token),
         );
       });
     });
@@ -157,7 +169,7 @@ testCookieAndLocalStorage(() => {
       test("it should resolve promise", () => {
         uid2.init({ identity: identity, useCookie: useCookie });
         return expect(uid2.getAdvertisingTokenAsync()).resolves.toBe(
-          identity.advertising_token
+          identity.advertising_token,
         );
       });
     });
@@ -166,7 +178,7 @@ testCookieAndLocalStorage(() => {
       test("it should reject promise", () => {
         uid2.init({});
         return expect(uid2.getAdvertisingTokenAsync()).rejects.toBeInstanceOf(
-          Error
+          Error,
         );
       });
     });
@@ -181,7 +193,7 @@ testCookieAndLocalStorage(() => {
         xhrMock.responseText = JSON.stringify({ status: "error" });
         xhrMock.onreadystatechange(new Event(""));
         return expect(uid2.getAdvertisingTokenAsync()).rejects.toBeInstanceOf(
-          Error
+          Error,
         );
       });
     });
@@ -191,7 +203,7 @@ testCookieAndLocalStorage(() => {
         uid2.init({ identity: makeIdentity(), useCookie: useCookie });
         uid2.disconnect();
         return expect(uid2.getAdvertisingTokenAsync()).rejects.toBeInstanceOf(
-          Error
+          Error,
         );
       });
     });
@@ -209,7 +221,7 @@ testCookieAndLocalStorage(() => {
       test("it should reject promise", () => {
         uid2.disconnect();
         return expect(uid2.getAdvertisingTokenAsync()).rejects.toBeInstanceOf(
-          Error
+          Error,
         );
       });
     });
@@ -238,17 +250,17 @@ testCookieAndLocalStorage(() => {
       jest.runOnlyPendingTimers();
       if (!(sdkWindow.__uid2 instanceof UID2))
         throw Error(
-          "UID2 should be ready to use by the time SdkLoaded is triggered."
+          "UID2 should be ready to use by the time SdkLoaded is triggered.",
         );
       expect(callback).toHaveBeenNthCalledWith(
         1,
         UID2.EventType.SdkLoaded,
-        expect.anything()
+        expect.anything(),
       );
       console.log(sdkWindow.__uid2.getAdvertisingToken());
       console.log(identity.advertising_token);
       expect(sdkWindow.__uid2.getAdvertisingToken()).toBe(
-        identity.advertising_token
+        identity.advertising_token,
       );
     });
   });

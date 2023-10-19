@@ -43,7 +43,11 @@ const removeUid2LocalStorage = mocks.removeUid2LocalStorage;
 describe("cookieDomain option", () => {
   describe("when using default value", () => {
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: makeIdentity(), useCookie: true });
+      uid2.init({
+        callback: callback,
+        identity: makeIdentity(),
+        useCookie: true,
+      });
     });
 
     test("should not mention domain in the cookie string", () => {
@@ -61,7 +65,7 @@ describe("cookieDomain option", () => {
         callback: callback,
         identity: makeIdentity(),
         cookieDomain: domain,
-        useCookie: true
+        useCookie: true,
       });
     });
 
@@ -75,7 +79,11 @@ describe("cookieDomain option", () => {
 describe("cookiePath option", () => {
   describe("when using default value", () => {
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: makeIdentity(), useCookie: true });
+      uid2.init({
+        callback: callback,
+        identity: makeIdentity(),
+        useCookie: true,
+      });
     });
 
     test("should use the default path in the cookie string", () => {
@@ -92,7 +100,7 @@ describe("cookiePath option", () => {
         callback: callback,
         identity: makeIdentity(),
         cookiePath: path,
-        useCookie: true
+        useCookie: true,
       });
     });
 
@@ -144,7 +152,7 @@ describe("refreshRetryPeriod option", () => {
       expect(setTimeout).toHaveBeenCalledTimes(1);
       expect(setTimeout).toBeCalledWith(
         expect.any(Function),
-        UID2.DEFAULT_REFRESH_RETRY_PERIOD_MS
+        UID2.DEFAULT_REFRESH_RETRY_PERIOD_MS,
       );
     });
   });
@@ -173,7 +181,9 @@ describe("useCookie option", () => {
       uid2.init({ callback: callback, identity: identity });
     });
     test("should set identity in local storage", () => {
-      expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+      expect(getUid2LocalStorage().advertising_token).toBe(
+        identity.advertising_token,
+      );
     });
   });
   describe("when useCookie is false", () => {
@@ -181,7 +191,9 @@ describe("useCookie option", () => {
       uid2.init({ callback: callback, identity: identity, useCookie: false });
     });
     test("should set identity in local storage only", () => {
-      expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+      expect(getUid2LocalStorage().advertising_token).toBe(
+        identity.advertising_token,
+      );
       expect(getUid2Cookie()).toBeNull();
     });
   });
@@ -190,7 +202,9 @@ describe("useCookie option", () => {
       uid2.init({ callback: callback, identity: identity, useCookie: true });
     });
     test("should set identity in cookie only", () => {
-      expect(getUid2Cookie().advertising_token).toBe(identity.advertising_token);
+      expect(getUid2Cookie().advertising_token).toBe(
+        identity.advertising_token,
+      );
       expect(getUid2LocalStorage()).toBeNull();
     });
   });

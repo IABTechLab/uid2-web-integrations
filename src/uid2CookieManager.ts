@@ -71,7 +71,10 @@ export class UID2CookieManager {
     }
   }
 
-  private migrateLegacyCookie(identity: LegacyUid2SDKCookie, now: number): Uid2Identity {
+  private migrateLegacyCookie(
+    identity: LegacyUid2SDKCookie,
+    now: number,
+  ): Uid2Identity {
     const newCookie = enrichIdentity(identity, now);
     this.setCookie(newCookie);
     return newCookie;

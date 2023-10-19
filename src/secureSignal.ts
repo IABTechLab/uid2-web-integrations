@@ -16,7 +16,7 @@ export class Uid2SecureSignalProvider {
 
     if (!uid2Handler) {
       console.warn(
-        "Uid2SecureSignal: Please implement `getUid2AdvertisingToken`"
+        "Uid2SecureSignal: Please implement `getUid2AdvertisingToken`",
       );
       return;
     }
@@ -31,9 +31,8 @@ export class Uid2SecureSignalProvider {
       id: "uidapi.com",
       collectorFunction: async () => {
         this.logging("collectorFunction invoked");
-        const uid2AdvertisingToken = await getUid2AdvertisingTokenWithRetry(
-          uid2Handler
-        );
+        const uid2AdvertisingToken =
+          await getUid2AdvertisingTokenWithRetry(uid2Handler);
         this.logging(`collectorFunction pushes: ${uid2AdvertisingToken}`);
         return uid2AdvertisingToken;
       },
@@ -69,14 +68,14 @@ function isDebugModeOn() {
   return (
     debugParam?.toLocaleUpperCase() === "TRUE" ||
     (document.currentScript as HTMLScriptElement)?.src.startsWith(
-      INTEG_BASE_URL
+      INTEG_BASE_URL,
     )
   );
 }
 
 export function __uid2SSProviderScriptLoad() {
   window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider(
-    isDebugModeOn()
+    isDebugModeOn(),
   );
   // For UID2 SDK integration
   window.__uid2 = window.__uid2 || {
@@ -94,7 +93,7 @@ __uid2SSProviderScriptLoad();
 
 export function getUid2AdvertisingTokenWithRetry(
   uid2Handler: Function,
-  retries: number = MAXIMUM_RETRY
+  retries: number = MAXIMUM_RETRY,
 ): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     let attempts = 0;
@@ -102,7 +101,7 @@ export function getUid2AdvertisingTokenWithRetry(
     async function attempt(error?: unknown) {
       if (attempts >= retries) {
         window.__uid2SecureSignalProvider?.logging(
-          `getUid2AdvertisingTokenWithRetry failed with error after retry: ${error}`
+          `getUid2AdvertisingTokenWithRetry failed with error after retry: ${error}`,
         );
 
         reject(error);
@@ -114,12 +113,12 @@ export function getUid2AdvertisingTokenWithRetry(
       try {
         const result = await uid2Handler();
         window.__uid2SecureSignalProvider?.logging(
-          `getUid2AdvertisingTokenWithRetry resolved with: ${result}`
+          `getUid2AdvertisingTokenWithRetry resolved with: ${result}`,
         );
         resolve(result);
       } catch (error) {
         window.__uid2SecureSignalProvider?.logging(
-          `getUid2AdvertisingTokenWithRetry failed with error: ${error}`
+          `getUid2AdvertisingTokenWithRetry failed with error: ${error}`,
         );
         attempt(error);
       }

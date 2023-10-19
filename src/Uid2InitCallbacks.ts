@@ -23,7 +23,7 @@ export function notifyInitCallback(
   options: InitCallbackOptions,
   status: IdentityStatus,
   statusText: string,
-  advertisingToken: string | undefined
+  advertisingToken: string | undefined,
 ) {
   if (options.callback) {
     const payload = {

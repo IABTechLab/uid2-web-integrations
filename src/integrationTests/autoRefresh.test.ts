@@ -41,19 +41,19 @@ let useCookie: boolean | undefined = undefined;
 
 const testCookieAndLocalStorage = (test: () => void, only = false) => {
   const describeFn = only ? describe.only : describe;
-  describeFn('Using default: ', () => {
+  describeFn("Using default: ", () => {
     beforeEach(() => {
       useCookie = undefined;
     });
     test();
   });
-  describeFn('Using cookies ', () => {
+  describeFn("Using cookies ", () => {
     beforeEach(() => {
       useCookie = true;
     });
     test();
   });
-  describeFn('Using local storage ', () => {
+  describeFn("Using local storage ", () => {
     beforeEach(() => {
       useCookie = false;
     });
@@ -70,7 +70,11 @@ testCookieAndLocalStorage(() => {
       getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
       jest.clearAllMocks();
       jest.runOnlyPendingTimers();
-      uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: originalIdentity,
+        useCookie: useCookie,
+      });
     });
 
     test("should invoke the callback", () => {
@@ -90,7 +94,7 @@ testCookieAndLocalStorage(() => {
 
     test("getAdvertisingTokenAsync should return current advertising token", async () => {
       expect(await getAdvertisingTokenPromise).toEqual(
-        originalIdentity.advertising_token
+        originalIdentity.advertising_token,
       );
     });
   });
@@ -106,7 +110,11 @@ testCookieAndLocalStorage(() => {
     });
 
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: originalIdentity,
+        useCookie: useCookie,
+      });
       jest.clearAllMocks();
       jest.setSystemTime(refreshFrom);
       jest.runOnlyPendingTimers();
@@ -130,7 +138,7 @@ testCookieAndLocalStorage(() => {
       beforeEach(() => {
         getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
         xhrMock.responseText = btoa(
-          JSON.stringify({ status: "success", body: updatedIdentity })
+          JSON.stringify({ status: "success", body: updatedIdentity }),
         );
         xhrMock.onreadystatechange(new Event(""));
       });
@@ -142,12 +150,12 @@ testCookieAndLocalStorage(() => {
             advertisingToken: updatedIdentity.advertising_token,
             advertising_token: updatedIdentity.advertising_token,
             status: UID2.IdentityStatus.REFRESHED,
-          })
+          }),
         );
       });
       test("should store value", () => {
         expect(getUid2(useCookie).advertising_token).toBe(
-          updatedIdentity.advertising_token
+          updatedIdentity.advertising_token,
         );
       });
       test("should set refresh timer", () => {
@@ -156,13 +164,13 @@ testCookieAndLocalStorage(() => {
       });
       test("should be in available state", () => {
         (expect(uid2) as any).toBeInAvailableState(
-          updatedIdentity.advertising_token
+          updatedIdentity.advertising_token,
         );
       });
 
       test("getAdvertisingTokenAsync should return new advertising token", async () => {
         expect(await getAdvertisingTokenPromise).toEqual(
-          updatedIdentity.advertising_token
+          updatedIdentity.advertising_token,
         );
       });
     });
@@ -189,7 +197,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.OPTOUT,
-          })
+          }),
         );
       });
       test("should clear value", () => {
@@ -210,7 +218,7 @@ testCookieAndLocalStorage(() => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
           xhrMock.responseText = btoa(
-            JSON.stringify({ status: "expired_token" })
+            JSON.stringify({ status: "expired_token" }),
           );
           xhrMock.onreadystatechange(new Event(""));
           await getAdvertisingTokenPromise;
@@ -228,7 +236,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          })
+          }),
         );
       });
       test("should clear value", () => {
@@ -260,13 +268,13 @@ testCookieAndLocalStorage(() => {
       });
       test("getAdvertisingTokenPromise should return current advertising token", async () => {
         expect(await getAdvertisingTokenPromise).toEqual(
-          originalIdentity.advertising_token
+          originalIdentity.advertising_token,
         );
       });
 
       test("should not update value", () => {
         expect(getUid2(useCookie).advertising_token).toBe(
-          originalIdentity.advertising_token
+          originalIdentity.advertising_token,
         );
       });
       test("should set refresh timer", () => {
@@ -275,7 +283,7 @@ testCookieAndLocalStorage(() => {
       });
       test("should be in available state", () => {
         (expect(uid2) as any).toBeInAvailableState(
-          originalIdentity.advertising_token
+          originalIdentity.advertising_token,
         );
       });
     });
@@ -305,7 +313,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          })
+          }),
         );
       });
       test("should clear value", () => {
@@ -340,12 +348,12 @@ testCookieAndLocalStorage(() => {
             advertisingToken: manualSetIdentity.advertising_token,
             advertising_token: manualSetIdentity.advertising_token,
             status: UID2.IdentityStatus.REFRESHED,
-          })
+          }),
         );
       });
       test("should store value", () => {
         expect(getUid2(useCookie).advertising_token).toBe(
-          manualSetIdentity.advertising_token
+          manualSetIdentity.advertising_token,
         );
       });
       test("should set refresh timer", () => {
@@ -354,13 +362,13 @@ testCookieAndLocalStorage(() => {
       });
       test("should be in available state", () => {
         (expect(uid2) as any).toBeInAvailableState(
-          manualSetIdentity.advertising_token
+          manualSetIdentity.advertising_token,
         );
       });
 
       test("getAdvertisingTokenAsync should return manual set token", async () => {
         expect(await getAdvertisingTokenPromise).toEqual(
-          manualSetIdentity.advertising_token
+          manualSetIdentity.advertising_token,
         );
       });
     });
@@ -378,7 +386,11 @@ testCookieAndLocalStorage(() => {
     });
 
     beforeEach(() => {
-      uid2.init({ callback: callback, identity: originalIdentity, useCookie: useCookie });
+      uid2.init({
+        callback: callback,
+        identity: originalIdentity,
+        useCookie: useCookie,
+      });
       jest.clearAllMocks();
       jest.setSystemTime(refreshFrom);
       jest.runOnlyPendingTimers();
@@ -402,7 +414,7 @@ testCookieAndLocalStorage(() => {
       beforeEach(() => {
         getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
         xhrMock.responseText = btoa(
-          JSON.stringify({ status: "success", body: updatedIdentity })
+          JSON.stringify({ status: "success", body: updatedIdentity }),
         );
         xhrMock.onreadystatechange(new Event(""));
       });
@@ -414,12 +426,12 @@ testCookieAndLocalStorage(() => {
             advertisingToken: updatedIdentity.advertising_token,
             advertising_token: updatedIdentity.advertising_token,
             status: UID2.IdentityStatus.REFRESHED,
-          })
+          }),
         );
       });
       test("should store value", () => {
         expect(getUid2(useCookie).advertising_token).toBe(
-          updatedIdentity.advertising_token
+          updatedIdentity.advertising_token,
         );
       });
       test("should set refresh timer", () => {
@@ -428,12 +440,12 @@ testCookieAndLocalStorage(() => {
       });
       test("should be in available state", () => {
         (expect(uid2) as any).toBeInAvailableState(
-          updatedIdentity.advertising_token
+          updatedIdentity.advertising_token,
         );
       });
       test("getAdvertisingTokenPromise should return new advertising token", async () => {
         expect(await getAdvertisingTokenPromise).toEqual(
-          updatedIdentity.advertising_token
+          updatedIdentity.advertising_token,
         );
       });
     });
@@ -460,7 +472,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.OPTOUT,
-          })
+          }),
         );
       });
       test("should clear value", () => {
@@ -481,7 +493,7 @@ testCookieAndLocalStorage(() => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
           xhrMock.responseText = btoa(
-            JSON.stringify({ status: "expired_token" })
+            JSON.stringify({ status: "expired_token" }),
           );
           xhrMock.onreadystatechange(new Event(""));
           await getAdvertisingTokenPromise;
@@ -499,7 +511,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          })
+          }),
         );
       });
       test("should clear value", () => {
@@ -534,7 +546,7 @@ testCookieAndLocalStorage(() => {
       });
       test("should not update value", () => {
         expect(getUid2(useCookie).advertising_token).toBe(
-          originalIdentity.advertising_token
+          originalIdentity.advertising_token,
         );
       });
       test("should set refresh timer", () => {
@@ -543,7 +555,7 @@ testCookieAndLocalStorage(() => {
       });
       test("should be in temporarily unavailable state", () => {
         (expect(uid2) as any).toBeInTemporarilyUnavailableState(
-          originalIdentity.advertising_token
+          originalIdentity.advertising_token,
         );
       });
     });
@@ -573,7 +585,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          })
+          }),
         );
       });
       test("should clear value", () => {

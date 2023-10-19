@@ -41,7 +41,7 @@ function encryptRequest(message, base64Key) {
   const cipher = crypto.createCipheriv(
     encryptionAlgo,
     base64ToBuffer(base64Key),
-    iv
+    iv,
   );
   const ciphertext = Buffer.concat([
     cipher.update(message),
@@ -66,7 +66,7 @@ function decrypt(base64Response, base64Key, nonceInRequest) {
   const decipher = crypto.createDecipheriv(
     encryptionAlgo,
     base64ToBuffer(base64Key),
-    iv
+    iv,
   );
 
   const tagLength = 16;
@@ -75,7 +75,7 @@ function decrypt(base64Response, base64Key, nonceInRequest) {
 
   const decrypted = Buffer.concat([
     decipher.update(
-      responseBytes.subarray(ivLength, responseBytes.length - tagLength)
+      responseBytes.subarray(ivLength, responseBytes.length - tagLength),
     ),
     decipher.final(),
   ]);
@@ -85,7 +85,7 @@ function decrypt(base64Response, base64Key, nonceInRequest) {
   //const _date = new Date(Number(timestamp));
   const nonceInResponse = decrypted.subarray(
     timestampLength,
-    timestampLength + nonceLength
+    timestampLength + nonceLength,
   );
   if (!isEqual(nonceInRequest, new Uint8Array(nonceInResponse))) {
     throw new Error("Nonce in request does not match nonce in response");
@@ -94,7 +94,7 @@ function decrypt(base64Response, base64Key, nonceInRequest) {
 
   const responseString = String.fromCharCode.apply(
     String,
-    new Uint8Array(payload)
+    new Uint8Array(payload),
   );
   return JSON.parse(responseString);
 }
@@ -120,7 +120,7 @@ function createEnvelope(payload) {
       envelopeVersion,
       iv,
       Buffer.from(new Uint8Array(ciphertext)),
-    ])
+    ]),
   );
   return { envelope: envelope, nonce: nonce };
 }
@@ -137,7 +137,7 @@ app.post("/login", async (req, res) => {
     const encryptedResponse = await axios.post(
       uid2BaseUrl + "/v2/token/generate",
       envelope,
-      headers
+      headers,
     ); //if HTTP response code is not 200, this throws and is caught in the catch handler below.
     const response = decrypt(encryptedResponse.data, uid2ClientSecret, nonce);
 

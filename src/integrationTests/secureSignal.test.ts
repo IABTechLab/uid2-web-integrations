@@ -25,7 +25,7 @@ describe("Secure Signal Tests", () => {
   beforeEach(() => {
     getAdvertisingTokenMock = jest.fn<() => Promise<string>>();
     secureSignalProvidersPushMock = jest.fn(
-      async (p) => await p.collectorFunction()
+      async (p) => await p.collectorFunction(),
     );
     window.googletag = {
       secureSignalProviders: {
@@ -57,10 +57,10 @@ describe("Secure Signal Tests", () => {
         await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
           expect.objectContaining({
             id: "uidapi.com",
-          })
+          }),
         );
         expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
-          "testToken"
+          "testToken",
         );
       });
     });
@@ -76,7 +76,7 @@ describe("Secure Signal Tests", () => {
           uid2ESP.registerSecureSignalProvider();
           expect(console.warn).toHaveBeenCalledTimes(1);
           expect(consoleWarnMock).toHaveBeenCalledWith(
-            "Uid2SecureSignal: Please implement `getUid2AdvertisingToken`"
+            "Uid2SecureSignal: Please implement `getUid2AdvertisingToken`",
           );
           expect(secureSignalProvidersPushMock).not.toBeCalled();
         });
@@ -127,11 +127,11 @@ describe("Secure Signal Tests", () => {
         await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
           expect.objectContaining({
             id: "uidapi.com",
-          })
+          }),
         );
         await mocks.flushPromises();
         expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
-          identity.advertising_token
+          identity.advertising_token,
         );
       });
     });
@@ -161,11 +161,11 @@ describe("Secure Signal Tests", () => {
         await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
           expect.objectContaining({
             id: "uidapi.com",
-          })
+          }),
         );
         await mocks.flushPromises();
         expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
-          identity.advertising_token
+          identity.advertising_token,
         );
       });
 
@@ -194,7 +194,7 @@ describe("Secure Signal Tests", () => {
         await mocks.flushPromises();
         await mocks.flushPromises();
         expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
-          refreshedIdentity.advertising_token
+          refreshedIdentity.advertising_token,
         );
       });
     });
@@ -209,11 +209,11 @@ describe("Secure Signal Tests", () => {
         await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
           expect.objectContaining({
             id: "uidapi.com",
-          })
+          }),
         );
         await mocks.flushPromises();
         expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
-          identity.advertising_token
+          identity.advertising_token,
         );
       });
     });
