@@ -169,11 +169,9 @@ describe('Secure Signal Tests', () => {
         const outdatedIdentity = mocks.makeIdentityV2({
           refresh_from: Date.now() - 1,
         });
-        const callback = jest.fn();
         uid2.init({ identity: outdatedIdentity });
         window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
         UID2.setupGoogleSecureSignals();
-        uid2.callbacks.push(callback);
         jest.setSystemTime(refreshFrom);
         jest.runOnlyPendingTimers();
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
