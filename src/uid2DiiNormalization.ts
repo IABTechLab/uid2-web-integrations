@@ -32,7 +32,7 @@ function dropExtension(address: string, extensionSymbol: string = EMAIL_EXTENSIO
 function normalizeAddressPart(
   address: string,
   shouldRemoveDot: boolean,
-  shouldDropExtension: boolean,
+  shouldDropExtension: boolean
 ): string {
   let parsedAddress = address;
   if (shouldRemoveDot) parsedAddress = parsedAddress.replaceAll(EMAIL_DOT, '');

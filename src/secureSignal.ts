@@ -85,7 +85,7 @@ __uid2SSProviderScriptLoad();
 
 export function getUid2AdvertisingTokenWithRetry(
   uid2Handler: Function,
-  retries: number = MAXIMUM_RETRY,
+  retries: number = MAXIMUM_RETRY
 ): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     let attempts = 0;
@@ -93,7 +93,7 @@ export function getUid2AdvertisingTokenWithRetry(
     async function attempt(error?: unknown) {
       if (attempts >= retries) {
         window.__uid2SecureSignalProvider?.logging(
-          `getUid2AdvertisingTokenWithRetry failed with error after retry: ${error}`,
+          `getUid2AdvertisingTokenWithRetry failed with error after retry: ${error}`
         );
 
         reject(error);
@@ -105,12 +105,12 @@ export function getUid2AdvertisingTokenWithRetry(
       try {
         const result = await uid2Handler();
         window.__uid2SecureSignalProvider?.logging(
-          `getUid2AdvertisingTokenWithRetry resolved with: ${result}`,
+          `getUid2AdvertisingTokenWithRetry resolved with: ${result}`
         );
         resolve(result);
       } catch (error) {
         window.__uid2SecureSignalProvider?.logging(
-          `getUid2AdvertisingTokenWithRetry failed with error: ${error}`,
+          `getUid2AdvertisingTokenWithRetry failed with error: ${error}`
         );
         attempt(error);
       }

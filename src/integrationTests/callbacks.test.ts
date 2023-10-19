@@ -149,7 +149,7 @@ testCookieAndLocalStorage(() => {
 
         expect(asyncCallback.mock.calls.length).toBe(callsBeforeRefresh + 1);
         expect(asyncCallback.mock.calls[callsBeforeRefresh][0]).toBe(
-          UID2.EventType.IdentityUpdated,
+          UID2.EventType.IdentityUpdated
         );
         expect(asyncCallback.mock.calls[callsBeforeRefresh][1]).toMatchObject({
           identity: refreshedIdentity,
@@ -169,7 +169,7 @@ testCookieAndLocalStorage(() => {
 
         expect(asyncCallback.mock.calls.length).toBe(callsBeforeRefresh + 1);
         expect(asyncCallback.mock.calls[callsBeforeRefresh][0]).toBe(
-          UID2.EventType.IdentityUpdated,
+          UID2.EventType.IdentityUpdated
         );
         expect(asyncCallback.mock.calls[callsBeforeRefresh][1]).toMatchObject({
           identity: null,
@@ -184,7 +184,7 @@ testCookieAndLocalStorage(() => {
 
         expect(asyncCallback.mock.calls.length).toBe(callsBeforeSetIdentity + 1);
         expect(asyncCallback.mock.calls[callsBeforeSetIdentity][0]).toBe(
-          UID2.EventType.IdentityUpdated,
+          UID2.EventType.IdentityUpdated
         );
         expect(asyncCallback.mock.calls[callsBeforeSetIdentity][1]).toMatchObject({
           identity: identity,

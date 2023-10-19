@@ -148,7 +148,7 @@ testCookieAndLocalStorage(() => {
         const p3 = uid2.getAdvertisingTokenAsync();
         uid2.init({ identity: identity, useCookie: useCookie });
         return expect(Promise.all([p1, p2, p3])).resolves.toStrictEqual(
-          Array(3).fill(identity.advertising_token),
+          Array(3).fill(identity.advertising_token)
         );
       });
     });

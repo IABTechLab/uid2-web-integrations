@@ -53,7 +53,7 @@ export class Uid2CallbackManager {
   private safeRunCallback(
     callback: Uid2CallbackHandler,
     event: EventType,
-    payload: Uid2CallbackPayload,
+    payload: Uid2CallbackPayload
   ) {
     if (typeof callback === 'function') {
       try {

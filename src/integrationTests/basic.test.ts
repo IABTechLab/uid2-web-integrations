@@ -125,7 +125,7 @@ testCookieAndLocalStorage(() => {
       expect(() =>
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        uid2.init({ callback: () => {}, refreshRetryPeriod: 'abc' }),
+        uid2.init({ callback: () => {}, refreshRetryPeriod: 'abc' })
       ).toThrow(TypeError);
     });
     test('should fail on refreshRetryPeriod being less than 1 second', () => {
@@ -151,7 +151,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.NO_IDENTITY,
-          }),
+          })
         );
       });
       test('should not set value', () => {
@@ -179,7 +179,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.NO_IDENTITY,
-          }),
+          })
         );
       });
       test('should clear value', () => {
@@ -209,7 +209,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: identity.advertising_token,
             advertising_token: identity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          }),
+          })
         );
       });
       test('should set value', () => {
@@ -241,7 +241,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          }),
+          })
         );
       });
       test('should clear value', () => {
@@ -354,7 +354,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.INVALID,
-          }),
+          })
         );
       });
       test('should clear value', () => {
@@ -387,7 +387,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: identity.advertising_token,
             advertising_token: identity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          }),
+          })
         );
       });
       test('should set value', () => {
@@ -426,7 +426,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: initIdentity.advertising_token,
             advertising_token: initIdentity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          }),
+          })
         );
       });
       test('should set value', () => {
@@ -471,7 +471,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: updatedIdentity.advertising_token,
             advertising_token: updatedIdentity.advertising_token,
             status: UID2.IdentityStatus.REFRESHED,
-          }),
+          })
         );
       });
       test('should set value', () => {
@@ -499,7 +499,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: originalIdentity.advertising_token,
             advertising_token: originalIdentity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          }),
+          })
         );
       });
       test('should set value', () => {
@@ -526,7 +526,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.OPTOUT,
-          }),
+          })
         );
       });
       test('should not set cookie', () => {
@@ -554,7 +554,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          }),
+          })
         );
       });
       test('should not set cookie', () => {
@@ -585,7 +585,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: originalIdentity.advertising_token,
             advertising_token: originalIdentity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          }),
+          })
         );
       });
       test('should set value', () => {
@@ -613,7 +613,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: originalIdentity.advertising_token,
             advertising_token: originalIdentity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          }),
+          })
         );
       });
       test('should set value', () => {
@@ -641,7 +641,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: originalIdentity.advertising_token,
             advertising_token: originalIdentity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          }),
+          })
         );
       });
       test('should set value', () => {
@@ -669,7 +669,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: originalIdentity.advertising_token,
             advertising_token: originalIdentity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          }),
+          })
         );
       });
       test('should set value', () => {
@@ -697,7 +697,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          }),
+          })
         );
       });
       test('should not set cookie', () => {
@@ -744,7 +744,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: updatedIdentity.advertising_token,
             advertising_token: updatedIdentity.advertising_token,
             status: UID2.IdentityStatus.REFRESHED,
-          }),
+          })
         );
       });
       test('should set value', () => {
@@ -771,7 +771,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.OPTOUT,
-          }),
+          })
         );
       });
       test('should not set cookie', () => {
@@ -800,7 +800,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          }),
+          })
         );
       });
       test('should not set cookie', () => {
@@ -831,7 +831,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.EXPIRED,
-          }),
+          })
         );
       });
       test('should set value', () => {
@@ -860,7 +860,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          }),
+          })
         );
       });
       test('should not set cookie', () => {

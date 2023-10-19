@@ -88,7 +88,7 @@ testCookieAndLocalStorage(() => {
           expect.objectContaining({
             advertising_token: updatedIdentity.advertising_token,
             status: UID2.IdentityStatus.REFRESHED,
-          }),
+          })
         );
       });
       test('should set value', () => {
@@ -119,7 +119,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: originalIdentity.advertising_token,
             advertising_token: originalIdentity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          }),
+          })
         );
       });
       test('should set enriched value', () => {

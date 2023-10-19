@@ -33,7 +33,7 @@ type ResponseStatusRequiringBody = 'success';
 type ResponseStatusWithoutBody = 'optout' | 'expired_token';
 type UnvalidatedRefreshResponse = RefreshApiResponse | { status: unknown };
 function isValidRefreshResponse(
-  response: unknown | UnvalidatedRefreshResponse,
+  response: unknown | UnvalidatedRefreshResponse
 ): response is RefreshApiResponse {
   if (isUnvalidatedRefreshResponse(response)) {
     return (
@@ -111,7 +111,7 @@ export class Uid2ApiClient {
   }
 
   private ResponseToRefreshResult(
-    response: UnvalidatedRefreshResponse | unknown,
+    response: UnvalidatedRefreshResponse | unknown
   ): RefreshResult | string {
     if (isValidRefreshResponse(response)) {
       if (response.status === 'success')
@@ -158,7 +158,7 @@ export class Uid2ApiClient {
               base64ToBytes(refreshDetails.refresh_response_key),
               { name: 'AES-GCM' },
               false,
-              ['decrypt'],
+              ['decrypt']
             )
             .then(
               (key) => {
@@ -171,7 +171,7 @@ export class Uid2ApiClient {
                       tagLength: 128, //The tagLength you used to encrypt (if any)
                     },
                     key,
-                    encodeResp.slice(12),
+                    encodeResp.slice(12)
                   )
                   .then(
                     (decrypted) => {
@@ -181,10 +181,10 @@ export class Uid2ApiClient {
                       if (typeof result === 'string') rejectPromise(result);
                       else resolvePromise(result);
                     },
-                    (reason) => console.warn(`Call to UID2 API failed`, reason),
+                    (reason) => console.warn(`Call to UID2 API failed`, reason)
                   );
               },
-              (reason) => console.warn(`Call to UID2 API failed`, reason),
+              (reason) => console.warn(`Call to UID2 API failed`, reason)
             );
         }
       } catch (err) {
@@ -197,7 +197,7 @@ export class Uid2ApiClient {
 
   public async callCstgApi(
     data: { emailHash: string } | { phoneHash: string },
-    opts: ClientSideIdentityOptions,
+    opts: ClientSideIdentityOptions
   ): Promise<CstgResult> {
     const request =
       'emailHash' in data ? { email_hash: data.emailHash } : { phone_hash: data.phoneHash };
@@ -209,7 +209,7 @@ export class Uid2ApiClient {
     const now = Date.now();
     const { iv, ciphertext } = await box.encrypt(
       encoder.encode(JSON.stringify(request)),
-      encoder.encode(JSON.stringify([now])),
+      encoder.encode(JSON.stringify([now]))
     );
 
     const exportedPublicKey = await exportPublicKey(box.clientPublicKey);
@@ -253,7 +253,7 @@ export class Uid2ApiClient {
             // A 200 should always be a success response.
             // Something has gone wrong.
             rejectPromise(
-              `API error: Response body was invalid for HTTP status 200: ${decryptedResponse}`,
+              `API error: Response body was invalid for HTTP status 200: ${decryptedResponse}`
             );
           }
         } else if (req.status === 400) {
@@ -264,7 +264,7 @@ export class Uid2ApiClient {
             // A 400 should always be a client error.
             // Something has gone wrong.
             rejectPromise(
-              `API error: Response body was invalid for HTTP status 400: ${req.responseText}`,
+              `API error: Response body was invalid for HTTP status 400: ${req.responseText}`
             );
           }
         } else if (req.status === 403) {
@@ -275,7 +275,7 @@ export class Uid2ApiClient {
             // A 403 should always be a forbidden response.
             // Something has gone wrong.
             rejectPromise(
-              `API error: Response body was invalid for HTTP status 403: ${req.responseText}`,
+              `API error: Response body was invalid for HTTP status 403: ${req.responseText}`
             );
           }
         } else {

@@ -22,7 +22,7 @@ export class MockedGoogleTag {
 
     if (Array.isArray(window.googletag?.secureSignalProviders)) {
       window.googletag?.secureSignalProviders?.forEach((p: any) =>
-        this.secureSignalProviders.push(p),
+        this.secureSignalProviders.push(p)
       );
     }
 

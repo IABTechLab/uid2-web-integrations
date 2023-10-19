@@ -102,7 +102,7 @@ export class CryptoMock {
             return { catch: jest.fn() };
           }),
         };
-      },
+      }
     );
 
     this.applyTo = (window) => {
