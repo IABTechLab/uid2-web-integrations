@@ -1,7 +1,6 @@
 import { UID2 } from './uid2Sdk';
 import { isValidIdentity, Uid2Identity } from './Uid2Identity';
 import { UID2CstgBox } from './uid2CstgBox';
-import { exportPublicKey } from './uid2CstgCrypto';
 import { ClientSideIdentityOptions, stripPublicKeyPrefix } from './uid2ClientSideIdentityOptions';
 import { base64ToBytes, bytesToBase64 } from './uid2Base64';
 
@@ -212,7 +211,7 @@ export class Uid2ApiClient {
       encoder.encode(JSON.stringify([now]))
     );
 
-    const exportedPublicKey = await exportPublicKey(box.clientPublicKey);
+    const exportedPublicKey = await box.getClientPublicKey();
 
     const requestBody = {
       payload: bytesToBase64(new Uint8Array(ciphertext)),

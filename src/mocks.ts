@@ -304,3 +304,68 @@ export function resetCrypto(window: Window) {
     },
   });
 }
+export const NAME_CURVE = 'P-256';
+
+async function deriveSharedKey(
+  clientPublicKey: ArrayBuffer,
+  serverPrivateKey: CryptoKey
+): Promise<CryptoKey> {
+  const importedPublicKey = await crypto.subtle.importKey(
+    'spki',
+    clientPublicKey,
+    { name: 'ECDH', namedCurve: NAME_CURVE },
+    false,
+    []
+  );
+  return await crypto.subtle.deriveKey(
+    {
+      name: 'ECDH',
+      public: importedPublicKey,
+    },
+    serverPrivateKey,
+    {
+      name: 'AES-GCM',
+      length: 256,
+    },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+export async function decryptClientRequest(
+  clientPublicKey: ArrayBuffer,
+  serverPrivateKey: CryptoKey,
+  ciphertext: ArrayBuffer,
+  iv: Uint8Array,
+  additionalData: Uint8Array
+): Promise<string> {
+  const sharedKey = await deriveSharedKey(clientPublicKey, serverPrivateKey);
+  const decryptedData = await crypto.subtle.decrypt(
+    {
+      name: 'AES-GCM',
+      iv,
+      additionalData,
+    },
+    sharedKey,
+    ciphertext
+  );
+  return String.fromCharCode(...new Uint8Array(decryptedData));
+}
+
+export async function encryptServerMessage(
+  clientPublicKey: ArrayBuffer,
+  serverPrivateKey: CryptoKey,
+  plaintext: string,
+  iv: Uint8Array
+): Promise<ArrayBuffer> {
+  const sharedKey = await deriveSharedKey(clientPublicKey, serverPrivateKey);
+  const encoder = new TextEncoder();
+  return crypto.subtle.encrypt(
+    {
+      name: 'AES-GCM',
+      iv: iv,
+    },
+    sharedKey,
+    encoder.encode(plaintext)
+  );
+}

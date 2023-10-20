@@ -1,4 +1,11 @@
-import { decrypt, deriveKey, encrypt, generateKeyPair, importPublicKey } from './uid2CstgCrypto';
+import {
+  decrypt,
+  deriveKey,
+  encrypt,
+  exportPublicKey,
+  generateKeyPair,
+  importPublicKey,
+} from './uid2CstgCrypto';
 
 export class UID2CstgBox {
   private static readonly _namedCurve = 'P-256';
@@ -34,7 +41,7 @@ export class UID2CstgBox {
     return await decrypt(ciphertext, this._sharedKey, iv);
   }
 
-  public get clientPublicKey(): CryptoKey {
-    return this._clientPublicKey;
+  public async getClientPublicKey(): Promise<ArrayBuffer> {
+    return exportPublicKey(this._clientPublicKey);
   }
 }
