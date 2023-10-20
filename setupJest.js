@@ -64,8 +64,8 @@ const { TextEncoder, TextDecoder } = require('util');
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
-Object.defineProperty(window, "crypto", {
+Object.defineProperty(window, 'crypto', {
   get() {
-    return require("crypto");
+    return require('crypto');
   },
 });

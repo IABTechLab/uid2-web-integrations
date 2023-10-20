@@ -131,6 +131,54 @@ export class XhrMock {
   }
 }
 
+export class CryptoMock {
+  decryptOutput: string;
+  getRandomValues: jest.Mock<any, any>;
+  subtle: {
+    encrypt: jest.Mock<any, any>;
+    decrypt: jest.Mock<any, any>;
+    importKey: jest.Mock<any, any>;
+  };
+  applyTo: (window: any) => void;
+  constructor(window: Window) {
+    this.decryptOutput = 'decrypted_message';
+    this.getRandomValues = jest.fn();
+    this.subtle = {
+      encrypt: jest.fn(),
+      decrypt: jest.fn(),
+      importKey: jest.fn(),
+    };
+    let mockDecryptResponse = jest.fn();
+    mockDecryptResponse.mockImplementation((fn) => fn(this.decryptOutput));
+
+    this.subtle.decrypt.mockImplementation((settings, key, data) => {
+      return {
+        then: jest.fn().mockImplementation((func) => {
+          func(Buffer.concat([settings.iv, data]));
+          return { catch: jest.fn() };
+        }),
+      };
+    });
+
+    this.subtle.importKey.mockImplementation(
+      (_format, _key, _algorithm, _extractable, _keyUsages) => {
+        return {
+          then: jest.fn().mockImplementation((func) => {
+            func('key');
+            return { catch: jest.fn() };
+          }),
+        };
+      }
+    );
+
+    this.applyTo = (window) => {
+      Object.defineProperty(window, 'crypto', { value: this, writable: true });
+    };
+
+    this.applyTo(window);
+  }
+}
+
 export function setupFakeTime() {
   jest.useFakeTimers();
   jest.spyOn(global, 'setTimeout');
@@ -232,4 +280,12 @@ export function makeIdentityV2(overrides = {}) {
     refresh_expires: Date.now() + 300000,
     ...(overrides || {}),
   };
+}
+
+export function resetCrypto(window: Window) {
+  Object.defineProperty(window, 'crypto', {
+    get() {
+      return require('crypto');
+    },
+  });
 }
