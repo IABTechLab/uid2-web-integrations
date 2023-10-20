@@ -35,7 +35,7 @@ export function notifyInitCallback(
     try {
       options.callback(payload);
     } catch (exception) {
-      console.warn("UID2 init callback threw an exception", exception);
+      console.warn('UID2 init callback threw an exception', exception);
     }
   }
 }

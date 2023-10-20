@@ -94,13 +94,14 @@
           }
         ],
         "envFiles": ["${workspaceFolder}/examples/google-esp-integration/with_sdk_v3/.env"],
-        "remove": true,
+        "remove": true
       }
     },
     {
       "label": "Start CSTG",
       "dependsOn": ["webpack-dev-server", "Run CSTG Container"]
-    },    {
+    },
+    {
       "label": "Start ESP",
       "dependsOn": ["webpack-dev-server", "Run ESP Container"]
     },

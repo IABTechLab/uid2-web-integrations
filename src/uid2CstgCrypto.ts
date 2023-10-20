@@ -1,34 +1,23 @@
-import { base64ToBytes } from "./uid2Base64";
+import { base64ToBytes } from './uid2Base64';
 
-export function generateKeyPair(
-  namedCurve: NamedCurve
-): Promise<CryptoKeyPair> {
+export function generateKeyPair(namedCurve: NamedCurve): Promise<CryptoKeyPair> {
   const params: EcKeyGenParams = {
-    name: "ECDH",
+    name: 'ECDH',
     namedCurve: namedCurve,
   };
-  return window.crypto.subtle.generateKey(params, false, ["deriveKey"]);
+  return window.crypto.subtle.generateKey(params, false, ['deriveKey']);
 }
 
-export function importPublicKey(
-  publicKey: string,
-  namedCurve: NamedCurve
-): Promise<CryptoKey> {
+export function importPublicKey(publicKey: string, namedCurve: NamedCurve): Promise<CryptoKey> {
   const params: EcKeyGenParams = {
-    name: "ECDH",
+    name: 'ECDH',
     namedCurve: namedCurve,
   };
-  return window.crypto.subtle.importKey(
-    "spki",
-    base64ToBytes(publicKey),
-    params,
-    false,
-    []
-  );
+  return window.crypto.subtle.importKey('spki', base64ToBytes(publicKey), params, false, []);
 }
 
 export function exportPublicKey(publicKey: CryptoKey): Promise<ArrayBuffer> {
-  return window.crypto.subtle.exportKey("spki", publicKey);
+  return window.crypto.subtle.exportKey('spki', publicKey);
 }
 
 export function deriveKey(
@@ -37,16 +26,16 @@ export function deriveKey(
 ): Promise<CryptoKey> {
   return window.crypto.subtle.deriveKey(
     {
-      name: "ECDH",
+      name: 'ECDH',
       public: serverPublicKey,
     },
     clientPrivateKey,
     {
-      name: "AES-GCM",
+      name: 'AES-GCM',
       length: 256,
     },
     false,
-    ["encrypt", "decrypt"]
+    ['encrypt', 'decrypt']
   );
 }
 
@@ -58,7 +47,7 @@ export function encrypt(
 ): Promise<ArrayBuffer> {
   return window.crypto.subtle.encrypt(
     {
-      name: "AES-GCM",
+      name: 'AES-GCM',
       iv: iv,
       additionalData: additionalData,
     },
@@ -67,14 +56,10 @@ export function encrypt(
   );
 }
 
-export function decrypt(
-  data: Uint8Array,
-  key: CryptoKey,
-  iv: Uint8Array
-): Promise<ArrayBuffer> {
+export function decrypt(data: Uint8Array, key: CryptoKey, iv: Uint8Array): Promise<ArrayBuffer> {
   return window.crypto.subtle.decrypt(
     {
-      name: "AES-GCM",
+      name: 'AES-GCM',
       iv: iv,
     },
     key,

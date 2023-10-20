@@ -1,10 +1,10 @@
 expect.extend({
   toBeNonEmptyString(received) {
-    expect(typeof received).toBe("string");
-    expect(received).not.toEqual("");
+    expect(typeof received).toBe('string');
+    expect(received).not.toEqual('');
     return {
       pass: true,
-      message: () => "Expected non-empty string",
+      message: () => 'Expected non-empty string',
     };
   },
 });
@@ -17,14 +17,14 @@ expect.extend({
     return {
       pass: true,
       message: () =>
-        "Expected getAdvertisingToken() returns undefined and isLoginRequired() returns undefined",
+        'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns undefined',
     };
   },
 
   toBeInAvailableState(uid2, expectedAdvertisingToken) {
     if (expectedAdvertisingToken) {
       expect(uid2.getAdvertisingToken()).toBe(expectedAdvertisingToken);
-    } else if (uid2.getAdvertisingToken() !== "") {
+    } else if (uid2.getAdvertisingToken() !== '') {
       expect(uid2.getAdvertisingToken()).toBeNonEmptyString();
     }
 
@@ -33,7 +33,7 @@ expect.extend({
     return {
       pass: true,
       message: () =>
-        "Expected getAdvertisingToken() returns a token and isLoginRequired() returns false",
+        'Expected getAdvertisingToken() returns a token and isLoginRequired() returns false',
     };
   },
 
@@ -44,7 +44,7 @@ expect.extend({
     return {
       pass: true,
       message: () =>
-        "Expected getAdvertisingToken() returns undefined and isLoginRequired() returns false",
+        'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns false',
     };
   },
 
@@ -55,17 +55,17 @@ expect.extend({
     return {
       pass: true,
       message: () =>
-        "Expected getAdvertisingToken() returns undefined and isLoginRequired() returns true",
+        'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns true',
     };
   },
 });
-const { TextEncoder, TextDecoder } = require("util");
+const { TextEncoder, TextDecoder } = require('util');
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
-Object.defineProperty(window, "crypto", {
+Object.defineProperty(window, 'crypto', {
   get() {
-    return require("crypto");
+    return require('crypto');
   },
 });

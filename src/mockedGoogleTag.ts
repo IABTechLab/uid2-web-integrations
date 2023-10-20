@@ -3,19 +3,16 @@ export type EncryptedSignalProvider = {
   collectorFunction: Function;
 };
 
-const REGISTERED_PROVIDERS = ["uidapi.com"];
+const REGISTERED_PROVIDERS = ['uidapi.com'];
 const isCacheExpired = (key: string) => {
   const now = Date.now();
   if (!localStorage.getItem(key)) return true;
   return (
-    now - JSON.parse(localStorage.getItem(key) ?? "")[2] >
-    MockedsecureSignalProviders.expired_time
+    now - JSON.parse(localStorage.getItem(key) ?? '')[2] > MockedsecureSignalProviders.expired_time
   );
 };
 export class MockedGoogleTag {
-  public secureSignalProviders:
-    | MockedsecureSignalProviders
-    | EncryptedSignalProvider[];
+  public secureSignalProviders: MockedsecureSignalProviders | EncryptedSignalProvider[];
   public cmd: { push: (f: Function) => void } | Function[];
 
   constructor() {
@@ -41,11 +38,11 @@ export class MockedGoogleTag {
           // Put a placeholder
           localStorage.setItem(key, JSON.stringify([p, null, Date.now()]));
         }
-        let script = document.createElement("script");
-        script.type = "text/javascript";
+        let script = document.createElement('script');
+        script.type = 'text/javascript';
         script.async = true;
-        script.src = "https://cdn.integ.uidapi.com/uid2SecureSignal.js";
-        document.getElementsByTagName("head")[0].appendChild(script);
+        script.src = 'https://cdn.integ.uidapi.com/uid2SecureSignal.js';
+        document.getElementsByTagName('head')[0].appendChild(script);
       }
     });
     this.secureSignalProviders = new MockedsecureSignalProviders(isPlaceholder);
@@ -76,7 +73,7 @@ class MockedsecureSignalProviders {
 
   public clearAllCache() {
     for (var key in localStorage) {
-      if (key.startsWith("_GESPSK")) localStorage.removeItem(key);
+      if (key.startsWith('_GESPSK')) localStorage.removeItem(key);
     }
   }
 }

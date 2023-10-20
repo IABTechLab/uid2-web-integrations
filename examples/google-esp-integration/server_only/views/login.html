@@ -12,10 +12,10 @@
   <div><input type="submit" value="Log In" class="button" /></div>
 </form>
 <script>
-  document.forms["loginForm"].addEventListener("submit", (event) => {
+  document.forms['loginForm'].addEventListener('submit', (event) => {
     event.preventDefault();
     fetch(event.target.action, {
-      method: "POST",
+      method: 'POST',
       body: new URLSearchParams(new FormData(event.target)),
     }).then((response) => {
       if (!response.ok) {
@@ -23,11 +23,10 @@
       }
       window.googletag = window.googletag || { cmd: [] };
       window.googletag.cmd.push(function () {
-        window.googletag.secureSignalProviders =
-          window.googletag.secureSignalProviders || [];
+        window.googletag.secureSignalProviders = window.googletag.secureSignalProviders || [];
         window.googletag.secureSignalProviders.clearAllCache();
       });
-      window.location.replace("/");
+      window.location.replace('/');
     });
   });
 </script>
