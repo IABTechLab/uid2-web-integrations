@@ -113,7 +113,7 @@ testCookieAndLocalStorage(() => {
         {
           name: 'API returns invalid response',
           setApiResponses: () => {
-            xhrMock.sendRefreshApiResponse({
+            xhrMock.sendApiResponse({
               responseText: JSON.stringify({ status: 'error' }),
             });
           },
@@ -201,7 +201,7 @@ testCookieAndLocalStorage(() => {
           identity_expires: Date.now() - 1,
         });
         uid2.init({ identity: originalIdentity, useCookie: useCookie });
-        xhrMock.sendRefreshApiResponse({
+        xhrMock.sendApiResponse({
           responseText: JSON.stringify({ status: 'error' }),
         });
         return expect(uid2.getAdvertisingTokenAsync()).rejects.toBeInstanceOf(Error);

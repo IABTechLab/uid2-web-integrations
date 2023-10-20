@@ -36,13 +36,10 @@ describe('UID2CstgBox', () => {
     const { iv, ciphertext } = await cstgBox.encrypt(plaintext, additionalData);
     const clientPublicKey = await cstgBox.getClientPublicKey();
 
-    const decryptedMessage = await decryptClientRequest(
+    const decryptedMessage = await decryptClientRequest(ciphertext, iv, additionalData, {
       clientPublicKey,
-      serverKeyPair.privateKey,
-      ciphertext,
-      iv,
-      additionalData
-    );
+      serverPrivateKey: serverKeyPair.privateKey,
+    });
     expect(JSON.parse(decryptedMessage)).toEqual(identity);
   });
 
@@ -67,12 +64,10 @@ describe('UID2CstgBox', () => {
     const clientPublicKey = await cstgBox.getClientPublicKey();
     const identity = makeIdentityV2();
     const iv = crypto.getRandomValues(new Uint8Array(12));
-    const ciphertext = await encryptServerMessage(
+    const ciphertext = await encryptServerMessage(JSON.stringify(identity), iv, {
       clientPublicKey,
-      serverKeyPair.privateKey,
-      JSON.stringify(identity),
-      iv
-    );
+      serverPrivateKey: serverKeyPair.privateKey,
+    });
     const decrypted = await cstgBox.decrypt(iv, new Uint8Array(ciphertext));
     const decryptedResponse = new TextDecoder().decode(decrypted);
     expect(JSON.parse(decryptedResponse)).toEqual(identity);

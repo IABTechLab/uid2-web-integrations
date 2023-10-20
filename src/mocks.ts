@@ -39,6 +39,70 @@ type MockApiResponse = {
   status?: string;
   message?: string;
 };
+export const NAME_CURVE = 'P-256';
+
+type CstgKeyPair = {
+  clientPublicKey: ArrayBuffer;
+  serverPrivateKey: CryptoKey;
+};
+async function deriveSharedKey(keyPair: CstgKeyPair): Promise<CryptoKey> {
+  const importedPublicKey = await crypto.subtle.importKey(
+    'spki',
+    keyPair.clientPublicKey,
+    { name: 'ECDH', namedCurve: NAME_CURVE },
+    false,
+    []
+  );
+  return await crypto.subtle.deriveKey(
+    {
+      name: 'ECDH',
+      public: importedPublicKey,
+    },
+    keyPair.serverPrivateKey,
+    {
+      name: 'AES-GCM',
+      length: 256,
+    },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+export async function decryptClientRequest(
+  ciphertext: ArrayBuffer,
+  iv: Uint8Array,
+  additionalData: Uint8Array,
+  keyPair: CstgKeyPair
+): Promise<string> {
+  const sharedKey = await deriveSharedKey(keyPair);
+  const decryptedData = await crypto.subtle.decrypt(
+    {
+      name: 'AES-GCM',
+      iv,
+      additionalData,
+    },
+    sharedKey,
+    ciphertext
+  );
+  return String.fromCharCode(...new Uint8Array(decryptedData));
+}
+
+export async function encryptServerMessage(
+  plaintext: string,
+  iv: Uint8Array,
+  keyPair: CstgKeyPair
+): Promise<ArrayBuffer> {
+  const sharedKey = await deriveSharedKey(keyPair);
+  const encoder = new TextEncoder();
+  return crypto.subtle.encrypt(
+    {
+      name: 'AES-GCM',
+      iv: iv,
+    },
+    sharedKey,
+    encoder.encode(plaintext)
+  );
+}
 
 export const importRefreshKey = (refreshResponseKey: string) => {
   return crypto.subtle.importKey(
@@ -50,11 +114,10 @@ export const importRefreshKey = (refreshResponseKey: string) => {
   );
 };
 
-const encodeApiResponse = async (refreshResponse: MockApiResponse, refreshResponseKey: string) => {
-  const refreshKey = await importRefreshKey(refreshResponseKey);
+const generateEncryptedApiResponse = async (response: MockApiResponse, cryptoKey: CryptoKey) => {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const textEncoder = new TextEncoder();
-  const plaintext = textEncoder.encode(JSON.stringify(refreshResponse));
+  const plaintext = textEncoder.encode(JSON.stringify(response));
 
   const ciphertext = await crypto.subtle.encrypt(
     {
@@ -62,7 +125,7 @@ const encodeApiResponse = async (refreshResponse: MockApiResponse, refreshRespon
       iv,
       tagLength: 128,
     },
-    refreshKey,
+    cryptoKey,
     plaintext
   );
 
@@ -90,9 +153,9 @@ export class XhrMock {
   }
 
   async sendEncodedRefreshApiResponse(status: string, currentRefreshResponseToken: string) {
-    const encodedResponse = await encodeApiResponse({ status }, currentRefreshResponseToken);
-
-    return this.sendRefreshApiResponse({ responseText: encodedResponse });
+    const refreshKey = await importRefreshKey(currentRefreshResponseToken);
+    const encryptedResponse = await generateEncryptedApiResponse({ status }, refreshKey);
+    return this.sendApiResponse({ responseText: encryptedResponse });
   }
 
   async sendIdentityInEncodedResponse(
@@ -100,21 +163,27 @@ export class XhrMock {
     currentRefreshResponseToken: string,
     status?: string
   ) {
-    const encodedResponse = await encodeApiResponse(
+    const refreshKey = await importRefreshKey(currentRefreshResponseToken);
+    const encryptedResponse = await generateEncryptedApiResponse(
       { body: identity, status: status ?? 'success' },
-      currentRefreshResponseToken
+      refreshKey
     );
 
-    return this.sendRefreshApiResponse({ responseText: encodedResponse });
+    return this.sendApiResponse({ responseText: encryptedResponse });
   }
 
-  async sendRefreshApiResponse(response: MockXhrResponse) {
-    this.status = response.status || 200;
-    this.responseText = response.responseText;
-    this.onreadystatechange(new Event(''));
+  async sendEncryptedCSTGResponse(keyPair: CstgKeyPair, identity?: Uid2Identity, status?: string) {
+    const sharedKey = await deriveSharedKey(keyPair);
+    let response = { status: status ?? 'success' };
+    if (identity)
+      Object.assign(response, {
+        body: identity,
+      });
+    const encryptedResponse = await generateEncryptedApiResponse(response, sharedKey);
+    return this.sendApiResponse({ responseText: encryptedResponse });
   }
 
-  async sendCstgApiResponse(response: MockXhrResponse) {
+  async sendApiResponse(response: MockXhrResponse) {
     this.status = response.status || 200;
     this.responseText = response.responseText;
     this.onreadystatechange(new Event(''));
@@ -303,69 +372,4 @@ export function resetCrypto(window: Window) {
       return require('crypto');
     },
   });
-}
-export const NAME_CURVE = 'P-256';
-
-async function deriveSharedKey(
-  clientPublicKey: ArrayBuffer,
-  serverPrivateKey: CryptoKey
-): Promise<CryptoKey> {
-  const importedPublicKey = await crypto.subtle.importKey(
-    'spki',
-    clientPublicKey,
-    { name: 'ECDH', namedCurve: NAME_CURVE },
-    false,
-    []
-  );
-  return await crypto.subtle.deriveKey(
-    {
-      name: 'ECDH',
-      public: importedPublicKey,
-    },
-    serverPrivateKey,
-    {
-      name: 'AES-GCM',
-      length: 256,
-    },
-    false,
-    ['encrypt', 'decrypt']
-  );
-}
-
-export async function decryptClientRequest(
-  clientPublicKey: ArrayBuffer,
-  serverPrivateKey: CryptoKey,
-  ciphertext: ArrayBuffer,
-  iv: Uint8Array,
-  additionalData: Uint8Array
-): Promise<string> {
-  const sharedKey = await deriveSharedKey(clientPublicKey, serverPrivateKey);
-  const decryptedData = await crypto.subtle.decrypt(
-    {
-      name: 'AES-GCM',
-      iv,
-      additionalData,
-    },
-    sharedKey,
-    ciphertext
-  );
-  return String.fromCharCode(...new Uint8Array(decryptedData));
-}
-
-export async function encryptServerMessage(
-  clientPublicKey: ArrayBuffer,
-  serverPrivateKey: CryptoKey,
-  plaintext: string,
-  iv: Uint8Array
-): Promise<ArrayBuffer> {
-  const sharedKey = await deriveSharedKey(clientPublicKey, serverPrivateKey);
-  const encoder = new TextEncoder();
-  return crypto.subtle.encrypt(
-    {
-      name: 'AES-GCM',
-      iv: iv,
-    },
-    sharedKey,
-    encoder.encode(plaintext)
-  );
 }
