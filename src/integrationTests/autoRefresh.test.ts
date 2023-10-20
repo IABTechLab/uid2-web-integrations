@@ -270,10 +270,7 @@ testCookieAndLocalStorage(() => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
           jest.setSystemTime(originalIdentity.refresh_expires * 1000 + 1);
-          xhrMock.responseText = JSON.stringify({
-            status: 'error',
-            body: updatedIdentity,
-          });
+          xhrMock.responseText = JSON.stringify({ status: 'error' });
           xhrMock.onreadystatechange(new Event(''));
           await getAdvertisingTokenPromise;
         } catch (err) {
@@ -494,7 +491,10 @@ testCookieAndLocalStorage(() => {
       beforeEach(async () => {
         try {
           getAdvertisingTokenPromise = uid2.getAdvertisingTokenAsync();
-          xhrMock.responseText = JSON.stringify({ status: 'error' });
+          xhrMock.responseText = JSON.stringify({
+            status: 'error',
+            body: updatedIdentity,
+          });
           xhrMock.onreadystatechange(new Event(''));
           await getAdvertisingTokenPromise;
         } catch (err) {

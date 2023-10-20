@@ -6,7 +6,6 @@ import { sdkWindow, UID2 } from '../uid2Sdk';
 let callback: any;
 let uid2: UID2;
 let xhrMock: any;
-let _cryptoMock;
 
 mocks.setupFakeTime();
 
@@ -14,7 +13,6 @@ beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
   xhrMock = new mocks.XhrMock(sdkWindow);
-  _cryptoMock = new mocks.CryptoMock(sdkWindow);
   mocks.setCookieMock(sdkWindow.document);
   removeUid2Cookie();
   removeUid2LocalStorage();
@@ -22,7 +20,6 @@ beforeEach(() => {
 
 afterEach(() => {
   mocks.resetFakeTime();
-  mocks.resetCrypto(sdkWindow);
 });
 
 const getUid2 = mocks.getUid2;
@@ -286,10 +283,12 @@ testCookieAndLocalStorage(() => {
         identity_expires: Date.now() - 100000,
         refresh_from: Date.now() - 100000,
       });
+      let cryptoMock: any;
 
       beforeEach(() => {
         xhrMock.open.mockClear();
         xhrMock.send.mockClear();
+        cryptoMock = new mocks.CryptoMock(sdkWindow);
         setUid2(identity, useCookie);
         uid2.init({ callback: callback, useCookie: useCookie });
       });
@@ -297,10 +296,10 @@ testCookieAndLocalStorage(() => {
       afterEach(() => {
         xhrMock.open.mockClear();
         xhrMock.send.mockClear();
+        mocks.resetCrypto(sdkWindow);
       });
 
       test('should initiate token refresh', () => {
-        const cryptoMock = new mocks.CryptoMock(sdkWindow);
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
         const url = 'https://prod.uidapi.com/v2/token/refresh';
         expect(xhrMock.open).toHaveBeenLastCalledWith('POST', url, true);
@@ -488,7 +487,7 @@ testCookieAndLocalStorage(() => {
     });
 
     describe('when token refresh returns invalid response', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         xhrMock.responseText = 'abc';
         xhrMock.onreadystatechange(new Event(''));
       });
