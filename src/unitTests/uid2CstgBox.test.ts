@@ -1,6 +1,7 @@
 import { NAME_CURVE, decryptClientRequest, encryptServerMessage, makeIdentityV2 } from '../mocks';
 import { bytesToBase64 } from '../uid2Base64';
 import { UID2CstgBox } from '../uid2CstgBox';
+import { exportPublicKey } from '../uid2CstgCrypto';
 
 const CryptoKey = require('crypto').webcrypto.CryptoKey;
 
@@ -34,7 +35,7 @@ describe('UID2CstgBox', () => {
 
   it('encrypted message should be able to be decrypted', async () => {
     const { iv, ciphertext } = await cstgBox.encrypt(plaintext, additionalData);
-    const clientPublicKey = await cstgBox.getClientPublicKey();
+    const clientPublicKey = await exportPublicKey(cstgBox.clientPublicKey);
 
     const decryptedMessage = await decryptClientRequest(ciphertext, iv, additionalData, {
       clientPublicKey,
@@ -44,8 +45,8 @@ describe('UID2CstgBox', () => {
   });
 
   it('can export public key', async () => {
-    const clientPublicKey = await cstgBox.getClientPublicKey();
-    expect(cstgBox.getClientPublicKey()).not.toBeNull();
+    const clientPublicKey = await exportPublicKey(cstgBox.clientPublicKey);
+    expect(clientPublicKey).not.toBeNull();
     const importedPublicKey = await crypto.subtle.importKey(
       'spki',
       clientPublicKey,
@@ -61,7 +62,7 @@ describe('UID2CstgBox', () => {
   });
 
   it('can decrypt message from server', async () => {
-    const clientPublicKey = await cstgBox.getClientPublicKey();
+    const clientPublicKey = await exportPublicKey(cstgBox.clientPublicKey);
     const identity = makeIdentityV2();
     const iv = crypto.getRandomValues(new Uint8Array(12));
     const ciphertext = await encryptServerMessage(JSON.stringify(identity), iv, {

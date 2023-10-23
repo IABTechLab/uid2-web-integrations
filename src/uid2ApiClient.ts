@@ -3,6 +3,7 @@ import { isValidIdentity, Uid2Identity } from './Uid2Identity';
 import { UID2CstgBox } from './uid2CstgBox';
 import { ClientSideIdentityOptions, stripPublicKeyPrefix } from './uid2ClientSideIdentityOptions';
 import { base64ToBytes, bytesToBase64 } from './uid2Base64';
+import { exportPublicKey } from './uid2CstgCrypto';
 
 export type RefreshResultWithoutIdentity = {
   status: ResponseStatusWithoutBody;
@@ -211,7 +212,7 @@ export class Uid2ApiClient {
       encoder.encode(JSON.stringify([now]))
     );
 
-    const exportedPublicKey = await box.getClientPublicKey();
+    const exportedPublicKey = await exportPublicKey(box.clientPublicKey);
 
     const requestBody = {
       payload: bytesToBase64(new Uint8Array(ciphertext)),

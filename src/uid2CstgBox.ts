@@ -41,7 +41,7 @@ export class UID2CstgBox {
     return await decrypt(ciphertext, this._sharedKey, iv);
   }
 
-  public async getClientPublicKey(): Promise<ArrayBuffer> {
-    return exportPublicKey(this._clientPublicKey);
+  public get clientPublicKey(): CryptoKey {
+    return this._clientPublicKey;
   }
 }
