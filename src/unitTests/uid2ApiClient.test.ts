@@ -21,7 +21,6 @@ describe('UID2 API client tests', () => {
 
     const serverPubKeyArray = await crypto.subtle.exportKey('spki', serverKeyPair.publicKey);
     serverPublicKey = `UID2-X-L-` + bytesToBase64(new Uint8Array(serverPubKeyArray));
-    console.log(serverPublicKey);
   });
 
   beforeEach(() => {
