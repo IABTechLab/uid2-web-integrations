@@ -137,6 +137,12 @@ const generateEncryptedApiResponse = async (response: MockApiResponse, cryptoKey
   return bytesToBase64(combinedData);
 };
 
+type MockedCSTGResponse = {
+  status?: 'success' | 'client_error' | 'invalid_http_origin';
+  body?: Uid2Identity;
+  message?: string;
+};
+
 export class XhrMock {
   responseText: string;
   onreadystatechange: any;
@@ -172,13 +178,8 @@ export class XhrMock {
     return this.sendApiResponse({ responseText: encryptedResponse });
   }
 
-  async sendEncryptedCSTGResponse(keyPair: CstgKeyPair, identity?: Uid2Identity, status?: string) {
+  async sendEncryptedCSTGResponse(keyPair: CstgKeyPair, response: MockedCSTGResponse) {
     const sharedKey = await deriveSharedKey(keyPair);
-    let response = { status: status ?? 'success' };
-    if (identity)
-      Object.assign(response, {
-        body: identity,
-      });
     const encryptedResponse = await generateEncryptedApiResponse(response, sharedKey);
     return this.sendApiResponse({ responseText: encryptedResponse });
   }
