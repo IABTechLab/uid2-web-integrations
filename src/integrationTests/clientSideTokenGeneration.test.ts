@@ -126,12 +126,12 @@ describe('Client-side token generation Tests', () => {
             expect(mocks.getUid2()).toEqual(cstgToken);
           });
 
-          test('should be in available state', async () => {
+          test('UID2 should be in available state', async () => {
             await setIdentityInCallback();
             (expect(uid2) as any).toBeInAvailableState(cstgToken.advertising_token);
           });
 
-          test('should refresh token when requires a refresh', async () => {
+          test('should refresh token when generated token requires a refresh', async () => {
             await setIdentityInCallback();
             const refreshedToken = {
               ...mocks.makeIdentityV2(),
@@ -143,7 +143,7 @@ describe('Client-side token generation Tests', () => {
             expect(await uid2!.getAdvertisingTokenAsync()).toBe(refreshedToken.advertising_token);
           });
 
-          test('should invoke the callback when token generated', (done) => {
+          test('should invoke the callback when token is generated', (done) => {
             uid2.callbacks.push((eventType, payload) => {
               if (eventType === EventType.IdentityUpdated) {
                 expect(payload.identity).toEqual(cstgToken);
