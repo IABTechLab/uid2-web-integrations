@@ -96,7 +96,6 @@ describe('Secure Signal Tests', () => {
 
     describe('When script loaded before SDK loaded', () => {
       beforeEach(() => {
-        new mocks.CryptoMock(window);
         mocks.setCookieMock(window.document);
         xhrMock = new mocks.XhrMock(window);
         jest.clearAllMocks();
@@ -129,7 +128,6 @@ describe('Secure Signal Tests', () => {
       beforeEach(() => {
         uid2 = new UID2();
         window.__uid2 = uid2;
-        new mocks.CryptoMock(window);
         mocks.setCookieMock(window.document);
         xhrMock = new mocks.XhrMock(window);
         jest.clearAllMocks();
@@ -177,10 +175,10 @@ describe('Secure Signal Tests', () => {
         jest.setSystemTime(refreshFrom);
         jest.runOnlyPendingTimers();
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
-        xhrMock.sendRefreshApiResponse(refreshedIdentity);
-        await expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
-
-        await mocks.flushPromises();
+        xhrMock.sendIdentityInEncodedResponse(
+          refreshedIdentity,
+          outdatedIdentity.refresh_response_key
+        );
         await mocks.flushPromises();
         expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
           refreshedIdentity.advertising_token

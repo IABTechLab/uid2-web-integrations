@@ -23,6 +23,7 @@ beforeEach(() => {
 
 afterEach(() => {
   mocks.resetFakeTime();
+  mocks.resetCrypto(sdkWindow);
 });
 
 const getUid2 = mocks.getUid2;

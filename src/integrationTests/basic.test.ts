@@ -296,7 +296,7 @@ testCookieAndLocalStorage(() => {
       afterEach(() => {
         xhrMock.open.mockClear();
         xhrMock.send.mockClear();
-        cryptoMock.subtle.importKey.mockClear();
+        mocks.resetCrypto(sdkWindow);
       });
 
       test('should initiate token refresh', () => {

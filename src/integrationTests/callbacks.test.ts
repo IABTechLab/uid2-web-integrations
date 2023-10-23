@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globa
 
 import * as mocks from '../mocks';
 import { sdkWindow, UID2 } from '../uid2Sdk';
-import { Uid2CallbackHandler } from '../uid2CallbackManager';
+import { EventType, Uid2CallbackHandler } from '../uid2CallbackManager';
 
 let callback: any;
 let asyncCallback: jest.Mock<Uid2CallbackHandler>;
@@ -10,8 +10,6 @@ let uid2: UID2;
 let xhrMock: any;
 
 const debugOutput = false;
-
-let _cryptoMock;
 
 mocks.setupFakeTime();
 
@@ -23,7 +21,6 @@ beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
   xhrMock = new mocks.XhrMock(sdkWindow);
-  _cryptoMock = new mocks.CryptoMock(sdkWindow);
   mocks.setCookieMock(sdkWindow.document);
   sdkWindow.__uid2 = { callbacks: [] };
   asyncCallback = jest.fn((event, payload) => {
@@ -131,29 +128,25 @@ testCookieAndLocalStorage(() => {
           identity,
         });
       });
-      // this test is only passing for cookies
-      test('it should receive subsequent identity updates', async () => {
+
+      test('it should receive subsequent identity updates', (done) => {
         uid2.init({
           callback: callback,
           identity: identity,
           useCookie: useCookie,
         });
-        uid2.callbacks.push(asyncCallback);
 
-        const callsBeforeRefresh = asyncCallback.mock.calls.length;
+        uid2.callbacks.push((eventType, payload) => {
+          if (eventType === EventType.IdentityUpdated) {
+            expect(payload.identity).toStrictEqual(refreshedIdentity);
+            done();
+          }
+        });
+
         jest.setSystemTime(refreshFrom);
         jest.runOnlyPendingTimers();
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
-        xhrMock.sendRefreshApiResponse(refreshedIdentity);
-        await mocks.flushPromises();
-
-        expect(asyncCallback.mock.calls.length).toBe(callsBeforeRefresh + 1);
-        expect(asyncCallback.mock.calls[callsBeforeRefresh][0]).toBe(
-          UID2.EventType.IdentityUpdated
-        );
-        expect(asyncCallback.mock.calls[callsBeforeRefresh][1]).toMatchObject({
-          identity: refreshedIdentity,
-        });
+        xhrMock.sendIdentityInEncodedResponse(refreshedIdentity, identity.refresh_response_key);
       });
 
       test('it should receive a null identity update if opt-out is called', () => {

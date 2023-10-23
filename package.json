@@ -20,6 +20,9 @@
     "uid2-examples": "webpack --mode=development --env outputToExamples=true",
     "build:esp": "webpack --env espOnly=true"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "jsdom",
