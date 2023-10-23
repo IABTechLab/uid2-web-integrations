@@ -1,9 +1,9 @@
 import { UID2 } from './uid2Sdk';
 import { isValidIdentity, Uid2Identity } from './Uid2Identity';
 import { UID2CstgBox } from './uid2CstgBox';
+import { exportPublicKey } from './uid2CstgCrypto';
 import { ClientSideIdentityOptions, stripPublicKeyPrefix } from './uid2ClientSideIdentityOptions';
 import { base64ToBytes, bytesToBase64 } from './uid2Base64';
-import { exportPublicKey } from './uid2CstgCrypto';
 
 export type RefreshResultWithoutIdentity = {
   status: ResponseStatusWithoutBody;

@@ -1,11 +1,4 @@
-import {
-  decrypt,
-  deriveKey,
-  encrypt,
-  exportPublicKey,
-  generateKeyPair,
-  importPublicKey,
-} from './uid2CstgCrypto';
+import { decrypt, deriveKey, encrypt, generateKeyPair, importPublicKey } from './uid2CstgCrypto';
 
 export class UID2CstgBox {
   private static readonly _namedCurve = 'P-256';
