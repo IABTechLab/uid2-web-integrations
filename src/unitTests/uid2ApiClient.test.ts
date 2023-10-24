@@ -66,14 +66,12 @@ describe('UID2 API client tests', () => {
           );
         });
 
-        try {
-          await uid2ApiClient.callCstgApi(
+        await expect(
+          uid2ApiClient.callCstgApi(
             { emailHash: 'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=' },
             makeCstgOption({ serverPublicKey })
-          );
-        } catch (e) {
-          expect(e).toContain('API error: Response body was invalid for HTTP status 200:');
-        }
+          )
+        ).rejects.toContain('API error: Response body was invalid for HTTP status 200:');
       });
     });
 
@@ -88,12 +86,7 @@ describe('UID2 API client tests', () => {
             status: 400,
           });
         });
-
-        try {
-          await makeCstgApiCall();
-        } catch (e) {
-          expect(e).toContain('Client error: Here is a client error');
-        }
+        await expect(makeCstgApiCall()).rejects.toEqual('Client error: Here is a client error');
       });
 
       it('should throw response body was invalid when response is not structured', async () => {
@@ -104,11 +97,9 @@ describe('UID2 API client tests', () => {
           });
         });
 
-        try {
-          await makeCstgApiCall();
-        } catch (e) {
-          expect(e).toContain('API error: Response body was invalid for HTTP status 400:');
-        }
+        await expect(makeCstgApiCall()).rejects.toContain(
+          'API error: Response body was invalid for HTTP status 400:'
+        );
       });
     });
 
@@ -124,11 +115,7 @@ describe('UID2 API client tests', () => {
           });
         });
 
-        try {
-          await makeCstgApiCall();
-        } catch (e) {
-          expect(e).toContain('Forbidden: Domain is invalid');
-        }
+        await expect(makeCstgApiCall()).rejects.toContain('Forbidden: Domain is invalid');
       });
 
       it('should throw response body was invalid when response is not structured', async () => {
@@ -139,11 +126,9 @@ describe('UID2 API client tests', () => {
           });
         });
 
-        try {
-          await makeCstgApiCall();
-        } catch (e) {
-          expect(e).toContain('API error: Response body was invalid for HTTP status 403:');
-        }
+        await expect(makeCstgApiCall()).rejects.toContain(
+          'API error: Response body was invalid for HTTP status 403:'
+        );
       });
     });
 
@@ -156,11 +141,7 @@ describe('UID2 API client tests', () => {
           });
         });
 
-        try {
-          await makeCstgApiCall();
-        } catch (e) {
-          expect(e).toContain('API error: Unexpected HTTP status 500');
-        }
+        await expect(makeCstgApiCall()).rejects.toContain('API error: Unexpected HTTP status 500');
       });
     });
   });

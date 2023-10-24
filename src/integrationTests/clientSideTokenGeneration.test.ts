@@ -167,20 +167,16 @@ describe('Client-side token generation Tests', () => {
             });
           });
           test('should not set identity', async () => {
-            try {
-              await setIdentityInCallback();
-            } catch (err) {
-              expect(err).toContain('Client error: Here is a client error');
-              expect(mocks.getUid2()).toBeNull();
-            }
+            await expect(setIdentityInCallback()).rejects.toEqual(
+              'Client error: Here is a client error'
+            );
+            expect(mocks.getUid2()).toBeNull();
           });
           test('should be in unavailable state', async () => {
-            try {
-              await setIdentityInCallback();
-            } catch (err) {
-              expect(err).toContain('Client error: Here is a client error');
-              (expect(uid2) as any).toBeInUnavailableState();
-            }
+            await expect(setIdentityInCallback()).rejects.toEqual(
+              'Client error: Here is a client error'
+            );
+            (expect(uid2) as any).toBeInUnavailableState();
           });
         });
       });

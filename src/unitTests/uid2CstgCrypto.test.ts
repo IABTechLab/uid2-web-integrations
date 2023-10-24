@@ -120,11 +120,10 @@ describe('uid2CstgCrypto Tests', () => {
         sharedKey,
         plaintext
       );
-      try {
-        await decrypt(new Uint8Array(ciphertext), sharedKey, iv2);
-      } catch (error: any) {
-        expect(error.message).toContain('The operation failed for an operation-specific reason');
-      }
+      await expect(decrypt(new Uint8Array(ciphertext), sharedKey, iv2)).rejects.toHaveProperty(
+        'message',
+        'The operation failed for an operation-specific reason'
+      );
     });
 
     it('should not decrypt data with additional', async () => {
@@ -140,11 +139,10 @@ describe('uid2CstgCrypto Tests', () => {
         sharedKey,
         plaintext
       );
-      try {
-        await decrypt(new Uint8Array(ciphertext), sharedKey, iv);
-      } catch (error: any) {
-        expect(error.message).toContain('The operation failed for an operation-specific reason');
-      }
+      await expect(decrypt(new Uint8Array(ciphertext), sharedKey, iv)).rejects.toHaveProperty(
+        'message',
+        'The operation failed for an operation-specific reason'
+      );
     });
   });
 
@@ -182,11 +180,7 @@ describe('uid2CstgCrypto Tests', () => {
   describe('#importPublicKey', () => {
     it('should reject invalid input', async () => {
       const invalidPublicKey = 'InvalidPublicKeyData';
-      try {
-        await importPublicKey(invalidPublicKey, 'P-256');
-      } catch (error: any) {
-        expect(error.message).toBe('Invalid keyData');
-      }
+      await expect(importPublicKey(invalidPublicKey, 'P-256')).rejects.toBeTruthy();
     });
   });
 
