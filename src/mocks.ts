@@ -41,14 +41,14 @@ type MockApiResponse = {
 };
 export const NAME_CURVE = 'P-256';
 
-type CstgKeyPair = {
+type MockedKeyBundleForDeriving = {
   clientPublicKey: ArrayBuffer;
   serverPrivateKey: CryptoKey;
 };
-async function deriveSharedKey(keyPair: CstgKeyPair): Promise<CryptoKey> {
+async function deriveSharedKey(keyBundle: MockedKeyBundleForDeriving): Promise<CryptoKey> {
   const importedPublicKey = await crypto.subtle.importKey(
     'spki',
-    keyPair.clientPublicKey,
+    keyBundle.clientPublicKey,
     { name: 'ECDH', namedCurve: NAME_CURVE },
     false,
     []
@@ -58,7 +58,7 @@ async function deriveSharedKey(keyPair: CstgKeyPair): Promise<CryptoKey> {
       name: 'ECDH',
       public: importedPublicKey,
     },
-    keyPair.serverPrivateKey,
+    keyBundle.serverPrivateKey,
     {
       name: 'AES-GCM',
       length: 256,
@@ -72,9 +72,9 @@ export async function decryptClientRequest(
   ciphertext: ArrayBuffer,
   iv: Uint8Array,
   additionalData: Uint8Array,
-  keyPair: CstgKeyPair
+  keyBundle: MockedKeyBundleForDeriving
 ): Promise<string> {
-  const sharedKey = await deriveSharedKey(keyPair);
+  const sharedKey = await deriveSharedKey(keyBundle);
   const decryptedData = await crypto.subtle.decrypt(
     {
       name: 'AES-GCM',
@@ -90,9 +90,9 @@ export async function decryptClientRequest(
 export async function encryptServerMessage(
   plaintext: string,
   iv: Uint8Array,
-  keyPair: CstgKeyPair
+  keyBundle: MockedKeyBundleForDeriving
 ): Promise<ArrayBuffer> {
-  const sharedKey = await deriveSharedKey(keyPair);
+  const sharedKey = await deriveSharedKey(keyBundle);
   const encoder = new TextEncoder();
   return crypto.subtle.encrypt(
     {
@@ -178,8 +178,11 @@ export class XhrMock {
     return this.sendApiResponse({ responseText: encryptedResponse });
   }
 
-  async sendEncryptedCSTGResponse(keyPair: CstgKeyPair, response: MockedCSTGResponse) {
-    const sharedKey = await deriveSharedKey(keyPair);
+  async sendEncryptedCSTGResponse(
+    keyBundle: MockedKeyBundleForDeriving,
+    response: MockedCSTGResponse
+  ) {
+    const sharedKey = await deriveSharedKey(keyBundle);
     const encryptedResponse = await generateEncryptedApiResponse(response, sharedKey);
     return this.sendApiResponse({ responseText: encryptedResponse });
   }
