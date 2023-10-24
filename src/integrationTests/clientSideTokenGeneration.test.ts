@@ -26,8 +26,6 @@ beforeAll(async () => {
 });
 
 beforeEach(() => {
-  uid2 = new UID2();
-  uid2.init({});
   xhrMock = new mocks.XhrMock(sdkWindow);
   mocks.setCookieMock(sdkWindow.document);
   removeUid2LocalStorage();
@@ -77,6 +75,11 @@ describe('Client-side token generation Tests', () => {
 
   scenarios.forEach((scenario) => {
     describe(scenario.name, () => {
+      beforeEach(() => {
+        uid2 = new UID2();
+        uid2.init({});
+      });
+
       describe('When invalid identity is provided', () => {
         test('should throw error', (done) => {
           uid2.callbacks.push(async (eventType: EventType) => {
@@ -121,6 +124,16 @@ describe('Client-side token generation Tests', () => {
             });
           });
 
+          test('should invoke the callback when token is generated', (done) => {
+            uid2.callbacks.push((eventType, payload) => {
+              if (eventType === EventType.IdentityUpdated) {
+                expect(payload.identity).toEqual(cstgToken);
+                done();
+              }
+            });
+            setIdentityInCallback();
+          });
+
           test('should set identity to storage', async () => {
             await setIdentityInCallback();
             expect(mocks.getUid2()).toEqual(cstgToken);
@@ -141,16 +154,6 @@ describe('Client-side token generation Tests', () => {
             jest.runOnlyPendingTimers();
             xhrMock.sendIdentityInEncodedResponse(refreshedToken, cstgToken.refresh_response_key);
             expect(await uid2!.getAdvertisingTokenAsync()).toBe(refreshedToken.advertising_token);
-          });
-
-          test('should invoke the callback when token is generated', (done) => {
-            uid2.callbacks.push((eventType, payload) => {
-              if (eventType === EventType.IdentityUpdated) {
-                expect(payload.identity).toEqual(cstgToken);
-                done();
-              }
-            });
-            setIdentityInCallback();
           });
         });
 
