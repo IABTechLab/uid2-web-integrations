@@ -39,8 +39,72 @@ type MockApiResponse = {
   status?: string;
   message?: string;
 };
+export const NAME_CURVE = 'P-256';
 
-const importRefreshKey = (refreshResponseKey: string) => {
+type MockedKeyBundleForDeriving = {
+  clientPublicKey: ArrayBuffer;
+  serverPrivateKey: CryptoKey;
+};
+async function deriveSharedKey(keyBundle: MockedKeyBundleForDeriving): Promise<CryptoKey> {
+  const importedPublicKey = await crypto.subtle.importKey(
+    'spki',
+    keyBundle.clientPublicKey,
+    { name: 'ECDH', namedCurve: NAME_CURVE },
+    false,
+    []
+  );
+  return await crypto.subtle.deriveKey(
+    {
+      name: 'ECDH',
+      public: importedPublicKey,
+    },
+    keyBundle.serverPrivateKey,
+    {
+      name: 'AES-GCM',
+      length: 256,
+    },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+export async function decryptClientRequest(
+  ciphertext: ArrayBuffer,
+  iv: Uint8Array,
+  additionalData: Uint8Array,
+  keyBundle: MockedKeyBundleForDeriving
+): Promise<string> {
+  const sharedKey = await deriveSharedKey(keyBundle);
+  const decryptedData = await crypto.subtle.decrypt(
+    {
+      name: 'AES-GCM',
+      iv,
+      additionalData,
+    },
+    sharedKey,
+    ciphertext
+  );
+  return String.fromCharCode(...new Uint8Array(decryptedData));
+}
+
+export async function encryptServerMessage(
+  plaintext: string,
+  iv: Uint8Array,
+  keyBundle: MockedKeyBundleForDeriving
+): Promise<ArrayBuffer> {
+  const sharedKey = await deriveSharedKey(keyBundle);
+  const encoder = new TextEncoder();
+  return crypto.subtle.encrypt(
+    {
+      name: 'AES-GCM',
+      iv: iv,
+    },
+    sharedKey,
+    encoder.encode(plaintext)
+  );
+}
+
+export const importRefreshKey = (refreshResponseKey: string) => {
   return crypto.subtle.importKey(
     'raw',
     base64ToBytes(refreshResponseKey),
@@ -50,11 +114,10 @@ const importRefreshKey = (refreshResponseKey: string) => {
   );
 };
 
-const encodeApiResponse = async (refreshResponse: MockApiResponse, refreshResponseKey: string) => {
-  const refreshKey = await importRefreshKey(refreshResponseKey);
+const generateEncryptedApiResponse = async (response: MockApiResponse, cryptoKey: CryptoKey) => {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const textEncoder = new TextEncoder();
-  const plaintext = textEncoder.encode(JSON.stringify(refreshResponse));
+  const plaintext = textEncoder.encode(JSON.stringify(response));
 
   const ciphertext = await crypto.subtle.encrypt(
     {
@@ -62,7 +125,7 @@ const encodeApiResponse = async (refreshResponse: MockApiResponse, refreshRespon
       iv,
       tagLength: 128,
     },
-    refreshKey,
+    cryptoKey,
     plaintext
   );
 
@@ -72,6 +135,12 @@ const encodeApiResponse = async (refreshResponse: MockApiResponse, refreshRespon
   combinedData.set(new Uint8Array(ciphertext), iv.length);
 
   return bytesToBase64(combinedData);
+};
+
+type MockedCSTGResponse = {
+  status?: 'success' | 'client_error' | 'invalid_http_origin';
+  body?: Uid2Identity;
+  message?: string;
 };
 
 export class XhrMock {
@@ -90,9 +159,9 @@ export class XhrMock {
   }
 
   async sendEncodedRefreshApiResponse(status: string, currentRefreshResponseToken: string) {
-    const encodedResponse = await encodeApiResponse({ status }, currentRefreshResponseToken);
-
-    return this.sendRefreshApiResponse({ responseText: encodedResponse });
+    const refreshKey = await importRefreshKey(currentRefreshResponseToken);
+    const encryptedResponse = await generateEncryptedApiResponse({ status }, refreshKey);
+    return this.sendApiResponse({ responseText: encryptedResponse });
   }
 
   async sendIdentityInEncodedResponse(
@@ -100,15 +169,25 @@ export class XhrMock {
     currentRefreshResponseToken: string,
     status?: string
   ) {
-    const encodedResponse = await encodeApiResponse(
+    const refreshKey = await importRefreshKey(currentRefreshResponseToken);
+    const encryptedResponse = await generateEncryptedApiResponse(
       { body: identity, status: status ?? 'success' },
-      currentRefreshResponseToken
+      refreshKey
     );
 
-    return this.sendRefreshApiResponse({ responseText: encodedResponse });
+    return this.sendApiResponse({ responseText: encryptedResponse });
   }
 
-  async sendRefreshApiResponse(response: MockXhrResponse) {
+  async sendEncryptedCSTGResponse(
+    keyBundle: MockedKeyBundleForDeriving,
+    response: MockedCSTGResponse
+  ) {
+    const sharedKey = await deriveSharedKey(keyBundle);
+    const encryptedResponse = await generateEncryptedApiResponse(response, sharedKey);
+    return this.sendApiResponse({ responseText: encryptedResponse });
+  }
+
+  async sendApiResponse(response: MockXhrResponse) {
     this.status = response.status || 200;
     this.responseText = response.responseText;
     this.onreadystatechange(new Event(''));
@@ -278,6 +357,15 @@ export function makeIdentityV2(overrides = {}) {
     refresh_from: Date.now() + 100000,
     identity_expires: Date.now() + 200000,
     refresh_expires: Date.now() + 300000,
+    ...(overrides || {}),
+  };
+}
+
+export function makeCstgOption(overrides?: any) {
+  return {
+    serverPublicKey:
+      'UID2-X-L-24B8a/eLYBmRkXA9yPgRZt+ouKbXewG2OPs23+ov3JC8mtYJBCx6AxGwJ4MlwUcguebhdDp2CvzsCgS9ogwwGA==',
+    subscriptionId: 'subscription-id',
     ...(overrides || {}),
   };
 }
