@@ -24,11 +24,9 @@
           },
           bids: [
             {
-              bidder: 'rubicon',
+              bidder: 'appnexus',
               params: {
-                accountId: '1001',
-                siteId: '113932',
-                zoneId: '535510',
+                placementId: 13144370,
               },
             },
           ],
@@ -44,10 +42,6 @@
       var pbjs = pbjs || {};
       pbjs.que = pbjs.que || [];
       pbjs.que.push(function () {
-        pbjs.addAdUnits(adUnits);
-        pbjs.requestBids({
-          bidsBackHandler: sendAdserverRequest,
-        });
         $(document).ready(onDocumentReady);
       });
 
@@ -94,39 +88,64 @@
       });
     </script>
     <script>
-      let callbackCounter = 0;
-
-      async function updateGuiElements() {
-        const uid2 = pbjs.getUserIds().uid2;
-        if (!uid2) {
-          window.location.replace('/login.html');
-        }
-        $('#advertising_token').text(String(uid2.id));
-        $('#update_counter').text(callbackCounter);
-      }
-
-      function onDocumentReady() {
+      function setUid2Config(email) {
+        const cstgParams = {
+          uid2ApiBase: '{{ UID2_BASE_URL }}',
+          subscriptionId: '{{ SUBSCRIPTION_ID }}',
+          serverPublicKey: '{{ SERVER_PUBLIC_KEY }}',
+        };
+        if (email) cstgParams.email = email;
         pbjs.setConfig({
           debug: true,
           userSync: {
             userIds: [
               {
                 name: 'uid2',
-                params: {
-                  uid2ApiBase: '{{ UID2_BASE_URL }}',
-                  subscriptionId: '{{ SUBSCRIPTION_ID }}',
-                  serverPublicKey: '{{ SERVER_PUBLIC_KEY }}',
-                },
+                params: cstgParams,
               },
             ],
+            syncDelay: 5000,
+            auctionDelay: 1000,
           },
-          syncDelay: 5000,
-          auctionDelay: 1000,
+        });
+      }
+
+      async function updateGuiElements() {
+        const uid2  = pbjs.getUserIds().uid2;
+        $('#targeted_advertising_ready').text(uid2 ? 'yes' : 'no');
+        $('#advertising_token').text(uid2 ? String(uid2.id) : '');
+        if (!uid2) {
+          $('#login_form').show();
+          $('#clear_storage_form').hide();
+        } else {
+          $('#login_form').hide();
+          $('#clear_storage_form').show();
+        }
+      }
+
+      async function handleLogin() {
+        const email = $('#email').val();
+          setUid2Config(email);
+          pbjs.refreshUserIds().then(() => {
+            updateGuiElements();
+          });
+      }
+
+      function handleClearStorage() {
+        localStorage.removeItem('__uid2_advertising_token');
+        location.reload();
+      }
+
+      function onDocumentReady() {
+        $('#login').click(handleLogin);
+        $('#clear_storage').click(handleClearStorage);
+
+        setUid2Config();
+        pbjs.addAdUnits(adUnits);
+        pbjs.requestBids({
+          bidsBackHandler: sendAdserverRequest,
         });
         updateGuiElements();
-        $('#logout').click(() => {
-          updateGuiElements(undefined);
-        });
       }
     </script>
   </head>
@@ -135,21 +154,39 @@
     <!-- TODO: Add introductory text here. -->
     <table id="uid2_state">
       <tr>
+        <td class="label">Ready for Targeted Advertising:</td>
+        <td class="value"><pre id="targeted_advertising_ready"></pre></td>
+      </tr>
+      <tr>
         <td class="label">UID2 Advertising Token:</td>
         <td class="value"><pre id="advertising_token"></pre></td>
       </tr>
-      <tr>
-        <td class="label">UID2 Identity Updated Counter:</td>
-        <td class="value"><pre id="update_counter"></pre></td>
-      </tr>
     </table>
-    <h4>Ad Slot</h4>
-    <div id="test-div" style="border: 1px solid #333; padding: 5px">
+    <div id="test-div">
       <script>
         googletag.cmd.push(function () {
           googletag.display('test-div');
         });
       </script>
+    </div>
+    <div id="login_form" style="display: none" class="form">
+      <div class="email_prompt">
+        <input
+          type="text"
+          id="email"
+          name="email"
+          placeholder="Enter an email address"
+          style="border-style: none"
+          value="test@example.com"
+        />
+      </div>
+      <div><button type="button" class="button" id="login">Log In</button></div>
+    </div>
+    <div id="clear_storage_form" style="display: none" class="form">
+      <form>
+        <button type="button" class="button" id="clear_storage">Clear Storage</button>
+      </form>
+    </div>
     </div>
   </body>
 </html>
