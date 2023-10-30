@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>UID2 Prebid.js CSTG Integration Example</title>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/app.css" />
+    <link rel="shortcut icon" href="/images/favicon.png" />
+    <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script defer src="/scripts/prebid.js"></script>
+    <script>
+      var FAILSAFE_TIMEOUT = 2000;
+
+      var adUnits = [
+        {
+          code: 'test-div',
+          mediaTypes: {
+            banner: {
+              sizes: [
+                [300, 250],
+                [300, 600],
+                [728, 90],
+              ],
+            },
+          },
+          bids: [
+            {
+              bidder: 'rubicon',
+              params: {
+                accountId: '1001',
+                siteId: '113932',
+                zoneId: '535510',
+              },
+            },
+          ],
+        },
+      ];
+
+      var googletag = googletag || {};
+      googletag.cmd = googletag.cmd || [];
+      googletag.cmd.push(function () {
+        googletag.pubads().disableInitialLoad();
+      });
+
+      var pbjs = pbjs || {};
+      pbjs.que = pbjs.que || [];
+      pbjs.que.push(function () {
+        pbjs.addAdUnits(adUnits);
+        pbjs.requestBids({
+          bidsBackHandler: sendAdserverRequest,
+        });
+        $(document).ready(onDocumentReady);
+      });
+
+      function sendAdserverRequest() {
+        if (pbjs.adserverRequestSent) return;
+        pbjs.adserverRequestSent = true;
+        googletag.cmd.push(function () {
+          pbjs.que.push(function () {
+            pbjs.setTargetingForGPTAsync();
+            googletag.pubads().refresh();
+          });
+        });
+      }
+
+      setTimeout(function () {
+        sendAdserverRequest();
+      }, FAILSAFE_TIMEOUT);
+    </script>
+    <script>
+      (function () {
+        var gads = document.createElement('script');
+        gads.async = true;
+        gads.type = 'text/javascript';
+        gads.src = 'https://securepubads.g.doubleclick.net/tag/js/gpt.js';
+        var node = document.getElementsByTagName('script')[0];
+        node.parentNode.insertBefore(gads, node);
+      })();
+    </script>
+    <script>
+      googletag.cmd.push(function () {
+        googletag
+          .defineSlot(
+            '/112115922/FL_PB_MedRect',
+            [
+              [300, 250],
+              [300, 600],
+              [728, 90],
+            ],
+            'test-div'
+          )
+          .addService(googletag.pubads());
+        googletag.pubads().enableSingleRequest();
+        googletag.enableServices();
+      });
+    </script>
+    <script>
+      let callbackCounter = 0;
+
+      async function updateGuiElements() {
+        const uid2 = pbjs.getUserIds().uid2;
+        if (!uid2) {
+          window.location.replace('/login.html');
+        }
+        $('#advertising_token').text(String(uid2.id));
+        $('#update_counter').text(callbackCounter);
+      }
+
+      function onDocumentReady() {
+        pbjs.setConfig({
+          debug: true,
+          userSync: {
+            userIds: [
+              {
+                name: 'uid2',
+                params: {
+                  uid2ApiBase: '{{ UID2_BASE_URL }}',
+                  subscriptionId: '{{ SUBSCRIPTION_ID }}',
+                  serverPublicKey: '{{ SERVER_PUBLIC_KEY }}',
+                },
+              },
+            ],
+          },
+          syncDelay: 5000,
+          auctionDelay: 1000,
+        });
+        updateGuiElements();
+        $('#logout').click(() => {
+          updateGuiElements(undefined);
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <h1>UID2 Prebid.js CSTG Integration Example</h1>
+    <!-- TODO: Add introductory text here. -->
+    <table id="uid2_state">
+      <tr>
+        <td class="label">UID2 Advertising Token:</td>
+        <td class="value"><pre id="advertising_token"></pre></td>
+      </tr>
+      <tr>
+        <td class="label">UID2 Identity Updated Counter:</td>
+        <td class="value"><pre id="update_counter"></pre></td>
+      </tr>
+    </table>
+    <h4>Ad Slot</h4>
+    <div id="test-div" style="border: 1px solid #333; padding: 5px">
+      <script>
+        googletag.cmd.push(function () {
+          googletag.display('test-div');
+        });
+      </script>
+    </div>
+  </body>
+</html>

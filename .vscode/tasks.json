@@ -45,6 +45,14 @@
       }
     },
     {
+      "label": "Build Prebid CSTG Image",
+      "type": "docker-build",
+      "dockerBuild": {
+        "context": "${workspaceFolder}/examples/prebid-cstg",
+        "tag": "uid2-prebid-cstg-example"
+      }
+    },
+    {
       "label": "Run CSTG Container",
       "type": "docker-run",
       "dependsOn": ["Build CSTG Image"],
@@ -67,6 +75,34 @@
         "env": {
           "UID2_BASE_URL": "http://localhost:8080",
           "UID2_JS_SDK_URL": "http://localhost:9091/uid2-sdk.js",
+          "SERVER_PUBLIC_KEY": "UID2-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtXJdTSZAYHvoRDWiehMHoWF1BNPuqLs5w2ZHiAZ1IJc7O4/z0ojPTB0V+KYX/wxQK0hxx6kxCvHj335eI/ZQsQ==",
+          "SUBSCRIPTION_ID": "4WvryDGbR5"
+        },
+        "remove": true
+      }
+    },
+    {
+      "label": "Run Prebid CSTG Container",
+      "type": "docker-run",
+      "dependsOn": ["Build Prebid CSTG Image"],
+      "dockerRun": {
+        "image": "uid2-prebid-cstg-example",
+        "containerName": "uid2-prebid-cstg-example",
+        "ports": [
+          {
+            "hostPort": 9090,
+            "containerPort": 80
+          }
+        ],
+        "volumes": [
+          {
+            "localPath": "${workspaceFolder}/examples/prebid-cstg/html",
+            "containerPath": "/usr/share/nginx/html",
+            "permissions": "ro"
+          }
+        ],
+        "env": {
+          "UID2_BASE_URL": "http://localhost:8080",
           "SERVER_PUBLIC_KEY": "UID2-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtXJdTSZAYHvoRDWiehMHoWF1BNPuqLs5w2ZHiAZ1IJc7O4/z0ojPTB0V+KYX/wxQK0hxx6kxCvHj335eI/ZQsQ==",
           "SUBSCRIPTION_ID": "4WvryDGbR5"
         },
@@ -102,6 +138,10 @@
       "dependsOn": ["webpack-dev-server", "Run CSTG Container"]
     },
     {
+      "label": "Start Prebid CSTG",
+      "dependsOn": ["Run Prebid CSTG Container"]
+    },
+    {
       "label": "Start ESP",
       "dependsOn": ["webpack-dev-server", "Run ESP Container"]
     },
@@ -109,6 +149,11 @@
       "label": "Terminate CSTG Container",
       "type": "shell",
       "command": "docker stop uid2-cstg-example"
+    },
+    {
+      "label": "Terminate Prebid CSTG Container",
+      "type": "shell",
+      "command": "docker stop uid2-prebid-cstg-example"
     },
     {
       "label": "Terminate ESP Container",
@@ -124,6 +169,10 @@
     {
       "label": "Terminate CSTG",
       "dependsOn": ["Terminate All Tasks", "Terminate CSTG Container"]
+    },
+    {
+      "label": "Terminate Prebid CSTG",
+      "dependsOn": ["Terminate All Tasks", "Terminate Prebid CSTG Container"]
     },
     {
       "label": "Terminate ESP",
