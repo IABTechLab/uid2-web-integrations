@@ -81,30 +81,12 @@ describe('Client-side token generation Tests', () => {
       });
 
       describe('When invalid identity is provided', () => {
-        test('should throw error', (done) => {
-          uid2.callbacks.push(async (eventType: EventType) => {
-            if (eventType === EventType.InitCompleted) {
-              try {
-                await scenario.setInvalidIdentity();
-              } catch (err) {
-                done();
-              }
-            }
-          });
+        test('should throw error', () => {
+          expect(scenario.setInvalidIdentity()).rejects.toBeInstanceOf(Error);
         });
       });
 
       describe('When valid identity is provided', () => {
-        const setIdentityInCallback = () => {
-          let setIdentityResultPromise;
-          const callback = async (eventType: EventType) => {
-            if (eventType === EventType.InitCompleted) {
-              setIdentityResultPromise = scenario.setIdentity(serverPublicKey);
-            }
-          };
-          uid2.callbacks.push(callback);
-          return setIdentityResultPromise;
-        };
         describe('when call cstg API succeeds', () => {
           const refreshFrom = Date.now() + 100;
           const cstgToken = mocks.makeIdentityV2({
@@ -131,21 +113,21 @@ describe('Client-side token generation Tests', () => {
                 done();
               }
             });
-            setIdentityInCallback();
+            scenario.setIdentity(serverPublicKey);
           });
 
           test('should set identity to storage', async () => {
-            await setIdentityInCallback();
+            await scenario.setIdentity(serverPublicKey);
             expect(mocks.getUid2()).toEqual(cstgToken);
           });
 
           test('UID2 should be in available state', async () => {
-            await setIdentityInCallback();
+            await scenario.setIdentity(serverPublicKey);
             (expect(uid2) as any).toBeInAvailableState(cstgToken.advertising_token);
           });
 
           test('should refresh token when generated token requires a refresh', async () => {
-            await setIdentityInCallback();
+            await scenario.setIdentity(serverPublicKey);
             const refreshedToken = {
               ...mocks.makeIdentityV2(),
               advertising_token: 'refreshed_token',
@@ -170,13 +152,13 @@ describe('Client-side token generation Tests', () => {
             });
           });
           test('should not set identity', async () => {
-            await expect(setIdentityInCallback()).rejects.toEqual(
+            await expect(scenario.setIdentity(serverPublicKey)).rejects.toEqual(
               'Client error: Here is a client error'
             );
             expect(mocks.getUid2()).toBeNull();
           });
           test('should be in unavailable state', async () => {
-            await expect(setIdentityInCallback()).rejects.toEqual(
+            await expect(scenario.setIdentity(serverPublicKey)).rejects.toEqual(
               'Client error: Here is a client error'
             );
             (expect(uid2) as any).toBeInUnavailableState();
