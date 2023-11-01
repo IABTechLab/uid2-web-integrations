@@ -5,8 +5,8 @@
     <title>UID2 Prebid.js CSTG Integration Example</title>
     <link rel="stylesheet" type="text/css" href="/stylesheets/app.css" />
     <link rel="shortcut icon" href="/images/favicon.png" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script async src="/scripts/prebid.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
       async function updateGuiElements() {
         const uid2  = pbjs.getUserIds().uid2;
@@ -97,7 +97,10 @@
   </head>
   <body>
     <h1>UID2 Prebid.js CSTG Integration Example</h1>
-    <!-- TODO: Add introductory text here. -->
+    <p class="intro">
+      This example demonstrates how a content publisher can use the <a href="https://unifiedid.com/docs/guides/integration-prebid">Prebid.js UID2 module</a>
+      to generate client-side UID2 advertising tokens.
+    </p>
     <table id="uid2_state">
       <tr>
         <td class="label">Ready for Targeted Advertising:</td>
