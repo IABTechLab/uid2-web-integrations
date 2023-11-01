@@ -90,7 +90,7 @@
         "containerName": "uid2-prebid-cstg-example",
         "ports": [
           {
-            "hostPort": 9090,
+            "hostPort": 9190,
             "containerPort": 80
           }
         ],

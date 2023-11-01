@@ -21,8 +21,7 @@
       "name": "Launch CSTG Prebid Integration (Chrome)",
       "type": "chrome",
       "request": "launch",
-      "url": "http://localhost:9090",
-      "runtimeArgs": ["--disable-web-security", "--user-data-dir"],
+      "url": "http://localhost:9190",
       "webRoot": "${workspaceRoot}/",
       "preLaunchTask": "Start Prebid CSTG",
       "postDebugTask": "Terminate Prebid CSTG"
