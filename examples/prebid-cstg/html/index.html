@@ -8,7 +8,7 @@
     <script async src="/scripts/prebid.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-      async function updateGuiElements() {
+      function updateGuiElements() {
         const uid2  = pbjs.getUserIds().uid2;
         $('#targeted_advertising_ready').text(uid2 ? 'yes' : 'no');
         $('#advertising_token').text(uid2 ? String(uid2.id) : '');
