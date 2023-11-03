@@ -18,6 +18,15 @@
       }
     },
     {
+      "name": "Launch CSTG Prebid Integration (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:9190",
+      "webRoot": "${workspaceRoot}/",
+      "preLaunchTask": "Start Prebid CSTG",
+      "postDebugTask": "Terminate Prebid CSTG"
+    },
+    {
       "name": "Launch ESP (Chrome)",
       "type": "chrome",
       "request": "launch",

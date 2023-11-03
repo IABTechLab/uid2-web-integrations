@@ -1,5 +1,13 @@
 {
-  "cSpell.words": ["googletag", "initialised", "initialising", "optout", "refreshable"],
+  "cSpell.words": [
+    "cstg",
+    "googletag",
+    "initialised",
+    "initialising",
+    "optout",
+    "pbjs",
+    "refreshable"
+  ],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
