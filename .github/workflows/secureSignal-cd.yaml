@@ -24,7 +24,7 @@ jobs:
         files: src/secureSignal.ts
   build:
     needs: [verify]
-    if: needs.verify.outputs.isAnyFileModified == 'true'
+    if: needs.verify.outputs.isAnyFileModified != 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
