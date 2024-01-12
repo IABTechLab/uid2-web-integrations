@@ -58,6 +58,8 @@ jobs:
     strategy:
       matrix:
         environment: [Integ, production]
+
+    environment: ${{ matrix.environment }}
             
     steps:
       - name: Configure AWS credentials
@@ -73,7 +75,7 @@ jobs:
       - name: debug
         shell: bash
         run: |
-          test=${{ vars.AWS_BUCKET_NAME }}
+          test=${{ secrets.AWS_BUCKET_NAME }}
           echo ${#test}
           test2=${{ vars.TEST_VAR }}
           echo ${#test2}
