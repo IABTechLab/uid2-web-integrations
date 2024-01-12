@@ -8,7 +8,6 @@ on:
 
 env:
   WORKING_DIR: ./
-  AWS_B_NAME: ${{ secrets.AWS_BUCKET_NAME }}
 
 jobs:
   verify:
@@ -55,8 +54,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-    env:
-      AWS_B_NAME2: ${{ secrets.AWS_BUCKET_NAME }}
     
     strategy:
       matrix:
@@ -76,13 +73,11 @@ jobs:
       - name: debug
         shell: bash
         run: |
-          printenv
-          test=${{ secrets.AWS_BUCKET_NAME }}
+          test=${{ vars.AWS_BUCKET_NAME }}
           echo ${#test}
-          test2=${{ env.AWS_B_NAME2 }}
+          test2=${{ vars.TEST_VAR }}
           echo ${#test2}
-          test3=${{ env.AWS_B_NAME }}
-          echo ${#test3}
+          printenv
 
       - uses: actions/checkout@v4
 
