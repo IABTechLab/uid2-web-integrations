@@ -23,10 +23,11 @@ runs:
     - uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.artifact }}
+        path: ./download
 
     - name: Deploy
       shell: bash
-      run: aws s3 sync . s3://${{ inputs.aws_bucket_name }}
+      run: aws s3 sync ./download s3://${{ inputs.aws_bucket_name }}
 
     - name: Invalidate CloudFront
       uses: chetan/invalidate-cloudfront-action@v2

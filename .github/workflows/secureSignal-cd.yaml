@@ -72,21 +72,12 @@ jobs:
         shell: bash
         run: aws sts get-caller-identity
 
-      - name: debug
-        shell: bash
-        run: |
-          test=${{ secrets.AWS_BUCKET_NAME }}
-          echo ${#test}
-          test2=${{ vars.TEST_VAR }}
-          echo ${#test2}
-          printenv
-
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/cdn_deployment_aws
         with: 
-          aws_bucket_name: ${{ secrets.AWS_BUCKET_NAME }}
           environment: ${{ matrix.environment }}
           artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
           invalidate_paths: '/uid2SecureSignal.js'
-          aws_distribution_id: "123" # secrets.AWS_DISTRIBUTION_ID }}
+          aws_bucket_name: ${{ secrets.AWS_BUCKET_NAME }}
+          aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
