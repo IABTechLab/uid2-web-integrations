@@ -55,13 +55,12 @@ jobs:
     permissions:
       id-token: write
 
-    env:
-      AWS_B_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-    
     strategy:
       matrix:
         environment: [Integ, production]
-    
+    env:
+      AWS_B_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+            
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -76,6 +75,7 @@ jobs:
       - name: debug
         shell: bash
         run: |
+          printenv
           test=${{ secrets.AWS_BUCKET_NAME }}
           echo ${#test}
           test2=${{ env.AWS_B_NAME }}
