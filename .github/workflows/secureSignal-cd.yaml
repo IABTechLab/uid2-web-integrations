@@ -1,4 +1,4 @@
-name: UID2 Secure Signal CD
+name: Release UID2 Secure Signal Package to CDN
 
 on:
   push:
@@ -10,8 +10,10 @@ env:
   WORKING_DIR: ./
 
 jobs:
+  permissions:
+    id-token: write
   verify:
-    if: "!startsWith(github.event.head_commit.message, 'bump:')"
+    if: !startsWith(github.event.head_commit.message, 'bump:')
     uses: ./.github/workflows/verify-file-changed.yml
     with:
       files: src/secureSignal.ts
@@ -46,13 +48,23 @@ jobs:
     strategy:
       matrix:
         environment: [Integ, production]
-    uses: ./.github/workflows/aws-cdn-deployment.yml
-    with:
-      environment: ${{ matrix.environment }}
-      artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
-      invalidate_paths: '/uid2SecureSignal.js'
-    secrets:
-      AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
+    
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-2
+          role-to-assume: arn:aws:iam::475720075663:role/github-runner-for-cdn
+    
+      - name: Check Identity
+        shell: bash
+        run: aws sts get-caller-identity
+
+      - uses: ./.github/actions/cdn_deployment_cdn
+        with: 
+          environment: ${{ matrix.environment }}
+          artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
+          invalidate_paths: '/uid2SecureSignal.js'
+        secrets:
+          AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+          AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}

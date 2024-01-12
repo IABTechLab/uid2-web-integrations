@@ -1,0 +1,30 @@
+name: CDN Deployment for AWS
+description: Deploys to AWS CDN and optionally invalidates the path in CloudFront
+inputs:
+  environment:
+    description: Environment to deploy to
+    default: 'Integ'
+  artifact:
+    description: Name of the artifact
+    required: true
+  invalidate_paths:
+    description: paths that get invlidate in cloud front
+    default: ''
+runs:
+  using: "composite"
+
+  steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.artifact }}
+
+    - name: Deploy
+      shell: bash
+      run: aws s3 sync . s3://${{ secrets.AWS_BUCKET_NAME }}
+
+    - name: Invalidate CloudFront
+      uses: chetan/invalidate-cloudfront-action@v2
+      env:
+        DISTRIBUTION: ${{ secrets.AWS_DISTRIBUTION_ID }}
+        PATHS: ${{ inputs.invalidate_paths }}
+        AWS_REGION: us-east-2
