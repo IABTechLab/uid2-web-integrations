@@ -10,10 +10,7 @@ env:
   WORKING_DIR: ./
 
 jobs:
-  permissions:
-    id-token: write
   verify:
-    if: !startsWith(github.event.head_commit.message, 'bump:')
     uses: ./.github/workflows/verify-file-changed.yml
     with:
       files: src/secureSignal.ts
@@ -43,8 +40,13 @@ jobs:
         with:
           name: ${{ matrix.target }}SecureSignalScript
           path: ./dist/uid2SecureSignal.js
+  
   deployment:
     needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
     strategy:
       matrix:
         environment: [Integ, production]
@@ -65,6 +67,6 @@ jobs:
           environment: ${{ matrix.environment }}
           artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
           invalidate_paths: '/uid2SecureSignal.js'
-        secrets:
-          AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-          AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
+        #secrets:
+        #  AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+        #  AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
