@@ -54,6 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
+      contents: read
 
     strategy:
       matrix:
@@ -70,12 +71,18 @@ jobs:
         shell: bash
         run: aws sts get-caller-identity
 
+      - name: debug
+        shell: bash
+        run: |
+          test=${{ secrets.AWS_BUCKET_NAME }}
+          echo ${#test}
+
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/cdn_deployment_aws
         with: 
+          aws_bucket_name: ${{ secrets.AWS_BUCKET_NAME }}
           environment: ${{ matrix.environment }}
           artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
           invalidate_paths: '/uid2SecureSignal.js'
           aws_distribution_id: "123" # secrets.AWS_DISTRIBUTION_ID }}
-          aws_bucket_name: "123" # secrets.AWS_BUCKET_NAME }}
