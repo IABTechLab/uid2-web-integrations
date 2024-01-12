@@ -8,6 +8,7 @@ on:
 
 env:
   WORKING_DIR: ./
+  AWS_B_NAME: ${{ secrets.AWS_BUCKET_NAME }}
 
 jobs:
   verify:
@@ -54,12 +55,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-
+    env:
+      AWS_B_NAME2: ${{ secrets.AWS_BUCKET_NAME }}
+    
     strategy:
       matrix:
         environment: [Integ, production]
-    env:
-      AWS_B_NAME: ${{ secrets.AWS_BUCKET_NAME }}
             
     steps:
       - name: Configure AWS credentials
@@ -78,8 +79,10 @@ jobs:
           printenv
           test=${{ secrets.AWS_BUCKET_NAME }}
           echo ${#test}
-          test2=${{ env.AWS_B_NAME }}
+          test2=${{ env.AWS_B_NAME2 }}
           echo ${#test2}
+          test3=${{ env.AWS_B_NAME }}
+          echo ${#test3}
 
       - uses: actions/checkout@v4
 
