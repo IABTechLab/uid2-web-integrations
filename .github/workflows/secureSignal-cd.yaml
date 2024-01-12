@@ -70,7 +70,7 @@ jobs:
         shell: bash
         run: aws sts get-caller-identity
 
-      - uses: ./.github/actions/cdn_deployment_cdn
+      - uses: ./.github/actions/cdn_deployment_aws
         with: 
           environment: ${{ matrix.environment }}
           artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
