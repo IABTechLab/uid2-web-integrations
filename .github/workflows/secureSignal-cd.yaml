@@ -70,6 +70,8 @@ jobs:
         shell: bash
         run: aws sts get-caller-identity
 
+      - uses: actions/checkout@v4
+
       - uses: ./.github/actions/cdn_deployment_aws
         with: 
           environment: ${{ matrix.environment }}
