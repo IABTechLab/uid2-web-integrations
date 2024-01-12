@@ -10,6 +10,12 @@ inputs:
   invalidate_paths:
     description: paths that get invlidate in cloud front
     default: ''
+  aws_distribution_id:
+    description: The CloudFront description id
+    required: true
+  aws_bucket_name:
+    description: The AWS bucket to sync
+    required: true
 runs:
   using: "composite"
 
@@ -20,11 +26,11 @@ runs:
 
     - name: Deploy
       shell: bash
-      run: aws s3 sync . s3://${{ secrets.AWS_BUCKET_NAME }}
+      run: aws s3 sync . s3://${{ inputs.aws_bucket_name }}
 
     - name: Invalidate CloudFront
       uses: chetan/invalidate-cloudfront-action@v2
       env:
-        DISTRIBUTION: ${{ secrets.AWS_DISTRIBUTION_ID }}
+        DISTRIBUTION: ${{ inputs.aws_distribution_id }}
         PATHS: ${{ inputs.invalidate_paths }}
         AWS_REGION: us-east-2
