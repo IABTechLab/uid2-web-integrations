@@ -54,8 +54,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      contents: read
 
+    env:
+      AWS_B_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+    
     strategy:
       matrix:
         environment: [Integ, production]
@@ -76,6 +78,8 @@ jobs:
         run: |
           test=${{ secrets.AWS_BUCKET_NAME }}
           echo ${#test}
+          test2=${{ env.AWS_B_NAME }}
+          echo ${#test2}
 
       - uses: actions/checkout@v4
 
