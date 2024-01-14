@@ -62,16 +62,6 @@ jobs:
     environment: ${{ matrix.environment }}
             
     steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-2
-          role-to-assume: arn:aws:iam::475720075663:role/github-runner-for-cdn
-    
-      - name: Check Identity
-        shell: bash
-        run: aws sts get-caller-identity
-
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/cdn_deployment_aws
