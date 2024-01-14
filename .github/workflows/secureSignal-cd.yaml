@@ -79,5 +79,5 @@ jobs:
           environment: ${{ matrix.environment }}
           artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
           invalidate_paths: '/uid2SecureSignal.js'
-          aws_bucket_name: ${{ secrets.AWS_BUCKET_NAME }}
+          aws_bucket_name: ${{ vars.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
