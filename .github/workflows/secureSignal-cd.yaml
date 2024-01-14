@@ -72,11 +72,6 @@ jobs:
         shell: bash
         run: aws sts get-caller-identity
 
-      - name: Debug
-        shell: bash
-        run: |
-          echo '${{ secrets.AWS_BUCKET_NAME }}' | base64
-
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/cdn_deployment_aws
