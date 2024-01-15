@@ -81,8 +81,7 @@ jobs:
       - uses: ./.github/actions/cdn_deployment_aws
         with: 
           environment: ${{ matrix.environment }}
-          artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}SecureSignalScript
+          artifact: uid2SDK-${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
           invalidate_paths: '/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js'
           aws_bucket_name: ${{ vars.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
-
