@@ -14,7 +14,7 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     outputs:
-      isAnyFileModified: ${{ steps.verify.outputs.any_modified }}
+      is_any_file_modified: ${{ steps.verify.outputs.any_modified }}
     steps:
     - uses: actions/checkout@v4
 
@@ -25,7 +25,7 @@ jobs:
         files: src/secureSignal.ts
   build:
     needs: [verify]
-    if: needs.verify.outputs.isAnyFileModified == 'true'
+    if: needs.verify.outputs.is_any_file_modified == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -58,7 +58,7 @@ jobs:
     
     strategy:
       matrix:
-        environment: [Integ, production]
+        environment: [integ, production]
 
     environment: ${{ matrix.environment }}
             
@@ -68,7 +68,7 @@ jobs:
       - uses: ./.github/actions/cdn_deployment_aws
         with: 
           environment: ${{ matrix.environment }}
-          artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
+          artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}SecureSignalScript
           invalidate_paths: '/uid2SecureSignal.js'
           aws_bucket_name: ${{ vars.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}

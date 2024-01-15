@@ -4,10 +4,10 @@ run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre
 on:
   workflow_dispatch:
     inputs:
-      withTag:
+      with_tag:
         description: By default, running npm publish will tag your package with the latest dist-tag. To use another dist-tag, please add tag here
         required: false
-      publishToNPM:
+      publish_to_npm:
         type: boolean
         description: Publish package to NPM
         required: false
@@ -41,7 +41,7 @@ jobs:
     outputs:
       sdkVersion: ${{ steps.version.outputs.package_version }}
   publish-package:
-    if: github.event.inputs.publishToNPM == 'true'
+    if: github.event.inputs.publish_to_npm == 'true'
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -54,13 +54,13 @@ jobs:
       - name: Build package
         run: npm run build-package
       - name: Publish Latest package
-        if: ${{!github.event.inputs.withTag}}
+        if: ${{!github.event.inputs.with_tag}}
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish Latest package with tag
-        if: ${{github.event.inputs.withTag}}
-        run: npm publish --tag ${{github.event.inputs.withTag}}
+        if: ${{github.event.inputs.with_tag}}
+        run: npm publish --tag ${{github.event.inputs.with_tag}}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   cdn-deployment:
@@ -71,7 +71,7 @@ jobs:
 
     strategy:
       matrix:
-        environment: [Integ, production]
+        environment: [integ, production]
 
     environment: ${{ matrix.environment }}
 
@@ -81,7 +81,7 @@ jobs:
       - uses: ./.github/actions/cdn_deployment_aws
         with: 
           environment: ${{ matrix.environment }}
-          artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
+          artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}SecureSignalScript
           invalidate_paths: '/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js'
           aws_bucket_name: ${{ vars.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}

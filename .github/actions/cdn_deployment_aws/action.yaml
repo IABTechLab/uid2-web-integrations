@@ -3,12 +3,12 @@ description: Deploys to AWS CDN and optionally invalidates the path in CloudFron
 inputs:
   environment:
     description: Environment to deploy to
-    default: 'Integ'
+    default: 'integ'
   artifact:
     description: Name of the artifact
     required: true
   invalidate_paths:
-    description: paths that get invlidate in cloud front
+    description: paths that get invalidated in cloud front
     default: ''
   aws_distribution_id:
     description: The CloudFront description id
