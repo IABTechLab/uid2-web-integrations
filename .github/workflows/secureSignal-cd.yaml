@@ -1,4 +1,5 @@
 name: Release UID2 Secure Signal Package to CDN
+run-name: ${{ github.action_ref == 'refs/head/main' && 'Publish Pre-release' || 'Release' }} UID2 Secure Signal Package to CDN by @${{ github.actor }}  
 
 on:
   push:
