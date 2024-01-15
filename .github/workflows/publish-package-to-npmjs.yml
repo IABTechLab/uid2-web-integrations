@@ -1,4 +1,6 @@
-name: Publish SDK to NPM and CDN
+name: Release SDK Package to NPM and CDN
+run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} SDK Package to NPM and CDN by @${{ github.actor }}  
+
 on:
   workflow_dispatch:
     inputs:
@@ -6,6 +8,7 @@ on:
         description: By default, running npm publish will tag your package with the latest dist-tag. To use another dist-tag, please add tag here
         required: false
       publishToNPM:
+        type: boolean
         description: Publish package to NPM
         required: false
         default: true
@@ -62,16 +65,24 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   cdn-deployment:
     needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
     strategy:
       matrix:
         environment: [Integ, production]
-    uses: ./.github/workflows/aws-cdn-deployment.yml
-    with:
-      environment: ${{ matrix.environment }}
-      artifact: uid2SDK-${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
-      invalidate_paths: '/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js'
-    secrets:
-      AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
+
+    environment: ${{ matrix.environment }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/cdn_deployment_aws
+        with: 
+          environment: ${{ matrix.environment }}
+          artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
+          invalidate_paths: '/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js'
+          aws_bucket_name: ${{ vars.S3_BUCKET }}
+          aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+
