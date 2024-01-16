@@ -53,6 +53,8 @@ jobs:
       - run: npm ci
       - name: Build package
         run: npm run build-package
+      - name: npm login
+        run: npm login
       - name: Publish Latest package
         if: ${{!github.event.inputs.with_tag}}
         run: npm publish --access public
