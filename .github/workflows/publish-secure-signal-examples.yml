@@ -1,4 +1,6 @@
-name: Publish Secure Signal Examples
+name: Release Secure Signal Examples Docker Image
+run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} Secure Signal Examples Docker Image by @${{ github.actor }}  
+
 on:
   workflow_dispatch:
 

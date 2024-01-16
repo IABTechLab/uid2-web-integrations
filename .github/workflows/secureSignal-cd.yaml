@@ -1,4 +1,5 @@
-name: UID2 Secure Signal CD
+name: Release UID2 Secure Signal Package to CDN
+run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} UID2 Secure Signal Package to CDN by @${{ github.actor }}  
 
 on:
   push:
@@ -11,13 +12,20 @@ env:
 
 jobs:
   verify:
-    if: "!startsWith(github.event.head_commit.message, 'bump:')"
-    uses: ./.github/workflows/verify-file-changed.yml
-    with:
-      files: src/secureSignal.ts
+    runs-on: ubuntu-latest
+    outputs:
+      is_any_file_modified: ${{ steps.verify.outputs.any_modified }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Check for change to src/secureSignal.ts
+      id: verify
+      uses: tj-actions/changed-files@v41
+      with:
+        files: src/secureSignal.ts
   build:
     needs: [verify]
-    if: needs.verify.outputs.isAnyFileModified == 'true'
+    if: needs.verify.outputs.is_any_file_modified == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -26,9 +34,9 @@ jobs:
         target: [development, production]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -37,22 +45,30 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build:esp -- --mode=${{ matrix.target }}
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}SecureSignalScript
           path: ./dist/uid2SecureSignal.js
+  
   deployment:
     needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    
     strategy:
       matrix:
-        environment: [Integ, production]
-    uses: ./.github/workflows/aws-cdn-deployment.yml
-    with:
-      environment: ${{ matrix.environment }}
-      artifact: ${{ (matrix.environment == 'Integ' && 'development') || matrix.environment }}SecureSignalScript
-      invalidate_paths: '/uid2SecureSignal.js'
-    secrets:
-      AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
+        environment: [integ, production]
+
+    environment: ${{ matrix.environment }}
+            
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/cdn_deployment_aws
+        with: 
+          environment: ${{ matrix.environment }}
+          artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}SecureSignalScript
+          invalidate_paths: '/uid2SecureSignal.js'
+          aws_bucket_name: ${{ vars.S3_BUCKET }}
+          aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}

@@ -1,4 +1,5 @@
-name: Publish CSTG Example
+name: Publish CSTG Example Docker Image
+run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} CSTG Example Docker Image by @${{ github.actor }}
 
 on:
   workflow_dispatch:
