@@ -21,9 +21,9 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
         target: [development, production]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: Get Package Version
@@ -45,22 +45,22 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '18.x'
-          #registry-url: 'https://registry.npmjs.org'
+          registry-url: 'https://registry.npmjs.org'
       - run: npm ci
       - name: Build package
         run: npm run build-package
       - name: Publish Latest package
         if: ${{!github.event.inputs.with_tag}}
-        run: npm publish
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish Latest package with tag
         if: ${{github.event.inputs.with_tag}}
-        run: npm publish --tag ${{github.event.inputs.with_tag}}
+        run: npm publish --tag ${{github.event.inputs.with_tag}} --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   cdn-deployment:
