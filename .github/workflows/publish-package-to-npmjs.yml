@@ -50,11 +50,10 @@ jobs:
         with:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
+          scope: uid2
       - run: npm ci
       - name: Build package
         run: npm run build-package
-      - name: npm login
-        run: npm login
       - name: Publish Latest package
         if: ${{!github.event.inputs.with_tag}}
         run: npm publish --access public
