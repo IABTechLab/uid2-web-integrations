@@ -27,14 +27,14 @@
       "postDebugTask": "Terminate Prebid CSTG"
     },
     {
-      "name": "Launch ESP (Chrome)",
+      "name": "Launch Secure Signals (Chrome)",
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:9090",
       "webRoot": "${workspaceRoot}/",
       "sourceMaps": true,
-      "preLaunchTask": "Start ESP",
-      "postDebugTask": "Terminate ESP",
+      "preLaunchTask": "Start Secure Signals",
+      "postDebugTask": "Terminate Secure Signals",
       "sourceMapPathOverrides": {
         "webpack://@uid2/uid2-sdk/./*": "${webRoot}/*"
       }

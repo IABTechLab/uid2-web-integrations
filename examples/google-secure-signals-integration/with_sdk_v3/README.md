@@ -1,4 +1,4 @@
-# UID2 SDK ESP Integration Example
+# UID2 SDK Secure Signals Integration Example
 
 This example demonstrates how a content publisher who is working with [Google Interactive Media Ads(IMA) SDKs](https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side) can use [Google Secure Signal](https://support.google.com/admanager/answer/10488752) and the [Client-Side Identity JavaScript SDK](https://github.com/IABTechLab/uid2docs/blob/main/api/v2/sdks/client-side-identity.md) (also known as the UID2 SDK) to share UID2 directly with bidders, in an implementation that uses this SDK.
 
@@ -22,7 +22,7 @@ The easiest way to try the example is to do the following:
    UID2_JS_SDK_URL=http://localhost:9091/uid2-sdk.js
    ```
 1. Click the Run and Debug tab or hit `Crtl+Shift+D`
-1. Select `Launch ESP (Chrome)` from the configuration dropdown
+1. Select `Launch Secure Signals (Chrome)` from the configuration dropdown
 1. Click `Start Debugging` or hit F5
 
 ### Running the Docker commands manually

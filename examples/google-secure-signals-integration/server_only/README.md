@@ -1,4 +1,4 @@
-# Server-Only UID2 ESP Integration Example
+# Server-Only UID2 Secure Signals Integration Example
 
 This example demonstrates how a content publisher who is working with [Google Interactive Media Ads(IMA) SDKs](https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side) can use [Google Secure Signal](https://support.google.com/admanager/answer/10488752) to share UID2 directly with bidders, in a server-only implementation of UID2.
 
