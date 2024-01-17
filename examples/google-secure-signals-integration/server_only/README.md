@@ -11,14 +11,14 @@ For an example application using the [Client-Side Identity JavaScript SDK](https
 The easiest way to try the example is to use the following Docker Build command:
 
 ```
-docker build . -t uid2-esp-server
+docker build . -t uid2-secure-signals-server
 docker run -it --rm -p 3000:3000 \
     -e UID2_BASE_URL="https://operator-integ.uidapi.com" \
     -e UID2_API_KEY="<your-integ-API-key>" \
     -e UID2_CLIENT_SECRET="<your-integ-client-secret>" \
     -e SESSION_KEY="<your-uid2-session-key>" \
     -e AD_TAG_URL="<your-IMA-ad-tag-url>" \
-    uid2-esp-server
+    uid2-secure-signals-server
 ```
 
 The following table lists the environment variables that you must specify to start the application.
