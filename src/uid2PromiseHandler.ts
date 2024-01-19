@@ -1,4 +1,4 @@
-import { UID2 } from './uid2Sdk';
+import { UID2SdkBase } from './uid2Sdk';
 import { EventType, Uid2CallbackPayload } from './uid2CallbackManager';
 import { Uid2ApiClient } from './uid2ApiClient';
 
@@ -54,7 +54,7 @@ export class UID2PromiseHandler {
   public registerApiClient(apiClient: Uid2ApiClient) {
     this._apiClient = apiClient;
   }
-  constructor(uid2Sdk: UID2) {
+  constructor(uid2Sdk: UID2SdkBase) {
     uid2Sdk.callbacks.push(this._handleEvent.bind(this));
   }
 }

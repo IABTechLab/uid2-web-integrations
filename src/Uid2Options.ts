@@ -1,3 +1,4 @@
+import { Logger } from './sdk/logger';
 import { Uid2ApiClientOptions } from './uid2ApiClient';
 import { UID2CookieOptions } from './uid2CookieManager';
 import { Uid2Identity } from './Uid2Identity';
@@ -11,6 +12,7 @@ type BaseUid2Options = {
   refreshRetryPeriod?: number;
   identity?: Uid2Identity;
   useCookie?: boolean;
+  logger?: Logger;
 };
 
 export function isUID2OptionsOrThrow(maybeOpts: Uid2Options | unknown): maybeOpts is Uid2Options {

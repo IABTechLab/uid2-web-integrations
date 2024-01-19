@@ -2,6 +2,7 @@ import { version } from '../package.json';
 import { Uid2Identity } from './Uid2Identity';
 import { IdentityStatus, notifyInitCallback } from './Uid2InitCallbacks';
 import { Uid2Options, isUID2OptionsOrThrow } from './Uid2Options';
+import { Logger, MakeLogger } from './sdk/logger';
 import { Uid2ApiClient } from './uid2ApiClient';
 import { bytesToBase64 } from './uid2Base64';
 import { EventType, Uid2CallbackHandler, Uid2CallbackManager } from './uid2CallbackManager';
@@ -18,14 +19,13 @@ function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
 }
 
-let postUid2CreateCallback: null | (() => void) = null;
+type CallbackContainer = { callback?: () => void };
 
-export class UID2 {
+type Product = 'UID2' | 'EUID';
+
+export abstract class UID2SdkBase {
   static get VERSION() {
     return version;
-  }
-  static get COOKIE_NAME() {
-    return '__uid_2';
   }
   static get DEFAULT_REFRESH_RETRY_PERIOD_MS() {
     return 5000;
@@ -33,19 +33,11 @@ export class UID2 {
   static IdentityStatus = IdentityStatus;
   static EventType = EventType;
 
-  static setupGoogleTag() {
-    UID2.setupGoogleSecureSignals();
-  }
-
-  static setupGoogleSecureSignals() {
-    if (window.__uid2SecureSignalProvider)
-      window.__uid2SecureSignalProvider.registerSecureSignalProvider();
-  }
-
   // Push functions to this array to receive event notifications
   public callbacks: Uid2CallbackHandler[] = [];
 
   // Dependencies initialised on construction
+  private _logger: Logger;
   private _tokenPromiseHandler: UID2PromiseHandler;
   private _callbackManager: Uid2CallbackManager;
 
@@ -54,15 +46,22 @@ export class UID2 {
   private _apiClient: Uid2ApiClient | undefined;
 
   // State
+  private _product: Product;
   private _opts: Uid2Options = {};
   private _identity: Uid2Identity | null | undefined;
   private _initComplete = false;
 
-  constructor(existingCallbacks: Uid2CallbackHandler[] | undefined = undefined) {
+  constructor(
+    existingCallbacks: Uid2CallbackHandler[] | undefined = undefined,
+    callbackContainer: CallbackContainer,
+    product: Product
+  ) {
+    this._product = product;
+    this._logger = MakeLogger(console, product);
     if (existingCallbacks) this.callbacks = existingCallbacks;
 
     this._tokenPromiseHandler = new UID2PromiseHandler(this);
-    this._callbackManager = new Uid2CallbackManager(this, () => this.getIdentity());
+    this._callbackManager = new Uid2CallbackManager(this, () => this.getIdentity(), this._logger);
     const runCallbacks = () => {
       this._callbackManager.runCallbacks(EventType.SdkLoaded, {});
     };
@@ -70,7 +69,7 @@ export class UID2 {
       runCallbacks();
     } else {
       // Need to defer running callbacks until this is assigned to the window global
-      postUid2CreateCallback = runCallbacks;
+      callbackContainer.callback = runCallbacks;
     }
   }
 
@@ -155,12 +154,12 @@ export class UID2 {
   }
 
   public disconnect() {
-    this.abort(`UID2 SDK disconnected.`);
+    this.abort(`${this._product} SDK disconnected.`);
     // Note: This silently fails to clear the cookie if init hasn't been called and a cookieDomain is used!
     if (this._storageManager) this._storageManager.removeValues();
     else new UID2StorageManager({}).removeValues();
     this._identity = undefined;
-    this._callbackManager.runCallbacks(UID2.EventType.IdentityUpdated, {
+    this._callbackManager.runCallbacks(EventType.IdentityUpdated, {
       identity: null,
     });
   }
@@ -168,7 +167,9 @@ export class UID2 {
   // Note: This doesn't invoke callbacks. It's a hard, silent reset.
   public abort(reason?: string) {
     this._initComplete = true;
-    this._tokenPromiseHandler.rejectAllPromises(reason ?? new Error(`UID2 SDK aborted.`));
+    this._tokenPromiseHandler.rejectAllPromises(
+      reason ?? new Error(`${this._product} SDK aborted.`)
+    );
     if (this._refreshTimerId) {
       clearTimeout(this._refreshTimerId);
       this._refreshTimerId = null;
@@ -186,7 +187,7 @@ export class UID2 {
       throw new TypeError('Calling init() more than once is not allowed');
     }
     if (!isUID2OptionsOrThrow(opts))
-      throw new TypeError(`Options provided to UID2 init couldn't be validated.`);
+      throw new TypeError(`Options provided to ${this._product} init couldn't be validated.`);
 
     this._opts = opts;
     this._storageManager = new UID2StorageManager({ ...opts });
@@ -237,7 +238,7 @@ export class UID2 {
       return {
         valid: false,
         errorMessage: 'Identity not available',
-        status: UID2.IdentityStatus.NO_IDENTITY,
+        status: IdentityStatus.NO_IDENTITY,
         identity: null,
       };
     }
@@ -312,7 +313,8 @@ export class UID2 {
       this._opts,
       status ?? validity.status,
       statusText ?? validity.errorMessage,
-      this.getAdvertisingToken()
+      this.getAdvertisingToken(),
+      this._logger
     );
     return validity.identity;
   }
@@ -372,7 +374,7 @@ export class UID2 {
           }
         },
         (reason) => {
-          console.warn(`Encountered an error refreshing the UID2 token`, reason);
+          this._logger.warn(`Encountered an error refreshing the token`, reason);
           this.validateAndSetIdentity(identity);
           if (!hasExpired(identity.refresh_expires, Date.now())) this.setRefreshTimer();
         }
@@ -381,7 +383,7 @@ export class UID2 {
         () => {
           this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
         },
-        (reason) => console.warn(`UID2 callbacks on identity event failed.`, reason)
+        (reason) => this._logger.warn(`Callbacks on identity event failed.`, reason)
       );
   }
 
@@ -401,6 +403,31 @@ export class UID2 {
   }
 }
 
+export class UID2 extends UID2SdkBase {
+  get product() {
+    return 'UID2';
+  }
+  static get COOKIE_NAME() {
+    return '__uid_2';
+  }
+
+  static setupGoogleTag() {
+    UID2.setupGoogleSecureSignals();
+  }
+
+  static setupGoogleSecureSignals() {
+    if (window.__uid2SecureSignalProvider)
+      window.__uid2SecureSignalProvider.registerSecureSignalProvider();
+  }
+
+  constructor(
+    existingCallbacks: Uid2CallbackHandler[] | undefined = undefined,
+    callbackContainer: CallbackContainer = {}
+  ) {
+    super(existingCallbacks, callbackContainer, 'UID2');
+  }
+}
+
 type UID2Setup = {
   callbacks: Uid2CallbackHandler[] | undefined;
 };
@@ -412,8 +439,9 @@ declare global {
 
 export function __uid2InternalHandleScriptLoad() {
   const callbacks = window?.__uid2?.callbacks || [];
-  window.__uid2 = new UID2(callbacks);
-  if (postUid2CreateCallback) postUid2CreateCallback();
+  const callbackContainer: CallbackContainer = {};
+  window.__uid2 = new UID2(callbacks, callbackContainer);
+  if (callbackContainer.callback) callbackContainer.callback();
 }
 __uid2InternalHandleScriptLoad();
 
