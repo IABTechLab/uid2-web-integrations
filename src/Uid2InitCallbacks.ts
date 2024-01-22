@@ -1,3 +1,5 @@
+import { Logger } from './sdk/logger';
+
 export type InitCallbackPayload = {
   advertisingToken?: string;
   advertising_token?: string;
@@ -23,7 +25,8 @@ export function notifyInitCallback(
   options: InitCallbackOptions,
   status: IdentityStatus,
   statusText: string,
-  advertisingToken: string | undefined
+  advertisingToken: string | undefined,
+  logger: Logger
 ) {
   if (options.callback) {
     const payload = {
@@ -35,7 +38,7 @@ export function notifyInitCallback(
     try {
       options.callback(payload);
     } catch (exception) {
-      console.warn('UID2 init callback threw an exception', exception);
+      logger.warn('SDK init callback threw an exception', exception);
     }
   }
 }
