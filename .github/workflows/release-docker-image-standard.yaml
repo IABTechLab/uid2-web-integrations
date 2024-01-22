@@ -1,0 +1,34 @@
+name: Release UID2 Web Integration Image for Standard
+run-name: ${{ inputs.release_type == 'Snapshot' && 'Publish Pre-release' || format('Release {0}', inputs.release_type)}} UID2 Web Integration Image for Standard by @${{ github.actor }}  
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        type: choice
+        description: 'The type of release'
+        options:
+        - Major
+        - Minor
+        - Patch
+        - Snapshot
+  pull_request:
+
+jobs:
+  incrementVersionNumber:
+    uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-increase-version-number.yaml@kcc-UID2-2674-implement-shared-publish-to-docker-versioned
+    with:
+      release_type: ${{ inputs.release_type }}
+      working_dir: examples/google-esp-integration/with_sdk_v3
+    secrets: inherit
+
+  publishForESPExampleJssdk:
+    uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-publish-to-docker-versioned.yaml@v2
+    needs: incrementVersionNumber
+    with: 
+      new_version: ${{ needs.incrementVersionNumber.outputs.new_version }}
+      image_tag: ${{ needs.incrementVersionNumber.outputs.image_tag }}
+      release_type: ${{ inputs.release_type }}
+      docker_file: examples/google-esp-integration/with_sdk_v3/Dockerfile
+      docker_image_name: iabtechlab/uid2-esp-example-jssdk
+      docker_registry: ghcr.io
+    secrets: inherit
