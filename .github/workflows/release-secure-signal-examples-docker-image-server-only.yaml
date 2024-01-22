@@ -22,13 +22,14 @@ jobs:
     secrets: inherit
 
   publishForESPExampleSrvOnly:
-    uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-publish-to-docker-versioned.yaml@v2
+    uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-publish-to-docker-versioned.yaml@kcc-UID2-2674-implement-shared-publish-to-docker-versioned
     needs: incrementVersionNumber
     with: 
       new_version: ${{ needs.incrementVersionNumber.outputs.new_version }}
       image_tag: ${{ needs.incrementVersionNumber.outputs.image_tag }}
       release_type: ${{ inputs.release_type }}
-      docker_file: examples/google-esp-integration/server_only/Dockerfile
+      docker_file: Dockerfile
+      docker_context: examples/google-esp-integration/server_only
       docker_image_name: iabtechlab/uid2-esp-example-srvonly
       docker_registry: ghcr.io
     secrets: inherit
