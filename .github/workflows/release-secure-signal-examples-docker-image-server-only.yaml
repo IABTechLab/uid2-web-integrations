@@ -11,6 +11,7 @@ on:
         - Minor
         - Patch
         - Snapshot
+        required: true
 
 jobs:
   incrementVersionNumber:
