@@ -1,4 +1,4 @@
-# UID2 SDK ESP Integration Example
+# UID2 SDK Secure Signals Integration Example
 
 This example demonstrates how a content publisher who is working with [Google Interactive Media Ads(IMA) SDKs](https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side) can use [Google Secure Signal](https://support.google.com/admanager/answer/10488752) and the [Client-Side Identity JavaScript SDK](https://github.com/IABTechLab/uid2docs/blob/main/api/v2/sdks/client-side-identity.md) (also known as the UID2 SDK) to share UID2 directly with bidders, in an implementation that uses this SDK.
 
@@ -22,7 +22,7 @@ The easiest way to try the example is to do the following:
    UID2_JS_SDK_URL=http://localhost:9091/uid2-sdk.js
    ```
 1. Click the Run and Debug tab or hit `Crtl+Shift+D`
-1. Select `Launch ESP (Chrome)` from the configuration dropdown
+1. Select `Launch Secure Signals (Chrome)` from the configuration dropdown
 1. Click `Start Debugging` or hit F5
 
 ### Running the Docker commands manually
@@ -30,14 +30,14 @@ The easiest way to try the example is to do the following:
 The other way to try the example is to use the following Docker Build command. First, open this folder in your terminal, then run the following:
 
 ```
-docker build . -t uid2-esp-standard
+docker build . -t uid2-secure-signals-standard
 docker run -it --rm -p 3000:3000 `
     -e UID2_BASE_URL="https://operator-integ.uidapi.com" `
     -e UID2_API_KEY="<your-integ-API-key>" `
     -e UID2_CLIENT_SECRET="<your-integ-client-secret>" `
     -e AD_TAG_URL="https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/extrernal/adx-test-tag&tfcd=0&npa=0&sz=640x480&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=" `
     -e UID2_JS_SDK_URL="<your-JS-SDK-URL>" `
-    uid2-esp-standard
+    uid2-secure-signals-standard
 ```
 
 The following table lists the environment variables that you must specify to start the application.
