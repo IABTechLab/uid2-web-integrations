@@ -1,5 +1,6 @@
-import { UID2 } from './uid2Sdk';
+import { UID2SdkBase } from './uid2Sdk';
 import { Uid2Identity } from './Uid2Identity';
+import { Logger } from './sdk/logger';
 
 export enum EventType {
   InitCompleted = 'InitCompleted',
@@ -17,14 +18,20 @@ type PayloadWithIdentity = {
 
 export class Uid2CallbackManager {
   private _getIdentity: () => Uid2Identity | null | undefined;
-  private _uid2: UID2;
-  constructor(uid2: UID2, getIdentity: () => Uid2Identity | null | undefined) {
+  private _logger: Logger;
+  private _sdk: UID2SdkBase;
+  constructor(
+    sdk: UID2SdkBase,
+    getIdentity: () => Uid2Identity | null | undefined,
+    logger: Logger
+  ) {
+    this._logger = logger;
     this._getIdentity = getIdentity;
-    this._uid2 = uid2;
-    this._uid2.callbacks.push = this.callbackPushInterceptor.bind(this);
+    this._sdk = sdk;
+    this._sdk.callbacks.push = this.callbackPushInterceptor.bind(this);
   }
 
-  private static _sentSdkLoaded = false;
+  private static _sentSdkLoaded = false; //TODO: This needs to be fixed for EUID!
   private _sentInit = false;
   private callbackPushInterceptor(...args: Uid2CallbackHandler[]) {
     for (const c of args) {
@@ -34,7 +41,7 @@ export class Uid2CallbackManager {
           identity: this._getIdentity() ?? null,
         });
     }
-    return Array.prototype.push.apply(this._uid2.callbacks, args);
+    return Array.prototype.push.apply(this._sdk.callbacks, args);
   }
 
   public runCallbacks(event: EventType, payload: Uid2CallbackPayload) {
@@ -46,7 +53,7 @@ export class Uid2CallbackManager {
       ...payload,
       identity: this._getIdentity() ?? null,
     };
-    for (const callback of this._uid2.callbacks) {
+    for (const callback of this._sdk.callbacks) {
       this.safeRunCallback(callback, event, enrichedPayload);
     }
   }
@@ -59,10 +66,10 @@ export class Uid2CallbackManager {
       try {
         callback(event, payload);
       } catch (exception) {
-        console.warn('UID2 callback threw an exception', exception);
+        this._logger.warn('SDK callback threw an exception', exception);
       }
     } else {
-      console.warn("A UID2 SDK callback was supplied which isn't a function.");
+      this._logger.warn("An SDK callback was supplied which isn't a function.");
     }
   }
 }
