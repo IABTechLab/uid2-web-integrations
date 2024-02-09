@@ -125,10 +125,10 @@ export abstract class UID2SdkBase {
 
   // Deprecated
   public isLoginRequired() {
-    return this.isSetIdentityRequired();
+    return this.hasIdentity();
   }
 
-  public isSetIdentityRequired() {
+  public hasIdentity() {
     if (!this._initComplete) return undefined;
     return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
   }
