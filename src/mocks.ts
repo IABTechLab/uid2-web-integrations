@@ -2,9 +2,10 @@ import * as jsdom from 'jsdom';
 import { Cookie } from 'tough-cookie';
 import { UID2 } from './uid2Sdk';
 import { Uid2Identity } from './Uid2Identity';
-import { localStorageKeyName } from './uid2LocalStorageManager';
-import { base64ToBytes, bytesToBase64 } from './uid2Base64';
+import { base64ToBytes, bytesToBase64 } from './encoding/uid2Base64';
 import * as crypto from 'crypto';
+
+const uid2LocalStorageKeyName = 'UID2-sdk-identity';
 
 export class CookieMock {
   jar: jsdom.CookieJar;
@@ -311,16 +312,16 @@ export function getUid2Cookie() {
 }
 
 export function removeUid2LocalStorage() {
-  localStorage.removeItem(localStorageKeyName);
+  localStorage.removeItem(uid2LocalStorageKeyName);
 }
 
 export function setUid2LocalStorage(identity: any) {
   const value = JSON.stringify(identity);
-  localStorage.setItem(localStorageKeyName, value);
+  localStorage.setItem(uid2LocalStorageKeyName, value);
 }
 
 export function getUid2LocalStorage() {
-  const value = localStorage.getItem(localStorageKeyName);
+  const value = localStorage.getItem(uid2LocalStorageKeyName);
   return value !== null ? JSON.parse(value) : null;
 }
 

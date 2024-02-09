@@ -1,6 +1,6 @@
 {
   "name": "@uid2/uid2-sdk",
-  "version": "3.2.0",
+  "version": "4.0.0",
   "description": "UID2 Client SDK",
   "main": "lib/uid2Sdk.js",
   "types": "lib/uid2Sdk.d.ts",
@@ -9,6 +9,11 @@
   ],
   "author": "The Trade Desk",
   "license": "Apache 2.0",
+  "wallaby": {
+    "delays": {
+      "run": 1000
+    }
+  },
   "scripts": {
     "lint": "eslint -c .eslintrc.js . ../static/js/uid2-sdk-2.0.0.js ../static/js/uid2-sdk-1.0.0.js",
     "test": "jest",

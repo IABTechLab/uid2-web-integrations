@@ -4,7 +4,7 @@ import { IdentityStatus, notifyInitCallback } from './Uid2InitCallbacks';
 import { Uid2Options, isUID2OptionsOrThrow } from './Uid2Options';
 import { Logger, MakeLogger } from './sdk/logger';
 import { Uid2ApiClient } from './uid2ApiClient';
-import { bytesToBase64 } from './uid2Base64';
+import { bytesToBase64 } from './encoding/uid2Base64';
 import { EventType, Uid2CallbackHandler, Uid2CallbackManager } from './uid2CallbackManager';
 import {
   ClientSideIdentityOptions,
@@ -14,6 +14,7 @@ import { isNormalizedPhone, normalizeEmail } from './uid2DiiNormalization';
 import { isBase64Hash } from './uid2HashedDii';
 import { UID2PromiseHandler } from './uid2PromiseHandler';
 import { UID2StorageManager } from './uid2StorageManager';
+import { hashAndEncodeIdentifier } from './encoding/hash';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -21,7 +22,13 @@ function hasExpired(expiry: number, now = Date.now()) {
 
 type CallbackContainer = { callback?: () => void };
 
-type Product = 'UID2' | 'EUID';
+type ProductName = 'UID2' | 'EUID';
+type ProductDetails = {
+  name: ProductName;
+  cookieName: string;
+  localStorageKey: string;
+  defaultBaseUrl: string;
+};
 
 export abstract class UID2SdkBase {
   static get VERSION() {
@@ -39,38 +46,29 @@ export abstract class UID2SdkBase {
   // Dependencies initialised on construction
   private _logger: Logger;
   private _tokenPromiseHandler: UID2PromiseHandler;
-  private _callbackManager: Uid2CallbackManager;
+  protected _callbackManager: Uid2CallbackManager;
 
   // Dependencies initialised on call to init due to requirement for options
   private _storageManager: UID2StorageManager | undefined;
   private _apiClient: Uid2ApiClient | undefined;
 
   // State
-  private _product: Product;
+  private _product: ProductDetails;
   private _opts: Uid2Options = {};
   private _identity: Uid2Identity | null | undefined;
   private _initComplete = false;
 
-  constructor(
+  // Sets up nearly everything, but does not run SdkLoaded callbacks - derived classes must run them.
+  protected constructor(
     existingCallbacks: Uid2CallbackHandler[] | undefined = undefined,
-    callbackContainer: CallbackContainer,
-    product: Product
+    product: ProductDetails
   ) {
     this._product = product;
-    this._logger = MakeLogger(console, product);
+    this._logger = MakeLogger(console, product.name);
     if (existingCallbacks) this.callbacks = existingCallbacks;
 
     this._tokenPromiseHandler = new UID2PromiseHandler(this);
     this._callbackManager = new Uid2CallbackManager(this, () => this.getIdentity(), this._logger);
-    const runCallbacks = () => {
-      this._callbackManager.runCallbacks(EventType.SdkLoaded, {});
-    };
-    if (window.__uid2 instanceof UID2) {
-      runCallbacks();
-    } else {
-      // Need to defer running callbacks until this is assigned to the window global
-      callbackContainer.callback = runCallbacks;
-    }
   }
 
   public init(opts: Uid2Options) {
@@ -90,7 +88,7 @@ export abstract class UID2SdkBase {
       throw new Error('Invalid email address');
     }
 
-    const emailHash = await UID2.hash(email);
+    const emailHash = await hashAndEncodeIdentifier(email);
     await this.callCstgAndSetIdentity({ emailHash: emailHash }, opts);
   }
 
@@ -103,29 +101,6 @@ export abstract class UID2SdkBase {
     }
 
     await this.callCstgAndSetIdentity({ emailHash: emailHash }, opts);
-  }
-
-  public async setIdentityFromPhone(phone: string, opts: ClientSideIdentityOptions) {
-    this.throwIfInitNotComplete('Cannot set identity before calling init.');
-    isClientSideIdentityOptionsOrThrow(opts);
-
-    if (!isNormalizedPhone(phone)) {
-      throw new Error('Invalid phone number');
-    }
-
-    const phoneHash = await UID2.hash(phone);
-    await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
-  }
-
-  public async setIdentityFromPhoneHash(phoneHash: string, opts: ClientSideIdentityOptions) {
-    this.throwIfInitNotComplete('Cannot set identity before calling init.');
-    isClientSideIdentityOptionsOrThrow(opts);
-
-    if (!isBase64Hash(phoneHash)) {
-      throw new Error('Invalid hash');
-    }
-
-    await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
   }
 
   public setIdentity(identity: Uid2Identity) {
@@ -148,16 +123,26 @@ export abstract class UID2SdkBase {
     return this._tokenPromiseHandler.createMaybeDeferredPromise(token ?? null);
   }
 
+  // Deprecated
   public isLoginRequired() {
+    return this.isSetIdentityRequired();
+  }
+
+  public isSetIdentityRequired() {
     if (!this._initComplete) return undefined;
     return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
   }
 
   public disconnect() {
-    this.abort(`${this._product} SDK disconnected.`);
+    this.abort(`${this._product.name} SDK disconnected.`);
     // Note: This silently fails to clear the cookie if init hasn't been called and a cookieDomain is used!
     if (this._storageManager) this._storageManager.removeValues();
-    else new UID2StorageManager({}).removeValues();
+    else
+      new UID2StorageManager(
+        {},
+        this._product.cookieName,
+        this._product.localStorageKey
+      ).removeValues();
     this._identity = undefined;
     this._callbackManager.runCallbacks(EventType.IdentityUpdated, {
       identity: null,
@@ -168,7 +153,7 @@ export abstract class UID2SdkBase {
   public abort(reason?: string) {
     this._initComplete = true;
     this._tokenPromiseHandler.rejectAllPromises(
-      reason ?? new Error(`${this._product} SDK aborted.`)
+      reason ?? new Error(`${this._product.name} SDK aborted.`)
     );
     if (this._refreshTimerId) {
       clearTimeout(this._refreshTimerId);
@@ -177,21 +162,20 @@ export abstract class UID2SdkBase {
     if (this._apiClient) this._apiClient.abortActiveRequests();
   }
 
-  private static async hash(value: string) {
-    const hash = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
-    return bytesToBase64(new Uint8Array(hash));
-  }
-
   private initInternal(opts: Uid2Options | unknown) {
     if (this._initComplete) {
       throw new TypeError('Calling init() more than once is not allowed');
     }
     if (!isUID2OptionsOrThrow(opts))
-      throw new TypeError(`Options provided to ${this._product} init couldn't be validated.`);
+      throw new TypeError(`Options provided to ${this._product.name} init couldn't be validated.`);
 
     this._opts = opts;
-    this._storageManager = new UID2StorageManager({ ...opts });
-    this._apiClient = new Uid2ApiClient(opts);
+    this._storageManager = new UID2StorageManager(
+      { ...opts },
+      this._product.cookieName,
+      this._product.localStorageKey
+    );
+    this._apiClient = new Uid2ApiClient(opts, this._product.defaultBaseUrl, this._product.name);
     this._tokenPromiseHandler.registerApiClient(this._apiClient);
 
     let identity;
@@ -387,7 +371,7 @@ export abstract class UID2SdkBase {
       );
   }
 
-  private async callCstgAndSetIdentity(
+  protected async callCstgAndSetIdentity(
     request: { emailHash: string } | { phoneHash: string },
     opts: ClientSideIdentityOptions
   ) {
@@ -396,7 +380,7 @@ export abstract class UID2SdkBase {
     this.setIdentity(cstgResult.identity);
   }
 
-  private throwIfInitNotComplete(message: string) {
+  protected throwIfInitNotComplete(message: string) {
     if (!this._initComplete) {
       throw new Error(message);
     }
@@ -404,11 +388,17 @@ export abstract class UID2SdkBase {
 }
 
 export class UID2 extends UID2SdkBase {
-  get product() {
-    return 'UID2';
-  }
+  // Deprecated. Integrators should never access the cookie directly!
   static get COOKIE_NAME() {
     return '__uid_2';
+  }
+  private static get Uid2Details(): ProductDetails {
+    return {
+      name: 'UID2',
+      defaultBaseUrl: 'https://prod.uidapi.com',
+      localStorageKey: 'UID2-sdk-identity',
+      cookieName: UID2.COOKIE_NAME,
+    };
   }
 
   static setupGoogleTag() {
@@ -424,7 +414,39 @@ export class UID2 extends UID2SdkBase {
     existingCallbacks: Uid2CallbackHandler[] | undefined = undefined,
     callbackContainer: CallbackContainer = {}
   ) {
-    super(existingCallbacks, callbackContainer, 'UID2');
+    super(existingCallbacks, UID2.Uid2Details);
+    const runCallbacks = () => {
+      this._callbackManager.runCallbacks(EventType.SdkLoaded, {});
+    };
+    if (window.__uid2 instanceof UID2) {
+      runCallbacks();
+    } else {
+      // Need to defer running callbacks until this is assigned to the window global
+      callbackContainer.callback = runCallbacks;
+    }
+  }
+
+  public async setIdentityFromPhone(phone: string, opts: ClientSideIdentityOptions) {
+    this.throwIfInitNotComplete('Cannot set identity before calling init.');
+    isClientSideIdentityOptionsOrThrow(opts);
+
+    if (!isNormalizedPhone(phone)) {
+      throw new Error('Invalid phone number');
+    }
+
+    const phoneHash = await hashAndEncodeIdentifier(phone);
+    await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
+  }
+
+  public async setIdentityFromPhoneHash(phoneHash: string, opts: ClientSideIdentityOptions) {
+    this.throwIfInitNotComplete('Cannot set identity before calling init.');
+    isClientSideIdentityOptionsOrThrow(opts);
+
+    if (!isBase64Hash(phoneHash)) {
+      throw new Error('Invalid hash');
+    }
+
+    await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
   }
 }
 

@@ -4,6 +4,7 @@
     "googletag",
     "initialised",
     "initialising",
+    "IUID",
     "optout",
     "pbjs",
     "refreshable"
@@ -11,7 +12,7 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "editor.tabSize": 2
 }
