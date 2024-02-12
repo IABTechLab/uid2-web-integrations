@@ -135,7 +135,7 @@ export class Uid2ApiClient {
     this._requestsInFlight.push(req);
     req.overrideMimeType('text/plain');
     req.open('POST', url, true);
-    req.setRequestHeader('X-UID2-Client-Version', this._clientVersion); // TODO: EUID
+    req.setRequestHeader('X-UID2-Client-Version', this._clientVersion); // N.B. EUID and UID2 currently both use the same header
     let resolvePromise: (result: RefreshResult) => void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let rejectPromise: (reason?: any) => void;

@@ -20,10 +20,10 @@ function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
 }
 
-type CallbackContainer = { callback?: () => void };
+export type CallbackContainer = { callback?: () => void };
 
-type ProductName = 'UID2' | 'EUID';
-type ProductDetails = {
+export type ProductName = 'UID2' | 'EUID';
+export type ProductDetails = {
   name: ProductName;
   cookieName: string;
   localStorageKey: string;
@@ -68,7 +68,12 @@ export abstract class UID2SdkBase {
     if (existingCallbacks) this.callbacks = existingCallbacks;
 
     this._tokenPromiseHandler = new UID2PromiseHandler(this);
-    this._callbackManager = new Uid2CallbackManager(this, () => this.getIdentity(), this._logger);
+    this._callbackManager = new Uid2CallbackManager(
+      this,
+      this._product.name,
+      () => this.getIdentity(),
+      this._logger
+    );
   }
 
   public init(opts: Uid2Options) {
@@ -450,7 +455,7 @@ export class UID2 extends UID2SdkBase {
   }
 }
 
-type UID2Setup = {
+export type UID2Setup = {
   callbacks: Uid2CallbackHandler[] | undefined;
 };
 declare global {
