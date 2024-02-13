@@ -1,4 +1,3 @@
-import { UID2 } from './uid2Sdk';
 import { isValidIdentity, Uid2Identity } from './Uid2Identity';
 
 export type UID2CookieOptions = {
@@ -34,8 +33,9 @@ function enrichIdentity(identity: LegacyUid2SDKCookie, now: number) {
 
 export class UID2CookieManager {
   private _opts: UID2CookieOptions;
-  private _cookieName: string = UID2.COOKIE_NAME;
-  constructor(opts: UID2CookieOptions) {
+  private _cookieName: string;
+  constructor(opts: UID2CookieOptions, cookieName: string) {
+    this._cookieName = cookieName;
     this._opts = opts;
   }
   public setCookie(identity: Uid2Identity) {

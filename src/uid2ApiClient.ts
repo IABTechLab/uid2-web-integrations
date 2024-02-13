@@ -1,9 +1,9 @@
-import { UID2 } from './uid2Sdk';
+import { UID2SdkBase } from './uid2Sdk';
 import { isValidIdentity, Uid2Identity } from './Uid2Identity';
 import { UID2CstgBox } from './uid2CstgBox';
 import { exportPublicKey } from './uid2CstgCrypto';
 import { ClientSideIdentityOptions, stripPublicKeyPrefix } from './uid2ClientSideIdentityOptions';
-import { base64ToBytes, bytesToBase64 } from './uid2Base64';
+import { base64ToBytes, bytesToBase64 } from './encoding/uid2Base64';
 
 export type RefreshResultWithoutIdentity = {
   status: ResponseStatusWithoutBody;
@@ -100,10 +100,12 @@ export type Uid2ApiClientOptions = {
 export class Uid2ApiClient {
   private _baseUrl: string;
   private _clientVersion: string;
+  private _productName: string;
   private _requestsInFlight: XMLHttpRequest[] = [];
-  constructor(opts: Uid2ApiClientOptions) {
-    this._baseUrl = opts.baseUrl ?? 'https://prod.uidapi.com';
-    this._clientVersion = 'uid2-sdk-' + UID2.VERSION;
+  constructor(opts: Uid2ApiClientOptions, defaultBaseUrl: string, productName: string) {
+    this._baseUrl = opts.baseUrl ?? defaultBaseUrl;
+    this._productName = productName;
+    this._clientVersion = productName.toLowerCase() + '-sdk-' + UID2SdkBase.VERSION;
   }
 
   public hasActiveRequests() {
@@ -133,7 +135,7 @@ export class Uid2ApiClient {
     this._requestsInFlight.push(req);
     req.overrideMimeType('text/plain');
     req.open('POST', url, true);
-    req.setRequestHeader('X-UID2-Client-Version', this._clientVersion);
+    req.setRequestHeader('X-UID2-Client-Version', this._clientVersion); // TODO: EUID
     let resolvePromise: (result: RefreshResult) => void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let rejectPromise: (reason?: any) => void;
@@ -181,10 +183,10 @@ export class Uid2ApiClient {
                       if (typeof result === 'string') rejectPromise(result);
                       else resolvePromise(result);
                     },
-                    (reason) => rejectPromise(`Call to UID2 API failed: ` + reason)
+                    (reason) => rejectPromise(`Call to ${this._productName} API failed: ` + reason)
                   );
               },
-              (reason) => rejectPromise(`Call to UID2 API failed: ` + reason)
+              (reason) => rejectPromise(`Call to ${this._productName} API failed: ` + reason)
             );
         }
       } catch (err) {

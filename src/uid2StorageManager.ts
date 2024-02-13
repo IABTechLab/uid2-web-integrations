@@ -8,10 +8,10 @@ export class UID2StorageManager {
   private _localStorageManager: UID2LocalStorageManager;
 
   private _opts: Uid2Options;
-  constructor(opts: Uid2Options) {
+  constructor(opts: Uid2Options, cookieName: string, localStorageKey: string) {
     this._opts = opts;
-    this._cookieManager = new UID2CookieManager({ ...opts });
-    this._localStorageManager = new UID2LocalStorageManager();
+    this._cookieManager = new UID2CookieManager({ ...opts }, cookieName);
+    this._localStorageManager = new UID2LocalStorageManager(localStorageKey);
   }
 
   public loadIdentityWithFallback(): Uid2Identity | null {

@@ -1,4 +1,4 @@
-import { bytesToBase64 } from '../uid2Base64';
+import { bytesToBase64 } from '../encoding/uid2Base64';
 import { isBase64Hash } from '../uid2HashedDii';
 
 describe('#isBase64Hash tests', () => {

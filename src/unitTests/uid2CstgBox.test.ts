@@ -1,5 +1,5 @@
 import { NAME_CURVE, decryptClientRequest, encryptServerMessage, makeIdentityV2 } from '../mocks';
-import { bytesToBase64 } from '../uid2Base64';
+import { bytesToBase64 } from '../encoding/uid2Base64';
 import { UID2CstgBox } from '../uid2CstgBox';
 import { exportPublicKey } from '../uid2CstgCrypto';
 

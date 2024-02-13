@@ -1,4 +1,4 @@
-import { bytesToBase64 } from '../uid2Base64';
+import { bytesToBase64 } from '../encoding/uid2Base64';
 import {
   decrypt,
   deriveKey,
