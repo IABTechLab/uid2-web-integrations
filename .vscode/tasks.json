@@ -37,11 +37,11 @@
       }
     },
     {
-      "label": "Build ESP Image",
+      "label": "Build Secure Signals Image",
       "type": "docker-build",
       "dockerBuild": {
-        "context": "${workspaceFolder}/examples/google-esp-integration/with_sdk_v3",
-        "tag": "uid2-esp-example"
+        "context": "${workspaceFolder}/examples/google-secure-signals-integration/with_sdk_v3",
+        "tag": "uid2-secure-signals-example"
       }
     },
     {
@@ -110,12 +110,12 @@
       }
     },
     {
-      "label": "Run ESP Container",
+      "label": "Run Secure Signals Container",
       "type": "docker-run",
-      "dependsOn": ["Build ESP Image"],
+      "dependsOn": ["Build Secure Signals Image"],
       "dockerRun": {
-        "image": "uid2-esp-example",
-        "containerName": "uid2-esp-example",
+        "image": "uid2-secure-signals-example",
+        "containerName": "uid2-secure-signals-example",
         "ports": [
           {
             "hostPort": 9090,
@@ -124,12 +124,12 @@
         ],
         "volumes": [
           {
-            "localPath": "${workspaceFolder}/examples/google-esp-integration/with_sdk_v3/views",
+            "localPath": "${workspaceFolder}/examples/google-secure-signals-integration/with_sdk_v3/views",
             "containerPath": "/usr/src/app/views",
             "permissions": "ro"
           }
         ],
-        "envFiles": ["${workspaceFolder}/examples/google-esp-integration/with_sdk_v3/.env"],
+        "envFiles": ["${workspaceFolder}/examples/google-secure-signals-integration/with_sdk_v3/.env"],
         "remove": true
       }
     },
@@ -142,8 +142,8 @@
       "dependsOn": ["Run Prebid CSTG Container"]
     },
     {
-      "label": "Start ESP",
-      "dependsOn": ["webpack-dev-server", "Run ESP Container"]
+      "label": "Start Secure Signals",
+      "dependsOn": ["webpack-dev-server", "Run Secure Signals Container"]
     },
     {
       "label": "Terminate CSTG Container",
@@ -156,9 +156,9 @@
       "command": "docker stop uid2-prebid-cstg-example"
     },
     {
-      "label": "Terminate ESP Container",
+      "label": "Terminate Secure Signals Container",
       "type": "shell",
-      "command": "docker stop uid2-esp-example"
+      "command": "docker stop uid2-secure-signals-example"
     },
     {
       "label": "Terminate All Tasks",
@@ -175,8 +175,8 @@
       "dependsOn": ["Terminate All Tasks", "Terminate Prebid CSTG Container"]
     },
     {
-      "label": "Terminate ESP",
-      "dependsOn": ["Terminate All Tasks", "Terminate ESP Container"]
+      "label": "Terminate Secure Signals",
+      "dependsOn": ["Terminate All Tasks", "Terminate Secure Signals Container"]
     }
   ],
   "inputs": [

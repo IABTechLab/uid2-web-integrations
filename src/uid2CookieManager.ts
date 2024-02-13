@@ -1,4 +1,3 @@
-import { UID2 } from './uid2Sdk';
 import { isValidIdentity, Uid2Identity } from './Uid2Identity';
 
 export type UID2CookieOptions = {

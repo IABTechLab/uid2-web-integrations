@@ -4,7 +4,6 @@ import { IdentityStatus, notifyInitCallback } from './Uid2InitCallbacks';
 import { Uid2Options, isUID2OptionsOrThrow } from './Uid2Options';
 import { Logger, MakeLogger } from './sdk/logger';
 import { Uid2ApiClient } from './uid2ApiClient';
-import { bytesToBase64 } from './encoding/uid2Base64';
 import { EventType, Uid2CallbackHandler, Uid2CallbackManager } from './uid2CallbackManager';
 import {
   ClientSideIdentityOptions,
@@ -128,7 +127,9 @@ export abstract class UID2SdkBase {
     return this._tokenPromiseHandler.createMaybeDeferredPromise(token ?? null);
   }
 
-  // Deprecated
+  /**
+   * Deprecated
+   */
   public isLoginRequired() {
     return this.hasIdentity();
   }

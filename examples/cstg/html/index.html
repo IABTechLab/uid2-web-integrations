@@ -1,8 +1,8 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>UID2 Publisher Standard Integration Example</title>
+    <title>UID2 Publisher Server-Side Integration Example</title>
     <link rel="stylesheet" type="text/css" href="/stylesheets/app.css" />
     <link rel="shortcut icon" href="/images/favicon.png" />
     <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -19,7 +19,7 @@
         $('#targeted_advertising_ready').text(__uid2.getAdvertisingToken() ? 'yes' : 'no');
         $('#advertising_token').text(String(__uid2.getAdvertisingToken()));
         $('#login_required').text(
-          __uid2.isLoginRequired() || __uid2.isLoginRequired() === undefined ? 'yes' : 'no',
+          __uid2.isLoginRequired() || __uid2.isLoginRequired() === undefined ? 'yes' : 'no'
         );
         $('#update_counter').text(callbackCounter);
         $('#identity_state').text(String(JSON.stringify(state, null, 2)));
@@ -75,7 +75,7 @@
     </script>
   </head>
   <body>
-    <h1>UID2 SDK Integration Example</h1>
+    <h1>Server-Side Integration Example, UID2 JavaScript SDK</h1>
     <!-- TODO: Add introductory text here. -->
     <table id="uid2_state">
       <tr>

@@ -25,14 +25,14 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/iabtechlab/uid2-esp-example-srvonly
+          images: ${{ env.REGISTRY }}/iabtechlab/uid2-secure-signals-example-srvonly
           tags: |
             type=sha,format=short
             type=raw,value=latest
       - name: Build and push Docker server_only image
         uses: docker/build-push-action@v2
         with:
-          context: examples/google-esp-integration/server_only
+          context: examples/google-secure-signals-integration/server_only
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -54,14 +54,14 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/iabtechlab/uid2-esp-example-jssdk
+          images: ${{ env.REGISTRY }}/iabtechlab/uid2-secure-signals-example-jssdk
           tags: |
             type=sha,format=short
             type=raw,value=latest
       - name: Build and push Docker standard image
         uses: docker/build-push-action@v2
         with:
-          context: examples/google-esp-integration/with_sdk_v3
+          context: examples/google-secure-signals-integration/with_sdk_v3
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
