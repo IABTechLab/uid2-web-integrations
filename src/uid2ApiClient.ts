@@ -1,4 +1,4 @@
-import { UID2SdkBase } from './uid2Sdk';
+import { ProductName, UID2SdkBase } from './uid2Sdk';
 import { isValidIdentity, Uid2Identity } from './Uid2Identity';
 import { UID2CstgBox } from './uid2CstgBox';
 import { exportPublicKey } from './uid2CstgCrypto';
@@ -100,9 +100,9 @@ export type Uid2ApiClientOptions = {
 export class Uid2ApiClient {
   private _baseUrl: string;
   private _clientVersion: string;
-  private _productName: string;
+  private _productName: ProductName;
   private _requestsInFlight: XMLHttpRequest[] = [];
-  constructor(opts: Uid2ApiClientOptions, defaultBaseUrl: string, productName: string) {
+  constructor(opts: Uid2ApiClientOptions, defaultBaseUrl: string, productName: ProductName) {
     this._baseUrl = opts.baseUrl ?? defaultBaseUrl;
     this._productName = productName;
     this._clientVersion = productName.toLowerCase() + '-sdk-' + UID2SdkBase.VERSION;
@@ -201,8 +201,11 @@ export class Uid2ApiClient {
     data: { emailHash: string } | { phoneHash: string },
     opts: ClientSideIdentityOptions
   ): Promise<CstgResult> {
+    const optoutPayload = this._productName == 'EUID' ? { optout_check: 1 } : {};
     const request =
-      'emailHash' in data ? { email_hash: data.emailHash } : { phone_hash: data.phoneHash };
+      'emailHash' in data
+        ? { email_hash: data.emailHash, ...optoutPayload }
+        : { phone_hash: data.phoneHash, ...optoutPayload };
 
     const box = await UID2CstgBox.build(stripPublicKeyPrefix(opts.serverPublicKey));
 

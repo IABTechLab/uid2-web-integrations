@@ -3,7 +3,10 @@ const path = require('path');
 module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
-  entry: './src/uid2Sdk.ts',
+  entry: {
+    uid2: './src/uid2Sdk.ts',
+    euid: './src/euidSdk.ts',
+  },
   module: {
     rules: [
       {
@@ -18,7 +21,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'uid2-sdk.js',
+    filename: '[name]-sdk.js',
   },
   devServer: {
     headers: {

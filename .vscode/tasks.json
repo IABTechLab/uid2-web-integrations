@@ -61,7 +61,7 @@
         "containerName": "uid2-cstg-example",
         "ports": [
           {
-            "hostPort": 9090,
+            "hostPort": 9190,
             "containerPort": 80
           }
         ],
@@ -118,7 +118,7 @@
         "containerName": "uid2-secure-signals-example",
         "ports": [
           {
-            "hostPort": 9090,
+            "hostPort": 9190,
             "containerPort": 3000
           }
         ],
