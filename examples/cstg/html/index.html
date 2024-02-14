@@ -7,22 +7,29 @@
     <link rel="shortcut icon" href="/images/favicon.png" />
     <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script defer src="{{ UID2_JS_SDK_URL }}"></script>
+    <script defer src="{{ EUID_JS_SDK_URL }}"></script>
     <script>
       const clientSideIdentityOptions = {
         subscriptionId: '{{ SUBSCRIPTION_ID }}',
         serverPublicKey: '{{ SERVER_PUBLIC_KEY }}',
       };
 
-      let callbackCounter = 0;
+      let callbackCounter = {
+        uid2: 0,
+        euid: 0,
+      };
 
-      function updateGuiElements(state) {
-        $('#targeted_advertising_ready').text(__uid2.getAdvertisingToken() ? 'yes' : 'no');
-        $('#advertising_token').text(String(__uid2.getAdvertisingToken()));
-        $('#login_required').text(
+      function updateGuiElements(product, state) {
+        const productSelector = `#${product}_state`;
+        $(`${productSelector} #targeted_advertising_ready`).text(
+          __uid2.getAdvertisingToken() ? 'yes' : 'no'
+        );
+        $(`${productSelector} #advertising_token`).text(String(__uid2.getAdvertisingToken()));
+        $(`${productSelector} #login_required`).text(
           __uid2.isLoginRequired() || __uid2.isLoginRequired() === undefined ? 'yes' : 'no'
         );
-        $('#update_counter').text(callbackCounter);
-        $('#identity_state').text(String(JSON.stringify(state, null, 2)));
+        $(`${productSelector} #update_counter`).text(callbackCounter.product);
+        $(`${productSelector} #identity_state`).text(String(JSON.stringify(state, null, 2)));
 
         if (__uid2.isLoginRequired() || __uid2.isLoginRequired() === undefined) {
           $('#login_form').show();
@@ -38,15 +45,28 @@
           payload?.identity &&
           (eventType === 'InitCompleted' || eventType === 'IdentityUpdated')
         ) {
-          ++callbackCounter;
+          ++callbackCounter.uid2;
         }
-        updateGuiElements(payload);
+        updateGuiElements('uid2', payload);
+      }
+
+      function onEuidIdentityUpdated(eventType, payload) {
+        console.log('EUID Callback', payload);
+        if (
+          payload?.identity &&
+          (eventType === 'InitCompleted' || eventType === 'IdentityUpdated')
+        ) {
+          ++callbackCounter.euid;
+        }
+        updateGuiElements('euid', payload);
       }
 
       function onDocumentReady() {
         $('#logout').click(() => {
           __uid2.disconnect();
-          updateGuiElements(undefined);
+          __euid.disconnect();
+          updateGuiElements('uid2', undefined);
+          updateGuiElements('euid', undefined);
         });
 
         $('#login').click(async () => {
@@ -54,6 +74,7 @@
 
           try {
             await __uid2.setIdentityFromEmail(email, clientSideIdentityOptions);
+            await __euid.setIdentityFromEmail(email, clientSideIdentityOptions);
           } catch (e) {
             console.error('setIdentityFromEmail failed', e);
           }
@@ -72,33 +93,75 @@
           $(document).ready(onDocumentReady);
         }
       });
+
+      window.__euid = window.__euid || {};
+      window.__euid.callbacks = window.__euid.callbacks || [];
+
+      window.__euid.callbacks.push(onEuidIdentityUpdated);
+      window.__euid.callbacks.push((eventType, payload) => {
+        if (eventType === 'SdkLoaded') {
+          window.__euid.init({
+            baseUrl: '{{ UID2_BASE_URL }}',
+          });
+        }
+      });
     </script>
   </head>
   <body>
-    <h1>Server-Side Integration Example, UID2 JavaScript SDK</h1>
+    <h1>CSTG Integration Example, UID2 JavaScript SDK</h1>
     <!-- TODO: Add introductory text here. -->
-    <table id="uid2_state">
-      <tr>
-        <td class="label">Ready for Targeted Advertising:</td>
-        <td class="value"><pre id="targeted_advertising_ready"></pre></td>
-      </tr>
-      <tr>
-        <td class="label">UID2 Advertising Token:</td>
-        <td class="value"><pre id="advertising_token"></pre></td>
-      </tr>
-      <tr>
-        <td class="label">Is UID2 Login Required?</td>
-        <td class="value"><pre id="login_required"></pre></td>
-      </tr>
-      <tr>
-        <td class="label">UID2 Identity Updated Counter:</td>
-        <td class="value"><pre id="update_counter"></pre></td>
-      </tr>
-      <tr>
-        <td class="label">UID2 Identity Callback State:</td>
-        <td class="value"><pre id="identity_state"></pre></td>
-      </tr>
-    </table>
+    <div class="product-tables">
+      <table id="uid2_state">
+        <thead>
+          <th colspan="2">UID2</th>
+        </thead>
+        <tr>
+          <td class="label">Ready for Targeted Advertising:</td>
+          <td class="value"><pre id="targeted_advertising_ready"></pre></td>
+        </tr>
+        <tr>
+          <td class="label">UID2 Advertising Token:</td>
+          <td class="value"><pre id="advertising_token"></pre></td>
+        </tr>
+        <tr>
+          <td class="label">Is UID2 Login Required?</td>
+          <td class="value"><pre id="login_required"></pre></td>
+        </tr>
+        <tr>
+          <td class="label">UID2 Identity Updated Counter:</td>
+          <td class="value"><pre id="update_counter"></pre></td>
+        </tr>
+        <tr>
+          <td class="label">UID2 Identity Callback State:</td>
+          <td class="value"><pre id="identity_state"></pre></td>
+        </tr>
+      </table>
+      <table id="euid_state">
+        <thead>
+          <th colspan="2">EUID</th>
+        </thead>
+        <tr>
+          <td class="label">Ready for Targeted Advertising:</td>
+          <td class="value"><pre id="targeted_advertising_ready"></pre></td>
+        </tr>
+        <tr>
+          <td class="label">UID2 Advertising Token:</td>
+          <td class="value"><pre id="advertising_token"></pre></td>
+        </tr>
+        <tr>
+          <td class="label">Is UID2 Login Required?</td>
+          <td class="value"><pre id="login_required"></pre></td>
+        </tr>
+        <tr>
+          <td class="label">UID2 Identity Updated Counter:</td>
+          <td class="value"><pre id="update_counter"></pre></td>
+        </tr>
+        <tr>
+          <td class="label">UID2 Identity Callback State:</td>
+          <td class="value"><pre id="identity_state"></pre></td>
+        </tr>
+      </table>
+    </div>
     <div id="login_form" style="display: none" class="form">
       <div class="email_prompt">
         <input
