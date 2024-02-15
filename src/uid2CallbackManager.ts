@@ -1,4 +1,4 @@
-import { UID2SdkBase } from './uid2Sdk';
+import { UID2SdkBase } from './sdkBase';
 import { Uid2Identity } from './Uid2Identity';
 import { Logger } from './sdk/logger';
 
@@ -34,7 +34,7 @@ export class Uid2CallbackManager {
     this._sdk.callbacks.push = this.callbackPushInterceptor.bind(this);
   }
 
-  private static _sentSdkLoaded: Record<string, boolean> = {}; //TODO: This needs to be fixed for EUID!
+  private static _sentSdkLoaded: Record<string, boolean> = {};
   private _sentInit = false;
   private callbackPushInterceptor(...args: Uid2CallbackHandler[]) {
     for (const c of args) {

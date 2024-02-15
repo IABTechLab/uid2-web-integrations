@@ -1,17 +1,21 @@
 import { EventType, Uid2CallbackHandler } from './uid2CallbackManager';
-import { CallbackContainer, ProductDetails, UID2SdkBase, UID2Setup } from './uid2Sdk';
+import { CallbackContainer, ProductDetails, UID2SdkBase, UID2Setup } from './sdkBase';
 
 export class EUID extends UID2SdkBase {
+  private static cookieName = '__euid';
   // Deprecated. Integrators should never access the cookie directly!
   static get COOKIE_NAME() {
-    return '__euid';
+    console.warn(
+      'Detected access to EUID.COOKIE_NAME. This is deprecated and will be removed in the future. Integrators should not access the cookie directly.'
+    );
+    return EUID.cookieName;
   }
   private static get Uid2Details(): ProductDetails {
     return {
       name: 'EUID',
       defaultBaseUrl: 'https://prod.euid.eu',
       localStorageKey: 'EUID-sdk-identity',
-      cookieName: '__euid',
+      cookieName: EUID.cookieName,
     };
   }
 

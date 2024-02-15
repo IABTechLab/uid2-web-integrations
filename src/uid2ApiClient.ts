@@ -1,4 +1,4 @@
-import { ProductName, UID2SdkBase } from './uid2Sdk';
+import { ProductName, UID2SdkBase } from './sdkBase';
 import { isValidIdentity, Uid2Identity } from './Uid2Identity';
 import { UID2CstgBox } from './uid2CstgBox';
 import { exportPublicKey } from './uid2CstgCrypto';
