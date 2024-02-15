@@ -1,6 +1,6 @@
 {
   "name": "uid2-publisher",
-  "version": "1.0.0-SNAPSHOT",
+  "version": "1.0.8-142fc6f642",
   "private": true,
   "license": "BSD-2-Clause",
   "engineStrict": true,
