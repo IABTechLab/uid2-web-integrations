@@ -7,6 +7,7 @@ server {
 
     location / {
         sub_filter '{{ UID2_JS_SDK_URL }}' '${UID2_JS_SDK_URL}';
+        sub_filter '{{ EUID_JS_SDK_URL }}' '${EUID_JS_SDK_URL}';
         sub_filter '{{ UID2_BASE_URL }}' '${UID2_BASE_URL}';
         sub_filter '{{ SERVER_PUBLIC_KEY }}' '${SERVER_PUBLIC_KEY}';
         sub_filter '{{ SUBSCRIPTION_ID }}' '${SUBSCRIPTION_ID}';

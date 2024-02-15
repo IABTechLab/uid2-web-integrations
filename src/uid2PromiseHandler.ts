@@ -1,4 +1,4 @@
-import { UID2SdkBase } from './uid2Sdk';
+import { UID2SdkBase } from './sdkBase';
 import { EventType, Uid2CallbackPayload } from './uid2CallbackManager';
 import { Uid2ApiClient } from './uid2ApiClient';
 

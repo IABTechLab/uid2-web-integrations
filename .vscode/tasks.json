@@ -61,7 +61,7 @@
         "containerName": "uid2-cstg-example",
         "ports": [
           {
-            "hostPort": 9090,
+            "hostPort": 9190,
             "containerPort": 80
           }
         ],
@@ -75,8 +75,9 @@
         "env": {
           "UID2_BASE_URL": "http://localhost:8080",
           "UID2_JS_SDK_URL": "http://localhost:9091/uid2-sdk.js",
-          "SERVER_PUBLIC_KEY": "UID2-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtXJdTSZAYHvoRDWiehMHoWF1BNPuqLs5w2ZHiAZ1IJc7O4/z0ojPTB0V+KYX/wxQK0hxx6kxCvHj335eI/ZQsQ==",
-          "SUBSCRIPTION_ID": "4WvryDGbR5"
+          "EUID_JS_SDK_URL": "http://localhost:9091/euid-sdk.js",
+          "SERVER_PUBLIC_KEY": "UID2-X-L-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEWyCP9O/6ppffj8f5PUWsEhAoMNdTBnpnkiOPZBkVnLkxOyTjPsKzf5J3ApPHzutAGNGgKAzFc6TuCfo+BWsZtQ==",
+          "SUBSCRIPTION_ID": "LBk2xJsgrS"
         },
         "remove": true
       }
@@ -118,7 +119,7 @@
         "containerName": "uid2-secure-signals-example",
         "ports": [
           {
-            "hostPort": 9090,
+            "hostPort": 9190,
             "containerPort": 3000
           }
         ],
@@ -129,7 +130,9 @@
             "permissions": "ro"
           }
         ],
-        "envFiles": ["${workspaceFolder}/examples/google-secure-signals-integration/with_sdk_v3/.env"],
+        "envFiles": [
+          "${workspaceFolder}/examples/google-secure-signals-integration/with_sdk_v3/.env"
+        ],
         "remove": true
       }
     },

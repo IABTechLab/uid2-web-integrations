@@ -1,4 +1,4 @@
-import { UID2SdkBase } from './uid2Sdk';
+import { UID2SdkBase } from './sdkBase';
 import { Uid2Identity } from './Uid2Identity';
 import { Logger } from './sdk/logger';
 
@@ -20,22 +20,26 @@ export class Uid2CallbackManager {
   private _getIdentity: () => Uid2Identity | null | undefined;
   private _logger: Logger;
   private _sdk: UID2SdkBase;
+  private _productName: string;
   constructor(
     sdk: UID2SdkBase,
+    productName: string,
     getIdentity: () => Uid2Identity | null | undefined,
     logger: Logger
   ) {
+    this._productName = productName;
     this._logger = logger;
     this._getIdentity = getIdentity;
     this._sdk = sdk;
     this._sdk.callbacks.push = this.callbackPushInterceptor.bind(this);
   }
 
-  private static _sentSdkLoaded = false; //TODO: This needs to be fixed for EUID!
+  private static _sentSdkLoaded: Record<string, boolean> = {};
   private _sentInit = false;
   private callbackPushInterceptor(...args: Uid2CallbackHandler[]) {
     for (const c of args) {
-      if (Uid2CallbackManager._sentSdkLoaded) this.safeRunCallback(c, EventType.SdkLoaded, {});
+      if (Uid2CallbackManager._sentSdkLoaded[this._productName])
+        this.safeRunCallback(c, EventType.SdkLoaded, {});
       if (this._sentInit)
         this.safeRunCallback(c, EventType.InitCompleted, {
           identity: this._getIdentity() ?? null,
@@ -46,7 +50,7 @@ export class Uid2CallbackManager {
 
   public runCallbacks(event: EventType, payload: Uid2CallbackPayload) {
     if (event === EventType.InitCompleted) this._sentInit = true;
-    if (event === EventType.SdkLoaded) Uid2CallbackManager._sentSdkLoaded = true;
+    if (event === EventType.SdkLoaded) Uid2CallbackManager._sentSdkLoaded[this._productName] = true;
     if (!this._sentInit && event !== EventType.SdkLoaded) return;
 
     const enrichedPayload = {
