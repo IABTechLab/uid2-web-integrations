@@ -2,8 +2,8 @@
   "name": "@uid2/uid2-sdk",
   "version": "3.3.0",
   "description": "UID2 Client SDK",
-  "main": "lib/uid2Sdk.js",
-  "types": "lib/uid2Sdk.d.ts",
+  "main": "lib/src/uid2Sdk.js",
+  "types": "lib/src/uid2Sdk.d.ts",
   "files": [
     "/lib"
   ],
