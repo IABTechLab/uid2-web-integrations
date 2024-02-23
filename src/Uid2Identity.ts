@@ -29,10 +29,7 @@ export interface OptoutIdentity extends Pick<Uid2Identity, 'refresh_expires' | '
   status: 'optout';
 }
 export function isOptoutIdentity(identity: OptoutIdentity | unknown): identity is OptoutIdentity {
-  return (
-    typeof identity === 'object' &&
-    identity !== null &&
-    'status' in identity &&
-    identity.status === 'optout'
-  );
+  if (identity === null || typeof identity !== 'object') return false;
+  const maybeIdentity = identity as OptoutIdentity;
+  return maybeIdentity.status === 'optout';
 }

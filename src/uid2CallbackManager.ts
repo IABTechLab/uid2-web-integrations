@@ -1,5 +1,5 @@
 import { UID2SdkBase } from './sdkBase';
-import { OptoutIdentity, Uid2Identity } from './Uid2Identity';
+import { Uid2Identity } from './Uid2Identity';
 import { Logger } from './sdk/logger';
 
 export enum EventType {
@@ -25,7 +25,7 @@ export class Uid2CallbackManager {
   constructor(
     sdk: UID2SdkBase,
     productName: string,
-    getIdentity: () => Uid2Identity | OptoutIdentity | null | undefined,
+    getIdentity: () => Uid2Identity | null | undefined,
     logger: Logger
   ) {
     this._productName = productName;

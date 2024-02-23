@@ -1,7 +1,8 @@
 import { NAME_CURVE, XhrMock, makeCstgOption, makeIdentityV2 } from '../mocks';
-import { Uid2ApiClient } from '../uid2ApiClient';
+import { SuccessCstgResult, Uid2ApiClient } from '../uid2ApiClient';
 import { base64ToBytes, bytesToBase64 } from '../encoding/uid2Base64';
 import { sdkWindow } from '../uid2Sdk';
+import { Uid2Identity } from '../Uid2Identity';
 
 describe('UID2 API client tests', () => {
   let uid2ApiClient: Uid2ApiClient;
@@ -50,7 +51,7 @@ describe('UID2 API client tests', () => {
           );
         });
 
-        const cstgResult = await makeCstgApiCall();
+        const cstgResult = (await makeCstgApiCall()) as SuccessCstgResult;
         expect(cstgResult.identity).toEqual(uid2Token);
       });
 
