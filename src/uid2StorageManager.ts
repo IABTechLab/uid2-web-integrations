@@ -1,5 +1,5 @@
 import { UID2CookieManager } from './uid2CookieManager';
-import { Uid2Identity } from './Uid2Identity';
+import { OptoutIdentity, Uid2Identity } from './Uid2Identity';
 import { UID2LocalStorageManager } from './uid2LocalStorageManager';
 import { Uid2Options } from './Uid2Options';
 
@@ -14,7 +14,7 @@ export class UID2StorageManager {
     this._localStorageManager = new UID2LocalStorageManager(localStorageKey);
   }
 
-  public loadIdentityWithFallback(): Uid2Identity | null {
+  public loadIdentityWithFallback(): Uid2Identity | OptoutIdentity | null {
     const localStorageIdentity = this._localStorageManager.loadIdentityFromLocalStorage();
     const cookieIdentity = this._cookieManager.loadIdentityFromCookie();
     const shouldUseCookie =
@@ -24,19 +24,33 @@ export class UID2StorageManager {
     return shouldUseCookie ? cookieIdentity : localStorageIdentity;
   }
 
-  public loadIdentity(): Uid2Identity | null {
+  public loadIdentity(): Uid2Identity | OptoutIdentity | null {
     return this._opts.useCookie
       ? this._cookieManager.loadIdentityFromCookie()
       : this._localStorageManager.loadIdentityFromLocalStorage();
   }
 
-  public setValue(identity: Uid2Identity) {
+  public setIdentity(identity: Uid2Identity) {
+    this.setValue(identity);
+  }
+
+  public setOptout() {
+    const expiry = Date.now() + 72 * 60 * 60 * 1000; // 3 days - need to pick something
+    const optout: OptoutIdentity = {
+      refresh_expires: expiry,
+      identity_expires: expiry,
+      status: 'optout',
+    };
+    this.setValue(optout);
+  }
+
+  private setValue(value: Uid2Identity | OptoutIdentity) {
     if (this._opts.useCookie) {
-      this._cookieManager.setCookie(identity);
+      this._cookieManager.setCookie(value);
       return;
     }
 
-    this._localStorageManager.setValue(identity);
+    this._localStorageManager.setValue(value);
     if (
       this._opts.useCookie === false &&
       this._localStorageManager.loadIdentityFromLocalStorage()

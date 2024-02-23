@@ -1,5 +1,5 @@
 import { version } from '../package.json';
-import { Uid2Identity } from './Uid2Identity';
+import { OptoutIdentity, Uid2Identity, isOptoutIdentity } from './Uid2Identity';
 import { IdentityStatus, notifyInitCallback } from './Uid2InitCallbacks';
 import { Uid2Options, isUID2OptionsOrThrow } from './Uid2Options';
 import { Logger, MakeLogger } from './sdk/logger';
@@ -56,7 +56,7 @@ export abstract class UID2SdkBase {
   // State
   private _product: ProductDetails;
   private _opts: Uid2Options = {};
-  private _identity: Uid2Identity | null | undefined;
+  private _identity: Uid2Identity | OptoutIdentity | null | undefined;
   private _initComplete = false;
 
   // Sets up nearly everything, but does not run SdkLoaded callbacks - derived classes must run them.
@@ -112,17 +112,23 @@ export abstract class UID2SdkBase {
     await this.callCstgAndSetIdentity({ emailHash: emailHash }, opts);
   }
 
-  public setIdentity(identity: Uid2Identity) {
+  public setIdentity(identity: Uid2Identity | OptoutIdentity) {
     if (this._apiClient) this._apiClient.abortActiveRequests();
     const validatedIdentity = this.validateAndSetIdentity(identity);
     if (validatedIdentity) {
-      this.triggerRefreshOrSetTimer(validatedIdentity);
+      if (isOptoutIdentity(validatedIdentity)) {
+        this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
+      } else {
+        this.triggerRefreshOrSetTimer(validatedIdentity);
+      }
       this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
     }
   }
 
   public getIdentity(): Uid2Identity | null {
-    return this._identity && !this.temporarilyUnavailable() ? this._identity : null;
+    return this._identity && !this.temporarilyUnavailable() && !isOptoutIdentity(this._identity)
+      ? this._identity
+      : null;
   }
   // When the SDK has been initialized, this function should return the token
   // from the most recent refresh request, if there is a request, wait for the
@@ -142,6 +148,11 @@ export abstract class UID2SdkBase {
   public hasIdentity() {
     if (!this._initComplete) return undefined;
     return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
+  }
+
+  public hasOptedOut() {
+    if (!this._initComplete) return undefined;
+    return isOptoutIdentity(this._identity);
   }
 
   public disconnect() {
@@ -196,9 +207,11 @@ export abstract class UID2SdkBase {
       identity = this._storageManager.loadIdentityWithFallback();
     }
     const validatedIdentity = this.validateAndSetIdentity(identity);
-    if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
+    if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
+      this.triggerRefreshOrSetTimer(validatedIdentity);
     this._initComplete = true;
     this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
+    if (this.hasOptedOut()) this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
   }
 
   private isLoggedIn() {
@@ -216,7 +229,7 @@ export abstract class UID2SdkBase {
     return false;
   }
 
-  private getIdentityStatus(identity: Uid2Identity | null):
+  private getIdentityStatus(identity: Uid2Identity | OptoutIdentity | null):
     | {
         valid: true;
         identity: Uid2Identity;
@@ -227,7 +240,7 @@ export abstract class UID2SdkBase {
         valid: false;
         errorMessage: string;
         status: IdentityStatus;
-        identity: null;
+        identity: OptoutIdentity | null;
       } {
     if (!identity) {
       return {
@@ -235,6 +248,14 @@ export abstract class UID2SdkBase {
         errorMessage: 'Identity not available',
         status: IdentityStatus.NO_IDENTITY,
         identity: null,
+      };
+    }
+    if (isOptoutIdentity(identity)) {
+      return {
+        valid: false,
+        errorMessage: 'User has opted out',
+        status: IdentityStatus.OPTOUT,
+        identity: identity,
       };
     }
     if (!identity.advertising_token) {
@@ -285,21 +306,25 @@ export abstract class UID2SdkBase {
   }
 
   private validateAndSetIdentity(
-    identity: Uid2Identity | null,
+    identity: Uid2Identity | OptoutIdentity | null,
     status?: IdentityStatus,
     statusText?: string
-  ): Uid2Identity | null {
+  ): Uid2Identity | OptoutIdentity | null {
     if (!this._storageManager) throw new Error('Cannot set identity before calling init.');
     const validity = this.getIdentityStatus(identity);
     if (
+      validity.valid &&
       validity.identity &&
+      !isOptoutIdentity(this._identity) &&
       validity.identity?.advertising_token === this._identity?.advertising_token
     )
       return validity.identity;
 
     this._identity = validity.identity;
-    if (validity.identity) {
-      this._storageManager.setValue(validity.identity);
+    if (validity.valid && validity.identity) {
+      this._storageManager.setIdentity(validity.identity);
+    } else if (validity.status === IdentityStatus.OPTOUT || status === IdentityStatus.OPTOUT) {
+      this._storageManager.setOptout();
     } else {
       this.abort();
       this._storageManager.removeValues();
@@ -334,7 +359,8 @@ export abstract class UID2SdkBase {
       const validatedIdentity = this.validateAndSetIdentity(
         this._storageManager?.loadIdentity() ?? null
       );
-      if (validatedIdentity) this.triggerRefreshOrSetTimer(validatedIdentity);
+      if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
+        this.triggerRefreshOrSetTimer(validatedIdentity);
       this._refreshTimerId = null;
     }, timeout);
   }
@@ -358,6 +384,7 @@ export abstract class UID2SdkBase {
               break;
             case 'optout':
               this.validateAndSetIdentity(null, IdentityStatus.OPTOUT, 'User opted out');
+              this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
               break;
             case 'expired_token':
               this.validateAndSetIdentity(
@@ -387,8 +414,17 @@ export abstract class UID2SdkBase {
     opts: ClientSideIdentityOptions
   ) {
     const cstgResult = await this._apiClient!.callCstgApi(request, opts);
-
-    this.setIdentity(cstgResult.identity);
+    if (cstgResult.status == 'success') {
+      this.setIdentity(cstgResult.identity);
+    } else if (cstgResult.status === 'optout') {
+      this.validateAndSetIdentity(null, IdentityStatus.OPTOUT);
+      this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
+      this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
+    } else {
+      const errorText = 'Unexpected status received from CSTG endpoint.';
+      this._logger.warn(errorText);
+      throw new Error(errorText);
+    }
   }
 
   protected throwIfInitNotComplete(message: string) {

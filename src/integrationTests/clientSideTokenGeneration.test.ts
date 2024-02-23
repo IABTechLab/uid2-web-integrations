@@ -164,6 +164,44 @@ describe('Client-side token generation Tests', () => {
             (expect(uid2) as any).toBeInUnavailableState();
           });
         });
+
+        describe('when optout response is received', () => {
+          beforeEach(() => {
+            xhrMock.send.mockImplementationOnce((body: string) => {
+              const requestBody = JSON.parse(body);
+              xhrMock.sendEncryptedCSTGResponse(
+                {
+                  clientPublicKey: base64ToBytes(requestBody.public_key),
+                  serverPrivateKey: serverKeyPair.privateKey,
+                },
+                { status: 'optout' }
+              );
+            });
+          });
+          test('UID2 should not be available', async () => {
+            await scenario.setIdentity(serverPublicKey);
+            (expect(uid2) as any).toBeInUnavailableState();
+          });
+
+          test('The callback should be called with no identity', (done) => {
+            uid2.callbacks.push((eventType, payload) => {
+              if (eventType === EventType.IdentityUpdated) {
+                expect(payload.identity).toBeNull();
+                done();
+              }
+            });
+            scenario.setIdentity(serverPublicKey);
+          });
+
+          test('The callback should be called with an optout event', (done) => {
+            uid2.callbacks.push((eventType, payload) => {
+              if (eventType === EventType.OptoutReceived) {
+                done();
+              }
+            });
+            scenario.setIdentity(serverPublicKey);
+          });
+        });
       });
     });
   });

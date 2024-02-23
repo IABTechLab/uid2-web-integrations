@@ -172,7 +172,7 @@ testCookieAndLocalStorage(() => {
         }
       });
       test('getAdvertisingTokenPromise should reject', () => {
-        expect(exception).toEqual(new Error('UID2 SDK aborted.'));
+        expect(exception).toEqual(new Error('No identity available.'));
       });
       test('should invoke the callback', () => {
         expect(callback).toHaveBeenNthCalledWith(
@@ -185,7 +185,7 @@ testCookieAndLocalStorage(() => {
         );
       });
       test('should clear value', () => {
-        expect(getUid2(useCookie)).toBeNull();
+        expect(getUid2(useCookie)).toMatchObject({ status: 'optout' });
       });
       test('should not set refresh timer', () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -425,7 +425,7 @@ testCookieAndLocalStorage(() => {
         }
       });
       test('getAdvertisingTokenPromise should reject', () => {
-        expect(exception).toEqual(new Error('UID2 SDK aborted.'));
+        expect(exception).toEqual(new Error('No identity available.'));
       });
       test('should invoke the callback', () => {
         expect(callback).toHaveBeenNthCalledWith(
@@ -437,8 +437,8 @@ testCookieAndLocalStorage(() => {
           })
         );
       });
-      test('should clear value', () => {
-        expect(getUid2(useCookie)).toBeNull();
+      test('should store optout', () => {
+        expect(getUid2(useCookie)).toMatchObject({ status: 'optout' });
       });
       test('should not set refresh timer', () => {
         expect(setTimeout).not.toHaveBeenCalled();
