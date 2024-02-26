@@ -1,11 +1,11 @@
 import { NAME_CURVE, XhrMock, makeCstgOption, makeIdentityV2 } from '../mocks';
-import { SuccessCstgResult, Uid2ApiClient } from '../uid2ApiClient';
-import { base64ToBytes, bytesToBase64 } from '../encoding/uid2Base64';
+import { SuccessCstgResult, ApiClient } from '../apiClient';
+import { base64ToBytes, bytesToBase64 } from '../encoding/base64';
 import { sdkWindow } from '../uid2Sdk';
-import { Uid2Identity } from '../Uid2Identity';
+import { Identity } from '../Identity';
 
 describe('UID2 API client tests', () => {
-  let uid2ApiClient: Uid2ApiClient;
+  let uid2ApiClient: ApiClient;
   let serverKeyPair: CryptoKeyPair;
   let serverPublicKey: string;
   let xhrMock: any;
@@ -25,7 +25,7 @@ describe('UID2 API client tests', () => {
   });
 
   beforeEach(() => {
-    uid2ApiClient = new Uid2ApiClient({}, 'https://prod.uidapi.com', 'UID2');
+    uid2ApiClient = new ApiClient({}, 'https://prod.uidapi.com', 'UID2');
     xhrMock = new XhrMock(sdkWindow);
   });
 

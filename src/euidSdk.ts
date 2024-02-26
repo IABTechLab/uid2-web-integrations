@@ -1,7 +1,7 @@
-import { EventType, Uid2CallbackHandler } from './uid2CallbackManager';
-import { CallbackContainer, ProductDetails, UID2SdkBase, UID2Setup } from './sdkBase';
+import { EventType, CallbackHandler } from './callbackManager';
+import { CallbackContainer, ProductDetails, SdkBase, SDKSetup } from './sdkBase';
 
-export class EUID extends UID2SdkBase {
+export class EUID extends SdkBase {
   private static cookieName = '__euid';
   // Deprecated. Integrators should never access the cookie directly!
   static get COOKIE_NAME() {
@@ -10,7 +10,7 @@ export class EUID extends UID2SdkBase {
     );
     return EUID.cookieName;
   }
-  private static get Uid2Details(): ProductDetails {
+  private static get EuidDetails(): ProductDetails {
     return {
       name: 'EUID',
       defaultBaseUrl: 'https://prod.euid.eu',
@@ -20,10 +20,10 @@ export class EUID extends UID2SdkBase {
   }
 
   constructor(
-    existingCallbacks: Uid2CallbackHandler[] | undefined = undefined,
+    existingCallbacks: CallbackHandler[] | undefined = undefined,
     callbackContainer: CallbackContainer = {}
   ) {
-    super(existingCallbacks, EUID.Uid2Details);
+    super(existingCallbacks, EUID.EuidDetails);
     const runCallbacks = () => {
       this._callbackManager.runCallbacks(EventType.SdkLoaded, {});
     };
@@ -38,7 +38,7 @@ export class EUID extends UID2SdkBase {
 
 declare global {
   interface Window {
-    __euid: EUID | UID2Setup | undefined;
+    __euid: EUID | SDKSetup | undefined;
   }
 }
 

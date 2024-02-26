@@ -1,22 +1,22 @@
-import { ProductName, UID2SdkBase } from './sdkBase';
-import { isValidIdentity, Uid2Identity } from './Uid2Identity';
-import { UID2CstgBox } from './uid2CstgBox';
-import { exportPublicKey } from './uid2CstgCrypto';
-import { ClientSideIdentityOptions, stripPublicKeyPrefix } from './uid2ClientSideIdentityOptions';
-import { base64ToBytes, bytesToBase64 } from './encoding/uid2Base64';
+import { ProductName, SdkBase } from './sdkBase';
+import { isValidIdentity, Identity } from './Identity';
+import { CstgBox } from './cstgBox';
+import { exportPublicKey } from './cstgCrypto';
+import { ClientSideIdentityOptions, stripPublicKeyPrefix } from './clientSideIdentityOptions';
+import { base64ToBytes, bytesToBase64 } from './encoding/base64';
 
 export type RefreshResultWithoutIdentity = {
   status: ResponseStatusWithoutBody;
 };
 export type SuccessRefreshResult = {
   status: ResponseStatusRequiringBody;
-  identity: Uid2Identity;
+  identity: Identity;
 };
 export type RefreshResult = SuccessRefreshResult | RefreshResultWithoutIdentity;
 
 export type SuccessCstgResult = {
   status: 'success';
-  identity: Uid2Identity;
+  identity: Identity;
 };
 export type OptoutCstgResult = {
   status: 'optout';
@@ -26,7 +26,7 @@ export type CstgResult = SuccessCstgResult | OptoutCstgResult;
 type RefreshApiResponse =
   | {
       status: ResponseStatusRequiringBody;
-      body: Uid2Identity;
+      body: Identity;
     }
   | {
       status: ResponseStatusWithoutBody;
@@ -53,7 +53,7 @@ function isUnvalidatedRefreshResponse(response: unknown): response is Unvalidate
 
 type CstgApiSuccessResponse = {
   status: 'success';
-  body: Uid2Identity;
+  body: Identity;
 };
 type CstgApiClientErrorResponse = {
   status: 'client_error';
@@ -107,19 +107,19 @@ function isCstgApiForbiddenResponse(response: unknown): response is CstgApiForbi
   );
 }
 
-export type Uid2ApiClientOptions = {
+export type ApiClientOptions = {
   baseUrl?: string;
 };
 
-export class Uid2ApiClient {
+export class ApiClient {
   private _baseUrl: string;
   private _clientVersion: string;
   private _productName: ProductName;
   private _requestsInFlight: XMLHttpRequest[] = [];
-  constructor(opts: Uid2ApiClientOptions, defaultBaseUrl: string, productName: ProductName) {
+  constructor(opts: ApiClientOptions, defaultBaseUrl: string, productName: ProductName) {
     this._baseUrl = opts.baseUrl ?? defaultBaseUrl;
     this._productName = productName;
-    this._clientVersion = productName.toLowerCase() + '-sdk-' + UID2SdkBase.VERSION;
+    this._clientVersion = productName.toLowerCase() + '-sdk-' + SdkBase.VERSION;
   }
 
   public hasActiveRequests() {
@@ -143,7 +143,7 @@ export class Uid2ApiClient {
     this._requestsInFlight = [];
   }
 
-  public callRefreshApi(refreshDetails: Uid2Identity): Promise<RefreshResult> {
+  public callRefreshApi(refreshDetails: Identity): Promise<RefreshResult> {
     const url = this._baseUrl + '/v2/token/refresh';
     const req = new XMLHttpRequest();
     this._requestsInFlight.push(req);
@@ -221,7 +221,7 @@ export class Uid2ApiClient {
         ? { email_hash: data.emailHash, ...optoutPayload }
         : { phone_hash: data.phoneHash, ...optoutPayload };
 
-    const box = await UID2CstgBox.build(stripPublicKeyPrefix(opts.serverPublicKey));
+    const box = await CstgBox.build(stripPublicKeyPrefix(opts.serverPublicKey));
 
     const encoder = new TextEncoder();
 

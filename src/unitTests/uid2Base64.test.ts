@@ -1,4 +1,4 @@
-import { base64ToBytes, bytesToBase64 } from '../encoding/uid2Base64';
+import { base64ToBytes, bytesToBase64 } from '../encoding/base64';
 
 describe('uid2Base64 tests', () => {
   describe('#bytesToBase64', () => {

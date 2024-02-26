@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { isLegacyCookie } from '../uid2CookieManager';
+import { isLegacyCookie } from '../cookieManager';
 
 const testCases = [
   {

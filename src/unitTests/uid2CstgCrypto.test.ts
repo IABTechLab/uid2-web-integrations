@@ -1,4 +1,4 @@
-import { bytesToBase64 } from '../encoding/uid2Base64';
+import { bytesToBase64 } from '../encoding/base64';
 import {
   decrypt,
   deriveKey,
@@ -6,7 +6,7 @@ import {
   exportPublicKey,
   generateKeyPair,
   importPublicKey,
-} from '../uid2CstgCrypto';
+} from '../cstgCrypto';
 
 const CryptoKey = require('crypto').webcrypto.CryptoKey;
 

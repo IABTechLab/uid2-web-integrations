@@ -1,25 +1,22 @@
 import { Logger } from './sdk/logger';
-import { Uid2ApiClientOptions } from './uid2ApiClient';
-import { UID2CookieOptions } from './uid2CookieManager';
-import { Uid2Identity } from './Uid2Identity';
-import { InitCallbackOptions } from './Uid2InitCallbacks';
+import { ApiClientOptions } from './apiClient';
+import { CookieOptions } from './cookieManager';
+import { Identity } from './Identity';
+import { InitCallbackOptions } from './initCallbacks';
 
-export type Uid2Options = BaseUid2Options &
-  InitCallbackOptions &
-  UID2CookieOptions &
-  Uid2ApiClientOptions;
-type BaseUid2Options = {
+export type SdkOptions = BaseSdkOptions & InitCallbackOptions & CookieOptions & ApiClientOptions;
+type BaseSdkOptions = {
   refreshRetryPeriod?: number;
-  identity?: Uid2Identity;
+  identity?: Identity;
   useCookie?: boolean;
   logger?: Logger;
 };
 
-export function isUID2OptionsOrThrow(maybeOpts: Uid2Options | unknown): maybeOpts is Uid2Options {
+export function isSDKOptionsOrThrow(maybeOpts: SdkOptions | unknown): maybeOpts is SdkOptions {
   if (typeof maybeOpts !== 'object' || maybeOpts === null) {
     throw new TypeError('opts must be an object');
   }
-  const opts = maybeOpts as Uid2Options;
+  const opts = maybeOpts as SdkOptions;
   if (opts.callback !== undefined && typeof opts.callback !== 'function') {
     throw new TypeError('opts.callback, if provided, must be a function');
   }

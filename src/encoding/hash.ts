@@ -1,4 +1,4 @@
-import { bytesToBase64 } from './uid2Base64';
+import { bytesToBase64 } from './base64';
 
 export async function hashAndEncodeIdentifier(value: string) {
   const hash = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));

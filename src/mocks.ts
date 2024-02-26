@@ -1,8 +1,8 @@
 import * as jsdom from 'jsdom';
 import { Cookie } from 'tough-cookie';
 import { UID2 } from './uid2Sdk';
-import { Uid2Identity } from './Uid2Identity';
-import { base64ToBytes, bytesToBase64 } from './encoding/uid2Base64';
+import { Identity } from './Identity';
+import { base64ToBytes, bytesToBase64 } from './encoding/base64';
 import * as crypto from 'crypto';
 
 const uid2LocalStorageKeyName = 'UID2-sdk-identity';
@@ -36,7 +36,7 @@ type MockXhrResponse = {
 };
 
 type MockApiResponse = {
-  body?: Uid2Identity;
+  body?: Identity;
   status?: string;
   message?: string;
 };
@@ -140,7 +140,7 @@ const generateEncryptedApiResponse = async (response: MockApiResponse, cryptoKey
 
 type MockedCSTGResponse = {
   status?: 'success' | 'client_error' | 'invalid_http_origin';
-  body?: Uid2Identity;
+  body?: Identity;
   message?: string;
 };
 
@@ -166,7 +166,7 @@ export class XhrMock {
   }
 
   async sendIdentityInEncodedResponse(
-    identity: Uid2Identity,
+    identity: Identity,
     currentRefreshResponseToken: string,
     status?: string
   ) {

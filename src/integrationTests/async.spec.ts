@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globa
 
 import * as mocks from '../mocks';
 import { __uid2InternalHandleScriptLoad, sdkWindow, UID2 } from '../uid2Sdk';
-import { EventType } from '../uid2CallbackManager';
+import { EventType } from '../callbackManager';
 
 let callback: any;
 let uid2: UID2;

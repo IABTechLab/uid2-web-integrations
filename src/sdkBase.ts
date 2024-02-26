@@ -1,25 +1,25 @@
 import { version } from '../package.json';
-import { OptoutIdentity, Uid2Identity, isOptoutIdentity } from './Uid2Identity';
-import { IdentityStatus, notifyInitCallback } from './Uid2InitCallbacks';
-import { Uid2Options, isUID2OptionsOrThrow } from './Uid2Options';
+import { OptoutIdentity, Identity, isOptoutIdentity } from './Identity';
+import { IdentityStatus, notifyInitCallback } from './initCallbacks';
+import { SdkOptions, isSDKOptionsOrThrow } from './sdkOptions';
 import { Logger, MakeLogger } from './sdk/logger';
-import { Uid2ApiClient } from './uid2ApiClient';
-import { EventType, Uid2CallbackHandler, Uid2CallbackManager } from './uid2CallbackManager';
+import { ApiClient } from './apiClient';
+import { EventType, CallbackHandler, CallbackManager } from './callbackManager';
 import {
   ClientSideIdentityOptions,
   isClientSideIdentityOptionsOrThrow,
-} from './uid2ClientSideIdentityOptions';
-import { isNormalizedPhone, normalizeEmail } from './uid2DiiNormalization';
-import { isBase64Hash } from './uid2HashedDii';
-import { UID2PromiseHandler } from './uid2PromiseHandler';
-import { UID2StorageManager } from './uid2StorageManager';
+} from './clientSideIdentityOptions';
+import { isNormalizedPhone, normalizeEmail } from './diiNormalization';
+import { isBase64Hash } from './hashedDii';
+import { PromiseHandler } from './promiseHandler';
+import { StorageManager } from './storageManager';
 import { hashAndEncodeIdentifier } from './encoding/hash';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
 }
-export type UID2Setup = {
-  callbacks: Uid2CallbackHandler[] | undefined;
+export type SDKSetup = {
+  callbacks: CallbackHandler[] | undefined;
 };
 export type CallbackContainer = { callback?: () => void };
 
@@ -31,7 +31,7 @@ export type ProductDetails = {
   defaultBaseUrl: string;
 };
 
-export abstract class UID2SdkBase {
+export abstract class SdkBase {
   static get VERSION() {
     return version;
   }
@@ -42,26 +42,26 @@ export abstract class UID2SdkBase {
   static EventType = EventType;
 
   // Push functions to this array to receive event notifications
-  public callbacks: Uid2CallbackHandler[] = [];
+  public callbacks: CallbackHandler[] = [];
 
   // Dependencies initialised on construction
   private _logger: Logger;
-  private _tokenPromiseHandler: UID2PromiseHandler;
-  protected _callbackManager: Uid2CallbackManager;
+  private _tokenPromiseHandler: PromiseHandler;
+  protected _callbackManager: CallbackManager;
 
   // Dependencies initialised on call to init due to requirement for options
-  private _storageManager: UID2StorageManager | undefined;
-  private _apiClient: Uid2ApiClient | undefined;
+  private _storageManager: StorageManager | undefined;
+  private _apiClient: ApiClient | undefined;
 
   // State
   private _product: ProductDetails;
-  private _opts: Uid2Options = {};
-  private _identity: Uid2Identity | OptoutIdentity | null | undefined;
+  private _opts: SdkOptions = {};
+  private _identity: Identity | OptoutIdentity | null | undefined;
   private _initComplete = false;
 
   // Sets up nearly everything, but does not run SdkLoaded callbacks - derived classes must run them.
   protected constructor(
-    existingCallbacks: Uid2CallbackHandler[] | undefined = undefined,
+    existingCallbacks: CallbackHandler[] | undefined = undefined,
     product: ProductDetails
   ) {
     this._product = product;
@@ -70,8 +70,8 @@ export abstract class UID2SdkBase {
     this._logger.log(`Constructing an SDK!`, exception.stack);
     if (existingCallbacks) this.callbacks = existingCallbacks;
 
-    this._tokenPromiseHandler = new UID2PromiseHandler(this);
-    this._callbackManager = new Uid2CallbackManager(
+    this._tokenPromiseHandler = new PromiseHandler(this);
+    this._callbackManager = new CallbackManager(
       this,
       this._product.name,
       () => this.getIdentity(),
@@ -79,7 +79,7 @@ export abstract class UID2SdkBase {
     );
   }
 
-  public init(opts: Uid2Options) {
+  public init(opts: SdkOptions) {
     this.initInternal(opts);
   }
 
@@ -112,7 +112,7 @@ export abstract class UID2SdkBase {
     await this.callCstgAndSetIdentity({ emailHash: emailHash }, opts);
   }
 
-  public setIdentity(identity: Uid2Identity | OptoutIdentity) {
+  public setIdentity(identity: Identity | OptoutIdentity) {
     if (this._apiClient) this._apiClient.abortActiveRequests();
     const validatedIdentity = this.validateAndSetIdentity(identity);
     if (validatedIdentity) {
@@ -125,7 +125,7 @@ export abstract class UID2SdkBase {
     }
   }
 
-  public getIdentity(): Uid2Identity | null {
+  public getIdentity(): Identity | null {
     return this._identity && !this.temporarilyUnavailable() && !isOptoutIdentity(this._identity)
       ? this._identity
       : null;
@@ -160,7 +160,7 @@ export abstract class UID2SdkBase {
     // Note: This silently fails to clear the cookie if init hasn't been called and a cookieDomain is used!
     if (this._storageManager) this._storageManager.removeValues();
     else
-      new UID2StorageManager(
+      new StorageManager(
         {},
         this._product.cookieName,
         this._product.localStorageKey
@@ -184,20 +184,20 @@ export abstract class UID2SdkBase {
     if (this._apiClient) this._apiClient.abortActiveRequests();
   }
 
-  private initInternal(opts: Uid2Options | unknown) {
+  private initInternal(opts: SdkOptions | unknown) {
     if (this._initComplete) {
       throw new TypeError('Calling init() more than once is not allowed');
     }
-    if (!isUID2OptionsOrThrow(opts))
+    if (!isSDKOptionsOrThrow(opts))
       throw new TypeError(`Options provided to ${this._product.name} init couldn't be validated.`);
 
     this._opts = opts;
-    this._storageManager = new UID2StorageManager(
+    this._storageManager = new StorageManager(
       { ...opts },
       this._product.cookieName,
       this._product.localStorageKey
     );
-    this._apiClient = new Uid2ApiClient(opts, this._product.defaultBaseUrl, this._product.name);
+    this._apiClient = new ApiClient(opts, this._product.defaultBaseUrl, this._product.name);
     this._tokenPromiseHandler.registerApiClient(this._apiClient);
 
     let identity;
@@ -229,10 +229,10 @@ export abstract class UID2SdkBase {
     return false;
   }
 
-  private getIdentityStatus(identity: Uid2Identity | OptoutIdentity | null):
+  private getIdentityStatus(identity: Identity | OptoutIdentity | null):
     | {
         valid: true;
-        identity: Uid2Identity;
+        identity: Identity;
         errorMessage: string;
         status: IdentityStatus;
       }
@@ -306,10 +306,10 @@ export abstract class UID2SdkBase {
   }
 
   private validateAndSetIdentity(
-    identity: Uid2Identity | OptoutIdentity | null,
+    identity: Identity | OptoutIdentity | null,
     status?: IdentityStatus,
     statusText?: string
-  ): Uid2Identity | OptoutIdentity | null {
+  ): Identity | OptoutIdentity | null {
     if (!this._storageManager) throw new Error('Cannot set identity before calling init.');
     const validity = this.getIdentityStatus(identity);
     if (
@@ -339,7 +339,7 @@ export abstract class UID2SdkBase {
     return validity.identity;
   }
 
-  private triggerRefreshOrSetTimer(validIdentity: Uid2Identity) {
+  private triggerRefreshOrSetTimer(validIdentity: Identity) {
     if (hasExpired(validIdentity.refresh_from, Date.now())) {
       this.refreshToken(validIdentity);
     } else {
@@ -350,7 +350,7 @@ export abstract class UID2SdkBase {
   private _refreshTimerId: ReturnType<typeof setTimeout> | null = null;
 
   private setRefreshTimer() {
-    const timeout = this._opts?.refreshRetryPeriod ?? UID2SdkBase.DEFAULT_REFRESH_RETRY_PERIOD_MS;
+    const timeout = this._opts?.refreshRetryPeriod ?? SdkBase.DEFAULT_REFRESH_RETRY_PERIOD_MS;
     if (this._refreshTimerId) {
       clearTimeout(this._refreshTimerId);
     }
@@ -365,7 +365,7 @@ export abstract class UID2SdkBase {
     }, timeout);
   }
 
-  private refreshToken(identity: Uid2Identity) {
+  private refreshToken(identity: Identity) {
     const apiClient = this._apiClient;
     if (!apiClient) throw new Error('Cannot refresh the token before calling init.');
 

@@ -1,7 +1,7 @@
 import * as mocks from '../mocks';
 import { NAME_CURVE } from '../mocks';
-import { base64ToBytes, bytesToBase64 } from '../encoding/uid2Base64';
-import { EventType } from '../uid2CallbackManager';
+import { base64ToBytes, bytesToBase64 } from '../encoding/base64';
+import { EventType } from '../callbackManager';
 import { sdkWindow, UID2 } from '../uid2Sdk';
 
 let uid2: UID2;

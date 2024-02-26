@@ -1,5 +1,5 @@
-import { bytesToBase64 } from '../encoding/uid2Base64';
-import { isBase64Hash } from '../uid2HashedDii';
+import { bytesToBase64 } from '../encoding/base64';
+import { isBase64Hash } from '../hashedDii';
 
 describe('#isBase64Hash tests', () => {
   it('should return true for a valid base64 hash', async () => {
