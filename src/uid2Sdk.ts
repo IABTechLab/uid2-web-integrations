@@ -8,6 +8,8 @@ import { isBase64Hash } from './hashedDii';
 import { hashAndEncodeIdentifier } from './encoding/hash';
 import { CallbackContainer, ProductDetails, SdkBase, SDKSetup } from './sdkBase';
 
+export * from './exports';
+
 export class UID2 extends SdkBase {
   private static cookieName = '__uid_2';
   // Deprecated. Integrators should never access the cookie directly!

@@ -1,6 +1,8 @@
 import { EventType, CallbackHandler } from './callbackManager';
 import { CallbackContainer, ProductDetails, SdkBase, SDKSetup } from './sdkBase';
 
+export * from './exports';
+
 export class EUID extends SdkBase {
   private static cookieName = '__euid';
   // Deprecated. Integrators should never access the cookie directly!
