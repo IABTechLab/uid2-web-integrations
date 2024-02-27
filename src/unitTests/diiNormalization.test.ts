@@ -1,4 +1,4 @@
-import { isNormalizedPhone, normalizeEmail } from '../uid2DiiNormalization';
+import { isNormalizedPhone, normalizeEmail } from '../diiNormalization';
 
 describe('DiiNormalization Tests', () => {
   describe('#isNormalizedPhone', () => {

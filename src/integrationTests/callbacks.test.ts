@@ -2,10 +2,10 @@ import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globa
 
 import * as mocks from '../mocks';
 import { sdkWindow, UID2 } from '../uid2Sdk';
-import { EventType, Uid2CallbackHandler } from '../uid2CallbackManager';
+import { EventType, CallbackHandler } from '../callbackManager';
 
 let callback: any;
-let asyncCallback: jest.Mock<Uid2CallbackHandler>;
+let asyncCallback: jest.Mock<CallbackHandler>;
 let uid2: UID2;
 let xhrMock: any;
 

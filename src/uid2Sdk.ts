@@ -1,16 +1,16 @@
-import { EventType, Uid2CallbackHandler } from './uid2CallbackManager';
+import { EventType, CallbackHandler } from './callbackManager';
 import {
   ClientSideIdentityOptions,
   isClientSideIdentityOptionsOrThrow,
-} from './uid2ClientSideIdentityOptions';
-import { isNormalizedPhone } from './uid2DiiNormalization';
-import { isBase64Hash } from './uid2HashedDii';
+} from './clientSideIdentityOptions';
+import { isNormalizedPhone } from './diiNormalization';
+import { isBase64Hash } from './hashedDii';
 import { hashAndEncodeIdentifier } from './encoding/hash';
-import { CallbackContainer, ProductDetails, UID2SdkBase, UID2Setup } from './sdkBase';
+import { CallbackContainer, ProductDetails, SdkBase, SDKSetup } from './sdkBase';
 
 export * from './exports';
 
-export class UID2 extends UID2SdkBase {
+export class UID2 extends SdkBase {
   private static cookieName = '__uid_2';
   // Deprecated. Integrators should never access the cookie directly!
   static get COOKIE_NAME() {
@@ -38,7 +38,7 @@ export class UID2 extends UID2SdkBase {
   }
 
   constructor(
-    existingCallbacks: Uid2CallbackHandler[] | undefined = undefined,
+    existingCallbacks: CallbackHandler[] | undefined = undefined,
     callbackContainer: CallbackContainer = {}
   ) {
     super(existingCallbacks, UID2.Uid2Details);
@@ -79,7 +79,7 @@ export class UID2 extends UID2SdkBase {
 
 declare global {
   interface Window {
-    __uid2: UID2 | UID2Setup | undefined;
+    __uid2: UID2 | SDKSetup | undefined;
   }
 }
 

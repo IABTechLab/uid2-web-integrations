@@ -1,17 +1,14 @@
-import { isValidIdentity, Uid2Identity, OptoutIdentity, isOptoutIdentity } from './Uid2Identity';
+import { isValidIdentity, Identity, OptoutIdentity, isOptoutIdentity } from './Identity';
 
-export type UID2CookieOptions = {
+export type CookieOptions = {
   cookieDomain?: string;
   cookiePath?: string;
 };
-type LegacyUid2SDKCookie = Omit<
-  Uid2Identity,
-  'refresh_from' | 'refresh_expires' | 'identity_expires'
->;
+type LegacySDKCookie = Omit<Identity, 'refresh_from' | 'refresh_expires' | 'identity_expires'>;
 
-export function isLegacyCookie(cookie: unknown): cookie is LegacyUid2SDKCookie {
+export function isLegacyCookie(cookie: unknown): cookie is LegacySDKCookie {
   if (typeof cookie !== 'object' || !cookie) return false;
-  const partialCookie = cookie as Partial<LegacyUid2SDKCookie>;
+  const partialCookie = cookie as Partial<LegacySDKCookie>;
   if (
     'advertising_token' in partialCookie &&
     'refresh_token' in partialCookie &&
@@ -22,7 +19,7 @@ export function isLegacyCookie(cookie: unknown): cookie is LegacyUid2SDKCookie {
   return false;
 }
 
-function enrichIdentity(identity: LegacyUid2SDKCookie, now: number) {
+function enrichIdentity(identity: LegacySDKCookie, now: number) {
   return {
     refresh_from: now,
     refresh_expires: now + 7 * 86400 * 1000, // 7 days
@@ -31,14 +28,14 @@ function enrichIdentity(identity: LegacyUid2SDKCookie, now: number) {
   };
 }
 
-export class UID2CookieManager {
-  private _opts: UID2CookieOptions;
+export class CookieManager {
+  private _opts: CookieOptions;
   private _cookieName: string;
-  constructor(opts: UID2CookieOptions, cookieName: string) {
+  constructor(opts: CookieOptions, cookieName: string) {
     this._cookieName = cookieName;
     this._opts = opts;
   }
-  public setCookie(identity: Uid2Identity | OptoutIdentity) {
+  public setCookie(identity: Identity | OptoutIdentity) {
     const value = JSON.stringify(identity);
     const expires = new Date(identity.refresh_expires);
     const path = this._opts.cookiePath ?? '/';
@@ -68,13 +65,13 @@ export class UID2CookieManager {
     }
   }
 
-  private migrateLegacyCookie(identity: LegacyUid2SDKCookie, now: number): Uid2Identity {
+  private migrateLegacyCookie(identity: LegacySDKCookie, now: number): Identity {
     const newCookie = enrichIdentity(identity, now);
     this.setCookie(newCookie);
     return newCookie;
   }
 
-  public loadIdentityFromCookie(): Uid2Identity | OptoutIdentity | null {
+  public loadIdentityFromCookie(): Identity | OptoutIdentity | null {
     const payload = this.getCookie();
     if (payload) {
       const result = JSON.parse(payload) as unknown;

@@ -1,17 +1,17 @@
-import { UID2SdkBase } from './sdkBase';
-import { EventType, Uid2CallbackPayload } from './uid2CallbackManager';
-import { Uid2ApiClient } from './uid2ApiClient';
+import { SdkBase } from './sdkBase';
+import { EventType, CallbackPayload } from './callbackManager';
+import { ApiClient } from './apiClient';
 
 export type PromiseOutcome<T> = {
   resolve: (value: T | PromiseLike<T>) => void;
   reject: (reason: Error | string) => void;
 };
 
-export class UID2PromiseHandler {
+export class PromiseHandler {
   private _promises: PromiseOutcome<string>[] = [];
   private _seenInitOrRejectAll = false;
-  private _apiClient?: Uid2ApiClient;
-  private _handleEvent(eventType: EventType, payload: Uid2CallbackPayload) {
+  private _apiClient?: ApiClient;
+  private _handleEvent(eventType: EventType, payload: CallbackPayload) {
     if (eventType !== EventType.InitCompleted && eventType !== EventType.IdentityUpdated) return;
     if (eventType === EventType.InitCompleted) {
       this._seenInitOrRejectAll = true;
@@ -51,10 +51,10 @@ export class UID2PromiseHandler {
     }
   }
 
-  public registerApiClient(apiClient: Uid2ApiClient) {
+  public registerApiClient(apiClient: ApiClient) {
     this._apiClient = apiClient;
   }
-  constructor(uid2Sdk: UID2SdkBase) {
-    uid2Sdk.callbacks.push(this._handleEvent.bind(this));
+  constructor(sdk: SdkBase) {
+    sdk.callbacks.push(this._handleEvent.bind(this));
   }
 }

@@ -13,8 +13,8 @@ interface IdentityV1 extends IdentityBase {
   // eslint-disable-next-line camelcase
   refresh_response_key: never;
 }
-export type Uid2Identity = IdentityV1 | IdentityV2;
-export function isValidIdentity(identity: Uid2Identity | unknown): identity is Uid2Identity {
+export type Identity = IdentityV1 | IdentityV2;
+export function isValidIdentity(identity: Identity | unknown): identity is Identity {
   return (
     typeof identity === 'object' &&
     identity !== null &&
@@ -25,7 +25,7 @@ export function isValidIdentity(identity: Uid2Identity | unknown): identity is U
     'refresh_expires' in identity
   );
 }
-export interface OptoutIdentity extends Pick<Uid2Identity, 'refresh_expires' | 'identity_expires'> {
+export interface OptoutIdentity extends Pick<Identity, 'refresh_expires' | 'identity_expires'> {
   status: 'optout';
 }
 export function isOptoutIdentity(identity: OptoutIdentity | unknown): identity is OptoutIdentity {

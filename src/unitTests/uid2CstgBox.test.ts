@@ -1,13 +1,13 @@
 import { NAME_CURVE, decryptClientRequest, encryptServerMessage, makeIdentityV2 } from '../mocks';
-import { bytesToBase64 } from '../encoding/uid2Base64';
-import { UID2CstgBox } from '../uid2CstgBox';
-import { exportPublicKey } from '../uid2CstgCrypto';
+import { bytesToBase64 } from '../encoding/base64';
+import { CstgBox } from '../cstgBox';
+import { exportPublicKey } from '../cstgCrypto';
 
 const CryptoKey = require('crypto').webcrypto.CryptoKey;
 
 describe('UID2CstgBox', () => {
   let serverPublicKey: ArrayBuffer;
-  let cstgBox: UID2CstgBox;
+  let cstgBox: CstgBox;
   let serverKeyPair: CryptoKeyPair;
 
   beforeAll(async () => {
@@ -20,7 +20,7 @@ describe('UID2CstgBox', () => {
       ['deriveKey']
     );
     serverPublicKey = await crypto.subtle.exportKey('spki', serverKeyPair.publicKey);
-    cstgBox = await UID2CstgBox.build(bytesToBase64(new Uint8Array(serverPublicKey)));
+    cstgBox = await CstgBox.build(bytesToBase64(new Uint8Array(serverPublicKey)));
   });
 
   const identity = { email: 'test@example.com' };

@@ -1,5 +1,5 @@
-import { UID2SdkBase } from './sdkBase';
-import { Uid2Identity } from './Uid2Identity';
+import { SdkBase } from './sdkBase';
+import { Identity } from './Identity';
 import { Logger } from './sdk/logger';
 
 export enum EventType {
@@ -9,23 +9,23 @@ export enum EventType {
   OptoutReceived = 'OptoutReceived',
 }
 
-export type Uid2CallbackPayload = SdkLoadedPayload | PayloadWithIdentity;
+export type CallbackPayload = SdkLoadedPayload | PayloadWithIdentity;
 
-export type Uid2CallbackHandler = (event: EventType, payload: Uid2CallbackPayload) => void;
+export type CallbackHandler = (event: EventType, payload: CallbackPayload) => void;
 type SdkLoadedPayload = Record<string, never>;
 type PayloadWithIdentity = {
-  identity: Uid2Identity | null;
+  identity: Identity | null;
 };
 
-export class Uid2CallbackManager {
-  private _getIdentity: () => Uid2Identity | null | undefined;
+export class CallbackManager {
+  private _getIdentity: () => Identity | null | undefined;
   private _logger: Logger;
-  private _sdk: UID2SdkBase;
+  private _sdk: SdkBase;
   private _productName: string;
   constructor(
-    sdk: UID2SdkBase,
+    sdk: SdkBase,
     productName: string,
-    getIdentity: () => Uid2Identity | null | undefined,
+    getIdentity: () => Identity | null | undefined,
     logger: Logger
   ) {
     this._productName = productName;
@@ -37,9 +37,9 @@ export class Uid2CallbackManager {
 
   private static _sentSdkLoaded: Record<string, boolean> = {};
   private _sentInit = false;
-  private callbackPushInterceptor(...args: Uid2CallbackHandler[]) {
+  private callbackPushInterceptor(...args: CallbackHandler[]) {
     for (const c of args) {
-      if (Uid2CallbackManager._sentSdkLoaded[this._productName])
+      if (CallbackManager._sentSdkLoaded[this._productName])
         this.safeRunCallback(c, EventType.SdkLoaded, {});
       if (this._sentInit)
         this.safeRunCallback(c, EventType.InitCompleted, {
@@ -49,9 +49,9 @@ export class Uid2CallbackManager {
     return Array.prototype.push.apply(this._sdk.callbacks, args);
   }
 
-  public runCallbacks(event: EventType, payload: Uid2CallbackPayload) {
+  public runCallbacks(event: EventType, payload: CallbackPayload) {
     if (event === EventType.InitCompleted) this._sentInit = true;
-    if (event === EventType.SdkLoaded) Uid2CallbackManager._sentSdkLoaded[this._productName] = true;
+    if (event === EventType.SdkLoaded) CallbackManager._sentSdkLoaded[this._productName] = true;
     if (!this._sentInit && event !== EventType.SdkLoaded) return;
 
     const enrichedPayload = {
@@ -62,11 +62,7 @@ export class Uid2CallbackManager {
       this.safeRunCallback(callback, event, enrichedPayload);
     }
   }
-  private safeRunCallback(
-    callback: Uid2CallbackHandler,
-    event: EventType,
-    payload: Uid2CallbackPayload
-  ) {
+  private safeRunCallback(callback: CallbackHandler, event: EventType, payload: CallbackPayload) {
     if (typeof callback === 'function') {
       try {
         callback(event, payload);

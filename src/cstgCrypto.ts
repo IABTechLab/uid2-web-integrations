@@ -1,4 +1,4 @@
-import { base64ToBytes } from './encoding/uid2Base64';
+import { base64ToBytes } from './encoding/base64';
 
 export function generateKeyPair(namedCurve: NamedCurve): Promise<CryptoKeyPair> {
   const params: EcKeyGenParams = {

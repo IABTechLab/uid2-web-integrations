@@ -1,20 +1,20 @@
-import { UID2CookieManager } from './uid2CookieManager';
-import { OptoutIdentity, Uid2Identity } from './Uid2Identity';
-import { UID2LocalStorageManager } from './uid2LocalStorageManager';
-import { Uid2Options } from './Uid2Options';
+import { CookieManager } from './cookieManager';
+import { OptoutIdentity, Identity } from './Identity';
+import { LocalStorageManager } from './localStorageManager';
+import { SdkOptions } from './sdkOptions';
 
-export class UID2StorageManager {
-  private _cookieManager: UID2CookieManager;
-  private _localStorageManager: UID2LocalStorageManager;
+export class StorageManager {
+  private _cookieManager: CookieManager;
+  private _localStorageManager: LocalStorageManager;
 
-  private _opts: Uid2Options;
-  constructor(opts: Uid2Options, cookieName: string, localStorageKey: string) {
+  private _opts: SdkOptions;
+  constructor(opts: SdkOptions, cookieName: string, localStorageKey: string) {
     this._opts = opts;
-    this._cookieManager = new UID2CookieManager({ ...opts }, cookieName);
-    this._localStorageManager = new UID2LocalStorageManager(localStorageKey);
+    this._cookieManager = new CookieManager({ ...opts }, cookieName);
+    this._localStorageManager = new LocalStorageManager(localStorageKey);
   }
 
-  public loadIdentityWithFallback(): Uid2Identity | OptoutIdentity | null {
+  public loadIdentityWithFallback(): Identity | OptoutIdentity | null {
     const localStorageIdentity = this._localStorageManager.loadIdentityFromLocalStorage();
     const cookieIdentity = this._cookieManager.loadIdentityFromCookie();
     const shouldUseCookie =
@@ -24,13 +24,13 @@ export class UID2StorageManager {
     return shouldUseCookie ? cookieIdentity : localStorageIdentity;
   }
 
-  public loadIdentity(): Uid2Identity | OptoutIdentity | null {
+  public loadIdentity(): Identity | OptoutIdentity | null {
     return this._opts.useCookie
       ? this._cookieManager.loadIdentityFromCookie()
       : this._localStorageManager.loadIdentityFromLocalStorage();
   }
 
-  public setIdentity(identity: Uid2Identity) {
+  public setIdentity(identity: Identity) {
     this.setValue(identity);
   }
 
@@ -44,7 +44,7 @@ export class UID2StorageManager {
     this.setValue(optout);
   }
 
-  private setValue(value: Uid2Identity | OptoutIdentity) {
+  private setValue(value: Identity | OptoutIdentity) {
     if (this._opts.useCookie) {
       this._cookieManager.setCookie(value);
       return;

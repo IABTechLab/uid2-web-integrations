@@ -1,9 +1,9 @@
-export { EventType, Uid2CallbackHandler } from './uid2CallbackManager';
+export { EventType, CallbackHandler } from './callbackManager';
 export {
   ClientSideIdentityOptions,
   isClientSideIdentityOptionsOrThrow,
-} from './uid2ClientSideIdentityOptions';
-export { isNormalizedPhone } from './uid2DiiNormalization';
-export { isBase64Hash } from './uid2HashedDii';
+} from './clientSideIdentityOptions';
+export { isNormalizedPhone } from './diiNormalization';
+export { isBase64Hash } from './hashedDii';
 export { hashAndEncodeIdentifier } from './encoding/hash';
-export { CallbackContainer, ProductDetails, UID2SdkBase, UID2Setup } from './sdkBase';
+export { CallbackContainer, ProductDetails, SdkBase, SDKSetup } from './sdkBase';

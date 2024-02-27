@@ -1,6 +1,6 @@
-import { decrypt, deriveKey, encrypt, generateKeyPair, importPublicKey } from './uid2CstgCrypto';
+import { decrypt, deriveKey, encrypt, generateKeyPair, importPublicKey } from './cstgCrypto';
 
-export class UID2CstgBox {
+export class CstgBox {
   private static readonly _namedCurve = 'P-256';
 
   private readonly _clientPublicKey: CryptoKey;
@@ -11,11 +11,11 @@ export class UID2CstgBox {
     this._sharedKey = sharedKey;
   }
 
-  public static async build(serverPublicKey: string): Promise<UID2CstgBox> {
-    const clientKeyPair = await generateKeyPair(UID2CstgBox._namedCurve);
+  public static async build(serverPublicKey: string): Promise<CstgBox> {
+    const clientKeyPair = await generateKeyPair(CstgBox._namedCurve);
     const importedServerPublicKey = await importPublicKey(serverPublicKey, this._namedCurve);
     const sharedKey = await deriveKey(importedServerPublicKey, clientKeyPair.privateKey);
-    return new UID2CstgBox(clientKeyPair.publicKey, sharedKey);
+    return new CstgBox(clientKeyPair.publicKey, sharedKey);
   }
 
   public async encrypt(
