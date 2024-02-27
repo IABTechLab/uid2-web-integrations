@@ -1,4 +1,4 @@
-import { isValidIdentity, Uid2Identity } from './Uid2Identity';
+import { isValidIdentity, Uid2Identity, OptoutIdentity, isOptoutIdentity } from './Uid2Identity';
 
 export type UID2CookieOptions = {
   cookieDomain?: string;
@@ -38,7 +38,7 @@ export class UID2CookieManager {
     this._cookieName = cookieName;
     this._opts = opts;
   }
-  public setCookie(identity: Uid2Identity) {
+  public setCookie(identity: Uid2Identity | OptoutIdentity) {
     const value = JSON.stringify(identity);
     const expires = new Date(identity.refresh_expires);
     const path = this._opts.cookiePath ?? '/';
@@ -74,11 +74,12 @@ export class UID2CookieManager {
     return newCookie;
   }
 
-  public loadIdentityFromCookie(): Uid2Identity | null {
+  public loadIdentityFromCookie(): Uid2Identity | OptoutIdentity | null {
     const payload = this.getCookie();
     if (payload) {
       const result = JSON.parse(payload) as unknown;
       if (isValidIdentity(result)) return result;
+      if (isOptoutIdentity(result)) return result;
       if (isLegacyCookie(result)) {
         return this.migrateLegacyCookie(result, Date.now());
       }

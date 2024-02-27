@@ -18,7 +18,10 @@ export type SuccessCstgResult = {
   status: 'success';
   identity: Uid2Identity;
 };
-export type CstgResult = SuccessCstgResult;
+export type OptoutCstgResult = {
+  status: 'optout';
+};
+export type CstgResult = SuccessCstgResult | OptoutCstgResult;
 
 type RefreshApiResponse =
   | {
@@ -60,8 +63,11 @@ type CstgApiForbiddenResponse = {
   status: 'invalid_http_origin';
   message: string;
 };
+type CstgApiOptoutResponse = {
+  status: 'optout';
+};
 
-export type CstgResponse = CstgApiSuccessResponse;
+export type CstgResponse = CstgApiSuccessResponse | CstgApiOptoutResponse;
 
 function isCstgApiSuccessResponse(response: unknown): response is CstgApiSuccessResponse {
   if (response === null || typeof response !== 'object') {
@@ -70,6 +76,14 @@ function isCstgApiSuccessResponse(response: unknown): response is CstgApiSuccess
 
   const successResponse = response as CstgApiSuccessResponse;
   return successResponse.status === 'success' && isValidIdentity(successResponse.body);
+}
+
+function isCstgApiOptoutResponse(response: unknown): response is CstgApiOptoutResponse {
+  if (response === null || typeof response !== 'object') {
+    return false;
+  }
+  const optoutResponse = response as CstgApiOptoutResponse;
+  return optoutResponse.status === 'optout';
 }
 
 function isCstgApiClientErrorResponse(response: unknown): response is CstgApiClientErrorResponse {
@@ -253,6 +267,10 @@ export class Uid2ApiClient {
             resolvePromise({
               status: 'success',
               identity: response.body,
+            });
+          } else if (isCstgApiOptoutResponse(response)) {
+            resolvePromise({
+              status: 'optout',
             });
           } else {
             // A 200 should always be a success response.

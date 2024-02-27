@@ -6,6 +6,7 @@ export enum EventType {
   InitCompleted = 'InitCompleted',
   IdentityUpdated = 'IdentityUpdated',
   SdkLoaded = 'SdkLoaded',
+  OptoutReceived = 'OptoutReceived',
 }
 
 export type Uid2CallbackPayload = SdkLoadedPayload | PayloadWithIdentity;

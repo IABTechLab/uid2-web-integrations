@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globa
 
 import * as mocks from '../mocks';
 import { sdkWindow, UID2 } from '../uid2Sdk';
+import { EventType } from '../uid2CallbackManager';
 
 let callback: any;
 let uid2: UID2;
@@ -335,6 +336,27 @@ testCookieAndLocalStorage(() => {
         expect(xhrMock.send).toHaveBeenLastCalledWith(identity.refresh_token);
         xhrMock.onreadystatechange();
         expect(cryptoMock.subtle.importKey).toHaveBeenCalledTimes(0);
+        mocks.resetCrypto(sdkWindow);
+      });
+    });
+    describe('when opted out identity is stored', () => {
+      let callback: ReturnType<typeof jest.fn>;
+      beforeEach(() => {
+        const optedOutIdentity = {
+          status: 'optout',
+          identity_expires: Date.now() + 10000,
+          refresh_expires: Date.now() + 10000,
+        };
+        callback = jest.fn();
+        uid2.callbacks.push(callback);
+        setUid2(optedOutIdentity, useCookie);
+        uid2.init({ useCookie });
+      });
+      test('hasOptedOut should be true', () => {
+        expect(uid2.hasOptedOut()).toBe(true);
+      });
+      test('the callback should be called with an opted out event', () => {
+        expect(callback).toBeCalledWith(EventType.OptoutReceived, { identity: null });
       });
     });
   });
@@ -457,6 +479,10 @@ testCookieAndLocalStorage(() => {
         identity: originalIdentity,
         useCookie: useCookie,
       });
+      let cryptoMock = new mocks.CryptoMock(sdkWindow);
+    });
+    afterEach(() => {
+      mocks.resetCrypto(sdkWindow);
     });
 
     describe('when token refresh succeeds', () => {
@@ -529,8 +555,8 @@ testCookieAndLocalStorage(() => {
           })
         );
       });
-      test('should not set cookie', () => {
-        expect(getUid2(useCookie)).toBeNull();
+      test('should set cookie to optout', () => {
+        expect(getUid2(useCookie)).toMatchObject({ status: 'optout' });
       });
       test('should not set refresh timer', () => {
         expect(setTimeout).not.toHaveBeenCalled();
@@ -729,6 +755,10 @@ testCookieAndLocalStorage(() => {
         identity: originalIdentity,
         useCookie: useCookie,
       });
+      let cryptoMock = new mocks.CryptoMock(sdkWindow);
+    });
+    afterEach(() => {
+      mocks.resetCrypto(sdkWindow);
     });
 
     describe('when token refresh succeeds', () => {
@@ -760,8 +790,15 @@ testCookieAndLocalStorage(() => {
     });
 
     describe('when token refresh returns optout', () => {
+      let handler: ReturnType<typeof jest.fn>;
       beforeEach(() => {
-        xhrMock.responseText = btoa(JSON.stringify({ status: 'optout' }));
+        handler = jest.fn();
+        uid2.callbacks.push(handler);
+        xhrMock.responseText = btoa(
+          JSON.stringify({
+            status: 'optout',
+          })
+        );
         xhrMock.onreadystatechange(new Event(''));
       });
 
@@ -774,8 +811,15 @@ testCookieAndLocalStorage(() => {
           })
         );
       });
-      test('should not set cookie', () => {
-        expect(getUid2(useCookie)).toBeNull();
+      test('should invoke the callback with no identity', () => {
+        expect(handler).toBeCalledWith(EventType.InitCompleted, { identity: null });
+      });
+      test('should invoke the callback with an optout event', () => {
+        expect(handler).toBeCalledWith(EventType.OptoutReceived, { identity: null });
+      });
+      test('should store the optout', () => {
+        const identity = getUid2(useCookie);
+        expect(identity).toMatchObject({ status: 'optout' });
       });
       test('should not set refresh timer', () => {
         expect(setTimeout).not.toHaveBeenCalled();

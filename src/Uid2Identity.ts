@@ -25,3 +25,11 @@ export function isValidIdentity(identity: Uid2Identity | unknown): identity is U
     'refresh_expires' in identity
   );
 }
+export interface OptoutIdentity extends Pick<Uid2Identity, 'refresh_expires' | 'identity_expires'> {
+  status: 'optout';
+}
+export function isOptoutIdentity(identity: OptoutIdentity | unknown): identity is OptoutIdentity {
+  if (identity === null || typeof identity !== 'object') return false;
+  const maybeIdentity = identity as OptoutIdentity;
+  return maybeIdentity.status === 'optout';
+}

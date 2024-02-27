@@ -1,11 +1,11 @@
-import { isValidIdentity, Uid2Identity } from './Uid2Identity';
+import { isOptoutIdentity, isValidIdentity, OptoutIdentity, Uid2Identity } from './Uid2Identity';
 
 export class UID2LocalStorageManager {
   private _storageKey: string;
   constructor(storageKey: string) {
     this._storageKey = storageKey;
   }
-  public setValue(identity: Uid2Identity) {
+  public setValue(identity: Uid2Identity | OptoutIdentity) {
     const value = JSON.stringify(identity);
     localStorage.setItem(this._storageKey, value);
   }
@@ -16,11 +16,12 @@ export class UID2LocalStorageManager {
     return localStorage.getItem(this._storageKey);
   }
 
-  public loadIdentityFromLocalStorage(): Uid2Identity | null {
+  public loadIdentityFromLocalStorage(): Uid2Identity | OptoutIdentity | null {
     const payload = this.getValue();
     if (payload) {
       const result = JSON.parse(payload) as unknown;
       if (isValidIdentity(result)) return result;
+      if (isOptoutIdentity(result)) return result;
     }
     return null;
   }
