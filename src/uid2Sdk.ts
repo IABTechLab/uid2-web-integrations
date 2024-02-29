@@ -3,12 +3,30 @@ import {
   ClientSideIdentityOptions,
   isClientSideIdentityOptionsOrThrow,
 } from './clientSideIdentityOptions';
-import { isNormalizedPhone } from './diiNormalization';
+import { isNormalizedPhone, normalizeEmail } from './diiNormalization';
 import { isBase64Hash } from './hashedDii';
-import { hashAndEncodeIdentifier } from './encoding/hash';
+import { hashAndEncodeIdentifier, hashIdentifier } from './encoding/hash';
 import { CallbackContainer, ProductDetails, SdkBase, SDKSetup } from './sdkBase';
 
 export * from './exports';
+
+export class UID2Helper {
+  public normalizeEmail(email: string) {
+    return normalizeEmail(email);
+  }
+
+  public hashIdentifier(normalizedEmail: string) {
+    return hashIdentifier(normalizedEmail);
+  }
+
+  public async hashAndEncodeIdentifier(normalizedEmail: string) {
+    return await hashAndEncodeIdentifier(normalizedEmail);
+  }
+
+  public isNormalizedPhone(phone: string) {
+    return isNormalizedPhone(phone);
+  }
+}
 
 export class UID2 extends SdkBase {
   private static cookieName = '__uid_2';
@@ -80,6 +98,7 @@ export class UID2 extends SdkBase {
 declare global {
   interface Window {
     __uid2: UID2 | SDKSetup | undefined;
+    __uid2Helper: UID2Helper | undefined;
   }
 }
 
@@ -87,6 +106,7 @@ export function __uid2InternalHandleScriptLoad() {
   const callbacks = window?.__uid2?.callbacks || [];
   const callbackContainer: CallbackContainer = {};
   window.__uid2 = new UID2(callbacks, callbackContainer);
+  window.__uid2Helper = new UID2Helper();
   if (callbackContainer.callback) callbackContainer.callback();
 }
 __uid2InternalHandleScriptLoad();
