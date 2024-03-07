@@ -37,6 +37,14 @@
       }
     },
     {
+      "label": "Build CSTG EUID Image",
+      "type": "docker-build",
+      "dockerBuild": {
+        "context": "${workspaceFolder}/examples/cstg-euid",
+        "tag": "euid-cstg-example"
+      }
+    },
+    {
       "label": "Build Secure Signals Image",
       "type": "docker-build",
       "dockerBuild": {
@@ -68,6 +76,36 @@
         "volumes": [
           {
             "localPath": "${workspaceFolder}/examples/cstg/html",
+            "containerPath": "/usr/share/nginx/html",
+            "permissions": "ro"
+          }
+        ],
+        "env": {
+          "UID2_BASE_URL": "http://localhost:8080",
+          "UID2_JS_SDK_URL": "http://localhost:9091/uid2-sdk.js",
+          "EUID_JS_SDK_URL": "http://localhost:9091/euid-sdk.js",
+          "SERVER_PUBLIC_KEY": "UID2-X-L-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEWyCP9O/6ppffj8f5PUWsEhAoMNdTBnpnkiOPZBkVnLkxOyTjPsKzf5J3ApPHzutAGNGgKAzFc6TuCfo+BWsZtQ==",
+          "SUBSCRIPTION_ID": "LBk2xJsgrS"
+        },
+        "remove": true
+      }
+    },
+    {
+      "label": "Run CSTG EUID Container",
+      "type": "docker-run",
+      "dependsOn": ["Build CSTG EUID Image"],
+      "dockerRun": {
+        "image": "euid-cstg-example",
+        "containerName": "euid-cstg-example",
+        "ports": [
+          {
+            "hostPort": 9190,
+            "containerPort": 80
+          }
+        ],
+        "volumes": [
+          {
+            "localPath": "${workspaceFolder}/examples/cstg-euid/html",
             "containerPath": "/usr/share/nginx/html",
             "permissions": "ro"
           }
@@ -141,6 +179,10 @@
       "dependsOn": ["webpack-dev-server", "Run CSTG Container"]
     },
     {
+      "label": "Start CSTG EUID",
+      "dependsOn": ["webpack-dev-server", "Run CSTG EUID Container"]
+    },
+    {
       "label": "Start Prebid CSTG",
       "dependsOn": ["Run Prebid CSTG Container"]
     },
@@ -152,6 +194,11 @@
       "label": "Terminate CSTG Container",
       "type": "shell",
       "command": "docker stop uid2-cstg-example"
+    },
+    {
+      "label": "Terminate CSTG EUID Container",
+      "type": "shell",
+      "command": "docker stop euid-cstg-example"
     },
     {
       "label": "Terminate Prebid CSTG Container",
@@ -172,6 +219,10 @@
     {
       "label": "Terminate CSTG",
       "dependsOn": ["Terminate All Tasks", "Terminate CSTG Container"]
+    },
+    {
+      "label": "Terminate CSTG EUID",
+      "dependsOn": ["Terminate All Tasks", "Terminate CSTG EUID Container"]
     },
     {
       "label": "Terminate Prebid CSTG",
