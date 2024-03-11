@@ -5,14 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch CSTG (Chrome)",
+      "name": "Launch CSTG UID2 (Chrome)",
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:9190",
       "webRoot": "${workspaceRoot}/",
       "sourceMaps": true,
-      "preLaunchTask": "Start CSTG",
-      "postDebugTask": "Terminate CSTG",
+      "preLaunchTask": "Start CSTG UID2",
+      "postDebugTask": "Terminate CSTG UID2",
       "sourceMapPathOverrides": {
         "webpack://@uid2/uid2-sdk/./*": "${webRoot}/*"
       }
