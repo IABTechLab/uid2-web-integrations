@@ -1,4 +1,5 @@
-const entrypoint = './src/uid2Sdk.ts';
+const uid2Entrypoint = './src/uid2Sdk.ts';
+const euidEntrypoint = './src/euidSdk.ts';
 const espEntryPoint = './src/secureSignal.ts';
 
 const espOutput = {
@@ -18,9 +19,13 @@ module.exports = (env, argv) => {
     devtool: prodSourceMaps ? 'source-map' : false,
     entry: !env.espOnly
       ? {
-          main: {
-            import: entrypoint,
+          'uid2-sdk': {
+            import: uid2Entrypoint,
             filename: `uid2-sdk-${process.env.npm_package_version}.js`,
+          },
+          'euid-sdk': {
+            import: euidEntrypoint,
+            filename: `euid-sdk-${process.env.npm_package_version}.js`,
           },
           ...getExampleOutputs(env),
         }
