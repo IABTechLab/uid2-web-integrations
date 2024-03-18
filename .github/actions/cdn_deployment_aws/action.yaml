@@ -10,6 +10,9 @@ inputs:
   invalidate_paths:
     description: paths that get invalidated in cloud front
     default: ''
+  aws_account_id:
+    description: The AWS account id
+    required: true
   aws_distribution_id:
     description: The CloudFront description id
     required: true
@@ -17,15 +20,15 @@ inputs:
     description: The AWS bucket to sync
     required: true
 runs:
-  using: "composite"
+  using: 'composite'
 
   steps:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: us-east-2
-        role-to-assume: arn:aws:iam::475720075663:role/github-runner-for-cdn
-  
+        role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/github-runner-for-cdn
+
     - name: Check Identity
       shell: bash
       run: aws sts get-caller-identity

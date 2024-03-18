@@ -84,6 +84,7 @@ jobs:
           environment: ${{ matrix.environment }}
           artifact: uid2SDK-${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
           invalidate_paths: '/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js'
+          aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
           aws_bucket_name: ${{ vars.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
   cdn-deployment-euid:
@@ -102,5 +103,6 @@ jobs:
           environment: ${{ matrix.environment }}
           artifact: euidSDK-${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
           invalidate_paths: '/euid-sdk-${{ needs.build.outputs.sdkVersion}}.js'
+          aws_account_id: ${{ vars.EUID_AWS_ACCOUNT_ID }}
           aws_bucket_name: ${{ vars.EUID_S3_BUCKET }}
           aws_distribution_id: ${{ secrets.EUID_AWS_DISTRIBUTION_ID }}
