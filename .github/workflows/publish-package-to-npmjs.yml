@@ -1,5 +1,5 @@
 name: Release SDK Package to NPM and CDN
-run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} SDK Package to NPM and CDN by @${{ github.actor }}  
+run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} SDK Package to NPM and CDN by @${{ github.actor }}
 
 on:
   workflow_dispatch:
@@ -38,6 +38,10 @@ jobs:
         with:
           name: uid2SDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
           path: ./dist/uid2-sdk-${{ steps.version.outputs.package_version }}.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: euidSDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
+          path: ./dist/euid-sdk-${{ steps.version.outputs.package_version }}.js
     outputs:
       sdkVersion: ${{ steps.version.outputs.package_version }}
   publish-package:
@@ -64,25 +68,41 @@ jobs:
         run: npm publish --tag ${{github.event.inputs.with_tag}} --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-  cdn-deployment:
+  cdn-deployment-uid2:
     needs: [build]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-
     strategy:
       matrix:
         environment: [integ, production]
-
     environment: ${{ matrix.environment }}
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: ./.github/actions/cdn_deployment_aws
-        with: 
+        with:
           environment: ${{ matrix.environment }}
           artifact: uid2SDK-${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
           invalidate_paths: '/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js'
+          aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
           aws_bucket_name: ${{ vars.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+  cdn-deployment-euid:
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    strategy:
+      matrix:
+        environment: [integ, production]
+    environment: ${{ matrix.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/cdn_deployment_aws
+        with:
+          environment: ${{ matrix.environment }}
+          artifact: euidSDK-${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
+          invalidate_paths: '/euid-sdk-${{ needs.build.outputs.sdkVersion}}.js'
+          aws_account_id: ${{ vars.EUID_AWS_ACCOUNT_ID }}
+          aws_bucket_name: ${{ vars.EUID_S3_BUCKET }}
+          aws_distribution_id: ${{ secrets.EUID_AWS_DISTRIBUTION_ID }}

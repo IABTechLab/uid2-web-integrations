@@ -5,10 +5,12 @@
     "googletag",
     "initialised",
     "initialising",
+    "INTEG",
     "IUID",
     "optout",
     "pbjs",
-    "refreshable"
+    "refreshable",
+    "uidapi"
   ],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
