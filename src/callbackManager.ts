@@ -12,8 +12,8 @@ export enum EventType {
 export type CallbackPayload = SdkLoadedPayload | PayloadWithIdentity;
 
 export type CallbackHandler = (event: EventType, payload: CallbackPayload) => void;
-type SdkLoadedPayload = Record<string, never>;
-type PayloadWithIdentity = {
+export type SdkLoadedPayload = Record<string, never>;
+export type PayloadWithIdentity = {
   identity: Identity | null;
 };
 
