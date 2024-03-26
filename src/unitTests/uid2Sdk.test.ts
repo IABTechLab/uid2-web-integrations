@@ -24,28 +24,39 @@ describe('#uid2Sdk', () => {
 
   describe('#isClientSideIdentityOptionsOrThrow', () => {
     test('should throw opts must be an object error when config is not object', () => {
-      expect(() => isClientSideIdentityOptionsOrThrow('')).toThrow('opts must be an object');
+      expect(() => isClientSideIdentityOptionsOrThrow('', 'UID2')).toThrow(
+        'opts must be an object'
+      );
     });
     test('should throw serverPublicKey must be a string error when serverPublicKey is not a string', () => {
       expect(() =>
-        isClientSideIdentityOptionsOrThrow(makeCstgOption({ serverPublicKey: {} }))
+        isClientSideIdentityOptionsOrThrow(makeCstgOption({ serverPublicKey: {} }), 'UID2')
       ).toThrow('opts.serverPublicKey must be a string');
     });
     test('should throw serverPublicKey prefix when serverPublicKey is invalid', () => {
       expect(() =>
         isClientSideIdentityOptionsOrThrow(
-          makeCstgOption({ serverPublicKey: 'test-server-public-key' })
+          makeCstgOption({ serverPublicKey: 'test-server-public-key' }),
+          'UID2'
         )
       ).toThrow('opts.serverPublicKey must match the regular expression /^UID2-X-[A-Z]-.+/');
     });
+    test('should throw serverPublicKey prefix (EUID) when serverPublicKey is invalid', () => {
+      expect(() =>
+        isClientSideIdentityOptionsOrThrow(
+          makeCstgOption({ serverPublicKey: 'test-server-public-key' }),
+          'EUID'
+        )
+      ).toThrow('opts.serverPublicKey must match the regular expression /^EUID-X-[A-Z]-.+/');
+    });
     test('should throw subscriptionId must be a string error when subscriptionId is not a string', () => {
       expect(() =>
-        isClientSideIdentityOptionsOrThrow(makeCstgOption({ subscriptionId: {} }))
+        isClientSideIdentityOptionsOrThrow(makeCstgOption({ subscriptionId: {} }), 'UID2')
       ).toThrow('opts.subscriptionId must be a string');
     });
     test('should throw subscriptionId is empty error when subscriptionId is not given', () => {
       expect(() =>
-        isClientSideIdentityOptionsOrThrow(makeCstgOption({ subscriptionId: '' }))
+        isClientSideIdentityOptionsOrThrow(makeCstgOption({ subscriptionId: '' }), 'UID2')
       ).toThrow('opts.subscriptionId is empty');
     });
   });

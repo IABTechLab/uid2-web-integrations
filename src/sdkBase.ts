@@ -47,7 +47,7 @@ export abstract class SdkBase {
   private _apiClient: ApiClient | undefined;
 
   // State
-  private _product: ProductDetails;
+  protected _product: ProductDetails;
   private _opts: SdkOptions = {};
   private _identity: Identity | OptoutIdentity | null | undefined;
   private _initComplete = false;
@@ -81,7 +81,7 @@ export abstract class SdkBase {
   public async setIdentityFromEmail(email: string, opts: ClientSideIdentityOptions) {
     this._logger.log('Sending request', email);
     this.throwIfInitNotComplete('Cannot set identity before calling init.');
-    isClientSideIdentityOptionsOrThrow(opts);
+    isClientSideIdentityOptionsOrThrow(opts, this._product.name);
 
     const normalizedEmail = normalizeEmail(email);
     if (normalizedEmail === undefined) {
@@ -94,7 +94,7 @@ export abstract class SdkBase {
 
   public async setIdentityFromEmailHash(emailHash: string, opts: ClientSideIdentityOptions) {
     this.throwIfInitNotComplete('Cannot set identity before calling init.');
-    isClientSideIdentityOptionsOrThrow(opts);
+    isClientSideIdentityOptionsOrThrow(opts, this._product.name);
 
     if (!isBase64Hash(emailHash)) {
       throw new Error('Invalid hash');
