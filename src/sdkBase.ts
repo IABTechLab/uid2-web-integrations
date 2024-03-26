@@ -9,7 +9,7 @@ import {
   ClientSideIdentityOptions,
   isClientSideIdentityOptionsOrThrow,
 } from './clientSideIdentityOptions';
-import { isNormalizedPhone, normalizeEmail } from './diiNormalization';
+import { normalizeEmail } from './diiNormalization';
 import { isBase64Hash } from './hashedDii';
 import { PromiseHandler } from './promiseHandler';
 import { StorageManager } from './storageManager';
@@ -31,8 +31,8 @@ export abstract class SdkBase {
   static get DEFAULT_REFRESH_RETRY_PERIOD_MS() {
     return 5000;
   }
-  static IdentityStatus = IdentityStatus;
-  static EventType = EventType;
+  static readonly IdentityStatus = IdentityStatus;
+  static readonly EventType = EventType;
 
   // Push functions to this array to receive event notifications
   public callbacks: CallbackHandler[] = [];
@@ -53,10 +53,7 @@ export abstract class SdkBase {
   private _initComplete = false;
 
   // Sets up nearly everything, but does not run SdkLoaded callbacks - derived classes must run them.
-  protected constructor(
-    existingCallbacks: CallbackHandler[] | undefined = undefined,
-    product: ProductDetails
-  ) {
+  protected constructor(existingCallbacks: CallbackHandler[] | undefined, product: ProductDetails) {
     this._product = product;
     this._logger = MakeLogger(console, product.name);
     if (existingCallbacks) this.callbacks = existingCallbacks;
