@@ -13,6 +13,10 @@ const CryptoKey = require('crypto').webcrypto.CryptoKey;
 const generateSharedKey = (keyUsages: KeyUsage[]) => {
   return crypto.subtle.generateKey({ name: 'AES-GCM', length: 128 }, true, keyUsages);
 };
+const expectedAlgorithm = {
+  name: 'ECDH',
+  namedCurve: 'P-256',
+};
 
 const sharedKeyIsMatched = async (sharedKey1: CryptoKey, sharedKey2: CryptoKey) => {
   const testMessage = 'Test secret message';
@@ -149,8 +153,9 @@ describe('uid2CstgCrypto Tests', () => {
   describe('#generateKeyPair', () => {
     it(' should return a valid CryptoKePair', async () => {
       const keyPair = await generateKeyPair('P-256');
-      expect(keyPair.publicKey).toBeInstanceOf(CryptoKey);
-      expect(keyPair.privateKey).toBeInstanceOf(CryptoKey);
+
+      expect(keyPair.publicKey.algorithm).toEqual(expectedAlgorithm);
+      expect(keyPair.privateKey.algorithm).toEqual(expectedAlgorithm);
     });
   });
 
@@ -197,6 +202,6 @@ describe('uid2CstgCrypto Tests', () => {
 
     const importedKey = await importPublicKey(bytesToBase64(new Uint8Array(publicKey)), 'P-256');
 
-    expect(importedKey).toBeInstanceOf(CryptoKey);
+    expect(importedKey.algorithm).toEqual(expectedAlgorithm);
   });
 });

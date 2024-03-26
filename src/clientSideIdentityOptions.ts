@@ -1,3 +1,5 @@
+import { ProductName } from './product';
+
 export type ClientSideIdentityOptions = {
   readonly serverPublicKey: string;
   readonly subscriptionId: string;
@@ -10,7 +12,8 @@ export function stripPublicKeyPrefix(serverPublicKey: string) {
 }
 
 export function isClientSideIdentityOptionsOrThrow(
-  maybeOpts: any
+  maybeOpts: any,
+  product: ProductName = 'UID2'
 ): maybeOpts is ClientSideIdentityOptions {
   if (typeof maybeOpts !== 'object' || maybeOpts === null) {
     throw new TypeError('opts must be an object');
@@ -20,7 +23,7 @@ export function isClientSideIdentityOptionsOrThrow(
   if (typeof opts.serverPublicKey !== 'string') {
     throw new TypeError('opts.serverPublicKey must be a string');
   }
-  const serverPublicKeyPrefix = /^UID2-X-[A-Z]-.+/;
+  const serverPublicKeyPrefix = new RegExp(`^${product}-X-[A-Z]-.+`);
   if (!serverPublicKeyPrefix.test(opts.serverPublicKey)) {
     throw new TypeError(
       `opts.serverPublicKey must match the regular expression ${serverPublicKeyPrefix}`

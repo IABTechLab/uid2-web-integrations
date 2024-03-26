@@ -1,4 +1,5 @@
-import { ProductName, SdkBase } from './sdkBase';
+import { SdkBase } from './sdkBase';
+import { ProductName } from './product';
 import { isValidIdentity, Identity } from './Identity';
 import { CstgBox } from './cstgBox';
 import { exportPublicKey } from './cstgCrypto';

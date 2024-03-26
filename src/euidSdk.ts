@@ -1,5 +1,6 @@
 import { EventType, CallbackHandler } from './callbackManager';
-import { CallbackContainer, ProductDetails, SdkBase, SDKSetup } from './sdkBase';
+import { CallbackContainer, SdkBase, SDKSetup } from './sdkBase';
+import { ProductDetails } from './product';
 
 export * from './exports';
 

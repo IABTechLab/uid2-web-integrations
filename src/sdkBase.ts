@@ -9,11 +9,12 @@ import {
   ClientSideIdentityOptions,
   isClientSideIdentityOptionsOrThrow,
 } from './clientSideIdentityOptions';
-import { isNormalizedPhone, normalizeEmail } from './diiNormalization';
+import { normalizeEmail } from './diiNormalization';
 import { isBase64Hash } from './hashedDii';
 import { PromiseHandler } from './promiseHandler';
 import { StorageManager } from './storageManager';
 import { hashAndEncodeIdentifier } from './encoding/hash';
+import { ProductDetails } from './product';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -23,14 +24,6 @@ export type SDKSetup = {
 };
 export type CallbackContainer = { callback?: () => void };
 
-export type ProductName = 'UID2' | 'EUID';
-export type ProductDetails = {
-  name: ProductName;
-  cookieName: string;
-  localStorageKey: string;
-  defaultBaseUrl: string;
-};
-
 export abstract class SdkBase {
   static get VERSION() {
     return version;
@@ -38,8 +31,8 @@ export abstract class SdkBase {
   static get DEFAULT_REFRESH_RETRY_PERIOD_MS() {
     return 5000;
   }
-  static IdentityStatus = IdentityStatus;
-  static EventType = EventType;
+  static readonly IdentityStatus = IdentityStatus;
+  static readonly EventType = EventType;
 
   // Push functions to this array to receive event notifications
   public callbacks: CallbackHandler[] = [];
@@ -54,20 +47,15 @@ export abstract class SdkBase {
   private _apiClient: ApiClient | undefined;
 
   // State
-  private _product: ProductDetails;
+  protected _product: ProductDetails;
   private _opts: SdkOptions = {};
   private _identity: Identity | OptoutIdentity | null | undefined;
   private _initComplete = false;
 
   // Sets up nearly everything, but does not run SdkLoaded callbacks - derived classes must run them.
-  protected constructor(
-    existingCallbacks: CallbackHandler[] | undefined = undefined,
-    product: ProductDetails
-  ) {
+  protected constructor(existingCallbacks: CallbackHandler[] | undefined, product: ProductDetails) {
     this._product = product;
     this._logger = MakeLogger(console, product.name);
-    const exception = new Error();
-    this._logger.log(`Constructing an SDK!`, exception.stack);
     if (existingCallbacks) this.callbacks = existingCallbacks;
 
     this._tokenPromiseHandler = new PromiseHandler(this);
@@ -90,7 +78,7 @@ export abstract class SdkBase {
   public async setIdentityFromEmail(email: string, opts: ClientSideIdentityOptions) {
     this._logger.log('Sending request', email);
     this.throwIfInitNotComplete('Cannot set identity before calling init.');
-    isClientSideIdentityOptionsOrThrow(opts);
+    isClientSideIdentityOptionsOrThrow(opts, this._product.name);
 
     const normalizedEmail = normalizeEmail(email);
     if (normalizedEmail === undefined) {
@@ -103,7 +91,7 @@ export abstract class SdkBase {
 
   public async setIdentityFromEmailHash(emailHash: string, opts: ClientSideIdentityOptions) {
     this.throwIfInitNotComplete('Cannot set identity before calling init.');
-    isClientSideIdentityOptionsOrThrow(opts);
+    isClientSideIdentityOptionsOrThrow(opts, this._product.name);
 
     if (!isBase64Hash(emailHash)) {
       throw new Error('Invalid hash');
