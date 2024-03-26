@@ -4,6 +4,10 @@
   "description": "UID2 Client SDK",
   "main": "lib/src/uid2Sdk.js",
   "types": "lib/src/uid2Sdk.d.ts",
+  "exports": {
+    ".": "./lib/src/uid2Sdk.js",
+    "@unified-id/euid-sdk": "./lib/src/euidSdk.ts"
+  },
   "files": [
     "/lib"
   ],
