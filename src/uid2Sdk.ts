@@ -6,7 +6,8 @@ import {
 import { isNormalizedPhone, normalizeEmail } from './diiNormalization';
 import { isBase64Hash } from './hashedDii';
 import { hashAndEncodeIdentifier, hashIdentifier } from './encoding/hash';
-import { CallbackContainer, ProductDetails, SdkBase, SDKSetup } from './sdkBase';
+import { CallbackContainer, SdkBase, SDKSetup } from './sdkBase';
+import { ProductDetails } from './product';
 
 export * from './exports';
 

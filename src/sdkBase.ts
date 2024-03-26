@@ -14,6 +14,7 @@ import { isBase64Hash } from './hashedDii';
 import { PromiseHandler } from './promiseHandler';
 import { StorageManager } from './storageManager';
 import { hashAndEncodeIdentifier } from './encoding/hash';
+import { ProductDetails } from './product';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -22,14 +23,6 @@ export type SDKSetup = {
   callbacks: CallbackHandler[] | undefined;
 };
 export type CallbackContainer = { callback?: () => void };
-
-export type ProductName = 'UID2' | 'EUID';
-export type ProductDetails = {
-  name: ProductName;
-  cookieName: string;
-  localStorageKey: string;
-  defaultBaseUrl: string;
-};
 
 export abstract class SdkBase {
   static get VERSION() {
@@ -66,8 +59,6 @@ export abstract class SdkBase {
   ) {
     this._product = product;
     this._logger = MakeLogger(console, product.name);
-    const exception = new Error();
-    this._logger.log(`Constructing an SDK!`, exception.stack);
     if (existingCallbacks) this.callbacks = existingCallbacks;
 
     this._tokenPromiseHandler = new PromiseHandler(this);

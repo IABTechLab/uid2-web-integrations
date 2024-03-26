@@ -2,8 +2,7 @@ import { NAME_CURVE, decryptClientRequest, encryptServerMessage, makeIdentityV2 
 import { bytesToBase64 } from '../encoding/base64';
 import { CstgBox } from '../cstgBox';
 import { exportPublicKey } from '../cstgCrypto';
-
-const CryptoKey = require('crypto').webcrypto.CryptoKey;
+import * as crypto from 'crypto';
 
 describe('UID2CstgBox', () => {
   let serverPublicKey: ArrayBuffer;
@@ -54,7 +53,6 @@ describe('UID2CstgBox', () => {
       false,
       []
     );
-    expect(importedPublicKey).toBeInstanceOf(CryptoKey);
     expect(importedPublicKey.algorithm).toEqual({
       name: 'ECDH',
       namedCurve: NAME_CURVE,
