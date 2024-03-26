@@ -59,5 +59,8 @@ describe('#uid2Sdk', () => {
         isClientSideIdentityOptionsOrThrow(makeCstgOption({ subscriptionId: '' }), 'UID2')
       ).toThrow('opts.subscriptionId is empty');
     });
+    test('should succeed when given a valid object', () => {
+      expect(isClientSideIdentityOptionsOrThrow(makeCstgOption())).toBe(true);
+    });
   });
 });

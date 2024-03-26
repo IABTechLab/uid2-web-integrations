@@ -13,7 +13,7 @@ export function stripPublicKeyPrefix(serverPublicKey: string) {
 
 export function isClientSideIdentityOptionsOrThrow(
   maybeOpts: any,
-  product: ProductName
+  product: ProductName = 'UID2'
 ): maybeOpts is ClientSideIdentityOptions {
   if (typeof maybeOpts !== 'object' || maybeOpts === null) {
     throw new TypeError('opts must be an object');
