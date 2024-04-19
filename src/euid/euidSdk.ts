@@ -1,8 +1,8 @@
-import { EventType, CallbackHandler } from './callbackManager';
-import { CallbackContainer, SdkBase, SDKSetup } from './sdkBase';
-import { ProductDetails } from './product';
+import { EventType, CallbackHandler } from '../shared/callbackManager';
+import { CallbackContainer, SdkBase, SDKSetup } from '../shared/sdkBase';
+import { ProductDetails } from '../shared/product';
 
-export * from './exports';
+export * from '../shared/exports';
 
 export class EUID extends SdkBase {
   private static cookieName = '__euid';

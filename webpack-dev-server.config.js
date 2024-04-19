@@ -4,8 +4,8 @@ module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
   entry: {
-    uid2: './src/uid2Sdk.ts',
-    euid: './src/euidSdk.ts',
+    uid2: './src/uid2/uid2Sdk.ts',
+    euid: './src/euid/euidSdk.ts',
   },
   module: {
     rules: [

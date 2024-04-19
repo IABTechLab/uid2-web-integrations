@@ -1,6 +1,6 @@
 import { makeCstgOption } from '../mocks';
 import { isClientSideIdentityOptionsOrThrow } from '../clientSideIdentityOptions';
-import { UID2 } from '../uid2Sdk';
+import { UID2 } from '../../uid2/uid2Sdk';
 
 let uid2: UID2;
 

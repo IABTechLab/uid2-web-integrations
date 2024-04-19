@@ -5,7 +5,7 @@ import {
   Uid2SecureSignalProvider,
   __uid2SSProviderScriptLoad,
 } from '../secureSignal';
-import { UID2, __uid2InternalHandleScriptLoad } from '../uid2Sdk';
+import { UID2, __uid2InternalHandleScriptLoad } from '../../uid2/uid2Sdk';
 
 let consoleWarnMock: any;
 let getAdvertisingTokenMock: jest.Mock<() => Promise<string>>;

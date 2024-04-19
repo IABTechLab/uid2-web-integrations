@@ -1,6 +1,6 @@
-const uid2Entrypoint = './src/uid2Sdk.ts';
-const euidEntrypoint = './src/euidSdk.ts';
-const espEntryPoint = './src/secureSignal.ts';
+const uid2Entrypoint = './src/uid2/uid2Sdk.ts';
+const euidEntrypoint = './src/euid/euidSdk.ts';
+const espEntryPoint = './src/shared/secureSignal.ts';
 
 const espOutput = {
   espScript: { import: espEntryPoint, filename: 'uid2SecureSignal.js' },

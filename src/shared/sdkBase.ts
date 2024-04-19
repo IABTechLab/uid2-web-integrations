@@ -1,4 +1,4 @@
-import { version } from '../package.json';
+import { version } from '../../package.json';
 import { OptoutIdentity, Identity, isOptoutIdentity } from './Identity';
 import { IdentityStatus, notifyInitCallback } from './initCallbacks';
 import { SdkOptions, isSDKOptionsOrThrow } from './sdkOptions';

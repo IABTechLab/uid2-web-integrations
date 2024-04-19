@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import * as mocks from '../mocks';
-import { sdkWindow, EUID, __euidInternalHandleScriptLoad } from '../euidSdk';
+import { sdkWindow, EUID, __euidInternalHandleScriptLoad } from '../../euid/euidSdk';
 import { EventType, CallbackHandler } from '../callbackManager';
 
 let callback: any;

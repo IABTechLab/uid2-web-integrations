@@ -1,7 +1,7 @@
 import { NAME_CURVE, XhrMock, makeCstgOption, makeIdentityV2 } from '../mocks';
 import { SuccessCstgResult, ApiClient } from '../apiClient';
 import { base64ToBytes, bytesToBase64 } from '../encoding/base64';
-import { sdkWindow } from '../uid2Sdk';
+import { sdkWindow } from '../../uid2/uid2Sdk';
 import { Identity } from '../Identity';
 
 describe('UID2 API client tests', () => {

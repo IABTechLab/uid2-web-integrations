@@ -1,15 +1,15 @@
-import { EventType, CallbackHandler } from './callbackManager';
+import { EventType, CallbackHandler } from '../shared/callbackManager';
 import {
   ClientSideIdentityOptions,
   isClientSideIdentityOptionsOrThrow,
-} from './clientSideIdentityOptions';
-import { isNormalizedPhone, normalizeEmail } from './diiNormalization';
-import { isBase64Hash } from './hashedDii';
-import { hashAndEncodeIdentifier, hashIdentifier } from './encoding/hash';
-import { CallbackContainer, SdkBase, SDKSetup } from './sdkBase';
-import { ProductDetails } from './product';
+} from '../shared/clientSideIdentityOptions';
+import { isNormalizedPhone, normalizeEmail } from '../shared/diiNormalization';
+import { isBase64Hash } from '../shared/hashedDii';
+import { hashAndEncodeIdentifier, hashIdentifier } from '../shared/encoding/hash';
+import { CallbackContainer, SdkBase, SDKSetup } from '../shared/sdkBase';
+import { ProductDetails } from '../shared/product';
 
-export * from './exports';
+export * from '../shared/exports';
 
 export class UID2Helper {
   public normalizeEmail(email: string) {
