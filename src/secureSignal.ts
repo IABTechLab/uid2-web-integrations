@@ -1,5 +1,6 @@
 const MAXIMUM_RETRY = 3;
 const INTEG_BASE_URL = 'https://cdn.integ.uidapi.com/';
+export type Uid2SecureSignalProviderType = typeof Uid2SecureSignalProvider;
 export class Uid2SecureSignalProvider {
   debug: boolean;
   constructor(debug = false) {

@@ -9,6 +9,8 @@ import { hashAndEncodeIdentifier, hashIdentifier } from './encoding/hash';
 import { CallbackContainer, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
 
+import type { Uid2SecureSignalProviderType } from './secureSignal'; // NOSONAR needed for type declarations
+
 export * from './exports';
 
 export class UID2Helper {
