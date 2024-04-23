@@ -6,8 +6,10 @@ import {
 import { isNormalizedPhone, normalizeEmail } from './diiNormalization';
 import { isBase64Hash } from './hashedDii';
 import { hashAndEncodeIdentifier, hashIdentifier } from './encoding/hash';
-import { CallbackContainer, SdkBase, SDKSetup } from './sdkBase';
+import { CallbackContainer, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
+
+import {} from './secureSignal';
 
 export * from './exports';
 
@@ -101,6 +103,10 @@ declare global {
     __uid2: UID2 | SDKSetup | undefined;
     __uid2Helper: UID2Helper | undefined;
   }
+}
+
+export function assertUID2(sdk: typeof window.__uid2): asserts sdk is UID2 {
+  if (!(sdk instanceof UID2)) throw new Error(sdkAssertErrorText('UID2', 'assertUID2'));
 }
 
 export function __uid2InternalHandleScriptLoad() {
