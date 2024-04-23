@@ -44,6 +44,9 @@ declare global {
     __euid: EUID | SDKSetup | undefined;
   }
 }
+export function assertEUID(sdk: typeof window.__euid): asserts sdk is EUID {
+  if (!(sdk instanceof EUID)) throw new Error('What? This is impossible!');
+}
 
 export function __euidInternalHandleScriptLoad() {
   const callbacks = window?.__euid?.callbacks || [];

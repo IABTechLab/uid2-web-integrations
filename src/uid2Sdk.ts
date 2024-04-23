@@ -105,6 +105,10 @@ declare global {
   }
 }
 
+export function assertUID2(sdk: typeof window.__uid2): asserts sdk is UID2 {
+  if (!(sdk instanceof UID2)) throw new Error('What? This is impossible!');
+}
+
 export function __uid2InternalHandleScriptLoad() {
   const callbacks = window?.__uid2?.callbacks || [];
   const callbackContainer: CallbackContainer = {};
