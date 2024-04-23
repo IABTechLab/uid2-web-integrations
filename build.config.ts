@@ -3,7 +3,6 @@ import * as current from './package.json';
 import { writeFileSync } from 'node:fs';
 import path from 'node:path';
 const npmPackageFilename = 'package.json';
-const npmPackageFolder = './unbuild/';
 const npmBuildOptions: BuildConfig = {
   declaration: 'compatible',
   rollup: {
@@ -33,7 +32,6 @@ const productOptions = [
     name: 'UID2',
     packageName: '@uid2/uid2-sdk',
     homepage: 'https://unifiedid.com/',
-
     buildConfig: {
       name: 'UID2',
       entries: ['./src/uid2Sdk.ts'],
