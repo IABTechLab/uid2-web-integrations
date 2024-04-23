@@ -4,22 +4,37 @@ run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre
 on:
   workflow_dispatch:
     inputs:
+      release_type:
+        type: choice
+        description: The type of release
+        options:
+          - Major
+          - Minor
+          - Patch
+          - Snapshot
+        required: true
       with_tag:
         description: By default, running npm publish will tag your package with the latest dist-tag. To use another dist-tag, please add tag here
         required: false
       publish_to_npm:
         type: boolean
-        description: Publish package to NPM
+        description: Publish package to NPM (In general, always release to both)
         required: false
         default: true
       publish_to_cdn:
         type: boolean
-        description: Publish package to CDN
+        description: Publish package to CDN (In general, always release to both)
         required: false
         default: true
 jobs:
+  incrementVersionNumber:
+    uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-increase-version-number.yaml@v2
+    with:
+      release_type: ${{ inputs.release_type }}
+    secrets: inherit
   build:
     runs-on: ubuntu-latest
+    needs: [incrementVersionNumber]
     strategy:
       matrix:
         node-version: [18.x]
@@ -27,6 +42,8 @@ jobs:
         target: [development, production]
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -53,10 +70,12 @@ jobs:
       sdkVersion: ${{ steps.version.outputs.package_version }}
   publish-package:
     if: inputs.publish_to_npm
-    needs: [build]
+    needs: [build, incrementVersionNumber]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - uses: actions/setup-node@v4
         with:
           node-version: '18.x'
@@ -81,7 +100,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   cdn-deployment-uid2:
     if: inputs.publish_to_cdn
-    needs: [build]
+    needs: [build, incrementVersionNumber]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -91,6 +110,8 @@ jobs:
     environment: ${{ matrix.environment }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - uses: ./.github/actions/cdn_deployment_aws
         with:
           environment: ${{ matrix.environment }}
@@ -101,7 +122,7 @@ jobs:
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
   cdn-deployment-euid:
     if: inputs.publish_to_cdn
-    needs: [build]
+    needs: [build, incrementVersionNumber]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -111,6 +132,8 @@ jobs:
     environment: ${{ matrix.environment }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - uses: ./.github/actions/cdn_deployment_aws
         with:
           environment: ${{ matrix.environment }}
