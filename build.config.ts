@@ -21,6 +21,7 @@ const productOptions = [
   {
     name: 'EUID',
     packageName: '@unified-id/euid-sdk',
+    homepage: 'https://euid.eu/',
     buildConfig: {
       name: 'EUID',
       entries: ['./src/euidSdk.ts'],
@@ -31,6 +32,8 @@ const productOptions = [
   {
     name: 'UID2',
     packageName: '@uid2/uid2-sdk',
+    homepage: 'https://unifiedid.com/',
+
     buildConfig: {
       name: 'UID2',
       entries: ['./src/uid2Sdk.ts'],
@@ -50,6 +53,8 @@ function createNpmPackageJson(ctx: BuildContext) {
     author: current.author,
     license: current.license,
     engines: current.engines,
+    repository: current.repository,
+    scripts: {},
     main: ctx.buildEntries.find((e) => e.exports)!.path,
     types: ctx.buildEntries.find((e) => e.path.includes('.d.ts'))!.path,
   };

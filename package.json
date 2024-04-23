@@ -3,6 +3,10 @@
   "version": "3.3.0",
   "description": "UID2 Client SDK",
   "author": "The Trade Desk",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iabtechlab/uid2-web-integrations.git"
+  },
   "license": "Apache 2.0",
   "wallaby": {
     "delays": {
