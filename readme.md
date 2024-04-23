@@ -16,12 +16,12 @@ These extension are recommended (or in some cases, required) when working on the
 
 | extension                 | Publisher     | Free option? | Description                                                                                                                                                                                                                                                                                                                       |
 | :------------------------ | :------------ | :----------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ESLint                    | Microsoft     |      ✔      | This is required. Ensure you have no lint errors before committing, and definitely before raising a PR.                                                                                                                                                                                                                           |
-| npm                       | Microsoft     |      ✔      | This extension is marked as deprecated (because the functionality exists in VS Code natively) but the extension gives you a much nicer experience - you can right-click on `package.json` and choose "Install Dependencies" to run `npm install`, and you get a handy `NPM SCRIPTS` sidebar pane if you have `package.json` open. |
-| TypeScript Extension Pack | Loiane Groner |      ✔      | It provides a bunch of handy helper extensions for working in TypeScript..                                                                                                                                                                                                                                                        |
+| ESLint                    | Microsoft     |      ✔       | This is required. Ensure you have no lint errors before committing, and definitely before raising a PR.                                                                                                                                                                                                                           |
+| npm                       | Microsoft     |      ✔       | This extension is marked as deprecated (because the functionality exists in VS Code natively) but the extension gives you a much nicer experience - you can right-click on `package.json` and choose "Install Dependencies" to run `npm install`, and you get a handy `NPM SCRIPTS` sidebar pane if you have `package.json` open. |
+| TypeScript Extension Pack | Loiane Groner |      ✔       | It provides a bunch of handy helper extensions for working in TypeScript..                                                                                                                                                                                                                                                        |
 | Wallaby.Js                | Wallaby.js    |      ❓      | Provides live as-you-type code coverage and test results in the IDE. There is a free license for use with open source projects which looks like it's suitable for use with UID2, but make your own decision. This is a game-changer for working with JS/TS projects.                                                              |
-| Quokka.js                 | Wallaby.js    |      ✔      | Gives you an interactive JavaScript/TypeScript playground. Particularly good for prototyping small bits of TS/JS or for learning syntax. There's a paid option but the free option is very good.                                                                                                                                  |
-| Jest                      | Orta          |      ✔      | Only if you don't have Wallaby.js. Adds your Jest tests to the VS Code test window and can provide coverage, results, and other information in the IDE.                                                                                                                                                                           |
+| Quokka.js                 | Wallaby.js    |      ✔       | Gives you an interactive JavaScript/TypeScript playground. Particularly good for prototyping small bits of TS/JS or for learning syntax. There's a paid option but the free option is very good.                                                                                                                                  |
+| Jest                      | Orta          |      ✔       | Only if you don't have Wallaby.js. Adds your Jest tests to the VS Code test window and can provide coverage, results, and other information in the IDE.                                                                                                                                                                           |
 
 # Older versions of the SDK
 
@@ -69,18 +69,18 @@ All new source files _must_ be in TypeScript, with useful type information for a
 
 ## To publish SDK to NPM repo and CDN
 
-1. Bump update version in `package.json` and then run:
-   ```bash
-   npm install
-   ```
-2. Use `Publish SDK to NPM and CDN` Action.
+1. Use `Publish SDK to NPM and CDN` Action.
+2. Approve the release stages as needed in the GitHub Action screen.
+
+In general, you should always publish both at the same time. We don't want to end up with some versions that only exist in one of the places! However, there is a checkbox to disable either in case you're trying to achieve something specific.
+
+Snapshot releases are for branch releases. Major/minor/patch releases should follow usual semver standards.
 
 ### Prerelease
 
 If you intend to publish a prerelease version:
 
-1. Update the version number in package.json with the desired prerelease tag. For instance: `3.0.3-alpha.0`
-2. When triggering the `Publish SDK to NPM and CDN` Action, ensure to add the relevant tag e.g. `alpha`.
+2. When triggering the `Publish SDK to NPM and CDN` Action, ensure to add the relevant tag e.g. `alpha`. This will be used instead of `latest` when tagging the npm release.
 
 ## To output the development build to the uid2-examples folder, with watch:
 
