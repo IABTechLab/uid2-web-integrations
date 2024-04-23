@@ -12,6 +12,11 @@ on:
         description: Publish package to NPM
         required: false
         default: true
+      publish_to_cdn:
+        type: boolean
+        description: Publish package to CDN
+        required: false
+        default: true
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -35,17 +40,19 @@ jobs:
       - name: Build script
         run: npm run build -- --mode=${{ matrix.target }}
       - uses: actions/upload-artifact@v4
+        if: inputs.publish_to_cdn
         with:
           name: uid2SDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
           path: ./dist/uid2-sdk-${{ steps.version.outputs.package_version }}.js
       - uses: actions/upload-artifact@v4
+        if: inputs.publish_to_cdn
         with:
           name: euidSDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
           path: ./dist/euid-sdk-${{ steps.version.outputs.package_version }}.js
     outputs:
       sdkVersion: ${{ steps.version.outputs.package_version }}
   publish-package:
-    if: github.event.inputs.publish_to_npm == 'true'
+    if: inputs.publish_to_npm
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -73,6 +80,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   cdn-deployment-uid2:
+    if: inputs.publish_to_cdn
     needs: [build]
     runs-on: ubuntu-latest
     permissions:
@@ -92,6 +100,7 @@ jobs:
           aws_bucket_name: ${{ vars.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
   cdn-deployment-euid:
+    if: inputs.publish_to_cdn
     needs: [build]
     runs-on: ubuntu-latest
     permissions:
