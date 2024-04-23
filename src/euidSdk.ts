@@ -1,5 +1,5 @@
 import { EventType, CallbackHandler } from './callbackManager';
-import { CallbackContainer, SdkBase, SDKSetup } from './sdkBase';
+import { CallbackContainer, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
 
 export * from './exports';
@@ -45,7 +45,7 @@ declare global {
   }
 }
 export function assertEUID(sdk: typeof window.__euid): asserts sdk is EUID {
-  if (!(sdk instanceof EUID)) throw new Error('What? This is impossible!');
+  if (!(sdk instanceof EUID)) throw new Error(sdkAssertErrorText('EUID', 'assertEUID'));
 }
 
 export function __euidInternalHandleScriptLoad() {

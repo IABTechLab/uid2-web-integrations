@@ -14,7 +14,7 @@ import { isBase64Hash } from './hashedDii';
 import { PromiseHandler } from './promiseHandler';
 import { StorageManager } from './storageManager';
 import { hashAndEncodeIdentifier } from './encoding/hash';
-import { ProductDetails } from './product';
+import { ProductDetails, ProductName } from './product';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -420,4 +420,8 @@ export abstract class SdkBase {
       throw new Error(message);
     }
   }
+}
+
+export function sdkAssertErrorText(product: ProductName, functionName: string) {
+  return `Assertion failed: the provided value is not an instance of ${product}. Have you called ${functionName} from outside a callback function?`;
 }
