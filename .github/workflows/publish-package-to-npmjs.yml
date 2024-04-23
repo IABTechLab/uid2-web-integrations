@@ -60,12 +60,16 @@ jobs:
         run: npm run build-package
       - name: Publish Latest package
         if: ${{!github.event.inputs.with_tag}}
-        run: npm publish --access public
+        run: |
+          npm publish ./dist/uid2-npm --dry-run --access public
+          npm publish ./dist/euid-npm --dry-run --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish Latest package with tag
         if: ${{github.event.inputs.with_tag}}
-        run: npm publish --tag ${{github.event.inputs.with_tag}} --access public
+        run: |
+          npm publish ./dist/uid2-npm --dry-run --tag ${{github.event.inputs.with_tag}} --access public
+          npm publish ./dist/euid-npm --dry-run --tag ${{github.event.inputs.with_tag}} --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   cdn-deployment-uid2:
