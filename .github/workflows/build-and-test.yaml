@@ -1,0 +1,10 @@
+name: Build and Test
+on: [pull_request, push, workflow_dispatch]
+
+jobs:
+  build:
+    uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-build-and-test.yaml@v2
+    secrets: inherit
+    with:
+      vulnerability_scan_only: true
+      publish_vulnerabilities: false
