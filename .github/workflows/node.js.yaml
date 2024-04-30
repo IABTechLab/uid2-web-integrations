@@ -31,3 +31,5 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
       - run: npm test
         working-directory: ${{ env.WORKING_DIR }}
+      - name: Vulnerability Scan
+        uses: IABTechLab/uid2-shared-actions/actions/vulnerability_scan_filesystem@v2
