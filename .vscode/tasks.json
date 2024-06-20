@@ -29,11 +29,19 @@
       }
     },
     {
-      "label": "Build CSTG Image",
+      "label": "Build CSTG UID2 Image",
       "type": "docker-build",
       "dockerBuild": {
         "context": "${workspaceFolder}/examples/cstg",
         "tag": "uid2-cstg-example"
+      }
+    },
+    {
+      "label": "Build CSTG EUID Image",
+      "type": "docker-build",
+      "dockerBuild": {
+        "context": "${workspaceFolder}/examples/cstg-euid",
+        "tag": "euid-cstg-example"
       }
     },
     {
@@ -53,9 +61,9 @@
       }
     },
     {
-      "label": "Run CSTG Container",
+      "label": "Run CSTG UID2 Container",
       "type": "docker-run",
-      "dependsOn": ["Build CSTG Image"],
+      "dependsOn": ["Build CSTG UID2 Image"],
       "dockerRun": {
         "image": "uid2-cstg-example",
         "containerName": "uid2-cstg-example",
@@ -68,6 +76,36 @@
         "volumes": [
           {
             "localPath": "${workspaceFolder}/examples/cstg/html",
+            "containerPath": "/usr/share/nginx/html",
+            "permissions": "ro"
+          }
+        ],
+        "env": {
+          "UID2_BASE_URL": "http://localhost:8080",
+          "UID2_JS_SDK_URL": "http://localhost:9091/uid2-sdk.js",
+          "EUID_JS_SDK_URL": "http://localhost:9091/euid-sdk.js",
+          "SERVER_PUBLIC_KEY": "UID2-X-L-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEWyCP9O/6ppffj8f5PUWsEhAoMNdTBnpnkiOPZBkVnLkxOyTjPsKzf5J3ApPHzutAGNGgKAzFc6TuCfo+BWsZtQ==",
+          "SUBSCRIPTION_ID": "LBk2xJsgrS"
+        },
+        "remove": true
+      }
+    },
+    {
+      "label": "Run CSTG EUID Container",
+      "type": "docker-run",
+      "dependsOn": ["Build CSTG EUID Image"],
+      "dockerRun": {
+        "image": "euid-cstg-example",
+        "containerName": "euid-cstg-example",
+        "ports": [
+          {
+            "hostPort": 9190,
+            "containerPort": 80
+          }
+        ],
+        "volumes": [
+          {
+            "localPath": "${workspaceFolder}/examples/cstg-euid/html",
             "containerPath": "/usr/share/nginx/html",
             "permissions": "ro"
           }
@@ -137,8 +175,12 @@
       }
     },
     {
-      "label": "Start CSTG",
-      "dependsOn": ["webpack-dev-server", "Run CSTG Container"]
+      "label": "Start CSTG UID2",
+      "dependsOn": ["webpack-dev-server", "Run CSTG UID2 Container"]
+    },
+    {
+      "label": "Start CSTG EUID",
+      "dependsOn": ["webpack-dev-server", "Run CSTG EUID Container"]
     },
     {
       "label": "Start Prebid CSTG",
@@ -149,9 +191,14 @@
       "dependsOn": ["webpack-dev-server", "Run Secure Signals Container"]
     },
     {
-      "label": "Terminate CSTG Container",
+      "label": "Terminate CSTG UID2 Container",
       "type": "shell",
       "command": "docker stop uid2-cstg-example"
+    },
+    {
+      "label": "Terminate CSTG EUID Container",
+      "type": "shell",
+      "command": "docker stop euid-cstg-example"
     },
     {
       "label": "Terminate Prebid CSTG Container",
@@ -170,8 +217,12 @@
       "problemMatcher": []
     },
     {
-      "label": "Terminate CSTG",
-      "dependsOn": ["Terminate All Tasks", "Terminate CSTG Container"]
+      "label": "Terminate CSTG UID2",
+      "dependsOn": ["Terminate All Tasks", "Terminate CSTG UID2 Container"]
+    },
+    {
+      "label": "Terminate CSTG EUID",
+      "dependsOn": ["Terminate All Tasks", "Terminate CSTG EUID Container"]
     },
     {
       "label": "Terminate Prebid CSTG",
