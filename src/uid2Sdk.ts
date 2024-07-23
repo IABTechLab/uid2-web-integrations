@@ -9,8 +9,6 @@ import { hashAndEncodeIdentifier, hashIdentifier } from './encoding/hash';
 import { CallbackContainer, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
 
-import {} from './secureSignal';
-
 export * from './exports';
 
 export class UID2Helper {
@@ -54,8 +52,8 @@ export class UID2 extends SdkBase {
   }
 
   static setupGoogleSecureSignals() {
-    if (window.__uid2SecureSignalProvider)
-      window.__uid2SecureSignalProvider.registerSecureSignalProvider();
+    if (window.__uidSecureSignalProvider)
+      window.__uidSecureSignalProvider.registerSecureSignalProvider();
   }
 
   constructor(

@@ -22,6 +22,15 @@ export class EUID extends SdkBase {
     };
   }
 
+  static setupGoogleTag() {
+    EUID.setupGoogleSecureSignals();
+  }
+
+  static setupGoogleSecureSignals() {
+    if (window.__uidSecureSignalProvider)
+      window.__uidSecureSignalProvider.registerSecureSignalProvider();
+  }
+
   constructor(
     existingCallbacks: CallbackHandler[] | undefined = undefined,
     callbackContainer: CallbackContainer = {}
