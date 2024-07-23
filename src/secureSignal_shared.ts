@@ -1,11 +1,9 @@
 const MAXIMUM_RETRY = 3;
 export class UidSecureSignalProvider {
   debug: boolean;
-  retrieveAdvertisingTokenHandler: Function;
 
-  constructor(debug = false, retrieveAdvertisingTokenHandler: Function) {
+  constructor(debug = false) {
     this.debug = debug;
-    this.retrieveAdvertisingTokenHandler = retrieveAdvertisingTokenHandler;
 
     if (typeof window.getUidAdvertisingToken === 'function') {
       this.logging('register SecureSignalProvider');
@@ -40,6 +38,18 @@ export class UidSecureSignalProvider {
   public logging = (message: string) => {
     if (!this.debug) return;
     console.log(`UidSecureSignal: ${message}`);
+  };
+
+  private retrieveAdvertisingTokenHandler = (): Function | undefined => {
+    if (typeof window.getUidAdvertisingToken === 'function') {
+      return window.getUidAdvertisingToken!;
+    }
+
+    if (window.__uid2 && 'getAdvertisingTokenAsync' in window.__uid2!) {
+      return window.__uid2!.getAdvertisingTokenAsync!.bind(window.__uid2);
+    } else if (window.__euid && 'getAdvertisingTokenAsync' in window.__euid!) {
+      return window.__euid!.getAdvertisingTokenAsync!.bind(window.__uid2);
+    }
   };
 }
 
