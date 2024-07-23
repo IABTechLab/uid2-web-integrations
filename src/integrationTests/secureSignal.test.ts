@@ -55,7 +55,7 @@ describe('Secure Signal Tests', () => {
 
     describe('when getUid2AdvertisingToken is not defined', () => {
       test('should not send signal to ESP', () => {
-        uid2ESP = new UidSecureSignalProvider(false);
+        uid2ESP = new UidSecureSignalProvider();
         expect(secureSignalProvidersPushMock).not.toBeCalled();
       });
 
@@ -74,7 +74,7 @@ describe('Secure Signal Tests', () => {
     describe('when getUid2AdvertisingToken exists and returns invalid token', () => {
       test('should not send signal to ESP', () => {
         getAdvertisingTokenMock.mockReturnValue(Promise.resolve(''));
-        new UidSecureSignalProvider(false);
+        new UidSecureSignalProvider();
         expect(secureSignalProvidersPushMock).not.toBeCalled();
       });
     });
@@ -142,7 +142,7 @@ describe('Secure Signal Tests', () => {
       test('should send signal to Google ESP once loaded', async () => {
         uid2.init({ identity });
         __uid2SSProviderScriptLoad();
-        window.__uidSecureSignalProvider = new UidSecureSignalProvider(false);
+        window.__uidSecureSignalProvider = new UidSecureSignalProvider();
         UID2.setupGoogleSecureSignals();
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
         await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
@@ -161,7 +161,7 @@ describe('Secure Signal Tests', () => {
           refresh_from: Date.now() - 1,
         });
         uid2.init({ identity: outdatedIdentity });
-        window.__uidSecureSignalProvider = new UidSecureSignalProvider(false);
+        window.__uidSecureSignalProvider = new UidSecureSignalProvider();
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(0);
       });
 
@@ -171,7 +171,7 @@ describe('Secure Signal Tests', () => {
         });
         uid2.init({ identity: outdatedIdentity });
         __uid2SSProviderScriptLoad();
-        window.__uidSecureSignalProvider = new UidSecureSignalProvider(false);
+        window.__uidSecureSignalProvider = new UidSecureSignalProvider();
         UID2.setupGoogleSecureSignals();
         jest.setSystemTime(refreshFrom);
         jest.runOnlyPendingTimers();
