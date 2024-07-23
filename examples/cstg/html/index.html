@@ -6,131 +6,89 @@
     <link rel="stylesheet" type="text/css" href="/stylesheets/app.css" />
     <link rel="shortcut icon" href="/images/favicon.png" />
     <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script defer src="{{ UID2_JS_SDK_URL }}"></script>
-    <script defer src="{{ EUID_JS_SDK_URL }}"></script>
+    <script defer src="<!--# echo var='SSI_UID_JS_SDK_URL' -->"></script>
     <script>
       const clientSideIdentityOptions = {
-        subscriptionId: '{{ SUBSCRIPTION_ID }}',
-        serverPublicKey: '{{ SERVER_PUBLIC_KEY }}',
+        subscriptionId: '<!--# echo var="SSI_SUBSCRIPTION_ID" -->',
+        serverPublicKey: '<!--# echo var="SSI_SERVER_PUBLIC_KEY" -->',
       };
 
-      let callbackCounter = {
-        uid2: 0,
-        euid: 0,
-      };
+      let callbackCounter = 0;
 
-      function updateGuiElements(product, state) {
-        const productSelector = `#${product}_state`;
-        $(`${productSelector} #targeted_advertising_ready`).text(
-          __uid2.getAdvertisingToken() ? 'yes' : 'no'
+      // __uid2 for UID2 SDK, __euid for EUID SDK.
+      const sdkName = '<!--# echo var="SSI_UID_JS_SDK_NAME" -->';
+
+      function getUidSdk() {
+        return window[sdkName];
+      }
+
+      function updateGuiElements(state) {
+        const sdk = getUidSdk();
+        $('#targeted_advertising_ready').text(sdk.getAdvertisingToken() ? 'yes' : 'no');
+        $('#advertising_token').text(String(sdk.getAdvertisingToken()));
+        $('#login_required').text(
+          sdk.isLoginRequired() || sdk.isLoginRequired() === undefined ? 'yes' : 'no'
         );
-        $(`${productSelector} #advertising_token`).text(String(__uid2.getAdvertisingToken()));
-        $(`${productSelector} #login_required`).text(
-          __uid2.isLoginRequired() || __uid2.isLoginRequired() === undefined ? 'yes' : 'no'
-        );
-        $(`${productSelector} #update_counter`).text(callbackCounter[product]);
-        $(`${productSelector} #identity_state`).text(String(JSON.stringify(state, null, 2)));
+        $('#update_counter').text(callbackCounter);
+        $('#identity_state').text(String(JSON.stringify(state, null, 2)));
 
         updateSharedGuiElements();
       }
 
       function updateSharedGuiElements() {
-        const uid2LoginRequired = __uid2.isLoginRequired();
-        const euidLoginRequired = __euid.isLoginRequired();
-        if (uid2LoginRequired || euidLoginRequired) {
+        if (getUidSdk().isLoginRequired()) {
           $('#login_form').show();
-        } else {
-          $('#login_form').hide();
-        }
-        if (uid2LoginRequired && euidLoginRequired) {
           $('#logout_form').hide();
         } else {
+          $('#login_form').hide();
           $('#logout_form').show();
         }
       }
 
-      function isEnabled(product) {
-        console.log("Check", product, `${product}_state th input`, $(`${product}_state th input`)[0]);
-        return $(`#${product}_state th input`)[0].checked;
-      }
-
-      function onUid2IdentityUpdated(eventType, payload) {
+      function onIdentityUpdated(eventType, payload) {
         if (
           payload?.identity &&
           (eventType === 'InitCompleted' || eventType === 'IdentityUpdated')
         ) {
-          ++callbackCounter.uid2;
+          ++callbackCounter;
         }
-        updateGuiElements('uid2', payload);
-      }
-
-      function onEuidIdentityUpdated(eventType, payload) {
-        console.log('EUID Callback', payload);
-        if (
-          payload?.identity &&
-          (eventType === 'InitCompleted' || eventType === 'IdentityUpdated')
-        ) {
-          ++callbackCounter.euid;
-        }
-        updateGuiElements('euid', payload);
+        updateGuiElements(payload);
       }
 
       function onDocumentReady() {
         $('#logout').click(() => {
-          if (isEnabled("uid2")) {
-            __uid2.disconnect();
-            updateGuiElements('uid2', undefined);
-          }
-          if (isEnabled("euid")) {
-            __euid.disconnect();
-            updateGuiElements('euid', undefined);
-          }
+          getUidSdk().disconnect();
+          updateGuiElements(undefined);
         });
 
         $('#login').click(async () => {
           const email = $('#email').val();
 
           try {
-            if (isEnabled("uid2")) {
-              await __uid2.setIdentityFromEmail(email, clientSideIdentityOptions);
-            }
-            if (isEnabled("euid")) {
-              await __euid.setIdentityFromEmail(email, clientSideIdentityOptions);
-            }
+            await getUidSdk().setIdentityFromEmail(email, clientSideIdentityOptions);
           } catch (e) {
             console.error('setIdentityFromEmail failed', e);
           }
         });
       }
 
-      window.__uid2 = window.__uid2 || {};
-      window.__uid2.callbacks = window.__uid2.callbacks || [];
+      window[sdkName] = window[sdkName] || {};
+      const sdk = getUidSdk();
+      sdk.callbacks = sdk.callbacks || [];
 
-      window.__uid2.callbacks.push(onUid2IdentityUpdated);
-      window.__uid2.callbacks.push((eventType, payload) => {
+      sdk.callbacks.push(onIdentityUpdated);
+      sdk.callbacks.push((eventType, payload) => {
         if (eventType === 'SdkLoaded') {
-          window.__uid2.init({
-            baseUrl: '{{ UID2_BASE_URL }}',
+          getUidSdk().init({
+            baseUrl: '<!--# echo var="SSI_UID_BASE_URL" -->',
           });
           $(document).ready(onDocumentReady);
-        }
-      });
-
-      window.__euid = window.__euid || {};
-      window.__euid.callbacks = window.__euid.callbacks || [];
-
-      window.__euid.callbacks.push(onEuidIdentityUpdated);
-      window.__euid.callbacks.push((eventType, payload) => {
-        if (eventType === 'SdkLoaded') {
-          window.__euid.init({
-            baseUrl: '{{ UID2_BASE_URL }}',
-          });
         }
       });
     </script>
   </head>
   <body>
-    <h1>Client-Side Integration Example, UID2 & EUID JavaScript SDKs</h1>
+    <h1>UID2 Publisher Client-Side Integration Example using UID2 JavaScript SDK</h1>
     <p>
       This example demonstrates how a content publisher can follow the
       <a href="https://unifiedid.com/docs/guides/publisher-client-side"
@@ -138,58 +96,28 @@
       </a>
       to implement UID2 integration and generate UID2 tokens.
     </p>
-    <div class="product-tables">
-      <table id="uid2_state">
-        <thead>
-          <th colspan="2">UID2 Enabled<input type="checkbox" checked></input></th>
-        </thead>
-        <tr>
-          <td class="label">Ready for Targeted Advertising:</td>
-          <td class="value"><pre id="targeted_advertising_ready"></pre></td>
-        </tr>
-        <tr>
-          <td class="label">UID2 Advertising Token:</td>
-          <td class="value"><pre id="advertising_token"></pre></td>
-        </tr>
-        <tr>
-          <td class="label">Is UID2 Login Required?</td>
-          <td class="value"><pre id="login_required"></pre></td>
-        </tr>
-        <tr>
-          <td class="label">UID2 Identity Updated Counter:</td>
-          <td class="value"><pre id="update_counter"></pre></td>
-        </tr>
-        <tr>
-          <td class="label">UID2 Identity Callback State:</td>
-          <td class="value"><pre id="identity_state"></pre></td>
-        </tr>
-      </table>
-      <table id="euid_state">
-        <thead>
-          <th colspan="2">EUID Enabled<input type="checkbox" checked></input></th>
-        </thead>
-        <tr>
-          <td class="label">Ready for Targeted Advertising:</td>
-          <td class="value"><pre id="targeted_advertising_ready"></pre></td>
-        </tr>
-        <tr>
-          <td class="label">UID2 Advertising Token:</td>
-          <td class="value"><pre id="advertising_token"></pre></td>
-        </tr>
-        <tr>
-          <td class="label">Is UID2 Login Required?</td>
-          <td class="value"><pre id="login_required"></pre></td>
-        </tr>
-        <tr>
-          <td class="label">UID2 Identity Updated Counter:</td>
-          <td class="value"><pre id="update_counter"></pre></td>
-        </tr>
-        <tr>
-          <td class="label">UID2 Identity Callback State:</td>
-          <td class="value"><pre id="identity_state"></pre></td>
-        </tr>
-      </table>
-    </div>
+    <table id="uid2_state">
+      <tr>
+        <td class="label">Ready for Targeted Advertising:</td>
+        <td class="value"><pre id="targeted_advertising_ready"></pre></td>
+      </tr>
+      <tr>
+        <td class="label">Advertising Token:</td>
+        <td class="value"><pre id="advertising_token"></pre></td>
+      </tr>
+      <tr>
+        <td class="label">Is Login Required?</td>
+        <td class="value"><pre id="login_required"></pre></td>
+      </tr>
+      <tr>
+        <td class="label">Identity Updated Counter:</td>
+        <td class="value"><pre id="update_counter"></pre></td>
+      </tr>
+      <tr>
+        <td class="label">Identity Callback State:</td>
+        <td class="value"><pre id="identity_state"></pre></td>
+      </tr>
+    </table>
     <div id="login_form" style="display: none" class="form">
       <div class="email_prompt">
         <input

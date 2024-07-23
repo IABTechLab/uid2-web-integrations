@@ -6,12 +6,12 @@ server {
     #access_log  /var/log/nginx/host.access.log  main;
 
     location / {
-        sub_filter '{{ UID2_JS_SDK_URL }}' '${UID2_JS_SDK_URL}';
-        sub_filter '{{ EUID_JS_SDK_URL }}' '${EUID_JS_SDK_URL}';
-        sub_filter '{{ UID2_BASE_URL }}' '${UID2_BASE_URL}';
-        sub_filter '{{ SERVER_PUBLIC_KEY }}' '${SERVER_PUBLIC_KEY}';
-        sub_filter '{{ SUBSCRIPTION_ID }}' '${SUBSCRIPTION_ID}';
-        sub_filter_types *;
-        sub_filter_once off;
+        ssi on;
+        ssi_silent_errors off;
+        set $SSI_UID_JS_SDK_URL "${UID_JS_SDK_URL}";
+        set $SSI_UID_JS_SDK_NAME "${UID_JS_SDK_NAME}";
+        set $SSI_UID_BASE_URL '${UID_BASE_URL}';
+        set $SSI_SERVER_PUBLIC_KEY '${SERVER_PUBLIC_KEY}';
+        set $SSI_SUBSCRIPTION_ID '${SUBSCRIPTION_ID}';
     }
 }
