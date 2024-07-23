@@ -18,6 +18,19 @@
       }
     },
     {
+      "name": "Launch CSTG in iframe (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:9190/iframe.html",
+      "webRoot": "${workspaceRoot}/",
+      "sourceMaps": true,
+      "preLaunchTask": "Start CSTG",
+      "postDebugTask": "Terminate CSTG",
+      "sourceMapPathOverrides": {
+        "webpack://@uid2/uid2-sdk/./*": "${webRoot}/*"
+      }
+    },
+    {
       "name": "Launch CSTG Prebid Integration (Chrome)",
       "type": "chrome",
       "request": "launch",
