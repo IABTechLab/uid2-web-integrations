@@ -203,7 +203,7 @@ describe('Secure Signal Tests', () => {
     });
   });
 
-  describe('getUid2AdvertisingTokenWithRetry', () => {
+  describe('getUidAdvertisingTokenWithRetry', () => {
     test('should resolve with the result of the promise if it is successful', async () => {
       const mockPromise = jest.fn(() => Promise.resolve('hello'));
       const result = await getUidAdvertisingTokenWithRetry(mockPromise);

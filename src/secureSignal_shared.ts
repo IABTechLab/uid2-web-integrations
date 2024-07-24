@@ -80,7 +80,7 @@ export function getUidAdvertisingTokenWithRetry(
     async function attempt(error?: unknown) {
       if (attempts >= retries) {
         window.__uidSecureSignalProvider?.logging(
-          `getUid2AdvertisingTokenWithRetry failed with error after retry: ${error}`
+          `getUidAdvertisingTokenWithRetry failed with error after retry: ${error}`
         );
 
         reject(error);
@@ -92,12 +92,12 @@ export function getUidAdvertisingTokenWithRetry(
       try {
         const result = await uidHandler();
         window.__uidSecureSignalProvider?.logging(
-          `getUid2AdvertisingTokenWithRetry resolved with: ${result}`
+          `getUidAdvertisingTokenWithRetry resolved with: ${result}`
         );
         resolve(result);
       } catch (error) {
         window.__uidSecureSignalProvider?.logging(
-          `getUid2AdvertisingTokenWithRetry failed with error: ${error}`
+          `getUidAdvertisingTokenWithRetry failed with error: ${error}`
         );
         attempt(error);
       }
