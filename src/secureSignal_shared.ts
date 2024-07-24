@@ -48,7 +48,7 @@ export class UidSecureSignalProvider {
     if (window.__uid2 && 'getAdvertisingTokenAsync' in window.__uid2!) {
       return window.__uid2!.getAdvertisingTokenAsync!.bind(window.__uid2);
     } else if (window.__euid && 'getAdvertisingTokenAsync' in window.__euid!) {
-      return window.__euid!.getAdvertisingTokenAsync!.bind(window.__uid2);
+      return window.__euid!.getAdvertisingTokenAsync!.bind(window.__euid);
     }
   };
 }

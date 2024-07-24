@@ -2,9 +2,7 @@ import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globa
 import * as mocks from '../mocks';
 import { getUidAdvertisingTokenWithRetry, UidSecureSignalProvider } from '../secureSignal_shared';
 import { __uid2SSProviderScriptLoad } from '../secureSignalUid2';
-import { __euidSSProviderScriptLoad } from '../secureSignalEuid';
 import { UID2, __uid2InternalHandleScriptLoad } from '../uid2Sdk';
-import { EUID, __euidInternalHandleScriptLoad } from '../euidSdk';
 
 let consoleWarnMock: any;
 let getAdvertisingTokenMock: jest.Mock<() => Promise<string>>;
@@ -141,7 +139,6 @@ describe('Secure Signal Tests', () => {
 
       test('should send signal to Google ESP once loaded', async () => {
         uid2.init({ identity });
-        __uid2SSProviderScriptLoad();
         window.__uidSecureSignalProvider = new UidSecureSignalProvider();
         UID2.setupGoogleSecureSignals();
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
@@ -170,7 +167,6 @@ describe('Secure Signal Tests', () => {
           refresh_from: Date.now() - 1,
         });
         uid2.init({ identity: outdatedIdentity });
-        __uid2SSProviderScriptLoad();
         window.__uidSecureSignalProvider = new UidSecureSignalProvider();
         UID2.setupGoogleSecureSignals();
         jest.setSystemTime(refreshFrom);
@@ -205,25 +201,6 @@ describe('Secure Signal Tests', () => {
         );
       });
     });
-
-    // describe('When SDK initialized after both SDK and SS script loaded - EUID', () => {
-    //   test('should send identity to Google ESP', async () => {
-    //     __euidInternalHandleScriptLoad();
-    //     __euidSSProviderScriptLoad();
-    //     (window.__euid as EUID).init({ identity });
-
-    //     expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
-    //     await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
-    //       expect.objectContaining({
-    //         id: 'uidapi.com',
-    //       })
-    //     );
-    //     await mocks.flushPromises();
-    //     expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
-    //       identity.advertising_token
-    //     );
-    //   });
-    // });
   });
 
   describe('getUid2AdvertisingTokenWithRetry', () => {
