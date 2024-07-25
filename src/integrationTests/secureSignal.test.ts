@@ -29,7 +29,7 @@ describe('Secure Signal Tests', () => {
     consoleWarnMock.mockRestore();
     getAdvertisingTokenMock.mockRestore;
     secureSignalProvidersPushMock.mockRestore();
-    window.getUidAdvertisingToken = undefined;
+    window.getUid2AdvertisingToken = undefined;
     window.__uidSecureSignalProvider = undefined;
   });
 
@@ -38,7 +38,7 @@ describe('Secure Signal Tests', () => {
 
     describe('when getUid2AdvertisingToken exists and returns valid advertisingToken', () => {
       test('should send signal to Google ESP', async () => {
-        window.getUidAdvertisingToken = getAdvertisingTokenMock;
+        window.getUid2AdvertisingToken = getAdvertisingTokenMock;
         getAdvertisingTokenMock.mockReturnValue(Promise.resolve('testToken'));
         uid2ESP = new UidSecureSignalProvider();
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);

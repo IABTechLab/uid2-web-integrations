@@ -2,6 +2,12 @@ import { isDebugModeOn, UidSecureSignalProvider } from './secureSignal_shared';
 
 const INTEG_BASE_URL = 'https://cdn.integ.uidapi.com/';
 
+declare global {
+  interface Window {
+    getUid2AdvertisingToken?: () => Promise<string | null | undefined>;
+  }
+}
+
 export function __uid2SSProviderScriptLoad() {
   window.__uidSecureSignalProvider = new UidSecureSignalProvider(isDebugModeOn(INTEG_BASE_URL));
   // For UID2 SDK integration

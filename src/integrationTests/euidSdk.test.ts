@@ -92,13 +92,13 @@ describe('when a callback is provided', () => {
 
   describe('when getUid2AdvertisingToken exists and returns valid advertisingToken', () => {
     test('should send signal to Google ESP', async () => {
-      window.getUidAdvertisingToken = getAdvertisingTokenMock;
+      window.getEuidAdvertisingToken = getAdvertisingTokenMock;
       getAdvertisingTokenMock.mockReturnValue(Promise.resolve('testToken'));
-      uid2ESP = new UidSecureSignalProvider();
+      uid2ESP = new UidSecureSignalProvider(false, true);
       expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
       expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          id: 'uidapi.com',
+          id: 'euid.eu',
         })
       );
       expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe('testToken');
@@ -114,7 +114,7 @@ describe('when a callback is provided', () => {
   //     expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
   //     await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
   //       expect.objectContaining({
-  //         id: 'uidapi.com',
+  //         id: 'euid.eu',
   //       })
   //     );
   //     await mocks.flushPromises();

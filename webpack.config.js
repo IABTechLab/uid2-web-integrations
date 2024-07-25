@@ -13,10 +13,6 @@ const espOutput = {
     import: espEntryPointEuid,
     filename: `euidSecureSignal.js`,
   },
-  'secureSignals-shared': {
-    import: espSharedEntryPoint,
-    filename: `secureSignalShared.js`,
-  },
 };
 
 // n.b. if you add more outputs, the path is relative to the dist folder.

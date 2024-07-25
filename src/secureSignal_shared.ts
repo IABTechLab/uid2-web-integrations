@@ -1,11 +1,16 @@
 const MAXIMUM_RETRY = 3;
 export class UidSecureSignalProvider {
   debug: boolean;
+  isEuid: boolean;
 
-  constructor(debug = false) {
+  constructor(debug = false, isEuid = false) {
     this.debug = debug;
+    this.isEuid = isEuid;
 
-    if (typeof window.getUidAdvertisingToken === 'function') {
+    if (
+      (!this.isEuid && typeof window.getUid2AdvertisingToken === 'function') ||
+      (this.isEuid && typeof window.getEuidAdvertisingToken === 'function')
+    ) {
       this.logging('register SecureSignalProvider');
       this.registerSecureSignalProvider();
     }
@@ -25,7 +30,7 @@ export class UidSecureSignalProvider {
 
     window.googletag.secureSignalProviders = window.googletag.secureSignalProviders || [];
     window.googletag.secureSignalProviders.push({
-      id: 'uidapi.com',
+      id: this.isEuid ? 'euid.eu' : 'uidapi.com',
       collectorFunction: async () => {
         this.logging('collectorFunction invoked');
         const uidAdvertisingToken = await getUidAdvertisingTokenWithRetry(uidHandler);
@@ -41,15 +46,27 @@ export class UidSecureSignalProvider {
   };
 
   private retrieveAdvertisingTokenHandler = (): Function | undefined => {
-    if (typeof window.getUidAdvertisingToken === 'function') {
-      return window.getUidAdvertisingToken!;
+    if (this.isEuid) {
+      if (typeof window.getEuidAdvertisingToken === 'function') {
+        return window.getEuidAdvertisingToken!;
+      }
+      if (window.__euid && 'getAdvertisingTokenAsync' in window.__euid!) {
+        return window.__euid!.getAdvertisingTokenAsync!.bind(window.__euid);
+      }
+    } else {
+      if (typeof window.getUid2AdvertisingToken === 'function') {
+        return window.getUid2AdvertisingToken!;
+      }
+      if (window.__uid2 && 'getAdvertisingTokenAsync' in window.__uid2!) {
+        return window.__uid2!.getAdvertisingTokenAsync!.bind(window.__uid2);
+      }
     }
 
-    if (window.__uid2 && 'getAdvertisingTokenAsync' in window.__uid2!) {
-      return window.__uid2!.getAdvertisingTokenAsync!.bind(window.__uid2);
-    } else if (window.__euid && 'getAdvertisingTokenAsync' in window.__euid!) {
-      return window.__euid!.getAdvertisingTokenAsync!.bind(window.__euid);
-    }
+    // if (window.__uid2 && 'getAdvertisingTokenAsync' in window.__uid2!) {
+    //   return window.__uid2!.getAdvertisingTokenAsync!.bind(window.__uid2);
+    // } else if (window.__euid && 'getAdvertisingTokenAsync' in window.__euid!) {
+    //   return window.__euid!.getAdvertisingTokenAsync!.bind(window.__euid);
+    // }
   };
 }
 
@@ -57,7 +74,7 @@ declare global {
   interface Window {
     googletag?: any;
     __uidSecureSignalProvider?: UidSecureSignalProvider;
-    getUidAdvertisingToken?: () => Promise<string | null | undefined>;
+    //getUidAdvertisingToken?: () => Promise<string | null | undefined>;
   }
 }
 
