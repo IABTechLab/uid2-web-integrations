@@ -61,12 +61,6 @@ export class UidSecureSignalProvider {
         return window.__uid2!.getAdvertisingTokenAsync!.bind(window.__uid2);
       }
     }
-
-    // if (window.__uid2 && 'getAdvertisingTokenAsync' in window.__uid2!) {
-    //   return window.__uid2!.getAdvertisingTokenAsync!.bind(window.__uid2);
-    // } else if (window.__euid && 'getAdvertisingTokenAsync' in window.__euid!) {
-    //   return window.__euid!.getAdvertisingTokenAsync!.bind(window.__euid);
-    // }
   };
 
   public getUidAdvertisingTokenWithRetry = (
@@ -107,8 +101,6 @@ export class UidSecureSignalProvider {
 declare global {
   interface Window {
     googletag?: any;
-    //__uidSecureSignalProvider?: UidSecureSignalProvider;
-    //getUidAdvertisingToken?: () => Promise<string | null | undefined>;
   }
 }
 
