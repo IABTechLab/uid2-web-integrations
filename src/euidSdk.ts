@@ -27,8 +27,8 @@ export class EUID extends SdkBase {
   }
 
   static setupGoogleSecureSignals() {
-    if (window.__uidSecureSignalProvider)
-      window.__uidSecureSignalProvider.registerSecureSignalProvider();
+    if (window.__euidSecureSignalProvider)
+      window.__euidSecureSignalProvider.registerSecureSignalProvider();
   }
 
   constructor(

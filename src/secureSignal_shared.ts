@@ -33,7 +33,7 @@ export class UidSecureSignalProvider {
       id: this.isEuid ? 'euid.eu' : 'uidapi.com',
       collectorFunction: async () => {
         this.logging('collectorFunction invoked');
-        const uidAdvertisingToken = await getUidAdvertisingTokenWithRetry(uidHandler);
+        const uidAdvertisingToken = await this.getUidAdvertisingTokenWithRetry(uidHandler);
         this.logging(`collectorFunction pushes: ${uidAdvertisingToken}`);
         return uidAdvertisingToken;
       },
@@ -68,12 +68,46 @@ export class UidSecureSignalProvider {
     //   return window.__euid!.getAdvertisingTokenAsync!.bind(window.__euid);
     // }
   };
+
+  public getUidAdvertisingTokenWithRetry = (
+    uidHandler: Function,
+    retries: number = MAXIMUM_RETRY
+  ): Promise<string> => {
+    let that = this;
+    return new Promise<string>(async (resolve, reject) => {
+      let attempts = 0;
+
+      async function attempt(error?: unknown) {
+        if (attempts >= retries) {
+          window.__uid2SecureSignalProvider?.logging(
+            `getUidAdvertisingTokenWithRetry failed with error after retry: ${error}`
+          );
+
+          reject(error);
+          return;
+        }
+
+        attempts++;
+
+        try {
+          const result = await uidHandler();
+          that.logging(`getUidAdvertisingTokenWithRetry resolved with: ${result}`);
+          resolve(result);
+        } catch (error) {
+          that.logging(`getUidAdvertisingTokenWithRetry failed with error: ${error}`);
+          attempt(error);
+        }
+      }
+
+      attempt();
+    });
+  };
 }
 
 declare global {
   interface Window {
     googletag?: any;
-    __uidSecureSignalProvider?: UidSecureSignalProvider;
+    //__uidSecureSignalProvider?: UidSecureSignalProvider;
     //getUidAdvertisingToken?: () => Promise<string | null | undefined>;
   }
 }
@@ -85,41 +119,4 @@ export function isDebugModeOn(urlTest: string) {
     debugParam?.toLocaleUpperCase() === 'TRUE' ||
     (document.currentScript as HTMLScriptElement)?.src.startsWith(urlTest)
   );
-}
-
-export function getUidAdvertisingTokenWithRetry(
-  uidHandler: Function,
-  retries: number = MAXIMUM_RETRY
-): Promise<string> {
-  return new Promise<string>(async (resolve, reject) => {
-    let attempts = 0;
-
-    async function attempt(error?: unknown) {
-      if (attempts >= retries) {
-        window.__uidSecureSignalProvider?.logging(
-          `getUidAdvertisingTokenWithRetry failed with error after retry: ${error}`
-        );
-
-        reject(error);
-        return;
-      }
-
-      attempts++;
-
-      try {
-        const result = await uidHandler();
-        window.__uidSecureSignalProvider?.logging(
-          `getUidAdvertisingTokenWithRetry resolved with: ${result}`
-        );
-        resolve(result);
-      } catch (error) {
-        window.__uidSecureSignalProvider?.logging(
-          `getUidAdvertisingTokenWithRetry failed with error: ${error}`
-        );
-        attempt(error);
-      }
-    }
-
-    attempt();
-  });
 }

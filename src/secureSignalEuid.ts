@@ -5,11 +5,12 @@ const INTEG_BASE_URL = 'https://cdn.integ.euid.eu/';
 declare global {
   interface Window {
     getEuidAdvertisingToken?: () => Promise<string | null | undefined>;
+    __euidSecureSignalProvider?: UidSecureSignalProvider;
   }
 }
 
 export function __euidSSProviderScriptLoad() {
-  window.__uidSecureSignalProvider = new UidSecureSignalProvider(
+  window.__euidSecureSignalProvider = new UidSecureSignalProvider(
     isDebugModeOn(INTEG_BASE_URL),
     true
   );
@@ -20,7 +21,7 @@ export function __euidSSProviderScriptLoad() {
   window.__euid.callbacks?.push((eventType) => {
     //@ts-ignore
     if (eventType === 'SdkLoaded') {
-      window.__uidSecureSignalProvider!.registerSecureSignalProvider();
+      window.__euidSecureSignalProvider!.registerSecureSignalProvider();
     }
   });
 }

@@ -52,8 +52,8 @@ export class UID2 extends SdkBase {
   }
 
   static setupGoogleSecureSignals() {
-    if (window.__uidSecureSignalProvider)
-      window.__uidSecureSignalProvider.registerSecureSignalProvider();
+    if (window.__uid2SecureSignalProvider)
+      window.__uid2SecureSignalProvider.registerSecureSignalProvider();
   }
 
   constructor(

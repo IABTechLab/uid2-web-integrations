@@ -23,6 +23,7 @@ const makeIdentity = mocks.makeIdentityV2;
 
 describe('when a callback is provided', () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     mocks.resetFakeTime();
     jest.runOnlyPendingTimers();
 
@@ -47,7 +48,7 @@ describe('when a callback is provided', () => {
 
   afterEach(() => {
     mocks.resetFakeTime();
-    jest.clearAllMocks();
+    sdkWindow.__euid = undefined;
   });
 
   const refreshFrom = Date.now() + 100;
@@ -105,22 +106,22 @@ describe('when a callback is provided', () => {
     });
   });
 
-  // describe('When SDK initialized after both SDK and SS script loaded - EUID', () => {
-  //   test('should send identity to Google ESP', async () => {
-  //     __euidInternalHandleScriptLoad();
-  //     __euidSSProviderScriptLoad();
-  //     (sdkWindow.__euid as EUID).init({ identity });
+  describe('When SDK initialized after both SDK and SS script loaded - EUID', () => {
+    test.only('should send identity to Google ESP', async () => {
+      __euidInternalHandleScriptLoad();
+      __euidSSProviderScriptLoad();
+      (sdkWindow.__euid as EUID).init({ identity });
 
-  //     expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
-  //     await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
-  //       expect.objectContaining({
-  //         id: 'euid.eu',
-  //       })
-  //     );
-  //     await mocks.flushPromises();
-  //     expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
-  //       identity.advertising_token
-  //     );
-  //   });
-  // });
+      expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
+      await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'euid.eu',
+        })
+      );
+      await mocks.flushPromises();
+      expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
+        identity.advertising_token
+      );
+    });
+  });
 });

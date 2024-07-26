@@ -82,7 +82,7 @@ testCookieAndLocalStorage(() => {
       const mockRegister = jest.fn();
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      sdkWindow.__uidSecureSignalProvider = {
+      sdkWindow.__uid2SecureSignalProvider = {
         registerSecureSignalProvider: mockRegister,
       };
       UID2.setupGoogleTag();

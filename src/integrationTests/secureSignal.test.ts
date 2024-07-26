@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import * as mocks from '../mocks';
-import { getUidAdvertisingTokenWithRetry, UidSecureSignalProvider } from '../secureSignal_shared';
+import { UidSecureSignalProvider } from '../secureSignal_shared';
 import { __uid2SSProviderScriptLoad } from '../secureSignalUid2';
 import { UID2, __uid2InternalHandleScriptLoad } from '../uid2Sdk';
 
@@ -30,7 +30,7 @@ describe('Secure Signal Tests', () => {
     getAdvertisingTokenMock.mockRestore;
     secureSignalProvidersPushMock.mockRestore();
     window.getUid2AdvertisingToken = undefined;
-    window.__uidSecureSignalProvider = undefined;
+    window.__uid2SecureSignalProvider = undefined;
   });
 
   describe('when use script without SDK integrated', () => {
@@ -87,7 +87,7 @@ describe('Secure Signal Tests', () => {
     let uid2: UID2;
 
     beforeEach(() => {
-      window.__uidSecureSignalProvider = undefined;
+      window.__uid2SecureSignalProvider = undefined;
       window.__uid2 = undefined;
     });
 
@@ -134,12 +134,12 @@ describe('Secure Signal Tests', () => {
 
       afterEach(() => {
         mocks.resetFakeTime();
-        window.__uidSecureSignalProvider = undefined;
+        window.__uid2SecureSignalProvider = undefined;
       });
 
       test('should send signal to Google ESP once loaded', async () => {
         uid2.init({ identity });
-        window.__uidSecureSignalProvider = new UidSecureSignalProvider();
+        window.__uid2SecureSignalProvider = new UidSecureSignalProvider();
         UID2.setupGoogleSecureSignals();
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
         await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
@@ -158,7 +158,7 @@ describe('Secure Signal Tests', () => {
           refresh_from: Date.now() - 1,
         });
         uid2.init({ identity: outdatedIdentity });
-        window.__uidSecureSignalProvider = new UidSecureSignalProvider();
+        window.__uid2SecureSignalProvider = new UidSecureSignalProvider();
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(0);
       });
 
@@ -167,7 +167,7 @@ describe('Secure Signal Tests', () => {
           refresh_from: Date.now() - 1,
         });
         uid2.init({ identity: outdatedIdentity });
-        window.__uidSecureSignalProvider = new UidSecureSignalProvider();
+        window.__uid2SecureSignalProvider = new UidSecureSignalProvider();
         UID2.setupGoogleSecureSignals();
         jest.setSystemTime(refreshFrom);
         jest.runOnlyPendingTimers();
@@ -206,7 +206,8 @@ describe('Secure Signal Tests', () => {
   describe('getUidAdvertisingTokenWithRetry', () => {
     test('should resolve with the result of the promise if it is successful', async () => {
       const mockPromise = jest.fn(() => Promise.resolve('hello'));
-      const result = await getUidAdvertisingTokenWithRetry(mockPromise);
+      const provider = new UidSecureSignalProvider();
+      const result = await provider.getUidAdvertisingTokenWithRetry(mockPromise);
 
       expect(result).toEqual('hello');
       expect(mockPromise).toHaveBeenCalledTimes(1);
@@ -217,7 +218,8 @@ describe('Secure Signal Tests', () => {
       mockPromise
         .mockReturnValueOnce(Promise.reject(new Error('Oops')))
         .mockReturnValueOnce(Promise.resolve('hello'));
-      const result = await getUidAdvertisingTokenWithRetry(mockPromise);
+      const provider = new UidSecureSignalProvider();
+      const result = await provider.getUidAdvertisingTokenWithRetry(mockPromise);
 
       expect(result).toEqual('hello');
       expect(mockPromise).toHaveBeenCalledTimes(2);
@@ -227,7 +229,8 @@ describe('Secure Signal Tests', () => {
       const mockPromise = jest.fn(() => Promise.reject(new Error('Oops!')));
 
       try {
-        await getUidAdvertisingTokenWithRetry(mockPromise, 5);
+        const provider = new UidSecureSignalProvider();
+        await provider.getUidAdvertisingTokenWithRetry(mockPromise, 5);
       } catch (error) {
         expect(error).toEqual(new Error('Oops!'));
       }
