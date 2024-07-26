@@ -1,9 +1,18 @@
 const uid2Entrypoint = './src/uid2Sdk.ts';
 const euidEntrypoint = './src/euidSdk.ts';
-const espEntryPoint = './src/secureSignal.ts';
+const espEntryPointUid2 = './src/secureSignalUid2.ts';
+const espEntryPointEuid = './src/secureSignalEuid.ts';
+const espSharedEntryPoint = './src/secureSignal_shared.ts';
 
 const espOutput = {
-  espScript: { import: espEntryPoint, filename: 'uid2SecureSignal.js' },
+  'uid2-secureSignals': {
+    import: espEntryPointUid2,
+    filename: `uid2SecureSignal.js`,
+  },
+  'euid-secureSignals': {
+    import: espEntryPointEuid,
+    filename: `euidSecureSignal.js`,
+  },
 };
 
 // n.b. if you add more outputs, the path is relative to the dist folder.

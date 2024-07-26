@@ -1,16 +1,13 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 import * as mocks from '../mocks';
-import {
-  getUid2AdvertisingTokenWithRetry,
-  Uid2SecureSignalProvider,
-  __uid2SSProviderScriptLoad,
-} from '../secureSignal';
+import { UidSecureSignalProvider } from '../secureSignal_shared';
+import { __uid2SSProviderScriptLoad } from '../secureSignalUid2';
 import { UID2, __uid2InternalHandleScriptLoad } from '../uid2Sdk';
 
 let consoleWarnMock: any;
 let getAdvertisingTokenMock: jest.Mock<() => Promise<string>>;
 let secureSignalProvidersPushMock: jest.Mock<(p: any) => Promise<void>>;
-let uid2ESP: Uid2SecureSignalProvider;
+let uid2ESP: UidSecureSignalProvider;
 let xhrMock: any;
 mocks.setupFakeTime();
 
@@ -43,7 +40,7 @@ describe('Secure Signal Tests', () => {
       test('should send signal to Google ESP', async () => {
         window.getUid2AdvertisingToken = getAdvertisingTokenMock;
         getAdvertisingTokenMock.mockReturnValue(Promise.resolve('testToken'));
-        uid2ESP = new Uid2SecureSignalProvider();
+        uid2ESP = new UidSecureSignalProvider();
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
         await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -56,7 +53,7 @@ describe('Secure Signal Tests', () => {
 
     describe('when getUid2AdvertisingToken is not defined', () => {
       test('should not send signal to ESP', () => {
-        uid2ESP = new Uid2SecureSignalProvider();
+        uid2ESP = new UidSecureSignalProvider();
         expect(secureSignalProvidersPushMock).not.toBeCalled();
       });
 
@@ -65,7 +62,7 @@ describe('Secure Signal Tests', () => {
           uid2ESP.registerSecureSignalProvider();
           expect(console.warn).toHaveBeenCalledTimes(1);
           expect(consoleWarnMock).toHaveBeenCalledWith(
-            'Uid2SecureSignal: Please implement `getUid2AdvertisingToken`'
+            'UidSecureSignal: Please implement `getUidAdvertisingToken`'
           );
           expect(secureSignalProvidersPushMock).not.toBeCalled();
         });
@@ -75,7 +72,7 @@ describe('Secure Signal Tests', () => {
     describe('when getUid2AdvertisingToken exists and returns invalid token', () => {
       test('should not send signal to ESP', () => {
         getAdvertisingTokenMock.mockReturnValue(Promise.resolve(''));
-        new Uid2SecureSignalProvider();
+        new UidSecureSignalProvider();
         expect(secureSignalProvidersPushMock).not.toBeCalled();
       });
     });
@@ -142,7 +139,7 @@ describe('Secure Signal Tests', () => {
 
       test('should send signal to Google ESP once loaded', async () => {
         uid2.init({ identity });
-        window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
+        window.__uid2SecureSignalProvider = new UidSecureSignalProvider();
         UID2.setupGoogleSecureSignals();
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
         await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
@@ -161,7 +158,7 @@ describe('Secure Signal Tests', () => {
           refresh_from: Date.now() - 1,
         });
         uid2.init({ identity: outdatedIdentity });
-        window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
+        window.__uid2SecureSignalProvider = new UidSecureSignalProvider();
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(0);
       });
 
@@ -170,7 +167,7 @@ describe('Secure Signal Tests', () => {
           refresh_from: Date.now() - 1,
         });
         uid2.init({ identity: outdatedIdentity });
-        window.__uid2SecureSignalProvider = new Uid2SecureSignalProvider();
+        window.__uid2SecureSignalProvider = new UidSecureSignalProvider();
         UID2.setupGoogleSecureSignals();
         jest.setSystemTime(refreshFrom);
         jest.runOnlyPendingTimers();
@@ -186,7 +183,7 @@ describe('Secure Signal Tests', () => {
       });
     });
 
-    describe('When SDK initialized after both SDK and SS script loaded', () => {
+    describe('When SDK initialized after both SDK and SS script loaded - UID2', () => {
       test('should send identity to Google ESP', async () => {
         __uid2InternalHandleScriptLoad();
         __uid2SSProviderScriptLoad();
@@ -206,10 +203,11 @@ describe('Secure Signal Tests', () => {
     });
   });
 
-  describe('getUid2AdvertisingTokenWithRetry', () => {
+  describe('getUidAdvertisingTokenWithRetry', () => {
     test('should resolve with the result of the promise if it is successful', async () => {
       const mockPromise = jest.fn(() => Promise.resolve('hello'));
-      const result = await getUid2AdvertisingTokenWithRetry(mockPromise);
+      const provider = new UidSecureSignalProvider();
+      const result = await provider.getUidAdvertisingTokenWithRetry(mockPromise);
 
       expect(result).toEqual('hello');
       expect(mockPromise).toHaveBeenCalledTimes(1);
@@ -220,7 +218,8 @@ describe('Secure Signal Tests', () => {
       mockPromise
         .mockReturnValueOnce(Promise.reject(new Error('Oops')))
         .mockReturnValueOnce(Promise.resolve('hello'));
-      const result = await getUid2AdvertisingTokenWithRetry(mockPromise);
+      const provider = new UidSecureSignalProvider();
+      const result = await provider.getUidAdvertisingTokenWithRetry(mockPromise);
 
       expect(result).toEqual('hello');
       expect(mockPromise).toHaveBeenCalledTimes(2);
@@ -230,7 +229,8 @@ describe('Secure Signal Tests', () => {
       const mockPromise = jest.fn(() => Promise.reject(new Error('Oops!')));
 
       try {
-        await getUid2AdvertisingTokenWithRetry(mockPromise, 5);
+        const provider = new UidSecureSignalProvider();
+        await provider.getUidAdvertisingTokenWithRetry(mockPromise, 5);
       } catch (error) {
         expect(error).toEqual(new Error('Oops!'));
       }

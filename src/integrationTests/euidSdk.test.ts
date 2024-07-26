@@ -3,39 +3,54 @@ import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globa
 import * as mocks from '../mocks';
 import { sdkWindow, EUID, __euidInternalHandleScriptLoad } from '../euidSdk';
 import { EventType, CallbackHandler } from '../callbackManager';
+import { __euidSSProviderScriptLoad } from '../secureSignalEuid';
+import { UidSecureSignalProvider } from '../secureSignal_shared';
 
 let callback: any;
 let asyncCallback: jest.Mock<CallbackHandler>;
 let euid: EUID;
 let xhrMock: any;
+let uid2ESP: UidSecureSignalProvider;
+let secureSignalProvidersPushMock: jest.Mock<(p: any) => Promise<void>>;
+let getAdvertisingTokenMock: jest.Mock<() => Promise<string>>;
+getAdvertisingTokenMock = jest.fn<() => Promise<string>>();
 
 const debugOutput = false;
 
 mocks.setupFakeTime();
 
-beforeEach(() => {
-  jest.clearAllMocks();
-  mocks.resetFakeTime();
-  jest.runOnlyPendingTimers();
-
-  callback = jest.fn();
-  xhrMock = new mocks.XhrMock(sdkWindow);
-  mocks.setCookieMock(sdkWindow.document);
-  asyncCallback = jest.fn((event, payload) => {
-    if (debugOutput) {
-      console.log('Async Callback Event:', event);
-      console.log('Payload:', payload);
-    }
-  });
-});
-
-afterEach(() => {
-  mocks.resetFakeTime();
-});
-
 const makeIdentity = mocks.makeIdentityV2;
 
 describe('when a callback is provided', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mocks.resetFakeTime();
+    jest.runOnlyPendingTimers();
+
+    callback = jest.fn();
+    xhrMock = new mocks.XhrMock(sdkWindow);
+    mocks.setCookieMock(sdkWindow.document);
+    asyncCallback = jest.fn((event, payload) => {
+      if (debugOutput) {
+        console.log('Async Callback Event:', event);
+        console.log('Payload:', payload);
+      }
+    });
+    secureSignalProvidersPushMock = jest.fn(async (p) => await p.collectorFunction());
+    window.googletag = {
+      secureSignalProviders: {
+        push: secureSignalProvidersPushMock,
+      },
+    };
+
+    sdkWindow.__euid = new EUID();
+  });
+
+  afterEach(() => {
+    mocks.resetFakeTime();
+    sdkWindow.__euid = undefined;
+  });
+
   const refreshFrom = Date.now() + 100;
   const identity = { ...makeIdentity(), refresh_from: refreshFrom };
   const refreshedIdentity = {
@@ -73,6 +88,40 @@ describe('when a callback is provided', () => {
       sdkWindow.__euid.callbacks!.push(asyncCallback);
       expect(asyncCallback).toBeCalledTimes(calls + 1);
       expect(asyncCallback).toBeCalledWith(EventType.SdkLoaded, expect.anything());
+    });
+  });
+
+  describe('when getUid2AdvertisingToken exists and returns valid advertisingToken', () => {
+    test('should send signal to Google ESP', async () => {
+      window.getEuidAdvertisingToken = getAdvertisingTokenMock;
+      getAdvertisingTokenMock.mockReturnValue(Promise.resolve('testToken'));
+      uid2ESP = new UidSecureSignalProvider(false, true);
+      expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
+      expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'euid.eu',
+        })
+      );
+      expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe('testToken');
+    });
+  });
+
+  describe('When SDK initialized after both SDK and SS script loaded - EUID', () => {
+    test.only('should send identity to Google ESP', async () => {
+      __euidInternalHandleScriptLoad();
+      __euidSSProviderScriptLoad();
+      (sdkWindow.__euid as EUID).init({ identity });
+
+      expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
+      await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'euid.eu',
+        })
+      );
+      await mocks.flushPromises();
+      expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
+        identity.advertising_token
+      );
     });
   });
 });

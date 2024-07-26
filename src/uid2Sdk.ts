@@ -9,8 +9,6 @@ import { hashAndEncodeIdentifier, hashIdentifier } from './encoding/hash';
 import { CallbackContainer, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
 
-import {} from './secureSignal';
-
 export * from './exports';
 
 export class UID2Helper {
