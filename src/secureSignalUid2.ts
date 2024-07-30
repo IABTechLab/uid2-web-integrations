@@ -21,8 +21,6 @@ export function __uid2SSProviderScriptLoad() {
       window.__uid2SecureSignalProvider!.registerSecureSignalProvider();
     }
   });
-  const forceModified = true;
-  if (forceModified) return;
 }
 
 __uid2SSProviderScriptLoad();

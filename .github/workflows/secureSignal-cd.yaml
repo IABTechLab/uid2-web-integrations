@@ -29,7 +29,6 @@ jobs:
           files: src/secureSignalEuid.ts
   build:
     needs: [verify]
-    if: needs.verify.outputs.is_any_file_modified == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
