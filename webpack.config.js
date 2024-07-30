@@ -2,16 +2,15 @@ const uid2Entrypoint = './src/uid2Sdk.ts';
 const euidEntrypoint = './src/euidSdk.ts';
 const espEntryPointUid2 = './src/secureSignalUid2.ts';
 const espEntryPointEuid = './src/secureSignalEuid.ts';
-const espSharedEntryPoint = './src/secureSignal_shared.ts';
 
 const espOutput = {
   'uid2-secureSignals': {
     import: espEntryPointUid2,
-    filename: `uid2SecureSignal.js`,
+    filename: `uid2SecureSignal1.js`,
   },
   'euid-secureSignals': {
     import: espEntryPointEuid,
-    filename: `euidSecureSignal.js`,
+    filename: `euidSecureSignal1.js`,
   },
 };
 

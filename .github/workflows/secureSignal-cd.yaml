@@ -59,12 +59,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}Uid2SecureSignalScript
-          path: ./dist/uid2SecureSignal.js
+          path: ./dist/uid2SecureSignal1.js
       - name: Upload EUID Secure Signals Files
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}EuidSecureSignalScript
-          path: ./dist/euidSecureSignal.js
+          path: ./dist/euidSecureSignal1.js
 
   deployment:
     needs: [build]
@@ -86,7 +86,7 @@ jobs:
         with:
           environment: ${{ matrix.environment }}
           artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}Uid2SecureSignalScript
-          invalidate_paths: '/uid2SecureSignal.js'
+          invalidate_paths: '/uid2SecureSignal1.js'
           aws_bucket_name: ${{ vars.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
       - name: Deploy EUID Secure Signals to CDN
@@ -94,6 +94,6 @@ jobs:
         with:
           environment: ${{ matrix.environment }}
           artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}EuidSecureSignalScript
-          invalidate_paths: '/euidSecureSignal.js'
-          aws_bucket_name: ${{ vars.S3_BUCKET }}
-          aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+          invalidate_paths: '/euidSecureSignal1.js'
+          aws_bucket_name: ${{ vars.EUID_S3_BUCKET }}
+          aws_distribution_id: ${{ secrets.EUID_AWS_DISTRIBUTION_ID }}
