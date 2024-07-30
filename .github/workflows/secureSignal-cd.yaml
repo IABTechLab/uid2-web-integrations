@@ -17,12 +17,6 @@ jobs:
       is_any_file_modified: ${{ steps.verify.outputs.any_modified }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Check for change to src/secureSignal_shared.ts
-        id: verify_shared
-        uses: tj-actions/changed-files@v41
-        with:
-          files: src/secureSignal_shared.ts
       - name: Check for change to src/secureSignalUid2.ts
         id: verify_uid2
         uses: tj-actions/changed-files@v41
