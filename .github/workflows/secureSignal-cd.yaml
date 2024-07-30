@@ -1,5 +1,5 @@
-name: Release UID2 Secure Signal Package to CDN
-run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} UID2 Secure Signal Package to CDN by @${{ github.actor }}  
+name: Release UID2/EUID Secure Signal Package to CDN
+run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} UID2/EUID Secure Signal Package to CDN by @${{ github.actor }}
 
 on:
   push:
@@ -16,13 +16,17 @@ jobs:
     outputs:
       is_any_file_modified: ${{ steps.verify.outputs.any_modified }}
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Check for change to src/secureSignal.ts
-      id: verify
-      uses: tj-actions/changed-files@v41
-      with:
-        files: src/secureSignal.ts
+      - uses: actions/checkout@v4
+      - name: Check for change to src/secureSignalUid2.ts
+        id: verify_uid2
+        uses: tj-actions/changed-files@v41
+        with:
+          files: src/secureSignalUid2.ts
+      - name: Check for change to src/secureSignalEuid.ts
+        id: verify_euid
+        uses: tj-actions/changed-files@v41
+        with:
+          files: src/secureSignalEuid.ts
   build:
     needs: [verify]
     if: needs.verify.outputs.is_any_file_modified == 'true'
@@ -45,30 +49,45 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build:esp -- --mode=${{ matrix.target }}
-      - uses: actions/upload-artifact@v4
+      - name: Upload UID2 Secure Signals Files
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.target }}SecureSignalScript
-          path: ./dist/uid2SecureSignal.js
-  
+          name: ${{ matrix.target }}Uid2SecureSignalScript
+          path: ./dist/uid2SecureSignal1.js
+      - name: Upload EUID Secure Signals Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}EuidSecureSignalScript
+          path: ./dist/euidSecureSignal1.js
+
   deployment:
     needs: [build]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-    
+
     strategy:
       matrix:
         environment: [integ, production]
 
     environment: ${{ matrix.environment }}
-            
+
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ./.github/actions/cdn_deployment_aws
-        with: 
+      - name: Deploy UID2 Secure Signals to CDN
+        uses: ./.github/actions/cdn_deployment_aws
+        with:
           environment: ${{ matrix.environment }}
-          artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}SecureSignalScript
-          invalidate_paths: '/uid2SecureSignal.js'
+          artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}Uid2SecureSignalScript
+          invalidate_paths: '/uid2SecureSignal1.js'
           aws_bucket_name: ${{ vars.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+      - name: Deploy EUID Secure Signals to CDN
+        uses: ./.github/actions/cdn_deployment_aws
+        with:
+          environment: ${{ matrix.environment }}
+          artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}EuidSecureSignalScript
+          invalidate_paths: '/euidSecureSignal1.js'
+          aws_bucket_name: ${{ vars.EUID_S3_BUCKET }}
+          aws_distribution_id: ${{ secrets.EUID_AWS_DISTRIBUTION_ID }}
