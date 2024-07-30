@@ -6,17 +6,17 @@
     <link rel="stylesheet" type="text/css" href="/stylesheets/app.css" />
     <link rel="shortcut icon" href="/images/favicon.png" />
     <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script defer src="<!--# echo var='SSI_UID_JS_SDK_URL' -->"></script>
+    <script defer src="{{ UID_JS_SDK_URL }}"></script>
     <script>
       const clientSideIdentityOptions = {
-        subscriptionId: '<!--# echo var="SSI_SUBSCRIPTION_ID" -->',
-        serverPublicKey: '<!--# echo var="SSI_SERVER_PUBLIC_KEY" -->',
+        subscriptionId: '{{ SUBSCRIPTION_ID }}',
+        serverPublicKey: '{{ SERVER_PUBLIC_KEY }}',
       };
 
       let callbackCounter = 0;
 
       // __uid2 for UID2 SDK, __euid for EUID SDK.
-      const sdkName = '<!--# echo var="SSI_UID_JS_SDK_NAME" -->';
+      const sdkName = '{{ UID_JS_SDK_NAME }}';
 
       function getUidSdk() {
         return window[sdkName];
@@ -80,7 +80,7 @@
       sdk.callbacks.push((eventType, payload) => {
         if (eventType === 'SdkLoaded') {
           getUidSdk().init({
-            baseUrl: '<!--# echo var="SSI_UID_BASE_URL" -->',
+            baseUrl: '{{ UID_BASE_URL }}',
           });
           $(document).ready(onDocumentReady);
         }
