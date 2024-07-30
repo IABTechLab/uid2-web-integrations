@@ -6,11 +6,11 @@ const espEntryPointEuid = './src/secureSignalEuid.ts';
 const espOutput = {
   'uid2-secureSignals': {
     import: espEntryPointUid2,
-    filename: `uid2SecureSignal1.js`,
+    filename: `uid2SecureSignal.js`,
   },
   'euid-secureSignals': {
     import: espEntryPointEuid,
-    filename: `euidSecureSignal1.js`,
+    filename: `euidSecureSignal.js`,
   },
 };
 
