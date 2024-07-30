@@ -73,9 +73,9 @@
           }
         ],
         "env": {
-          "UID2_BASE_URL": "http://localhost:8080",
-          "UID2_JS_SDK_URL": "http://localhost:9091/uid2-sdk.js",
-          "EUID_JS_SDK_URL": "http://localhost:9091/euid-sdk.js",
+          "UID_BASE_URL": "http://localhost:8080",
+          "UID_JS_SDK_URL": "http://localhost:9091/uid2-sdk.js",
+          "UID_JS_SDK_NAME": "__uid2",
           "SERVER_PUBLIC_KEY": "UID2-X-L-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEWyCP9O/6ppffj8f5PUWsEhAoMNdTBnpnkiOPZBkVnLkxOyTjPsKzf5J3ApPHzutAGNGgKAzFc6TuCfo+BWsZtQ==",
           "SUBSCRIPTION_ID": "LBk2xJsgrS"
         },
