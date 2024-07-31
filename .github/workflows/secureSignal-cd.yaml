@@ -2,6 +2,9 @@ name: Release UID2/EUID Secure Signal Package to CDN
 run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} UID2/EUID Secure Signal Package to CDN by @${{ github.actor }}
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 env:
@@ -26,7 +29,6 @@ jobs:
           files: src/secureSignalEuid.ts
   build:
     needs: [verify]
-    if: needs.verify.outputs.is_any_file_modified == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
