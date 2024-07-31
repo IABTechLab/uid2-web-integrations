@@ -2,9 +2,6 @@ name: Release UID2/EUID Secure Signal Package to CDN
 run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} UID2/EUID Secure Signal Package to CDN by @${{ github.actor }}
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 env:
@@ -53,12 +50,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}Uid2SecureSignalScript
-          path: ./dist/uid2SecureSignal1.js
+          path: ./dist/uid2SecureSignal.js
       - name: Upload EUID Secure Signals Files
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}EuidSecureSignalScript
-          path: ./dist/euidSecureSignal1.js
+          path: ./dist/euidSecureSignal.js
 
   deployment:
     needs: [build]
@@ -80,7 +77,8 @@ jobs:
         with:
           environment: ${{ matrix.environment }}
           artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}Uid2SecureSignalScript
-          invalidate_paths: '/uid2SecureSignal1.js'
+          invalidate_paths: '/uid2SecureSignal.js'
+          aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
           aws_bucket_name: ${{ vars.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
       - name: Deploy EUID Secure Signals to CDN
@@ -88,6 +86,7 @@ jobs:
         with:
           environment: ${{ matrix.environment }}
           artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}EuidSecureSignalScript
-          invalidate_paths: '/euidSecureSignal1.js'
+          invalidate_paths: '/euidSecureSignal.js'
+          aws_account_id: ${{ vars.EUID_AWS_ACCOUNT_ID }}
           aws_bucket_name: ${{ vars.EUID_S3_BUCKET }}
           aws_distribution_id: ${{ secrets.EUID_AWS_DISTRIBUTION_ID }}
