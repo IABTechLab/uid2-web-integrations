@@ -5,7 +5,7 @@ import { Identity } from './Identity';
 import { InitCallbackOptions } from './initCallbacks';
 
 export type SdkOptions = BaseSdkOptions & InitCallbackOptions & CookieOptions & ApiClientOptions;
-type BaseSdkOptions = {
+export type BaseSdkOptions = {
   refreshRetryPeriod?: number;
   identity?: Identity;
   useCookie?: boolean;

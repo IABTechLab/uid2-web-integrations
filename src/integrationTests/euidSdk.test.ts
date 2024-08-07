@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import * as mocks from '../mocks';
-import { sdkWindow, EUID, __euidInternalHandleScriptLoad } from '../euidSdk';
+import { sdkWindow, EUID, __euidInternalHandleScriptLoad, SdkOptions } from '../euidSdk';
 import { EventType, CallbackHandler } from '../callbackManager';
 import { __euidSSProviderScriptLoad } from '../secureSignalEuid';
 import { UidSecureSignalProvider } from '../secureSignal_shared';
@@ -18,8 +18,31 @@ getAdvertisingTokenMock = jest.fn<() => Promise<string>>();
 const debugOutput = false;
 
 mocks.setupFakeTime();
+const mockDomain = 'www.uidapi.com';
 
 const makeIdentity = mocks.makeIdentityV2;
+
+const getConfigCookie = () => {
+  const docCookie = document.cookie;
+  if (docCookie) {
+    const payload = docCookie
+      .split('; ')
+      .find((row) => row.startsWith(EUID.COOKIE_NAME + '_config' + '='));
+    if (payload) {
+      return JSON.parse(decodeURIComponent(payload.split('=')[1]));
+    }
+  }
+  return null;
+};
+
+const getConfigStorage = () => {
+  const data = localStorage.getItem('UID2-sdk-identity_config');
+  if (data) {
+    const result = JSON.parse(data);
+    return result;
+  }
+  return null;
+};
 
 describe('when a callback is provided', () => {
   beforeEach(() => {
@@ -122,6 +145,42 @@ describe('when a callback is provided', () => {
       expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
         identity.advertising_token
       );
+    });
+  });
+});
+
+describe('Store config EUID', () => {
+  const identity = makeIdentity();
+  const options: SdkOptions = {
+    baseUrl: 'http://test-host',
+    cookieDomain: mockDomain,
+    refreshRetryPeriod: 1000,
+    useCookie: false,
+  };
+
+  beforeEach(() => {
+    localStorage.removeItem('UID2-sdk-identity_config');
+    document.cookie = EUID.COOKIE_NAME + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT';
+  });
+
+  describe('when useCookie is true', () => {
+    test('should store config in cookie', () => {
+      euid.init({ callback: callback, identity: identity, ...options, useCookie: true });
+      const cookie = getConfigCookie();
+      expect(cookie).toBeInstanceOf(Object);
+      expect(cookie).toHaveProperty('cookieDomain');
+      const storageConfig = getConfigStorage();
+      expect(storageConfig).toBeNull();
+    });
+  });
+  describe('when useCookie is false', () => {
+    test('should store config in local storage', () => {
+      euid.init({ callback: callback, identity: identity, ...options });
+      const storageConfig = getConfigStorage();
+      expect(storageConfig).toBeInstanceOf(Object);
+      expect(storageConfig).toHaveProperty('cookieDomain');
+      const cookie = getConfigCookie();
+      expect(cookie).toBeNull();
     });
   });
 });

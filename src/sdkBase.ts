@@ -15,6 +15,7 @@ import { PromiseHandler } from './promiseHandler';
 import { StorageManager } from './storageManager';
 import { hashAndEncodeIdentifier } from './encoding/hash';
 import { ProductDetails, ProductName } from './product';
+import { storeConfig } from './configManager';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -178,6 +179,8 @@ export abstract class SdkBase {
     }
     if (!isSDKOptionsOrThrow(opts))
       throw new TypeError(`Options provided to ${this._product.name} init couldn't be validated.`);
+
+    storeConfig(opts, this._product);
 
     this._opts = opts;
     this._storageManager = new StorageManager(
