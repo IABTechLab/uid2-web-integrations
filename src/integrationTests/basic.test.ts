@@ -562,8 +562,8 @@ testCookieAndLocalStorage(() => {
         expect(setTimeout).not.toHaveBeenCalled();
         expect(clearTimeout).not.toHaveBeenCalled();
       });
-      test('should be in unavailable state', () => {
-        (expect(uid2) as any).toBeInUnavailableState();
+      test('should be in optout state', () => {
+        (expect(uid2) as any).toBeInOptoutState();
       });
     });
 
@@ -825,8 +825,8 @@ testCookieAndLocalStorage(() => {
         expect(setTimeout).not.toHaveBeenCalled();
         expect(clearTimeout).not.toHaveBeenCalled();
       });
-      test('should be in unavailable state', () => {
-        (expect(uid2) as any).toBeInUnavailableState();
+      test('should be in optout state', () => {
+        (expect(uid2) as any).toBeInOptoutState();
       });
     });
 

@@ -178,9 +178,9 @@ describe('Client-side token generation Tests', () => {
               );
             });
           });
-          test('UID2 should not be available', async () => {
+          test('UID2 should be in optout state', async () => {
             await scenario.setIdentity(serverPublicKey);
-            (expect(uid2) as any).toBeInUnavailableState();
+            (expect(uid2) as any).toBeInOptoutState();
           });
 
           test('The callback should be called with no identity', (done) => {
