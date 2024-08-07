@@ -172,34 +172,81 @@ export abstract class SdkBase {
     if (this._apiClient) this._apiClient.abortActiveRequests();
   }
 
+  private createApiClient(opts: SdkOptions) {
+    this._apiClient = new ApiClient(opts, this._product.defaultBaseUrl, this._product.name);
+    this._tokenPromiseHandler.registerApiClient(this._apiClient);
+  }
+
   private initInternal(opts: SdkOptions | unknown) {
-    if (this._initComplete) {
-      throw new TypeError('Calling init() more than once is not allowed');
-    }
     if (!isSDKOptionsOrThrow(opts))
       throw new TypeError(`Options provided to ${this._product.name} init couldn't be validated.`);
 
-    this._opts = opts;
-    this._storageManager = new StorageManager(
-      { ...opts },
-      this._product.cookieName,
-      this._product.localStorageKey
-    );
-    this._apiClient = new ApiClient(opts, this._product.defaultBaseUrl, this._product.name);
-    this._tokenPromiseHandler.registerApiClient(this._apiClient);
+    if (this._initComplete) {
+      //throw new TypeError('Calling init() more than once is not allowed');
 
-    let identity;
-    if (this._opts.identity) {
-      identity = this._opts.identity;
+      // do nothing if nothing changed between init calls
+      if (this._opts === opts) {
+        this._logger.log('SdkOptions have not changed from the previous init() call');
+        return;
+      }
+
+      // update storage manager
+      if (opts.cookieDomain || opts.cookiePath) {
+        this._storageManager?.updateCookieManager(opts, this._product.cookieName);
+      }
+
+      // update base URL of existing client if it has changed
+      if (opts.baseUrl) {
+        if (this._apiClient && opts.baseUrl !== this._opts.baseUrl) {
+          this._apiClient.updateBaseUrl(opts.baseUrl);
+          this._logger.log('BaseUrl updated for ApiClient');
+        } else {
+          this.createApiClient(opts);
+          this._logger.log('new API client created');
+        }
+      }
+
+      // update identity if it is given and is not expired
+      if (opts.identity && opts.identity.identity_expires < Date.now()) {
+        /// update identity if an identity doesnt exist or if the expiration date of the new identity if later than the expiration date of old identity
+        if (
+          !this._opts.identity ||
+          opts.identity.identity_expires > this._opts.identity.identity_expires
+        ) {
+          this.setIdentity(opts.identity);
+          this._logger.log('new identity set');
+        } else {
+          this._logger.log('previous identity kept because it expires after new identity');
+        }
+      } else {
+        this._logger.log('new identity does not exist or is expired');
+      }
+
+      // set opts
+      this._opts = opts;
     } else {
-      identity = this._storageManager.loadIdentityWithFallback();
+      this._opts = opts;
+      this._storageManager = new StorageManager(
+        { ...opts },
+        this._product.cookieName,
+        this._product.localStorageKey
+      );
+
+      this.createApiClient(this._opts);
+
+      let identity;
+      if (this._opts.identity) {
+        identity = this._opts.identity;
+      } else {
+        identity = this._storageManager.loadIdentityWithFallback();
+      }
+      const validatedIdentity = this.validateAndSetIdentity(identity);
+      if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
+        this.triggerRefreshOrSetTimer(validatedIdentity);
+      this._initComplete = true;
+      this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
+      if (this.hasOptedOut()) this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
     }
-    const validatedIdentity = this.validateAndSetIdentity(identity);
-    if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
-      this.triggerRefreshOrSetTimer(validatedIdentity);
-    this._initComplete = true;
-    this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
-    if (this.hasOptedOut()) this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
   }
 
   private isLoggedIn() {

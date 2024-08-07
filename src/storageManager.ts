@@ -34,6 +34,10 @@ export class StorageManager {
     this.setValue(identity);
   }
 
+  public updateCookieManager(opts: SdkOptions, cookieName: string) {
+    this._cookieManager = new CookieManager({ ...opts }, cookieName);
+  }
+
   public setOptout() {
     const expiry = Date.now() + 72 * 60 * 60 * 1000; // 3 days - need to pick something
     const optout: OptoutIdentity = {
