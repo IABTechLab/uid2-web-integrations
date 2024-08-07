@@ -6,25 +6,6 @@ type storedConfig = Pick<
   'baseUrl' | 'useCookie' | 'refreshRetryPeriod' | 'cookiePath' | 'cookieDomain'
 >;
 
-export const storeConfig = (config: SdkOptions, productDetails: ProductDetails) => {
-  if (config.useCookie) {
-    setConfigCookie(config, productDetails);
-  } else {
-    setConfigLocalStorage(config, productDetails);
-  }
-};
-
-export const loadConfig = (
-  config: SdkOptions,
-  productDetails: ProductDetails
-): storedConfig | null => {
-  if (config.useCookie) {
-    return loadConfigFromCookie(productDetails);
-  } else {
-    return loadConfigFromLocalStorage(productDetails);
-  }
-};
-
 const getConfigFromSdkOptions = (options: SdkOptions): storedConfig => {
   const config: storedConfig = {
     refreshRetryPeriod: options.refreshRetryPeriod,
@@ -36,10 +17,29 @@ const getConfigFromSdkOptions = (options: SdkOptions): storedConfig => {
   return config;
 };
 
-const setConfigCookie = (config: SdkOptions, productDetails: ProductDetails) => {
-  const cookieDomain = config.cookieDomain;
-  const path = config.cookiePath ?? '/';
-  const value = JSON.stringify(getConfigFromSdkOptions(config));
+export const storeConfig = (options: SdkOptions, productDetails: ProductDetails) => {
+  if (options.useCookie) {
+    setConfigCookie(options, productDetails);
+  } else {
+    setConfigToLocalStorage(options, productDetails);
+  }
+};
+
+export const loadConfig = (
+  options: SdkOptions,
+  productDetails: ProductDetails
+): storedConfig | null => {
+  if (options.useCookie) {
+    return loadConfigFromCookie(productDetails);
+  } else {
+    return loadConfigFromLocalStorage(productDetails);
+  }
+};
+
+const setConfigCookie = (options: SdkOptions, productDetails: ProductDetails) => {
+  const cookieDomain = options.cookieDomain;
+  const path = options.cookiePath ?? '/';
+  const value = JSON.stringify(getConfigFromSdkOptions(options));
   let cookie =
     productDetails.cookieName + '_config' + '=' + encodeURIComponent(value) + ' ;path=' + path;
   if (typeof cookieDomain !== 'undefined') {
@@ -65,7 +65,7 @@ const getConfigCookie = (productDetails: ProductDetails) => {
   }
 };
 
-export const loadConfigFromCookie = (productDetails: ProductDetails): storedConfig | null => {
+const loadConfigFromCookie = (productDetails: ProductDetails): storedConfig | null => {
   const cookieData = getConfigCookie(productDetails);
   if (cookieData) {
     const result = JSON.parse(cookieData) as storedConfig;
@@ -74,12 +74,12 @@ export const loadConfigFromCookie = (productDetails: ProductDetails): storedConf
   return null;
 };
 
-const setConfigLocalStorage = (config: SdkOptions, productDetails: ProductDetails) => {
-  const value = JSON.stringify(getConfigFromSdkOptions(config));
+const setConfigToLocalStorage = (options: SdkOptions, productDetails: ProductDetails) => {
+  const value = JSON.stringify(getConfigFromSdkOptions(options));
   localStorage.setItem(productDetails.localStorageKey + '_config', value);
 };
 
-const removeConfigLocalStorage = (productDetails: ProductDetails) => {
+const removeConfigFromLocalStorage = (productDetails: ProductDetails) => {
   localStorage.removeItem(productDetails.localStorageKey + '_config');
 };
 
