@@ -71,6 +71,14 @@ export abstract class SdkBase {
     this.initInternal(opts);
   }
 
+  public isInitialized() {
+    return this._initComplete;
+  }
+
+  public setInitComplete(isInitComplete: boolean) {
+    this._initComplete = isInitComplete;
+  }
+
   public getAdvertisingToken() {
     return this.getIdentity()?.advertising_token ?? undefined;
   }
@@ -182,17 +190,21 @@ export abstract class SdkBase {
       throw new TypeError(`Options provided to ${this._product.name} init couldn't be validated.`);
 
     if (this._initComplete) {
-      //throw new TypeError('Calling init() more than once is not allowed');
-
       // do nothing if nothing changed between init calls
       if (this._opts === opts) {
         this._logger.log('SdkOptions have not changed from the previous init() call');
         return;
       }
 
+      this.setInitComplete(false);
+
       // update storage manager
-      if (opts.cookieDomain || opts.cookiePath) {
+      if (
+        (opts.cookieDomain && opts.cookieDomain != this._opts.cookieDomain) ||
+        (opts.cookiePath && opts.cookiePath !== this._opts.cookiePath)
+      ) {
         this._storageManager?.updateCookieManager(opts, this._product.cookieName);
+        this._logger.log('cookie manager updated');
       }
 
       // update base URL of existing client if it has changed
@@ -208,7 +220,8 @@ export abstract class SdkBase {
 
       // update identity if it is given and is not expired
       if (opts.identity && opts.identity.identity_expires < Date.now()) {
-        /// update identity if an identity doesnt exist or if the expiration date of the new identity if later than the expiration date of old identity
+        /// update identity if an identity doesnt exist or
+        // if the expiration date of the new identity if later than the expiration date of old identity
         if (
           !this._opts.identity ||
           opts.identity.identity_expires > this._opts.identity.identity_expires
@@ -216,14 +229,19 @@ export abstract class SdkBase {
           this.setIdentity(opts.identity);
           this._logger.log('new identity set');
         } else {
-          this._logger.log('previous identity kept because it expires after new identity');
+          this._logger.log('new identity not set because expires before current identity');
         }
       } else {
         this._logger.log('new identity does not exist or is expired');
       }
 
+      // update usecookie
+
+      // update refreshretryperiod
+
       // set opts
       this._opts = opts;
+      this.setInitComplete(true);
     } else {
       this._opts = opts;
       this._storageManager = new StorageManager(
@@ -243,7 +261,7 @@ export abstract class SdkBase {
       const validatedIdentity = this.validateAndSetIdentity(identity);
       if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
         this.triggerRefreshOrSetTimer(validatedIdentity);
-      this._initComplete = true;
+      this.setInitComplete(true);
       this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
       if (this.hasOptedOut()) this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
     }

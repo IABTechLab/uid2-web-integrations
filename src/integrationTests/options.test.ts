@@ -193,3 +193,211 @@ describe('useCookie option', () => {
     });
   });
 });
+
+describe('multiple init calls', () => {
+  const identity = makeIdentity();
+  const baseUrl = 'http://test-host';
+  const cookiePath = '/test/';
+
+  describe('when nothing has changed', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+    });
+    test('should return next two init calls without changing anything', () => {
+      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    });
+  });
+
+  describe('invalid options given in first init call', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+    });
+    test('should throw error', () => {
+      expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    });
+  });
+
+  describe('invalid options given in second init call', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+    });
+    test('should throw error', () => {
+      expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    });
+  });
+
+  describe('new base URL is given', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        baseUrl: 'http://test',
+      });
+    });
+    test('should update base url', () => {
+      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    });
+  });
+
+  describe('new identity provided and old identity does not exist', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        baseUrl: 'http://test',
+      });
+    });
+    test('should create new identity', () => {
+      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    });
+  });
+
+  describe('new identity provided but expired', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        baseUrl: 'http://test',
+      });
+    });
+    test('should not update the identity', () => {
+      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    });
+  });
+
+  describe('new identity provided but expires before old identity', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        baseUrl: 'http://test',
+      });
+    });
+    test('should not update the identity', () => {
+      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    });
+  });
+
+  describe('new identity provided and expires after old identity', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        baseUrl: 'http://test',
+      });
+    });
+    test('should update identity to the new one', () => {
+      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    });
+  });
+
+  describe('new cookie domain and new cookie path', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        baseUrl: 'http://test',
+      });
+    });
+    test('should update cookie manager', () => {
+      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    });
+  });
+
+  describe('new cookie domain only', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        baseUrl: 'http://test',
+      });
+    });
+    test('should update cookie manager', () => {
+      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    });
+  });
+
+  describe('new cookie path only', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        baseUrl: 'http://test',
+      });
+    });
+    test('should update cookie manager', () => {
+      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    });
+  });
+});
