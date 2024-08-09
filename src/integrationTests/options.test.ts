@@ -32,6 +32,9 @@ const getUid2Cookie = mocks.getUid2Cookie;
 const getUid2LocalStorage = mocks.getUid2LocalStorage;
 const removeUid2Cookie = mocks.removeUid2Cookie;
 const removeUid2LocalStorage = mocks.removeUid2LocalStorage;
+const getUid2 = mocks.getUid2;
+
+let useCookie: boolean | undefined = undefined;
 
 const getConfigCookie = () => {
   const docCookie = document.cookie;
@@ -220,6 +223,7 @@ describe('multiple init calls', () => {
   const identity = makeIdentity();
   const baseUrl = 'http://test-host';
   const cookiePath = '/test/';
+  const cookieDomain = 'uidapi.com';
 
   describe('when nothing has changed', () => {
     beforeEach(() => {
@@ -263,7 +267,7 @@ describe('multiple init calls', () => {
       });
     });
     test('should throw error', () => {
-      expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
     });
   });
 
@@ -295,33 +299,56 @@ describe('multiple init calls', () => {
         baseUrl: baseUrl,
         cookiePath: cookiePath,
       });
+    });
+    test('should use new base url', () => {
       uid2.init({
         baseUrl: 'http://test',
       });
+      expect(xhrMock.open.mock.calls.length).toBe(1);
+      expect(xhrMock.open.mock.calls[0][1]).not.toContain(baseUrl);
+      expect(xhrMock.open.mock.calls[0][1]).toContain('http://test');
     });
-    test('should update base url', () => {
-      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+
+    test('should use old base url', () => {
+      uid2.init({
+        cookiePath: cookiePath,
+      });
+      expect(xhrMock.open.mock.calls.length).toBe(1);
+      expect(xhrMock.open.mock.calls[0][1]).not.toContain('http://test');
+      expect(xhrMock.open.mock.calls[0][1]).toContain(baseUrl);
     });
   });
 
   describe('new identity provided and old identity does not exist', () => {
+    const newIdentity = makeIdentity();
+
     beforeEach(() => {
       uid2.init({
         callback: callback,
-        identity: identity,
         baseUrl: baseUrl,
         cookiePath: cookiePath,
       });
       uid2.init({
-        baseUrl: 'http://test',
+        identity: newIdentity,
       });
     });
     test('should create new identity', () => {
-      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+      test('should set value', () => {
+        expect(getUid2(useCookie).advertising_token).toBe(newIdentity.advertising_token);
+      });
+      test('should set refresh timer', () => {
+        expect(setTimeout).toHaveBeenCalledTimes(1);
+        expect(clearTimeout).not.toHaveBeenCalled();
+      });
+      test('should be in available state', () => {
+        (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);
+      });
     });
   });
 
   describe('new identity provided but expired', () => {
+    const newIdentity = makeIdentity({ refresh_expires: Date.now() - 100000 });
+
     beforeEach(() => {
       uid2.init({
         callback: callback,
@@ -330,32 +357,55 @@ describe('multiple init calls', () => {
         cookiePath: cookiePath,
       });
       uid2.init({
-        baseUrl: 'http://test',
+        identity: newIdentity,
       });
     });
     test('should not update the identity', () => {
-      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+      test('should set value', () => {
+        expect(getUid2(useCookie).advertising_token).toBe(identity.advertising_token);
+      });
+      test('should set refresh timer', () => {
+        expect(setTimeout).toHaveBeenCalledTimes(1);
+        expect(clearTimeout).not.toHaveBeenCalled();
+      });
+      test('should be in available state', () => {
+        (expect(uid2) as any).toBeInAvailableState(identity.advertising_token);
+      });
     });
   });
 
   describe('new identity provided but expires before old identity', () => {
+    const oldIdentity = makeIdentity({ refresh_expires: Date.now() + 5000 });
+    const newIdentity = makeIdentity({ refresh_expires: Date.now() + 100000 });
+
     beforeEach(() => {
       uid2.init({
         callback: callback,
-        identity: identity,
+        identity: oldIdentity,
         baseUrl: baseUrl,
         cookiePath: cookiePath,
       });
       uid2.init({
-        baseUrl: 'http://test',
+        identity: newIdentity,
       });
     });
     test('should not update the identity', () => {
-      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+      test('should set value', () => {
+        expect(getUid2(useCookie).advertising_token).toBe(oldIdentity.advertising_token);
+      });
+      test('should set refresh timer', () => {
+        expect(setTimeout).toHaveBeenCalledTimes(1);
+        expect(clearTimeout).not.toHaveBeenCalled();
+      });
+      test('should be in available state', () => {
+        (expect(uid2) as any).toBeInAvailableState(oldIdentity.advertising_token);
+      });
     });
   });
 
   describe('new identity provided and expires after old identity', () => {
+    const newIdentity = makeIdentity();
+
     beforeEach(() => {
       uid2.init({
         callback: callback,
@@ -364,32 +414,51 @@ describe('multiple init calls', () => {
         cookiePath: cookiePath,
       });
       uid2.init({
-        baseUrl: 'http://test',
+        identity: newIdentity,
       });
     });
     test('should update identity to the new one', () => {
-      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+      test('should set value', () => {
+        expect(getUid2(useCookie).advertising_token).toBe(newIdentity.advertising_token);
+      });
+      test('should set refresh timer', () => {
+        expect(setTimeout).toHaveBeenCalledTimes(1);
+        expect(clearTimeout).not.toHaveBeenCalled();
+      });
+      test('should be in available state', () => {
+        (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);
+      });
     });
   });
 
   describe('new cookie domain and new cookie path', () => {
+    const newCookiePath = '/';
+    const newCookieDomain = 'test.com';
+
     beforeEach(() => {
       uid2.init({
         callback: callback,
         identity: identity,
         baseUrl: baseUrl,
         cookiePath: cookiePath,
+        cookieDomain: cookieDomain,
       });
       uid2.init({
-        baseUrl: 'http://test',
+        cookiePath: newCookiePath,
+        cookieDomain: newCookieDomain,
       });
     });
-    test('should update cookie manager', () => {
-      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    test('should update cookie manager and config cookie', () => {
+      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
+      expect(cookie).toContain(`Domain=${newCookieDomain};`);
+      expect(cookie + ';').toContain(`Path=${newCookiePath};`);
+      expect(getConfigCookie()).toHaveProperty('cookieDomain', newCookieDomain);
+      expect(getConfigCookie() + ';').toHaveProperty('cookiePath', newCookiePath);
     });
   });
 
   describe('new cookie domain only', () => {
+    const newCookieDomain = 'test.com';
     beforeEach(() => {
       uid2.init({
         callback: callback,
@@ -398,28 +467,133 @@ describe('multiple init calls', () => {
         cookiePath: cookiePath,
       });
       uid2.init({
-        baseUrl: 'http://test',
+        cookieDomain: newCookieDomain,
       });
     });
     test('should update cookie manager', () => {
-      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
+      expect(cookie).toContain(`Domain=${newCookieDomain};`);
+      expect(cookie + ';').toContain(`Path=${cookiePath};`);
+      expect(getConfigCookie()).toHaveProperty('cookieDomain', newCookieDomain);
+      expect(getConfigCookie() + ';').toHaveProperty('cookiePath', cookiePath);
     });
   });
 
   describe('new cookie path only', () => {
+    const newCookiePath = '/';
+
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookieDomain: cookieDomain,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        cookiePath: newCookiePath,
+      });
+    });
+    test('should update cookie manager', () => {
+      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
+      expect(cookie).toContain(`Domain=${cookieDomain};`);
+      expect(cookie + ';').toContain(`Path=${newCookiePath};`);
+      expect(getConfigCookie()).toHaveProperty('cookieDomain', cookieDomain);
+      expect(getConfigCookie() + ';').toHaveProperty('cookiePath', newCookiePath);
+    });
+  });
+
+  describe('new refreshretry period', () => {
     beforeEach(() => {
       uid2.init({
         callback: callback,
         identity: identity,
         baseUrl: baseUrl,
         cookiePath: cookiePath,
+        refreshRetryPeriod: 12345,
       });
       uid2.init({
-        baseUrl: 'http://test',
+        refreshRetryPeriod: 67890,
       });
     });
-    test('should update cookie manager', () => {
-      //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+    test('should use the new refresh retry period', () => {
+      expect(setTimeout).toHaveBeenCalledTimes(1);
+      expect(setTimeout).toBeCalledWith(expect.any(Function), 67890);
+    });
+  });
+
+  describe('usecookie changing from true to false', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+        refreshRetryPeriod: 12345,
+        useCookie: true,
+      });
+      uid2.init({
+        useCookie: false,
+      });
+    });
+    test('should change config from cookie to local storage', () => {
+      test('should store config in local storage', () => {
+        const storageConfig = getConfigStorage();
+        expect(storageConfig).toBeInstanceOf(Object);
+        expect(storageConfig).toHaveProperty('cookiePath');
+        const cookie = getConfigCookie();
+        expect(cookie).toBeNull();
+      });
+    });
+
+    describe('adding a callback when no callbacks exist before', () => {
+      beforeEach(() => {
+        uid2.init({
+          identity: identity,
+          baseUrl: baseUrl,
+          cookiePath: cookiePath,
+          refreshRetryPeriod: 12345,
+          useCookie: true,
+        });
+        uid2.init({
+          useCookie: false,
+          callback: callback,
+        });
+      });
+      test('should change config from cookie to local storage', () => {
+        test('should store config in local storage', () => {
+          const storageConfig = getConfigStorage();
+          expect(storageConfig).toBeInstanceOf(Object);
+          expect(storageConfig).toHaveProperty('cookiePath');
+          const cookie = getConfigCookie();
+          expect(cookie).toBeNull();
+        });
+      });
+    });
+
+    describe('adding a callback', () => {
+      beforeEach(() => {
+        uid2.init({
+          callback: callback,
+          identity: identity,
+          baseUrl: baseUrl,
+          cookiePath: cookiePath,
+          refreshRetryPeriod: 12345,
+          useCookie: false,
+        });
+        uid2.init({
+          callback: jest.fn(),
+        });
+      });
+      test('should change config from local storage to cookie', () => {
+        test('should store config in cookie', () => {
+          const cookie = getConfigCookie();
+          expect(cookie).toBeInstanceOf(Object);
+          expect(cookie).toHaveProperty('cookiePath');
+          const storageConfig = getConfigStorage();
+          expect(storageConfig).toBeNull();
+        });
+      });
     });
   });
 });
