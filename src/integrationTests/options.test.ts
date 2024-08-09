@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import * as mocks from '../mocks';
-import { sdkWindow, UID2 } from '../uid2Sdk';
+import { SdkOptions, sdkWindow, UID2 } from '../uid2Sdk';
 
 let callback: any;
 let uid2: UID2;
@@ -32,6 +32,28 @@ const getUid2Cookie = mocks.getUid2Cookie;
 const getUid2LocalStorage = mocks.getUid2LocalStorage;
 const removeUid2Cookie = mocks.removeUid2Cookie;
 const removeUid2LocalStorage = mocks.removeUid2LocalStorage;
+
+const getConfigCookie = () => {
+  const docCookie = document.cookie;
+  if (docCookie) {
+    const payload = docCookie
+      .split('; ')
+      .find((row) => row.startsWith(UID2.COOKIE_NAME + '_config' + '='));
+    if (payload) {
+      return JSON.parse(decodeURIComponent(payload.split('=')[1]));
+    }
+  }
+  return null;
+};
+
+const getConfigStorage = () => {
+  const data = localStorage.getItem('UID2-sdk-identity_config');
+  if (data) {
+    const result = JSON.parse(data);
+    return result;
+  }
+  return null;
+};
 
 describe('cookieDomain option', () => {
   describe('when using default value', () => {
@@ -190,6 +212,42 @@ describe('useCookie option', () => {
     test('should set identity in cookie only', () => {
       expect(getUid2Cookie().advertising_token).toBe(identity.advertising_token);
       expect(getUid2LocalStorage()).toBeNull();
+    });
+  });
+});
+
+describe('Store config UID2', () => {
+  const identity = makeIdentity();
+  const options: SdkOptions = {
+    baseUrl: 'http://test-host',
+    cookieDomain: mockDomain,
+    refreshRetryPeriod: 1000,
+    useCookie: false,
+  };
+
+  beforeEach(() => {
+    localStorage.removeItem('UID2-sdk-identity_config');
+    document.cookie = UID2.COOKIE_NAME + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT';
+  });
+
+  describe('when useCookie is true', () => {
+    test('should store config in cookie', () => {
+      uid2.init({ callback: callback, identity: identity, ...options, useCookie: true });
+      const cookie = getConfigCookie();
+      expect(cookie).toBeInstanceOf(Object);
+      expect(cookie).toHaveProperty('cookieDomain');
+      const storageConfig = getConfigStorage();
+      expect(storageConfig).toBeNull();
+    });
+  });
+  describe('when useCookie is false', () => {
+    test('should store config in local storage', () => {
+      uid2.init({ callback: callback, identity: identity, ...options });
+      const storageConfig = getConfigStorage();
+      expect(storageConfig).toBeInstanceOf(Object);
+      expect(storageConfig).toHaveProperty('cookieDomain');
+      const cookie = getConfigCookie();
+      expect(cookie).toBeNull();
     });
   });
 });
