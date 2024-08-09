@@ -181,11 +181,6 @@ export abstract class SdkBase {
     if (this._apiClient) this._apiClient.abortActiveRequests();
   }
 
-  private createApiClient(opts: SdkOptions) {
-    this._apiClient = new ApiClient(opts, this._product.defaultBaseUrl, this._product.name);
-    this._tokenPromiseHandler.registerApiClient(this._apiClient);
-  }
-
   private initInternal(opts: SdkOptions | unknown) {
     if (!isSDKOptionsOrThrow(opts))
       throw new TypeError(`Options provided to ${this._product.name} init couldn't be validated.`);
@@ -197,15 +192,6 @@ export abstract class SdkBase {
         return;
       }
 
-      this._opts = opts;
-      this._storageManager = new StorageManager(
-        { ...opts },
-        this._product.cookieName,
-        this._product.localStorageKey
-      );
-      this._apiClient = new ApiClient(opts, this._product.defaultBaseUrl, this._product.name);
-      this._tokenPromiseHandler.registerApiClient(this._apiClient);
-
       this.setInitComplete(false);
 
       // update storage manager
@@ -213,7 +199,13 @@ export abstract class SdkBase {
         (opts.cookieDomain && opts.cookieDomain != this._opts.cookieDomain) ||
         (opts.cookiePath && opts.cookiePath !== this._opts.cookiePath)
       ) {
+        storeConfig(opts, this._product);
         this._storageManager?.updateCookieOptions(opts, this._product.cookieName);
+
+        if (this._opts.useCookie === true || opts.useCookie === true) {
+          this._storageManager?.loadIdentity();
+        }
+
         this._logger.log('cookie options updated');
       }
 
@@ -222,9 +214,6 @@ export abstract class SdkBase {
         if (this._apiClient && opts.baseUrl !== this._opts.baseUrl) {
           this._apiClient.updateBaseUrl(opts.baseUrl);
           this._logger.log('BaseUrl updated for ApiClient');
-        } else {
-          this.createApiClient(opts);
-          this._logger.log('new API client created');
         }
       }
 
@@ -246,12 +235,19 @@ export abstract class SdkBase {
       }
 
       // update usecookie
+      if (opts.useCookie && this._opts.useCookie !== opts.useCookie) {
+        storeConfig(opts, this._product);
+        this._storageManager?.updateUseCookie(opts.useCookie);
+        this._logger.log('new use cookie variable, updated store config and storage manager ');
+      }
 
       // update refreshretryperiod
       if (opts.refreshRetryPeriod && this._opts.refreshRetryPeriod !== opts.refreshRetryPeriod) {
         this._opts.refreshRetryPeriod = opts.refreshRetryPeriod;
         this.setRefreshTimer();
       }
+
+      //update init callback
 
       // set opts
       this._opts = opts;
@@ -265,7 +261,8 @@ export abstract class SdkBase {
         this._product.localStorageKey
       );
 
-      this.createApiClient(this._opts);
+      this._apiClient = new ApiClient(opts, this._product.defaultBaseUrl, this._product.name);
+      this._tokenPromiseHandler.registerApiClient(this._apiClient);
 
       let identity;
       if (this._opts.identity) {

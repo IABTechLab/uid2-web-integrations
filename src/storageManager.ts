@@ -34,8 +34,13 @@ export class StorageManager {
     this.setValue(identity);
   }
 
-  public updateCookieManager(opts: SdkOptions, cookieName: string) {
+  public updateCookieOptions(opts: SdkOptions, cookieName: string) {
     this._cookieManager = new CookieManager({ ...opts }, cookieName);
+  }
+
+  public updateUseCookie(useCookie: boolean) {
+    this._opts.useCookie = useCookie;
+    this.loadIdentity();
   }
 
   public setOptout() {
