@@ -203,8 +203,8 @@ export abstract class SdkBase {
         (opts.cookieDomain && opts.cookieDomain != this._opts.cookieDomain) ||
         (opts.cookiePath && opts.cookiePath !== this._opts.cookiePath)
       ) {
-        this._storageManager?.updateCookieManager(opts, this._product.cookieName);
-        this._logger.log('cookie manager updated');
+        this._storageManager?.updateCookieOptions(opts, this._product.cookieName);
+        this._logger.log('cookie options updated');
       }
 
       // update base URL of existing client if it has changed
@@ -238,6 +238,10 @@ export abstract class SdkBase {
       // update usecookie
 
       // update refreshretryperiod
+      if (opts.refreshRetryPeriod && this._opts.refreshRetryPeriod !== opts.refreshRetryPeriod) {
+        this._opts.refreshRetryPeriod = opts.refreshRetryPeriod;
+        this.setRefreshTimer();
+      }
 
       // set opts
       this._opts = opts;
