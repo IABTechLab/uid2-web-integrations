@@ -1,6 +1,6 @@
 import { version } from '../package.json';
 import { OptoutIdentity, Identity, isOptoutIdentity } from './Identity';
-import { IdentityStatus, notifyInitCallback } from './initCallbacks';
+import { IdentityStatus, InitCallbackManager } from './initCallbacks';
 import { SdkOptions, isSDKOptionsOrThrow } from './sdkOptions';
 import { Logger, MakeLogger } from './sdk/logger';
 import { ApiClient } from './apiClient';
@@ -46,6 +46,7 @@ export abstract class SdkBase {
   // Dependencies initialised on call to init due to requirement for options
   private _storageManager: StorageManager | undefined;
   private _apiClient: ApiClient | undefined;
+  private _initCallbackManager: InitCallbackManager | undefined;
 
   // State
   protected _product: ProductDetails;
@@ -185,16 +186,9 @@ export abstract class SdkBase {
     if (!isSDKOptionsOrThrow(opts))
       throw new TypeError(`Options provided to ${this._product.name} init couldn't be validated.`);
 
-    if (this._initComplete) {
-      // do nothing if nothing changed between init calls
-      if (this._opts === opts) {
-        this._logger.log('SdkOptions have not changed from the previous init() call');
-        return;
-      }
-
+    if (this.isInitialized()) {
       this.setInitComplete(false);
 
-      // update storage manager
       if (
         (opts.cookieDomain && opts.cookieDomain != this._opts.cookieDomain) ||
         (opts.cookiePath && opts.cookiePath !== this._opts.cookiePath)
@@ -205,53 +199,46 @@ export abstract class SdkBase {
         if (this._opts.useCookie === true || opts.useCookie === true) {
           this._storageManager?.loadIdentity();
         }
-
         this._logger.log('cookie options updated');
       }
 
-      // update base URL of existing client if it has changed
-      if (opts.baseUrl) {
-        if (this._apiClient && opts.baseUrl !== this._opts.baseUrl) {
-          this._apiClient.updateBaseUrl(opts.baseUrl);
-          this._logger.log('BaseUrl updated for ApiClient');
-        }
+      if (opts.baseUrl && opts.baseUrl !== this._opts.baseUrl) {
+        this._apiClient?.updateBaseUrl(opts.baseUrl);
+        this._logger.log('BaseUrl updated for ApiClient');
       }
 
-      // update identity if it is given and is not expired
       if (opts.identity && opts.identity.identity_expires < Date.now()) {
-        /// update identity if an identity doesnt exist or
-        // if the expiration date of the new identity if later than the expiration date of old identity
         if (
           !this._opts.identity ||
           opts.identity.identity_expires > this._opts.identity.identity_expires
         ) {
-          this.setIdentity(opts.identity);
+          const validatedIdentity = this.validateAndSetIdentity(opts.identity);
+          if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
+            this.triggerRefreshOrSetTimer(validatedIdentity);
           this._logger.log('new identity set');
         } else {
           this._logger.log('new identity not set because expires before current identity');
         }
-      } else {
-        this._logger.log('new identity does not exist or is expired');
       }
 
-      // update usecookie
       if (opts.useCookie && this._opts.useCookie !== opts.useCookie) {
         storeConfig(opts, this._product);
         this._storageManager?.updateUseCookie(opts.useCookie);
         this._logger.log('new use cookie variable, updated store config and storage manager ');
       }
 
-      // update refreshretryperiod
       if (opts.refreshRetryPeriod && this._opts.refreshRetryPeriod !== opts.refreshRetryPeriod) {
         this._opts.refreshRetryPeriod = opts.refreshRetryPeriod;
         this.setRefreshTimer();
+        this._logger.log('new refresh period set and refresh timer set');
       }
 
-      //update init callback
+      if (opts.callback) {
+        this._initCallbackManager?.addCallback(opts.callback);
+        this._logger.log('init callback added to list');
+      }
 
-      // set opts
       this._opts = opts;
-      this.setInitComplete(true);
     } else {
       storeConfig(opts, this._product);
       this._opts = opts;
@@ -264,6 +251,8 @@ export abstract class SdkBase {
       this._apiClient = new ApiClient(opts, this._product.defaultBaseUrl, this._product.name);
       this._tokenPromiseHandler.registerApiClient(this._apiClient);
 
+      this._initCallbackManager = new InitCallbackManager(opts);
+
       let identity;
       if (this._opts.identity) {
         identity = this._opts.identity;
@@ -273,10 +262,11 @@ export abstract class SdkBase {
       const validatedIdentity = this.validateAndSetIdentity(identity);
       if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
         this.triggerRefreshOrSetTimer(validatedIdentity);
-      this.setInitComplete(true);
-      this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
-      if (this.hasOptedOut()) this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
     }
+
+    this.setInitComplete(true);
+    this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
+    if (this.hasOptedOut()) this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
   }
 
   private isLoggedIn() {
@@ -394,8 +384,7 @@ export abstract class SdkBase {
       this.abort();
       this._storageManager.removeValues();
     }
-    notifyInitCallback(
-      this._opts,
+    this._initCallbackManager?.notifyInitCallbacks(
       status ?? validity.status,
       statusText ?? validity.errorMessage,
       this.getAdvertisingToken(),
