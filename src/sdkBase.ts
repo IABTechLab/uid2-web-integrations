@@ -15,6 +15,7 @@ import { PromiseHandler } from './promiseHandler';
 import { StorageManager } from './storageManager';
 import { hashAndEncodeIdentifier } from './encoding/hash';
 import { ProductDetails, ProductName } from './product';
+import { storeConfig } from './configManager';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -196,6 +197,15 @@ export abstract class SdkBase {
         return;
       }
 
+      this._opts = opts;
+      this._storageManager = new StorageManager(
+        { ...opts },
+        this._product.cookieName,
+        this._product.localStorageKey
+      );
+      this._apiClient = new ApiClient(opts, this._product.defaultBaseUrl, this._product.name);
+      this._tokenPromiseHandler.registerApiClient(this._apiClient);
+
       this.setInitComplete(false);
 
       // update storage manager
@@ -247,6 +257,7 @@ export abstract class SdkBase {
       this._opts = opts;
       this.setInitComplete(true);
     } else {
+      storeConfig(opts, this._product);
       this._opts = opts;
       this._storageManager = new StorageManager(
         { ...opts },
