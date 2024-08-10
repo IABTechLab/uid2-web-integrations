@@ -15,7 +15,7 @@ import { PromiseHandler } from './promiseHandler';
 import { StorageManager } from './storageManager';
 import { hashAndEncodeIdentifier } from './encoding/hash';
 import { ProductDetails, ProductName } from './product';
-import { storeConfig } from './configManager';
+import { storeConfig, updateConfig } from './configManager';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -189,21 +189,29 @@ export abstract class SdkBase {
     if (this.isInitialized()) {
       this.setInitComplete(false);
 
-      if (
-        (opts.cookieDomain && opts.cookieDomain != this._opts.cookieDomain) ||
-        (opts.cookiePath && opts.cookiePath !== this._opts.cookiePath)
-      ) {
-        storeConfig(opts, this._product);
-        this._storageManager?.updateCookieOptions(opts, this._product.cookieName);
+      let shouldUpdateConfig = false;
+      let shouldUpdateCookieOptions = false;
 
-        if (this._opts.useCookie === true || opts.useCookie === true) {
-          this._storageManager?.loadIdentity();
-        }
-        this._logger.log('cookie options updated');
+      if (opts.cookieDomain && opts.cookieDomain != this._opts.cookieDomain) {
+        shouldUpdateConfig = true;
+        shouldUpdateCookieOptions = true;
+        // if (this._opts.useCookie === true || opts.useCookie === true) {
+        //   this._storageManager?.loadIdentity();
+        // }
+        this._opts.cookieDomain = opts.cookieDomain;
+        this._logger.log('cookie domain updated');
+      }
+
+      if (opts.cookiePath && opts.cookiePath !== this._opts.cookiePath) {
+        shouldUpdateConfig = true;
+        shouldUpdateCookieOptions = true;
+        this._opts.cookiePath = opts.cookiePath;
+        this._logger.log('cookie path updated');
       }
 
       if (opts.baseUrl && opts.baseUrl !== this._opts.baseUrl) {
         this._apiClient?.updateBaseUrl(opts.baseUrl);
+        this._opts.baseUrl = opts.baseUrl;
         this._logger.log('BaseUrl updated for ApiClient');
       }
 
@@ -215,6 +223,7 @@ export abstract class SdkBase {
           const validatedIdentity = this.validateAndSetIdentity(opts.identity);
           if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
             this.triggerRefreshOrSetTimer(validatedIdentity);
+          this._opts.identity = opts.identity;
           this._logger.log('new identity set');
         } else {
           this._logger.log('new identity not set because expires before current identity');
@@ -222,8 +231,9 @@ export abstract class SdkBase {
       }
 
       if (opts.useCookie && this._opts.useCookie !== opts.useCookie) {
-        storeConfig(opts, this._product);
+        shouldUpdateConfig = true;
         this._storageManager?.updateUseCookie(opts.useCookie);
+        this._opts.useCookie = opts.useCookie;
         this._logger.log('new use cookie variable, updated store config and storage manager ');
       }
 
@@ -238,7 +248,12 @@ export abstract class SdkBase {
         this._logger.log('init callback added to list');
       }
 
-      this._opts = opts;
+      if (shouldUpdateConfig) {
+        updateConfig(this._opts, this._product);
+      }
+      if (shouldUpdateCookieOptions) {
+        this._storageManager?.updateCookieOptions(opts, this._product.cookieName);
+      }
     } else {
       storeConfig(opts, this._product);
       this._opts = opts;

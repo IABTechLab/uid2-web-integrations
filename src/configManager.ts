@@ -36,6 +36,15 @@ export const loadConfig = (
   }
 };
 
+export const updateConfig = (options: SdkOptions, productDetails: ProductDetails) => {
+  if (options.useCookie) {
+    removeConfigCookie(productDetails);
+  } else {
+    removeConfigFromLocalStorage(productDetails);
+  }
+  storeConfig(options, productDetails);
+};
+
 const setConfigCookie = (options: SdkOptions, productDetails: ProductDetails) => {
   const cookieDomain = options.cookieDomain;
   const path = options.cookiePath ?? '/';
@@ -58,7 +67,7 @@ const getConfigCookie = (productDetails: ProductDetails) => {
   if (docCookie) {
     const payload = docCookie
       .split('; ')
-      .find((row) => row.startsWith(productDetails.cookieName + '_config' + '='));
+      .filter((row) => row.startsWith(productDetails.cookieName + '_config' + '='))[1];
     if (payload) {
       return decodeURIComponent(payload.split('=')[1]);
     }

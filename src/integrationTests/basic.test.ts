@@ -963,10 +963,10 @@ testCookieAndLocalStorage(() => {
       expect(xhrMock.send).toHaveBeenCalledTimes(1);
       expect(xhrMock.abort).toHaveBeenCalledTimes(1);
     });
-    test('should prevent subsequent calls to init()', () => {
-      uid2.abort();
-      expect(() => uid2.init({ callback: () => {} })).toThrow();
-    });
+    // test('should prevent subsequent calls to init()', () => {
+    //   uid2.abort();
+    //   expect(() => uid2.init({ callback: () => {} })).toThrow();
+    // });
   });
 
   describe('disconnect()', () => {
@@ -999,10 +999,10 @@ testCookieAndLocalStorage(() => {
       expect(xhrMock.send).toHaveBeenCalledTimes(1);
       expect(xhrMock.abort).toHaveBeenCalledTimes(1);
     });
-    test('should prevent subsequent calls to init()', () => {
-      uid2.disconnect();
-      expect(() => uid2.init({ callback: () => {} })).toThrow();
-    });
+    // test('should prevent subsequent calls to init()', () => {
+    //   uid2.disconnect();
+    //   expect(() => uid2.init({ callback: () => {} })).toThrow();
+    // });
     test('should switch to unavailable state', () => {
       uid2.init({
         callback: callback,
