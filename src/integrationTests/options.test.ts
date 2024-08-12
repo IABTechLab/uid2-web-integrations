@@ -21,6 +21,9 @@ beforeEach(() => {
   cookieMock = new mocks.CookieMock(sdkWindow.document);
   removeUid2Cookie();
   removeUid2LocalStorage();
+  localStorage.removeItem('UID2-sdk-identity_config');
+  document.cookie = UID2.COOKIE_NAME + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT';
+  document.cookie = UID2.COOKIE_NAME + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT';
 });
 
 afterEach(() => {
@@ -251,262 +254,263 @@ describe('multiple init calls', () => {
   //   });
   // });
 
-  // describe('invalid options given in first init call', () => {
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //     });
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //     });
-  //   });
-  //   test('should throw error', () => {
-  //     //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
-  //   });
-  // });
-
-  // describe('invalid options given in second init call', () => {
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //     });
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //     });
-  //   });
-  //   test('should throw error', () => {
-  //     expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
-  //   });
-  // });
-
   // describe('new base URL is given', () => {
+  //   const identity = makeIdentity({
+  //     refresh_from: Date.now() - 100000,
+  //   });
+
+  //   const oldBaseUrl = baseUrl;
+  //   const newBaseUrl = 'http://example';
+
   //   beforeEach(() => {
   //     uid2.init({
   //       callback: callback,
   //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
+  //       baseUrl: oldBaseUrl,
   //     });
   //   });
   //   test('should use new base url', () => {
   //     uid2.init({
-  //       baseUrl: 'http://test',
-  //     });
-  //     //expect(xhrMock.open.mock.calls.length).toBe(1);
-  //     expect(xhrMock.open.mock.calls[0][1]).not.toContain(baseUrl);
-  //     expect(xhrMock.open.mock.calls[0][1]).toContain('http://test');
-  //   });
-
-  //   test('should use old base url', () => {
-  //     uid2.init({
-  //       cookiePath: cookiePath,
-  //     });
-  //     //expect(xhrMock.open.mock.calls.length).toBe(1);
-  //     expect(xhrMock.open.mock.calls[0][1]).not.toContain('http://test');
-  //     expect(xhrMock.open.mock.calls[0][1]).toContain(baseUrl);
-  //   });
-  // });
-
-  // describe('new identity provided and old identity does not exist', () => {
-  //   const newIdentity = makeIdentity();
-
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       callback: callback,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //     });
-  //     uid2.init({
-  //       identity: newIdentity,
-  //     });
-  //   });
-  //   test('should create new identity', () => {
-  //     test('should set value', () => {
-  //       expect(getUid2(useCookie).advertising_token).toBe(newIdentity.advertising_token);
-  //     });
-  //     test('should set refresh timer', () => {
-  //       expect(setTimeout).toHaveBeenCalledTimes(1);
-  //       expect(clearTimeout).not.toHaveBeenCalled();
-  //     });
-  //     test('should be in available state', () => {
-  //       (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);
-  //     });
-  //   });
-  // });
-
-  // describe('new identity provided but expired', () => {
-  //   const newIdentity = makeIdentity({ refresh_expires: Date.now() - 100000 });
-
-  //   beforeEach(() => {
-  //     uid2.init({
   //       callback: callback,
   //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
+  //       baseUrl: newBaseUrl,
   //     });
-  //     uid2.init({
-  //       identity: newIdentity,
-  //     });
-  //   });
-  //   test('should not update the identity', () => {
-  //     test('should set value', () => {
-  //       expect(getUid2(useCookie).advertising_token).toBe(identity.advertising_token);
-  //     });
-  //     test('should set refresh timer', () => {
-  //       expect(setTimeout).toHaveBeenCalledTimes(1);
-  //       expect(clearTimeout).not.toHaveBeenCalled();
-  //     });
-  //     test('should be in available state', () => {
-  //       (expect(uid2) as any).toBeInAvailableState(identity.advertising_token);
-  //     });
-  //   });
-  // });
+  //     console.log(xhrMock.open.mock.calls);
+  //     expect(xhrMock.open.mock.calls.length).toBe(1);
+  //     expect(xhrMock.open.mock.calls[0][1]).not.toContain(oldBaseUrl);
+  //expect(xhrMock.open.mock.calls[0][1]).toContain(newBaseUrl);
+  //});
 
-  // describe('new identity provided but expires before old identity', () => {
-  //   const oldIdentity = makeIdentity({ refresh_expires: Date.now() + 5000 });
-  //   const newIdentity = makeIdentity({ refresh_expires: Date.now() + 100000 });
+  //   // test('should use old base url', () => {
+  //   //   uid2.init({
+  //   //     cookiePath: cookiePath,
+  //   //   });
+  //   //   expect(xhrMock.open.mock.calls.length).toBe(1);
+  //   //   expect(xhrMock.open.mock.calls[0][1]).not.toContain(newBaseUrl);
+  //   //   expect(xhrMock.open.mock.calls[0][1]).toContain(oldBaseUrl);
+  //   // });
+  //});
 
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: oldIdentity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //     });
-  //     uid2.init({
-  //       identity: newIdentity,
-  //     });
-  //   });
-  //   test('should not update the identity', () => {
-  //     test('should set value', () => {
-  //       expect(getUid2(useCookie).advertising_token).toBe(oldIdentity.advertising_token);
-  //     });
-  //     test('should set refresh timer', () => {
-  //       expect(setTimeout).toHaveBeenCalledTimes(1);
-  //       expect(clearTimeout).not.toHaveBeenCalled();
-  //     });
-  //     test('should be in available state', () => {
-  //       (expect(uid2) as any).toBeInAvailableState(oldIdentity.advertising_token);
-  //     });
-  //   });
-  // });
+  describe('new identity provided and old identity does not exist', () => {
+    const newIdentity = makeIdentity();
+    const useCookie = true;
 
-  // describe('new identity provided and expires after old identity', () => {
-  //   const newIdentity = makeIdentity();
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+        useCookie: useCookie,
+      });
+      uid2.init({
+        identity: newIdentity,
+      });
+    });
 
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //     });
-  //     uid2.init({
-  //       identity: newIdentity,
-  //     });
-  //   });
-  //   test('should update identity to the new one', () => {
-  //     test('should set value', () => {
-  //       expect(getUid2(useCookie).advertising_token).toBe(newIdentity.advertising_token);
-  //     });
-  //     test('should set refresh timer', () => {
-  //       expect(setTimeout).toHaveBeenCalledTimes(1);
-  //       expect(clearTimeout).not.toHaveBeenCalled();
-  //     });
-  //     test('should be in available state', () => {
-  //       (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);
-  //     });
-  //   });
-  // });
+    test('should set value to new identity', () => {
+      expect(getUid2(useCookie).advertising_token).toBe(newIdentity.advertising_token);
+    });
+    test('should set refresh timer and call it once', () => {
+      expect(setTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
+    });
+    test('new identity should be in available state', () => {
+      (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);
+    });
+  });
 
-  // describe('new cookie domain and new cookie path', () => {
-  //   const newCookiePath = '/';
-  //   const newCookieDomain = 'www.uidapi.com';
+  describe('new identity provided but expired', () => {
+    const newIdentity = makeIdentity({ refresh_expires: Date.now() - 100000 });
+    const useCookie = true;
 
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //       cookieDomain: cookieDomain,
-  //       useCookie: true,
-  //     });
-  //     uid2.init({
-  //       cookiePath: newCookiePath,
-  //       cookieDomain: newCookieDomain,
-  //     });
-  //   });
-  //   test('should update cookie manager and config cookie', () => {
-  //     const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
-  //     //expect(cookie).toContain(`Domain=${newCookieDomain};`);
-  //     //expect(cookie + ';').toContain(`Path=${newCookiePath};`);
-  //     expect(getConfigCookie()).toHaveProperty('cookieDomain', newCookieDomain);
-  //     expect(getConfigCookie() + ';').toHaveProperty('cookiePath', newCookiePath);
-  //   });
-  // });
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+        useCookie: useCookie,
+      });
+      uid2.init({
+        identity: newIdentity,
+      });
+    });
+    test('should set value to old identity', () => {
+      expect(getUid2(useCookie).advertising_token).toBe(identity.advertising_token);
+    });
+    test('should set refresh timer once', () => {
+      expect(setTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
+    });
+    test('old ideneity should be in available state', () => {
+      (expect(uid2) as any).toBeInAvailableState(identity.advertising_token);
+    });
+  });
 
-  // describe('new cookie domain only', () => {
-  //   const newCookieDomain = 'www.uidapi.com';
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //       useCookie: true,
-  //     });
-  //     uid2.init({
-  //       cookieDomain: newCookieDomain,
-  //     });
-  //   });
-  //   test('should update cookie manager', () => {
-  //     const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
-  //     //expect(cookie).toContain(`Domain=${newCookieDomain};`);
-  //     //expect(cookie + ';').toContain(`Path=${cookiePath};`);
-  //     expect(getConfigCookie()).toHaveProperty('cookieDomain', newCookieDomain);
-  //     expect(getConfigCookie() + ';').toHaveProperty('cookiePath', cookiePath);
-  //   });
-  // });
+  describe('new identity provided but expires before old identity', () => {
+    const oldIdentity = makeIdentity({ refresh_expires: Date.now() + 5000 });
+    const newIdentity = makeIdentity({ refresh_expires: Date.now() + 100000 });
+    const useCookie = true;
 
-  // describe('new cookie path only', () => {
-  //   const newCookiePath = '/';
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: oldIdentity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+        useCookie: useCookie,
+      });
+      uid2.init({
+        identity: newIdentity,
+      });
+    });
 
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookieDomain: cookieDomain,
-  //       cookiePath: cookiePath,
-  //       useCookie: true,
-  //     });
-  //     uid2.init({
-  //       cookiePath: newCookiePath,
-  //     });
-  //   });
+    test('should set value', () => {
+      expect(getUid2(useCookie).advertising_token).toBe(oldIdentity.advertising_token);
+    });
+    test('should set refresh timer', () => {
+      expect(setTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
+    });
+    test('should be in available state', () => {
+      (expect(uid2) as any).toBeInAvailableState(oldIdentity.advertising_token);
+    });
+  });
 
-  //   test('should update cookie manager', () => {
-  //     const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
-  //     expect(cookie).toContain(`Domain=${cookieDomain};`);
-  //     expect(cookie + ';').toContain(`Path=${newCookiePath};`);
-  //     const configCookie = getConfigCookie();
-  //     expect(configCookie).toHaveProperty('cookieDomain', cookieDomain);
-  //     expect(configCookie).toHaveProperty('cookiePath', newCookiePath);
-  //   });
-  // });
+  describe('new identity provided and expires after old identity', () => {
+    const newIdentity = makeIdentity();
+    const useCookie = true;
+
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+        useCookie: useCookie,
+      });
+      uid2.init({
+        identity: newIdentity,
+      });
+    });
+
+    test('should set value', () => {
+      expect(getUid2(useCookie).advertising_token).toBe(newIdentity.advertising_token);
+    });
+    test('should set refresh timer', () => {
+      expect(setTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
+    });
+    test('should be in available state', () => {
+      (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);
+    });
+  });
+
+  describe('new identity provided and use cookie is false', () => {
+    const newIdentity = makeIdentity();
+    const useCookie = false;
+
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+        useCookie: useCookie,
+      });
+      uid2.init({
+        identity: newIdentity,
+      });
+    });
+
+    test('should set value', () => {
+      expect(getUid2(useCookie).advertising_token).toBe(newIdentity.advertising_token);
+    });
+    test('should set refresh timer', () => {
+      expect(setTimeout).toHaveBeenCalledTimes(1);
+      expect(clearTimeout).not.toHaveBeenCalled();
+    });
+    test('should be in available state', () => {
+      (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);
+    });
+  });
+
+  describe('new cookie domain and new cookie path', () => {
+    const newCookiePath = '/';
+    const newCookieDomain = 'www.test.com';
+
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+        cookieDomain: cookieDomain,
+        useCookie: true,
+      });
+      uid2.init({
+        cookiePath: newCookiePath,
+        cookieDomain: newCookieDomain,
+      });
+    });
+    test('should update cookie manager and config cookie', () => {
+      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
+      expect(cookie).toContain(`Domain=${newCookieDomain};`);
+      expect(cookie + ';').toContain(`Path=${newCookiePath};`);
+      //expect(getConfigCookie()).toHaveProperty('cookieDomain', newCookieDomain);
+      //expect(getConfigCookie() + ';').toHaveProperty('cookiePath', newCookiePath);
+    });
+  });
+
+  describe('new cookie domain only', () => {
+    const newCookieDomain = 'www.uidapi.com';
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+        useCookie: true,
+      });
+      uid2.init({
+        cookieDomain: newCookieDomain,
+      });
+    });
+    test('should update cookie manager', () => {
+      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
+      expect(cookie).toContain(`Domain=${newCookieDomain};`);
+      expect(cookie + ';').toContain(`Path=${cookiePath};`);
+      //expect(getConfigCookie()).toHaveProperty('cookieDomain', newCookieDomain);
+      //expect(getConfigCookie() + ';').toHaveProperty('cookiePath', cookiePath);
+    });
+  });
+
+  describe('new cookie path only', () => {
+    const newCookiePath = '/';
+
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookieDomain: cookieDomain,
+        cookiePath: cookiePath,
+        useCookie: true,
+      });
+      uid2.init({
+        cookiePath: newCookiePath,
+      });
+    });
+
+    test('should update cookie manager', () => {
+      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
+      expect(cookie).toContain(`Domain=${cookieDomain};`);
+      expect(cookie + ';').toContain(`Path=${newCookiePath};`);
+      //const configCookie = getConfigCookie();
+      //expect(configCookie).toHaveProperty('cookieDomain', cookieDomain);
+      //expect(configCookie).toHaveProperty('cookiePath', newCookiePath);
+    });
+  });
 
   describe('new refreshretry period', () => {
     beforeEach(() => {
@@ -550,6 +554,7 @@ describe('multiple init calls', () => {
   //       expect(cookie).toBeNull();
   //     });
   //   });
+  // });
 
   //   describe('adding a callback when no callbacks exist before', () => {
   //     beforeEach(() => {

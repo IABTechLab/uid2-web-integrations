@@ -215,7 +215,7 @@ export abstract class SdkBase {
         this._logger.log('BaseUrl updated for ApiClient');
       }
 
-      if (opts.identity && opts.identity.identity_expires < Date.now()) {
+      if (opts.identity && opts.identity.identity_expires > Date.now()) {
         if (
           !this._opts.identity ||
           opts.identity.identity_expires > this._opts.identity.identity_expires
@@ -230,7 +230,7 @@ export abstract class SdkBase {
         }
       }
 
-      if (opts.useCookie && this._opts.useCookie !== opts.useCookie) {
+      if (opts.useCookie !== undefined && this._opts.useCookie !== opts.useCookie) {
         shouldUpdateConfig = true;
         this._storageManager?.updateUseCookie(opts.useCookie);
         this._opts.useCookie = opts.useCookie;
@@ -252,7 +252,7 @@ export abstract class SdkBase {
         updateConfig(this._opts, this._product);
       }
       if (shouldUpdateCookieOptions) {
-        this._storageManager?.updateCookieOptions(opts, this._product.cookieName);
+        this._storageManager?.updateCookieOptions(this._opts, this._product.cookieName);
       }
     } else {
       storeConfig(opts, this._product);

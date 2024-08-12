@@ -59,7 +59,8 @@ const setConfigCookie = (options: SdkOptions, productDetails: ProductDetails) =>
 
 const removeConfigCookie = (productDetails: ProductDetails) => {
   document.cookie =
-    productDetails.cookieName + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT';
+    productDetails.cookieName + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
+  console.log(document.cookie);
 };
 
 const getConfigCookie = (productDetails: ProductDetails) => {
