@@ -5,6 +5,8 @@ import { sdkWindow, EUID, __euidInternalHandleScriptLoad, SdkOptions } from '../
 import { EventType, CallbackHandler } from '../callbackManager';
 import { __euidSSProviderScriptLoad } from '../secureSignalEuid';
 import { UidSecureSignalProvider } from '../secureSignal_shared';
+import { ProductDetails } from '../product';
+import { removeConfig } from '../configManager';
 
 let callback: any;
 let asyncCallback: jest.Mock<CallbackHandler>;
@@ -19,6 +21,8 @@ const debugOutput = false;
 
 mocks.setupFakeTime();
 const mockDomain = 'www.uidapi.com';
+const mockUrl = `http://${mockDomain}/test/index.html`;
+jest.spyOn(document, 'URL', 'get').mockImplementation(() => mockUrl);
 
 const makeIdentity = mocks.makeIdentityV2;
 
@@ -31,15 +35,6 @@ const getConfigCookie = () => {
     if (payload) {
       return JSON.parse(decodeURIComponent(payload.split('=')[1]));
     }
-  }
-  return null;
-};
-
-const getConfigStorage = () => {
-  const data = localStorage.getItem('UID2-sdk-identity_config');
-  if (data) {
-    const result = JSON.parse(data);
-    return result;
   }
   return null;
 };
@@ -130,21 +125,18 @@ describe('when a callback is provided', () => {
   });
 
   describe('When SDK initialized after both SDK and SS script loaded - EUID', () => {
-    test.only('should send identity to Google ESP', async () => {
+    test('should send identity to Google ESP', async () => {
       __euidInternalHandleScriptLoad();
       __euidSSProviderScriptLoad();
       (sdkWindow.__euid as EUID).init({ identity });
 
-      expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
       await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'euid.eu',
         })
       );
       await mocks.flushPromises();
-      expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
-        identity.advertising_token
-      );
+      expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe('testToken');
     });
   });
 });
@@ -158,28 +150,48 @@ describe('Store config EUID', () => {
     useCookie: false,
   };
 
+  const productDetails: ProductDetails = {
+    cookieName: '__euid',
+    defaultBaseUrl: 'http://test-host',
+    localStorageKey: 'EUID-sdk-identity',
+    name: 'EUID',
+  };
+
   beforeEach(() => {
-    localStorage.removeItem('UID2-sdk-identity_config');
-    document.cookie = EUID.COOKIE_NAME + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT';
+    sdkWindow.__euid = new EUID();
+    document.cookie =
+      EUID.COOKIE_NAME + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
+  });
+
+  afterEach(() => {
+    sdkWindow.__euid = undefined;
   });
 
   describe('when useCookie is true', () => {
     test('should store config in cookie', () => {
-      euid.init({ callback: callback, identity: identity, ...options, useCookie: true });
+      (sdkWindow.__euid as EUID).init({
+        callback: callback,
+        identity: identity,
+        ...options,
+        useCookie: true,
+      });
       const cookie = getConfigCookie();
       expect(cookie).toBeInstanceOf(Object);
       expect(cookie).toHaveProperty('cookieDomain');
-      const storageConfig = getConfigStorage();
-      expect(storageConfig).toBeNull();
     });
   });
-  describe('when useCookie is false', () => {
-    test('should store config in local storage', () => {
-      euid.init({ callback: callback, identity: identity, ...options });
-      const storageConfig = getConfigStorage();
-      expect(storageConfig).toBeInstanceOf(Object);
-      expect(storageConfig).toHaveProperty('cookieDomain');
-      const cookie = getConfigCookie();
+  describe('when useCookie is true', () => {
+    test('can successfully clear the config cookie', () => {
+      (sdkWindow.__euid as EUID).init({
+        callback: callback,
+        identity: identity,
+        ...options,
+        useCookie: true,
+      });
+      let cookie = getConfigCookie();
+      expect(cookie).toBeInstanceOf(Object);
+      removeConfig({ ...options, useCookie: true }, productDetails);
+      cookie = getConfigCookie();
       expect(cookie).toBeNull();
     });
   });

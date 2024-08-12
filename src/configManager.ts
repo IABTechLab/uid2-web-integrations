@@ -36,6 +36,14 @@ export const loadConfig = (
   }
 };
 
+export const removeConfig = (options: SdkOptions, productDetails: ProductDetails) => {
+  if (options.useCookie) {
+    removeConfigCookie(options, productDetails);
+  } else {
+    removeConfigFromLocalStorage(productDetails);
+  }
+};
+
 const setConfigCookie = (options: SdkOptions, productDetails: ProductDetails) => {
   const cookieDomain = options.cookieDomain;
   const path = options.cookiePath ?? '/';
@@ -48,9 +56,9 @@ const setConfigCookie = (options: SdkOptions, productDetails: ProductDetails) =>
   document.cookie = cookie;
 };
 
-const removeConfigCookie = (productDetails: ProductDetails) => {
+const removeConfigCookie = (options: SdkOptions, productDetails: ProductDetails) => {
   document.cookie =
-    productDetails.cookieName + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT';
+    productDetails.cookieName + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
 };
 
 const getConfigCookie = (productDetails: ProductDetails) => {
