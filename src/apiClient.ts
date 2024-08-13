@@ -220,11 +220,8 @@ export class ApiClient {
     data: { emailHash: string } | { phoneHash: string },
     opts: ClientSideIdentityOptions
   ): Promise<CstgResult> {
-    const optoutPayload = this._productName == 'EUID' ? { optout_check: 1 } : {};
     const request =
-      'emailHash' in data
-        ? { email_hash: data.emailHash, ...optoutPayload }
-        : { phone_hash: data.phoneHash, ...optoutPayload };
+        'emailHash' in data ? { email_hash: data.emailHash } : { phone_hash: data.phoneHash };
 
     const box = await CstgBox.build(stripPublicKeyPrefix(opts.serverPublicKey));
 

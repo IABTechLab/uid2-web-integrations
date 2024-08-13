@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globa
 
 import * as mocks from '../mocks';
 import { SdkOptions, sdkWindow, UID2 } from '../uid2Sdk';
+import { loadConfig, removeConfig } from '../configManager';
+import { ProductDetails } from '../product';
 
 let callback: any;
 let uid2: UID2;
@@ -48,15 +50,6 @@ const getConfigCookie = () => {
     if (payload) {
       return JSON.parse(decodeURIComponent(payload.split('=')[1]));
     }
-  }
-  return null;
-};
-
-const getConfigStorage = () => {
-  const data = localStorage.getItem('UID2-sdk-identity_config');
-  if (data) {
-    const result = JSON.parse(data);
-    return result;
   }
   return null;
 };
@@ -608,6 +601,56 @@ describe('multiple init calls', () => {
   //     });
   //   });
   // });
+  const options: SdkOptions = {
+    baseUrl: 'http://test-host',
+    cookieDomain: mockDomain,
+    refreshRetryPeriod: 1000,
+    useCookie: false,
+  };
+  const productDetails: ProductDetails = {
+    cookieName: '__uid2',
+    defaultBaseUrl: 'http://test-host',
+    localStorageKey: 'UID2-sdk-identity',
+    name: 'UID2',
+  };
+
+  beforeEach(() => {
+    localStorage.removeItem('UID2-sdk-identity_config');
+    document.cookie =
+      UID2.COOKIE_NAME + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
+  });
+
+  describe('when useCookie is true', () => {
+    test('should store config in cookie', () => {
+      uid2.init({ callback: callback, identity: identity, ...options, useCookie: true });
+      const cookie = getConfigCookie();
+      expect(cookie).toBeInstanceOf(Object);
+      expect(cookie).toHaveProperty('cookieDomain');
+      const storageConfig = loadConfig(options, productDetails);
+      expect(storageConfig).toBeNull();
+    });
+  });
+  describe('when useCookie is false', () => {
+    test('should store config in local storage', () => {
+      uid2.init({ callback: callback, identity: identity, ...options });
+      const storageConfig = loadConfig(options, productDetails);
+      expect(storageConfig).toBeInstanceOf(Object);
+      expect(storageConfig).toHaveProperty('cookieDomain');
+      const cookie = getConfigCookie();
+      expect(cookie).toBeNull();
+    });
+  });
+  describe('when useCookie is false', () => {
+    test('can successfully clear the config in storage', () => {
+      uid2.init({ callback: callback, identity: identity, ...options });
+      let storageConfig = loadConfig(options, productDetails);
+      expect(storageConfig).toBeInstanceOf(Object);
+      expect(storageConfig).toHaveProperty('cookieDomain');
+      removeConfig(options, productDetails);
+      storageConfig = loadConfig(options, productDetails);
+      expect(storageConfig).toBeNull();
+    });
+  });
 });
 
 // describe('Store config UID2', () => {
