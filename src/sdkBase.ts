@@ -136,6 +136,10 @@ export abstract class SdkBase {
     return this._tokenPromiseHandler.createMaybeDeferredPromise(token ?? null);
   }
 
+  public getInitCallbacks() {
+    return this._initCallbackManager?.getInitCallbacks();
+  }
+
   /**
    * Deprecated
    */
@@ -196,9 +200,6 @@ export abstract class SdkBase {
       if (opts.cookieDomain && opts.cookieDomain != this._opts.cookieDomain) {
         shouldUpdateConfig = true;
         shouldUpdateIdentityValue = true;
-        // if (this._opts.useCookie === true || opts.useCookie === true) {
-        //   this._storageManager?.loadIdentity();
-        // }
         this._opts.cookieDomain = opts.cookieDomain;
         this._logger.log('cookie domain updated');
       }
@@ -247,7 +248,8 @@ export abstract class SdkBase {
       }
 
       if (opts.callback) {
-        this._initCallbackManager?.addCallback(opts.callback);
+        this._initCallbackManager?.addInitCallback(opts.callback);
+        if (this._opts.identity) this.validateAndSetIdentity(this._opts.identity);
         this._logger.log('init callback added to list');
       }
 

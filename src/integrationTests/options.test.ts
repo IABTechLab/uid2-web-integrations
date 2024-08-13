@@ -9,7 +9,6 @@ let callback: any;
 let uid2: UID2;
 let xhrMock: any;
 let cookieMock: any;
-let cookieMock2: any;
 
 mocks.setupFakeTime();
 
@@ -434,64 +433,7 @@ describe('multiple init calls', () => {
     });
   });
 
-  // describe('new cookie domain and new cookie path', () => {
-  //   const newCookiePath = '/';
-  //   const newCookieDomain = 'www.test.com';
-
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //       cookieDomain: cookieDomain,
-  //       useCookie: true,
-  //     });
-  //     uid2.init({
-  //       cookiePath: newCookiePath,
-  //       cookieDomain: newCookieDomain,
-  //     });
-  //   });
-  //   test('should update cookie manager and config cookie', () => {
-  //     const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
-  //     expect(cookie).toContain(`Domain=${newCookieDomain};`);
-  //     expect(cookie + ';').toContain(`Path=${newCookiePath};`);
-  //     expect(getConfigCookie()).toHaveProperty('cookieDomain', newCookieDomain);
-  //     expect(getConfigCookie()).toHaveProperty('cookiePath', newCookiePath);
-  //   });
-  // });
-
-  // describe('new cookie domain only', () => {
-  //   const newCookieDomain = 'www.test.com';
-  //   const newMockUrl = `http://${newCookieDomain}/test/index.html`;
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //       cookieDomain: cookieDomain,
-  //       useCookie: true,
-  //     });
-  //     jest.spyOn(document, 'URL', 'get').mockImplementation(() => newMockUrl);
-  //     cookieMock = new mocks.CookieMock(sdkWindow.document);
-  //     jest.spyOn(document, 'URL', 'get').mockImplementation(() => mockUrl);
-  //     cookieMock2 = new mocks.CookieMock(sdkWindow.document);
-  //     uid2.init({
-  //       cookieDomain: newCookieDomain,
-  //     });
-  //   });
-  //   test('should update cookie manager', () => {
-  //     const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
-  //     expect(cookie).toContain(`Domain=${newCookieDomain};`);
-  //     expect(cookie + ';').toContain(`Path=${cookiePath};`);
-  //     const configCookie = getConfigCookie();
-  //     expect(configCookie).toHaveProperty('cookieDomain', newCookieDomain);
-  //     expect(configCookie).toHaveProperty('cookiePath', cookiePath);
-  //   });
-  // });
-
-  describe('new cookie path only', () => {
+  describe('new cookie path', () => {
     const newCookiePath = '/';
 
     beforeEach(() => {
@@ -587,55 +529,48 @@ describe('multiple init calls', () => {
     });
   });
 
-  // describe('adding a callback when no callbacks exist before', () => {
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //       refreshRetryPeriod: 12345,
-  //       useCookie: true,
-  //     });
-  //     uid2.init({
-  //       useCookie: false,
-  //       callback: callback,
-  //     });
-  //   });
-  //   test('should change config from cookie to local storage', () => {
-  //     test('should store config in local storage', () => {
-  //       const storageConfig = getConfigStorage();
-  //       expect(storageConfig).toBeInstanceOf(Object);
-  //       expect(storageConfig).toHaveProperty('cookiePath');
-  //       const cookie = getConfigCookie();
-  //       expect(cookie).toBeNull();
-  //     });
-  //   });
-  // });
+  describe('adding a callback when no callbacks exist before', () => {
+    beforeEach(() => {
+      uid2.init({
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+        refreshRetryPeriod: 12345,
+        useCookie: true,
+      });
+      uid2.init({
+        useCookie: false,
+        callback: callback,
+      });
+    });
+    test('should contain one init callback', () => {
+      const initCallbacks = uid2.getInitCallbacks();
+      expect(initCallbacks).toEqual([callback]);
+    });
+  });
 
-  // describe('adding a callback', () => {
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //       refreshRetryPeriod: 12345,
-  //       useCookie: false,
-  //     });
-  //     uid2.init({
-  //       callback: jest.fn(),
-  //     });
-  //   });
-  //   test('should change config from local storage to cookie', () => {
-  //     test('should store config in cookie', () => {
-  //       const cookie = getConfigCookie();
-  //       expect(cookie).toBeInstanceOf(Object);
-  //       expect(cookie).toHaveProperty('cookiePath');
-  //       const storageConfig = getConfigStorage();
-  //       expect(storageConfig).toBeNull();
-  //     });
-  //   });
-  // });
+  describe('adding multiple callbacks', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+        refreshRetryPeriod: 12345,
+        useCookie: false,
+      });
+      uid2.init({
+        callback: jest.fn(),
+      });
+      uid2.init({
+        callback: jest.fn(),
+      });
+    });
+    test('should contain three init callback functions', () => {
+      const initCallbacks = uid2.getInitCallbacks();
+      expect(initCallbacks?.length).toEqual(3);
+    });
+  });
 });
 
 describe('Store config UID2', () => {
