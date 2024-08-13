@@ -81,7 +81,7 @@ const getConfigCookie = (productDetails: ProductDetails) => {
   if (docCookie) {
     const payload = docCookie
       .split('; ')
-      .filter((row) => row.startsWith(productDetails.cookieName + '_config' + '='))[1];
+      .find((row) => row.startsWith(productDetails.cookieName + '_config' + '='));
     if (payload) {
       return decodeURIComponent(payload.split('=')[1]);
     }

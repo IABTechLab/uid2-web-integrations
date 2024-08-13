@@ -53,6 +53,7 @@ export abstract class SdkBase {
   private _opts: SdkOptions = {};
   private _identity: Identity | OptoutIdentity | null | undefined;
   private _initComplete = false;
+  private _hasAborted = false;
 
   // Sets up nearly everything, but does not run SdkLoaded callbacks - derived classes must run them.
   protected constructor(existingCallbacks: CallbackHandler[] | undefined, product: ProductDetails) {
@@ -175,7 +176,7 @@ export abstract class SdkBase {
 
   // Note: This doesn't invoke callbacks. It's a hard, silent reset.
   public abort(reason?: string) {
-    this._initComplete = true;
+    this._hasAborted = true;
     this._tokenPromiseHandler.rejectAllPromises(
       reason ?? new Error(`${this._product.name} SDK aborted.`)
     );
@@ -189,6 +190,10 @@ export abstract class SdkBase {
   private initInternal(opts: SdkOptions | unknown) {
     if (!isSDKOptionsOrThrow(opts))
       throw new TypeError(`Options provided to ${this._product.name} init couldn't be validated.`);
+
+    if (this._hasAborted) {
+      throw new TypeError('Calling init() once aborted or disconnected is not allowed');
+    }
 
     if (this.isInitialized()) {
       this.setInitComplete(false);

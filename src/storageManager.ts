@@ -38,20 +38,8 @@ export class StorageManager {
     if (opts.identity) {
       if (previousOpts.useCookie === true) {
         this._cookieManager.removeCookie();
-        //this._cookieManager = new CookieManager({ ...opts }, cookieName);
-        // if (opts.useCookie) {
-        //   this._cookieManager.setCookie(opts.identity);
-        // } else {
-        //   this._localStorageManager.setValue(opts.identity);
-        // }
       } else if (!previousOpts || previousOpts.useCookie === false) {
         this._localStorageManager.removeValue();
-        //this._cookieManager = new CookieManager({ ...opts }, cookieName);
-        // if (opts.useCookie) {
-        //   this._cookieManager.setCookie(opts.identity);
-        // } else {
-        //   this._localStorageManager.setValue(opts.identity);
-        // }
       }
       this._cookieManager = new CookieManager({ ...opts }, cookieName);
       this.setValue(opts.identity);

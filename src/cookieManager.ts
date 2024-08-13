@@ -52,7 +52,7 @@ export class CookieManager {
     }
     document.cookie = cookie;
   }
-  public async removeCookie() {
+  public removeCookie() {
     document.cookie =
       this._cookieName +
       '=;path=' +
