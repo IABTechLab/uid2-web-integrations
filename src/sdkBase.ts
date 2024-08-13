@@ -255,6 +255,7 @@ export abstract class SdkBase {
       if (opts.callback) {
         this._initCallbackManager?.addInitCallback(opts.callback);
         if (this._opts.identity) this.validateAndSetIdentity(this._opts.identity);
+        this._opts.callback = opts.callback;
         this._logger.log('init callback added to list');
       }
 

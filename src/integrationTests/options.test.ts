@@ -23,9 +23,6 @@ beforeEach(() => {
   cookieMock = new mocks.CookieMock(sdkWindow.document);
   removeUid2Cookie();
   removeUid2LocalStorage();
-  localStorage.removeItem('UID2-sdk-identity_config');
-  //document.cookie = UID2.COOKIE_NAME + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT';
-  //document.cookie = UID2.COOKIE_NAME + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT';
 });
 
 afterEach(() => {
@@ -38,8 +35,6 @@ const getUid2LocalStorage = mocks.getUid2LocalStorage;
 const removeUid2Cookie = mocks.removeUid2Cookie;
 const removeUid2LocalStorage = mocks.removeUid2LocalStorage;
 const getUid2 = mocks.getUid2;
-
-let useCookie: boolean | undefined = undefined;
 
 const getConfigCookie = () => {
   const docCookie = document.cookie;
@@ -230,31 +225,31 @@ describe('multiple init calls', () => {
   const cookiePath = '/test/';
   const cookieDomain = 'uidapi.com';
 
-  // describe('when nothing has changed', () => {
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //     });
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //     });
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //     });
-  //   });
-  //   test('should return next two init calls without changing anything', () => {
-  //     //expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
-  //   });
-  // });
+  describe('when nothing has changed', () => {
+    beforeEach(() => {
+      uid2.init({
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+      uid2.init({
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+      });
+    });
+    test('should return next two init calls without changing anything', () => {
+      expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+      let storageConfig = getConfigStorage();
+      expect(storageConfig).toBeInstanceOf(Object);
+      expect(storageConfig).toHaveProperty('cookiePath', cookiePath);
+    });
+  });
 
   describe('new base URL is given', () => {
     const identity = makeIdentity({
