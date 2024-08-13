@@ -53,7 +53,7 @@ export const removeConfig = (previousOptions: SdkOptions, productDetails: Produc
   }
 };
 
-export const setConfigCookie = (options: SdkOptions, productDetails: ProductDetails) => {
+const setConfigCookie = (options: SdkOptions, productDetails: ProductDetails) => {
   const cookieDomain = options.cookieDomain;
   const path = options.cookiePath ?? '/';
   const value = JSON.stringify(getConfigFromSdkOptions(options));
@@ -62,11 +62,10 @@ export const setConfigCookie = (options: SdkOptions, productDetails: ProductDeta
   if (typeof cookieDomain !== 'undefined') {
     cookie += ';domain=' + cookieDomain;
   }
-  const testbefore = document.cookie;
   document.cookie = cookie;
 };
 
-export const removeConfigCookie = (productDetails: ProductDetails, previousOptions: SdkOptions) => {
+const removeConfigCookie = (productDetails: ProductDetails, previousOptions: SdkOptions) => {
   document.cookie =
     productDetails.cookieName +
     '_config' +
