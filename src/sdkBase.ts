@@ -211,6 +211,7 @@ export abstract class SdkBase {
       }
 
       if (opts.baseUrl && opts.baseUrl !== this._opts.baseUrl) {
+        shouldUpdateConfig = true;
         this._apiClient?.updateBaseUrl(opts.baseUrl);
         this._opts.baseUrl = opts.baseUrl;
         this._logger.log('BaseUrl updated for ApiClient');
