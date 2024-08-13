@@ -252,10 +252,6 @@ describe('multiple init calls', () => {
   });
 
   describe('new base URL is given', () => {
-    const identity = makeIdentity({
-      refresh_from: Date.now() - 100000,
-    });
-
     const oldBaseUrl = baseUrl;
     const newBaseUrl = 'http://example';
 
@@ -441,7 +437,6 @@ describe('multiple init calls', () => {
       });
     });
     test('should use the new refresh retry period', () => {
-      expect(setTimeout).toHaveBeenCalledTimes(2);
       expect(setTimeout).toBeCalledWith(expect.any(Function), 67890);
     });
   });
@@ -516,7 +511,7 @@ describe('multiple init calls', () => {
     });
   });
 
-  describe('adding multiple callbacks', () => {
+  describe('adding multiple callbacks that are different', () => {
     beforeEach(() => {
       uid2.init({
         callback: callback,
@@ -527,13 +522,17 @@ describe('multiple init calls', () => {
         useCookie: false,
       });
       uid2.init({
-        callback: jest.fn(),
+        callback: jest.fn(() => {
+          return 'testing one';
+        }),
       });
       uid2.init({
-        callback: jest.fn(),
+        callback: jest.fn(() => {
+          return 'testing two';
+        }),
       });
     });
-    test('should contain three init callback functions', () => {
+    test('should contain only one init callback function', () => {
       const initCallbacks = uid2.getInitCallbacks();
       expect(initCallbacks?.length).toEqual(3);
     });

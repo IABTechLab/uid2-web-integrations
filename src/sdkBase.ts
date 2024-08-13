@@ -252,7 +252,7 @@ export abstract class SdkBase {
         this._logger.log('new refresh period set and refresh timer set');
       }
 
-      if (opts.callback) {
+      if (opts.callback && opts.callback !== this._opts.callback) {
         this._initCallbackManager?.addInitCallback(opts.callback);
         if (this._opts.identity) this.validateAndSetIdentity(this._opts.identity);
         this._opts.callback = opts.callback;
