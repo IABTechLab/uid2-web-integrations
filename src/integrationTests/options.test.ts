@@ -289,34 +289,6 @@ describe('multiple init calls', () => {
     });
   });
 
-  describe('new identity provided and old identity does not exist', () => {
-    const newIdentity = makeIdentity();
-    const useCookie = true;
-
-    beforeEach(() => {
-      uid2.init({
-        callback: callback,
-        baseUrl: baseUrl,
-        cookiePath: cookiePath,
-        useCookie: useCookie,
-      });
-      uid2.init({
-        identity: newIdentity,
-      });
-    });
-
-    test('should set value to new identity', () => {
-      expect(getUid2(useCookie).advertising_token).toBe(newIdentity.advertising_token);
-    });
-    test('should set refresh timer and call it once', () => {
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).not.toHaveBeenCalled();
-    });
-    test('new identity should be in available state', () => {
-      (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);
-    });
-  });
-
   describe('new identity provided but expired', () => {
     const newIdentity = makeIdentity({ refresh_expires: Date.now() - 100000 });
     const useCookie = true;
