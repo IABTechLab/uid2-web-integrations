@@ -457,8 +457,8 @@ describe('multiple init calls', () => {
       const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
       expect(cookie).toContain(`Domain=${newCookieDomain};`);
       expect(cookie + ';').toContain(`Path=${newCookiePath};`);
-      //expect(getConfigCookie()).toHaveProperty('cookieDomain', newCookieDomain);
-      //expect(getConfigCookie() + ';').toHaveProperty('cookiePath', newCookiePath);
+      expect(getConfigCookie()).toHaveProperty('cookieDomain', newCookieDomain);
+      expect(getConfigCookie()).toHaveProperty('cookiePath', newCookiePath);
     });
   });
 
@@ -470,6 +470,7 @@ describe('multiple init calls', () => {
         identity: identity,
         baseUrl: baseUrl,
         cookiePath: cookiePath,
+        cookieDomain: cookieDomain,
         useCookie: true,
       });
       uid2.init({
@@ -480,8 +481,9 @@ describe('multiple init calls', () => {
       const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
       expect(cookie).toContain(`Domain=${newCookieDomain};`);
       expect(cookie + ';').toContain(`Path=${cookiePath};`);
-      //expect(getConfigCookie()).toHaveProperty('cookieDomain', newCookieDomain);
-      //expect(getConfigCookie() + ';').toHaveProperty('cookiePath', cookiePath);
+      const configCookie = getConfigCookie();
+      expect(configCookie).toHaveProperty('cookieDomain', newCookieDomain);
+      expect(configCookie).toHaveProperty('cookiePath', cookiePath);
     });
   });
 
@@ -506,9 +508,9 @@ describe('multiple init calls', () => {
       const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
       expect(cookie).toContain(`Domain=${cookieDomain};`);
       expect(cookie + ';').toContain(`Path=${newCookiePath};`);
-      //const configCookie = getConfigCookie();
-      //expect(configCookie).toHaveProperty('cookieDomain', cookieDomain);
-      //expect(configCookie).toHaveProperty('cookiePath', newCookiePath);
+      const configCookie = getConfigCookie();
+      expect(configCookie).toHaveProperty('cookieDomain', cookieDomain);
+      expect(configCookie).toHaveProperty('cookiePath', newCookiePath);
     });
   });
 

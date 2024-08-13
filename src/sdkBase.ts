@@ -192,6 +192,7 @@ export abstract class SdkBase {
       let shouldUpdateConfig = false;
       let shouldUpdateCookieOptions = false;
 
+      let previousCookieDomain = this._opts.cookieDomain;
       if (opts.cookieDomain && opts.cookieDomain != this._opts.cookieDomain) {
         shouldUpdateConfig = true;
         shouldUpdateCookieOptions = true;
@@ -202,6 +203,7 @@ export abstract class SdkBase {
         this._logger.log('cookie domain updated');
       }
 
+      let previousCookiePath = this._opts.cookiePath;
       if (opts.cookiePath && opts.cookiePath !== this._opts.cookiePath) {
         shouldUpdateConfig = true;
         shouldUpdateCookieOptions = true;
@@ -248,11 +250,11 @@ export abstract class SdkBase {
         this._logger.log('init callback added to list');
       }
 
-      if (shouldUpdateConfig) {
-        updateConfig(this._opts, this._product);
-      }
       if (shouldUpdateCookieOptions) {
         this._storageManager?.updateCookieOptions(this._opts, this._product.cookieName);
+      }
+      if (shouldUpdateConfig) {
+        updateConfig(this._opts, this._product, previousCookieDomain, previousCookiePath);
       }
     } else {
       storeConfig(opts, this._product);

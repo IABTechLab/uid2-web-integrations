@@ -35,9 +35,9 @@ export class StorageManager {
   }
 
   public async updateCookieOptions(opts: SdkOptions, cookieName: string) {
-    this._cookieManager = new CookieManager({ ...opts }, cookieName);
     if (opts.identity) {
-      await this._cookieManager.removeCookie();
+      this._cookieManager.removeCookie();
+      this._cookieManager = new CookieManager({ ...opts }, cookieName);
       this._cookieManager.setCookie(opts.identity);
     }
   }

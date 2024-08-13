@@ -51,11 +51,15 @@ export class CookieManager {
       cookie += ';domain=' + this._opts.cookieDomain;
     }
     document.cookie = cookie;
-    let testcookie = document.cookie;
-    console.log(testcookie);
   }
   public async removeCookie() {
-    document.cookie = this._cookieName + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
+    document.cookie =
+      this._cookieName +
+      '=;path=' +
+      (this._opts.cookiePath ?? '/') +
+      ';domain=' +
+      (this._opts.cookieDomain ?? '') +
+      ';expires=Tue, 1 Jan 1980 23:59:59 GMT';
   }
   private getCookie() {
     const docCookie = document.cookie;
