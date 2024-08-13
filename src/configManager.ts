@@ -47,7 +47,7 @@ export const updateConfig = (
 
 export const removeConfig = (previousOptions: SdkOptions, productDetails: ProductDetails) => {
   if (previousOptions.useCookie) {
-    removeConfigCookie(productDetails, previousOptions);
+    removeConfigCookie(previousOptions, productDetails);
   } else {
     removeConfigFromLocalStorage(productDetails);
   }
@@ -65,7 +65,7 @@ const setConfigCookie = (options: SdkOptions, productDetails: ProductDetails) =>
   document.cookie = cookie;
 };
 
-const removeConfigCookie = (productDetails: ProductDetails, previousOptions: SdkOptions) => {
+const removeConfigCookie = (previousOptions: SdkOptions, productDetails: ProductDetails) => {
   document.cookie =
     productDetails.cookieName +
     '_config' +
