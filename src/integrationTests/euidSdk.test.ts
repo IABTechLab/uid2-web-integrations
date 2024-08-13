@@ -181,6 +181,7 @@ describe('Store config EUID', () => {
     });
   });
   describe('when useCookie is true', () => {
+    const previousOptions = options;
     test('can successfully clear the config cookie', () => {
       (sdkWindow.__euid as EUID).init({
         callback: callback,

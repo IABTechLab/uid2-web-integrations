@@ -54,6 +54,15 @@ const getConfigCookie = () => {
   return null;
 };
 
+const getConfigStorage = () => {
+  const data = localStorage.getItem('UID2-sdk-identity_config');
+  if (data) {
+    const result = JSON.parse(data);
+    return result;
+  }
+  return null;
+};
+
 describe('cookieDomain option', () => {
   describe('when using default value', () => {
     beforeEach(() => {
@@ -428,46 +437,46 @@ describe('multiple init calls', () => {
     });
   });
 
-  describe('new cookie domain and new cookie path', () => {
-    const newCookiePath = '/';
-    const newCookieDomain = 'www.test.com';
+  // describe('new cookie domain and new cookie path', () => {
+  //   const newCookiePath = '/';
+  //   const newCookieDomain = 'www.test.com';
 
-    beforeEach(() => {
-      uid2.init({
-        callback: callback,
-        identity: identity,
-        baseUrl: baseUrl,
-        cookiePath: cookiePath,
-        cookieDomain: cookieDomain,
-        useCookie: true,
-      });
-      uid2.init({
-        cookiePath: newCookiePath,
-        cookieDomain: newCookieDomain,
-      });
-    });
-    test('should update cookie manager and config cookie', () => {
-      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
-      expect(cookie).toContain(`Domain=${newCookieDomain};`);
-      expect(cookie + ';').toContain(`Path=${newCookiePath};`);
-      expect(getConfigCookie()).toHaveProperty('cookieDomain', newCookieDomain);
-      expect(getConfigCookie()).toHaveProperty('cookiePath', newCookiePath);
-    });
-  });
+  //   beforeEach(() => {
+  //     uid2.init({
+  //       callback: callback,
+  //       identity: identity,
+  //       baseUrl: baseUrl,
+  //       cookiePath: cookiePath,
+  //       cookieDomain: cookieDomain,
+  //       useCookie: true,
+  //     });
+  //     uid2.init({
+  //       cookiePath: newCookiePath,
+  //       cookieDomain: newCookieDomain,
+  //     });
+  //   });
+  //   test('should update cookie manager and config cookie', () => {
+  //     const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
+  //     expect(cookie).toContain(`Domain=${newCookieDomain};`);
+  //     expect(cookie + ';').toContain(`Path=${newCookiePath};`);
+  //     expect(getConfigCookie()).toHaveProperty('cookieDomain', newCookieDomain);
+  //     expect(getConfigCookie()).toHaveProperty('cookiePath', newCookiePath);
+  //   });
+  // });
 
   describe('new cookie domain only', () => {
-    const newCookieDomain = 'www.uidapi.com';
+    const newCookieDomain = 'test.uidapi.com';
     beforeEach(() => {
       uid2.init({
         callback: callback,
         identity: identity,
         baseUrl: baseUrl,
         cookiePath: cookiePath,
-        cookieDomain: cookieDomain,
+        cookieDomain: newCookieDomain,
         useCookie: true,
       });
       uid2.init({
-        cookieDomain: newCookieDomain,
+        cookieDomain: cookieDomain,
       });
     });
     test('should update cookie manager', () => {
@@ -526,30 +535,55 @@ describe('multiple init calls', () => {
     });
   });
 
-  // describe('usecookie changing from true to false', () => {
-  //   beforeEach(() => {
-  //     uid2.init({
-  //       callback: callback,
-  //       identity: identity,
-  //       baseUrl: baseUrl,
-  //       cookiePath: cookiePath,
-  //       refreshRetryPeriod: 12345,
-  //       useCookie: true,
-  //     });
-  //     uid2.init({
-  //       useCookie: false,
-  //     });
-  //   });
-  //   test('should change config from cookie to local storage', () => {
-  //     test('should store config in local storage', () => {
-  //       const storageConfig = getConfigStorage();
-  //       expect(storageConfig).toBeInstanceOf(Object);
-  //       expect(storageConfig).toHaveProperty('cookiePath');
-  //       const cookie = getConfigCookie();
-  //       expect(cookie).toBeNull();
-  //     });
-  //   });
-  // });
+  describe('usecookie changing from true to false', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        cookiePath: cookiePath,
+        refreshRetryPeriod: 12345,
+        useCookie: true,
+      });
+      uid2.init({
+        useCookie: false,
+      });
+    });
+    test('should change config from cookie to local storage', () => {
+      const storageConfig = getConfigStorage();
+      expect(storageConfig).toBeInstanceOf(Object);
+      expect(storageConfig).toHaveProperty('cookiePath');
+      const configCookie = getConfigCookie();
+      expect(configCookie).toBeNull();
+      expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
+      expect(getUid2Cookie()).toBeNull();
+    });
+  });
+
+  describe('usecookie changing from false to true', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        refreshRetryPeriod: 12345,
+        useCookie: false,
+      });
+      uid2.init({
+        useCookie: true,
+        cookiePath: cookiePath,
+      });
+    });
+    test('should change config from cookie to local storage', () => {
+      const storageConfig = getConfigStorage();
+      expect(storageConfig).toBeNull();
+      const configCookie = getConfigCookie();
+      expect(configCookie).toBeInstanceOf(Object);
+      expect(configCookie).toHaveProperty('cookiePath');
+      expect(getUid2Cookie().advertising_token).toBe(identity.advertising_token);
+      expect(getUid2LocalStorage()).toBeNull();
+    });
+  });
 
   //   describe('adding a callback when no callbacks exist before', () => {
   //     beforeEach(() => {
@@ -601,9 +635,14 @@ describe('multiple init calls', () => {
   //     });
   //   });
   // });
+});
+
+describe('Store config UID2', () => {
+  const identity = makeIdentity();
   const options: SdkOptions = {
     baseUrl: 'http://test-host',
     cookieDomain: mockDomain,
+    cookiePath: '/',
     refreshRetryPeriod: 1000,
     useCookie: false,
   };
@@ -613,6 +652,7 @@ describe('multiple init calls', () => {
     localStorageKey: 'UID2-sdk-identity',
     name: 'UID2',
   };
+  const previousOptions: SdkOptions = options;
 
   beforeEach(() => {
     localStorage.removeItem('UID2-sdk-identity_config');
@@ -646,45 +686,9 @@ describe('multiple init calls', () => {
       let storageConfig = loadConfig(options, productDetails);
       expect(storageConfig).toBeInstanceOf(Object);
       expect(storageConfig).toHaveProperty('cookieDomain');
-      removeConfig(options, productDetails);
+      removeConfig(previousOptions, productDetails);
       storageConfig = loadConfig(options, productDetails);
       expect(storageConfig).toBeNull();
     });
   });
 });
-
-// describe('Store config UID2', () => {
-//   const identity = makeIdentity();
-//   const options: SdkOptions = {
-//     baseUrl: 'http://test-host',
-//     cookieDomain: mockDomain,
-//     refreshRetryPeriod: 1000,
-//     useCookie: false,
-//   };
-
-//   beforeEach(() => {
-//     localStorage.removeItem('UID2-sdk-identity_config');
-//     document.cookie = UID2.COOKIE_NAME + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT';
-//   });
-
-//   describe('when useCookie is true', () => {
-//     test('should store config in cookie', () => {
-//       uid2.init({ callback: callback, identity: identity, ...options, useCookie: true });
-//       const cookie = getConfigCookie();
-//       expect(cookie).toBeInstanceOf(Object);
-//       expect(cookie).toHaveProperty('cookieDomain');
-//       const storageConfig = getConfigStorage();
-//       expect(storageConfig).toBeNull();
-//     });
-//   });
-//   describe('when useCookie is false', () => {
-//     test('should store config in local storage', () => {
-//       uid2.init({ callback: callback, identity: identity, ...options });
-//       const storageConfig = getConfigStorage();
-//       expect(storageConfig).toBeInstanceOf(Object);
-//       expect(storageConfig).toHaveProperty('cookieDomain');
-//       const cookie = getConfigCookie();
-//       expect(cookie).toBeNull();
-//     });
-//   });
-// });

@@ -34,17 +34,32 @@ export class StorageManager {
     this.setValue(identity);
   }
 
-  public async updateCookieOptions(opts: SdkOptions, cookieName: string) {
+  public updateValue(opts: SdkOptions, cookieName: string, previousOpts: SdkOptions) {
     if (opts.identity) {
-      this._cookieManager.removeCookie();
+      if (previousOpts.useCookie === true) {
+        this._cookieManager.removeCookie();
+        //this._cookieManager = new CookieManager({ ...opts }, cookieName);
+        // if (opts.useCookie) {
+        //   this._cookieManager.setCookie(opts.identity);
+        // } else {
+        //   this._localStorageManager.setValue(opts.identity);
+        // }
+      } else if (!previousOpts || previousOpts.useCookie === false) {
+        this._localStorageManager.removeValue();
+        //this._cookieManager = new CookieManager({ ...opts }, cookieName);
+        // if (opts.useCookie) {
+        //   this._cookieManager.setCookie(opts.identity);
+        // } else {
+        //   this._localStorageManager.setValue(opts.identity);
+        // }
+      }
       this._cookieManager = new CookieManager({ ...opts }, cookieName);
-      this._cookieManager.setCookie(opts.identity);
+      this.setValue(opts.identity);
     }
   }
 
   public updateUseCookie(useCookie: boolean) {
     this._opts.useCookie = useCookie;
-    this.loadIdentity();
   }
 
   public setOptout() {

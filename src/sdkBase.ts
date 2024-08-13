@@ -189,13 +189,13 @@ export abstract class SdkBase {
     if (this.isInitialized()) {
       this.setInitComplete(false);
 
+      const previousOpts = { ...this._opts };
       let shouldUpdateConfig = false;
-      let shouldUpdateCookieOptions = false;
+      let shouldUpdateIdentityValue = false;
 
-      let previousCookieDomain = this._opts.cookieDomain;
       if (opts.cookieDomain && opts.cookieDomain != this._opts.cookieDomain) {
         shouldUpdateConfig = true;
-        shouldUpdateCookieOptions = true;
+        shouldUpdateIdentityValue = true;
         // if (this._opts.useCookie === true || opts.useCookie === true) {
         //   this._storageManager?.loadIdentity();
         // }
@@ -203,10 +203,9 @@ export abstract class SdkBase {
         this._logger.log('cookie domain updated');
       }
 
-      let previousCookiePath = this._opts.cookiePath;
       if (opts.cookiePath && opts.cookiePath !== this._opts.cookiePath) {
         shouldUpdateConfig = true;
-        shouldUpdateCookieOptions = true;
+        shouldUpdateIdentityValue = true;
         this._opts.cookiePath = opts.cookiePath;
         this._logger.log('cookie path updated');
       }
@@ -234,6 +233,7 @@ export abstract class SdkBase {
 
       if (opts.useCookie !== undefined && this._opts.useCookie !== opts.useCookie) {
         shouldUpdateConfig = true;
+        shouldUpdateIdentityValue = true;
         this._storageManager?.updateUseCookie(opts.useCookie);
         this._opts.useCookie = opts.useCookie;
         this._logger.log('new use cookie variable, updated store config and storage manager ');
@@ -250,11 +250,11 @@ export abstract class SdkBase {
         this._logger.log('init callback added to list');
       }
 
-      if (shouldUpdateCookieOptions) {
-        this._storageManager?.updateCookieOptions(this._opts, this._product.cookieName);
+      if (shouldUpdateIdentityValue) {
+        this._storageManager?.updateValue(this._opts, this._product.cookieName, previousOpts);
       }
       if (shouldUpdateConfig) {
-        updateConfig(this._opts, this._product, previousCookieDomain, previousCookiePath);
+        updateConfig(this._opts, this._product, previousOpts);
       }
     } else {
       storeConfig(opts, this._product);
