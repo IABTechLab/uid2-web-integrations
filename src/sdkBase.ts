@@ -311,7 +311,6 @@ export abstract class SdkBase {
     )
       return validity.identity;
 
-    this._identity = validity.identity;
     if (validity.valid && validity.identity) {
       this._storageManager.setIdentity(validity.identity);
     } else if (validity.status === IdentityStatus.OPTOUT || status === IdentityStatus.OPTOUT) {
@@ -320,6 +319,7 @@ export abstract class SdkBase {
       this.abort();
       this._storageManager.removeValues();
     }
+    this._identity = this._storageManager.loadIdentity();
     notifyInitCallback(
       this._opts,
       status ?? validity.status,
