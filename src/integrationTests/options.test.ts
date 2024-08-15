@@ -236,14 +236,14 @@ describe('Store config UID2', () => {
       const cookie = getConfigCookie();
       expect(cookie).toBeInstanceOf(Object);
       expect(cookie).toHaveProperty('cookieDomain');
-      const storageConfig = loadConfig(options, productDetails);
+      const storageConfig = loadConfig(productDetails);
       expect(storageConfig).toBeNull();
     });
   });
   describe('when useCookie is false', () => {
     test('should store config in local storage', () => {
       uid2.init({ callback: callback, identity: identity, ...options });
-      const storageConfig = loadConfig(options, productDetails);
+      const storageConfig = loadConfig(productDetails);
       expect(storageConfig).toBeInstanceOf(Object);
       expect(storageConfig).toHaveProperty('cookieDomain');
       const cookie = getConfigCookie();
@@ -253,11 +253,11 @@ describe('Store config UID2', () => {
   describe('when useCookie is false', () => {
     test('can successfully clear the config in storage', () => {
       uid2.init({ callback: callback, identity: identity, ...options });
-      let storageConfig = loadConfig(options, productDetails);
+      let storageConfig = loadConfig(productDetails);
       expect(storageConfig).toBeInstanceOf(Object);
       expect(storageConfig).toHaveProperty('cookieDomain');
       removeConfig(options, productDetails);
-      storageConfig = loadConfig(options, productDetails);
+      storageConfig = loadConfig(productDetails);
       expect(storageConfig).toBeNull();
     });
   });

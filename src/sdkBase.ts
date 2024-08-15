@@ -139,6 +139,10 @@ export abstract class SdkBase {
     return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
   }
 
+  public isInitialized() {
+    return this._initComplete;
+  }
+
   public hasOptedOut() {
     if (!this._initComplete) return undefined;
     return isOptoutIdentity(this._identity);

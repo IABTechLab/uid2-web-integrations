@@ -8,6 +8,7 @@ import { isBase64Hash } from './hashedDii';
 import { hashAndEncodeIdentifier, hashIdentifier } from './encoding/hash';
 import { CallbackContainer, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
+import { loadConfig } from './configManager';
 
 export * from './exports';
 
@@ -38,7 +39,7 @@ export class UID2 extends SdkBase {
     );
     return UID2.cookieName;
   }
-  private static get Uid2Details(): ProductDetails {
+  static get Uid2Details(): ProductDetails {
     return {
       name: 'UID2',
       defaultBaseUrl: 'https://prod.uidapi.com',
@@ -113,6 +114,12 @@ export function __uid2InternalHandleScriptLoad() {
   window.__uid2 = new UID2(callbacks, callbackContainer);
   window.__uid2Helper = new UID2Helper();
   if (callbackContainer.callback) callbackContainer.callback();
+  if (window.__uid2 instanceof UID2 && window.__uid2.isInitialized()) {
+    const config = loadConfig(UID2.Uid2Details);
+    if (config) {
+      window.__uid2.init(config);
+    }
+  }
 }
 __uid2InternalHandleScriptLoad();
 
