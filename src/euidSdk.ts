@@ -58,6 +58,11 @@ export function assertEUID(sdk: typeof window.__euid): asserts sdk is EUID {
 }
 
 export function __euidInternalHandleScriptLoad() {
+  if ((window.__euid as EUID)?.initComplete && (window.__euid as EUID)?.initComplete()) {
+    // This has already been run
+    return;
+  }
+
   const callbacks = window?.__euid?.callbacks || [];
   const callbackContainer: CallbackContainer = {};
   window.__euid = new EUID(callbacks, callbackContainer);

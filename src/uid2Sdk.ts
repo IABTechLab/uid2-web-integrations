@@ -108,6 +108,11 @@ export function assertUID2(sdk: typeof window.__uid2): asserts sdk is UID2 {
 }
 
 export function __uid2InternalHandleScriptLoad() {
+  if ((window.__uid2 as UID2)?.initComplete && (window.__uid2 as UID2)?.initComplete()) {
+    // This has already been run
+    return;
+  }
+
   const callbacks = window?.__uid2?.callbacks || [];
   const callbackContainer: CallbackContainer = {};
   window.__uid2 = new UID2(callbacks, callbackContainer);
