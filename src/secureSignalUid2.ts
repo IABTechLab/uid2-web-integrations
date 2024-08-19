@@ -1,11 +1,12 @@
 import { isDebugModeOn, UidSecureSignalProvider } from './secureSignal_shared';
+import { UidSecureSignalProviderType } from './secureSignal_types';
 
 const INTEG_BASE_URL = 'https://cdn.integ.uidapi.com/';
 
 declare global {
   interface Window {
     getUid2AdvertisingToken?: () => Promise<string | null | undefined>;
-    __uid2SecureSignalProvider?: UidSecureSignalProvider;
+    __uid2SecureSignalProvider?: UidSecureSignalProviderType;
   }
 }
 
