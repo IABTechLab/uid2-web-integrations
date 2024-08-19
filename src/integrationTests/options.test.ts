@@ -498,7 +498,11 @@ describe('multiple init calls', () => {
     });
   });
 
-  describe('adding a callback when no callbacks exist before', () => {
+  describe('setting a new identity and make sure callback is called', () => {
+    const newIdentity = makeIdentity({
+      advertising_token: 'new_advertising_token',
+      identity_expires: Date.now() + 300000,
+    });
     beforeEach(() => {
       uid2.init({
         identity: identity,
@@ -506,19 +510,30 @@ describe('multiple init calls', () => {
         cookiePath: cookiePath,
         refreshRetryPeriod: 12345,
         useCookie: true,
+        callback: callback,
       });
       uid2.init({
         useCookie: false,
-        callback: callback,
+        identity: newIdentity,
       });
     });
     test('should contain one init callback', () => {
-      const initCallbacks = uid2.getInitCallbacks();
-      expect(initCallbacks).toEqual([callback]);
+      expect(callback).toHaveBeenCalled();
     });
   });
 
-  describe('adding multiple callbacks that are different', () => {
+  describe('adding multiple callbacks and then setting new identity', () => {
+    const newIdentity = makeIdentity({
+      advertising_token: 'new_advertising_token',
+      identity_expires: Date.now() + 300000,
+    });
+    const callback2 = jest.fn(() => {
+      return 'testing one';
+    });
+    const callback3 = jest.fn(() => {
+      return 'testing two';
+    });
+
     beforeEach(() => {
       uid2.init({
         callback: callback,
@@ -529,19 +544,19 @@ describe('multiple init calls', () => {
         useCookie: false,
       });
       uid2.init({
-        callback: jest.fn(() => {
-          return 'testing one';
-        }),
+        callback: callback2,
       });
       uid2.init({
-        callback: jest.fn(() => {
-          return 'testing two';
-        }),
+        callback: callback3,
+      });
+      uid2.init({
+        identity: newIdentity,
       });
     });
     test('should contain only one init callback function', () => {
-      const initCallbacks = uid2.getInitCallbacks();
-      expect(initCallbacks?.length).toEqual(3);
+      expect(callback).toHaveBeenCalled();
+      expect(callback2).toHaveBeenCalled();
+      expect(callback3).toHaveBeenCalled();
     });
   });
 });

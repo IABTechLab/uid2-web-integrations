@@ -137,10 +137,6 @@ export abstract class SdkBase {
     return this._tokenPromiseHandler.createMaybeDeferredPromise(token ?? null);
   }
 
-  public getInitCallbacks() {
-    return this._initCallbackManager?.getInitCallbacks();
-  }
-
   /**
    * Deprecated
    */
