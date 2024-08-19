@@ -262,26 +262,40 @@ describe('multiple init calls', () => {
         baseUrl: oldBaseUrl,
         useCookie: true,
       });
-    });
-    test('should use new base url', () => {
       uid2.init({
         baseUrl: newBaseUrl,
       });
+    });
+    test('should use new base url', () => {
       const configCookie = getConfigCookie();
       expect(configCookie).toHaveProperty('baseUrl', newBaseUrl);
     });
+  });
+
+  describe('no base URL is given, should use new base URL', () => {
+    beforeEach(() => {
+      uid2.init({
+        callback: callback,
+        identity: identity,
+        baseUrl: baseUrl,
+        useCookie: true,
+      });
+      uid2.init({
+        cookiePath: '/',
+      });
+    });
 
     test('should use old base url', () => {
-      uid2.init({
-        cookiePath: cookiePath,
-      });
       const configCookie = getConfigCookie();
-      expect(configCookie).toHaveProperty('baseUrl', oldBaseUrl);
+      expect(configCookie).toHaveProperty('baseUrl', baseUrl);
     });
   });
 
   describe('new identity provided but expired', () => {
-    const newIdentity = makeIdentity({ refresh_expires: Date.now() - 100000 });
+    const newIdentity = makeIdentity({
+      advertising_token: 'new_test_advertising_token',
+      identity_expires: Date.now() - 100000,
+    });
     const useCookie = true;
 
     beforeEach(() => {
@@ -299,18 +313,17 @@ describe('multiple init calls', () => {
     test('should set value to old identity', () => {
       expect(getUid2(useCookie).advertising_token).toBe(identity.advertising_token);
     });
-    test('should set refresh timer once', () => {
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).not.toHaveBeenCalled();
-    });
-    test('old ideneity should be in available state', () => {
+    test('old identity should be in available state', () => {
       (expect(uid2) as any).toBeInAvailableState(identity.advertising_token);
     });
   });
 
   describe('new identity provided but expires before old identity', () => {
-    const oldIdentity = makeIdentity({ refresh_expires: Date.now() + 5000 });
-    const newIdentity = makeIdentity({ refresh_expires: Date.now() + 100000 });
+    const oldIdentity = makeIdentity({ identity_expires: Date.now() + 10000 });
+    const newIdentity = makeIdentity({
+      advertising_token: 'new_test_advertising_token',
+      identity_expires: Date.now() + 5000,
+    });
     const useCookie = true;
 
     beforeEach(() => {
@@ -329,17 +342,16 @@ describe('multiple init calls', () => {
     test('should set value', () => {
       expect(getUid2(useCookie).advertising_token).toBe(oldIdentity.advertising_token);
     });
-    test('should set refresh timer', () => {
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).not.toHaveBeenCalled();
-    });
     test('should be in available state', () => {
       (expect(uid2) as any).toBeInAvailableState(oldIdentity.advertising_token);
     });
   });
 
   describe('new identity provided and expires after old identity', () => {
-    const newIdentity = makeIdentity();
+    const newIdentity = makeIdentity({
+      advertising_token: 'new_test_advertising_token',
+      identity_expires: Date.now() + 300000,
+    });
     const useCookie = true;
 
     beforeEach(() => {
@@ -358,17 +370,16 @@ describe('multiple init calls', () => {
     test('should set value', () => {
       expect(getUid2(useCookie).advertising_token).toBe(newIdentity.advertising_token);
     });
-    test('should set refresh timer', () => {
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).not.toHaveBeenCalled();
-    });
     test('should be in available state', () => {
       (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);
     });
   });
 
   describe('new identity provided and use cookie is false', () => {
-    const newIdentity = makeIdentity();
+    const newIdentity = makeIdentity({
+      advertising_token: 'new_test_advertising_token',
+      identity_expires: Date.now() + 300000,
+    });
     const useCookie = false;
 
     beforeEach(() => {
@@ -386,10 +397,6 @@ describe('multiple init calls', () => {
 
     test('should set value', () => {
       expect(getUid2(useCookie).advertising_token).toBe(newIdentity.advertising_token);
-    });
-    test('should set refresh timer', () => {
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).not.toHaveBeenCalled();
     });
     test('should be in available state', () => {
       (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);

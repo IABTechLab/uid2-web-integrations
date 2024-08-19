@@ -1,4 +1,5 @@
 import { isValidIdentity, Identity, OptoutIdentity, isOptoutIdentity } from './Identity';
+import { SdkOptions } from './sdkOptions';
 
 export type CookieOptions = {
   cookieDomain?: string;
@@ -52,13 +53,13 @@ export class CookieManager {
     }
     document.cookie = cookie;
   }
-  public removeCookie() {
+  public removeCookie(previousOptions: SdkOptions) {
     document.cookie =
       this._cookieName +
       '=;path=' +
-      (this._opts.cookiePath ?? '/') +
+      (previousOptions.cookiePath ?? '/') +
       ';domain=' +
-      (this._opts.cookieDomain ?? '') +
+      (previousOptions.cookieDomain ?? '') +
       ';expires=Tue, 1 Jan 1980 23:59:59 GMT';
   }
   private getCookie() {

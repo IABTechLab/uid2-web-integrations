@@ -37,7 +37,7 @@ export class StorageManager {
   public updateValue(opts: SdkOptions, cookieName: string, previousOpts: SdkOptions) {
     if (opts.identity) {
       if (previousOpts.useCookie === true) {
-        this._cookieManager.removeCookie();
+        this._cookieManager.removeCookie(previousOpts);
       } else if (!previousOpts || previousOpts.useCookie === false) {
         this._localStorageManager.removeValue();
       }
@@ -71,12 +71,12 @@ export class StorageManager {
       this._opts.useCookie === false &&
       this._localStorageManager.loadIdentityFromLocalStorage()
     ) {
-      this._cookieManager.removeCookie();
+      this._cookieManager.removeCookie(this._opts);
     }
   }
 
   public removeValues() {
-    this._cookieManager.removeCookie();
+    this._cookieManager.removeCookie(this._opts);
     this._localStorageManager.removeValue();
   }
 }

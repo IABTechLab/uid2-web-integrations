@@ -78,7 +78,7 @@ export abstract class SdkBase {
     return this._initComplete;
   }
 
-  public setInitComplete(isInitComplete: boolean) {
+  private setInitComplete(isInitComplete: boolean) {
     this._initComplete = isInitComplete;
   }
 
@@ -196,75 +196,45 @@ export abstract class SdkBase {
     }
 
     if (this.isInitialized()) {
-      this.setInitComplete(false);
-
       const previousOpts = { ...this._opts };
-      let shouldUpdateConfig = false;
-      let shouldUpdateIdentityValue = false;
+      Object.assign(this._opts, opts);
 
-      if (opts.cookieDomain && opts.cookieDomain != this._opts.cookieDomain) {
-        shouldUpdateConfig = true;
-        shouldUpdateIdentityValue = true;
-        this._opts.cookieDomain = opts.cookieDomain;
-        this._logger.log('cookie domain updated');
-      }
-
-      if (opts.cookiePath && opts.cookiePath !== this._opts.cookiePath) {
-        shouldUpdateConfig = true;
-        shouldUpdateIdentityValue = true;
-        this._opts.cookiePath = opts.cookiePath;
-        this._logger.log('cookie path updated');
-      }
-
-      if (opts.baseUrl && opts.baseUrl !== this._opts.baseUrl) {
-        shouldUpdateConfig = true;
+      if (opts.baseUrl && opts.baseUrl !== previousOpts.baseUrl) {
         this._apiClient?.updateBaseUrl(opts.baseUrl);
-        this._opts.baseUrl = opts.baseUrl;
         this._logger.log('BaseUrl updated for ApiClient');
       }
 
-      if (opts.identity && opts.identity.identity_expires > Date.now()) {
+      if (opts.identity) {
         if (
-          !this._opts.identity ||
-          opts.identity.identity_expires > this._opts.identity.identity_expires
+          !previousOpts.identity ||
+          opts.identity.identity_expires > previousOpts.identity.identity_expires
         ) {
-          const validatedIdentity = this.validateAndSetIdentity(opts.identity);
-          if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
-            this.triggerRefreshOrSetTimer(validatedIdentity);
-          this._opts.identity = opts.identity;
+          this.handleNewIdentity(opts.identity);
           this._logger.log('new identity set');
         } else {
+          this._opts.identity = previousOpts.identity;
           this._logger.log('new identity not set because expires before current identity');
         }
       }
 
-      if (opts.useCookie !== undefined && this._opts.useCookie !== opts.useCookie) {
-        shouldUpdateConfig = true;
-        shouldUpdateIdentityValue = true;
-        this._storageManager?.updateUseCookie(opts.useCookie);
-        this._opts.useCookie = opts.useCookie;
-        this._logger.log('new use cookie variable, updated store config and storage manager ');
-      }
-
-      if (opts.refreshRetryPeriod && this._opts.refreshRetryPeriod !== opts.refreshRetryPeriod) {
-        this._opts.refreshRetryPeriod = opts.refreshRetryPeriod;
+      if (opts.refreshRetryPeriod && previousOpts.refreshRetryPeriod !== opts.refreshRetryPeriod) {
         this.setRefreshTimer();
         this._logger.log('new refresh period set and refresh timer set');
       }
 
-      if (opts.callback && opts.callback !== this._opts.callback) {
+      if (opts.callback && opts.callback !== previousOpts.callback) {
         this._initCallbackManager?.addInitCallback(opts.callback);
         if (this._opts.identity) this.validateAndSetIdentity(this._opts.identity);
-        this._opts.callback = opts.callback;
         this._logger.log('init callback added to list');
       }
 
-      if (shouldUpdateIdentityValue) {
-        this._storageManager?.updateValue(this._opts, this._product.cookieName, previousOpts);
-      }
-      if (shouldUpdateConfig) {
-        updateConfig(this._opts, this._product, previousOpts);
-      }
+      updateConfig(this._opts, this._product, previousOpts);
+      this._storageManager = new StorageManager(
+        this._opts,
+        this._product.cookieName,
+        this._product.localStorageKey
+      );
+      this._storageManager?.updateValue(this._opts, this._product.cookieName, previousOpts);
     } else {
       storeConfig(opts, this._product);
       this._opts = opts;
@@ -285,9 +255,7 @@ export abstract class SdkBase {
       } else {
         identity = this._storageManager.loadIdentityWithFallback();
       }
-      const validatedIdentity = this.validateAndSetIdentity(identity);
-      if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
-        this.triggerRefreshOrSetTimer(validatedIdentity);
+      this.handleNewIdentity(identity);
     }
 
     this.setInitComplete(true);
@@ -426,6 +394,12 @@ export abstract class SdkBase {
     } else {
       this.setRefreshTimer();
     }
+  }
+
+  private handleNewIdentity(identity: Identity | OptoutIdentity | null) {
+    const validatedIdentity = this.validateAndSetIdentity(identity);
+    if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
+      this.triggerRefreshOrSetTimer(validatedIdentity);
   }
 
   private _refreshTimerId: ReturnType<typeof setTimeout> | null = null;
