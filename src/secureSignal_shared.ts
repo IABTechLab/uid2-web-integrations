@@ -1,5 +1,7 @@
+import { UidSecureSignalProviderType } from './secureSignal_types';
+
 const MAXIMUM_RETRY = 3;
-export class UidSecureSignalProvider {
+export class UidSecureSignalProvider implements UidSecureSignalProviderType {
   debug: boolean;
   isEuid: boolean;
 
