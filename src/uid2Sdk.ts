@@ -8,6 +8,7 @@ import { isBase64Hash } from './hashedDii';
 import { hashAndEncodeIdentifier, hashIdentifier } from './encoding/hash';
 import { CallbackContainer, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
+import { UidSecureSignalProviderType } from './secureSignal_types';
 
 export * from './exports';
 
@@ -100,6 +101,7 @@ declare global {
   interface Window {
     __uid2: UID2 | SDKSetup | undefined;
     __uid2Helper: UID2Helper | undefined;
+    __uid2SecureSignalProvider?: UidSecureSignalProviderType;
   }
 }
 

@@ -1,5 +1,7 @@
+import { UidSecureSignalProviderType } from './secureSignal_types';
+
 const MAXIMUM_RETRY = 3;
-export class UidSecureSignalProvider {
+export class UidSecureSignalProvider implements UidSecureSignalProviderType {
   debug: boolean;
   isEuid: boolean;
 
@@ -73,9 +75,7 @@ export class UidSecureSignalProvider {
 
       async function attempt(error?: unknown) {
         if (attempts >= retries) {
-          window.__uid2SecureSignalProvider?.logging(
-            `getUidAdvertisingTokenWithRetry failed with error after retry: ${error}`
-          );
+          that.logging(`getUidAdvertisingTokenWithRetry failed with error after retry: ${error}`);
 
           reject(error);
           return;
