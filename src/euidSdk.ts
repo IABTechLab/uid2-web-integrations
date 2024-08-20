@@ -60,7 +60,7 @@ export function assertEUID(sdk: typeof window.__euid): asserts sdk is EUID {
 }
 
 export function __euidInternalHandleScriptLoad() {
-  if (window.__euid instanceof EUID) {
+  if (window.__euid && 'init' in window.__euid) {
     // This has already been run
     return;
   }
