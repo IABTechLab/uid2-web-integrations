@@ -108,7 +108,7 @@ export function assertUID2(sdk: typeof window.__uid2): asserts sdk is UID2 {
 }
 
 export function __uid2InternalHandleScriptLoad() {
-  if ((window.__uid2 as UID2)?.initComplete && (window.__uid2 as UID2)?.initComplete()) {
+  if (window.__uid2 instanceof UID2) {
     // This has already been run
     return;
   }
