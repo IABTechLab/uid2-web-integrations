@@ -1,6 +1,7 @@
 import { EventType, CallbackHandler } from './callbackManager';
 import { CallbackContainer, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
+import { UidSecureSignalProviderType } from './secureSignal_types';
 
 export * from './exports';
 
@@ -51,6 +52,7 @@ export class EUID extends SdkBase {
 declare global {
   interface Window {
     __euid: EUID | SDKSetup | undefined;
+    __euidSecureSignalProvider?: UidSecureSignalProviderType;
   }
 }
 export function assertEUID(sdk: typeof window.__euid): asserts sdk is EUID {
