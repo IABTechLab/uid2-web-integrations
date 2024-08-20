@@ -246,7 +246,7 @@ describe('multiple init calls', () => {
     });
   });
 
-  describe('no base URL is given, should use new base URL', () => {
+  describe('no base URL is given on second init call', () => {
     beforeEach(() => {
       uid2.init({
         callback: callback,
@@ -265,103 +265,72 @@ describe('multiple init calls', () => {
     });
   });
 
-  describe('new identity provided but expired', () => {
-    const newIdentity = makeIdentity({
-      advertising_token: 'new_test_advertising_token',
-      identity_expires: Date.now() - 100000,
-    });
-    const useCookie = true;
+  const identityTestCases = [
+    {
+      oldIdentity: identity,
+      newIdentity: makeIdentity({
+        advertising_token: 'new_test_advertising_token',
+        identity_expires: Date.now() - 100000,
+      }),
+      expectedIdentity: identity,
+      useCookie: true,
+      description: 'new identity provided but expired',
+    },
+    {
+      oldIdentity: makeIdentity({ identity_expires: Date.now() + 10000 }),
+      newIdentity: makeIdentity({
+        advertising_token: 'new_test_advertising_token',
+        identity_expires: Date.now() + 5000,
+      }),
+      expectedIdentity: makeIdentity({ identity_expires: Date.now() + 10000 }),
+      useCookie: true,
+      description: 'new identity provided but expires before old identity',
+    },
+    {
+      oldIdentity: identity,
+      newIdentity: makeIdentity({
+        advertising_token: 'new_test_advertising_token',
+        identity_expires: Date.now() + 300000,
+      }),
+      expectedIdentity: makeIdentity({
+        advertising_token: 'new_test_advertising_token',
+        identity_expires: Date.now() + 300000,
+      }),
+      useCookie: true,
+      description: 'new identity provided and expires after old identity',
+    },
+    {
+      oldIdentity: identity,
+      newIdentity: makeIdentity({
+        advertising_token: 'new_test_advertising_token',
+        identity_expires: Date.now() + 300000,
+      }),
+      expectedIdentity: makeIdentity({
+        advertising_token: 'new_test_advertising_token',
+        identity_expires: Date.now() + 300000,
+      }),
+      useCookie: false,
+      description: 'new identity provided with useCookie is false',
+    },
+  ];
 
-    beforeEach(() => {
-      uid2.init({
-        callback: callback,
-        identity: identity,
-        baseUrl: baseUrl,
-        cookiePath: cookiePath,
-        useCookie: useCookie,
-      });
-      uid2.init({
-        identity: newIdentity,
-      });
-    });
-    test('old identity should be in available state', () => {
-      (expect(uid2) as any).toBeInAvailableState(identity.advertising_token);
-    });
-  });
-
-  describe('new identity provided but expires before old identity', () => {
-    const oldIdentity = makeIdentity({ identity_expires: Date.now() + 10000 });
-    const newIdentity = makeIdentity({
-      advertising_token: 'new_test_advertising_token',
-      identity_expires: Date.now() + 5000,
-    });
-    const useCookie = true;
-
-    beforeEach(() => {
-      uid2.init({
-        callback: callback,
-        identity: oldIdentity,
-        baseUrl: baseUrl,
-        cookiePath: cookiePath,
-        useCookie: useCookie,
-      });
-      uid2.init({
-        identity: newIdentity,
-      });
-    });
-    test('should be in available state', () => {
-      (expect(uid2) as any).toBeInAvailableState(oldIdentity.advertising_token);
-    });
-  });
-
-  describe('new identity provided and expires after old identity', () => {
-    const newIdentity = makeIdentity({
-      advertising_token: 'new_test_advertising_token',
-      identity_expires: Date.now() + 300000,
-    });
-    const useCookie = true;
-
-    beforeEach(() => {
-      uid2.init({
-        callback: callback,
-        identity: identity,
-        baseUrl: baseUrl,
-        cookiePath: cookiePath,
-        useCookie: useCookie,
-      });
-      uid2.init({
-        identity: newIdentity,
-      });
-    });
-
-    test('should be in available state', () => {
-      (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);
-    });
-  });
-
-  describe('new identity provided and use cookie is false', () => {
-    const newIdentity = makeIdentity({
-      advertising_token: 'new_test_advertising_token',
-      identity_expires: Date.now() + 300000,
-    });
-    const useCookie = false;
-
-    beforeEach(() => {
-      uid2.init({
-        callback: callback,
-        identity: identity,
-        baseUrl: baseUrl,
-        cookiePath: cookiePath,
-        useCookie: useCookie,
-      });
-      uid2.init({
-        identity: newIdentity,
-      });
-    });
-
-    test('should be in available state', () => {
-      (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);
-    });
+  describe('testing how identity changes with multiple init calls', () => {
+    test.each(identityTestCases)(
+      '$description',
+      ({ oldIdentity, newIdentity, expectedIdentity, useCookie }) => {
+        uid2.init({
+          callback: callback,
+          identity: oldIdentity,
+          baseUrl: baseUrl,
+          cookiePath: cookiePath,
+          useCookie: useCookie,
+        });
+        uid2.init({
+          identity: newIdentity,
+        });
+        (expect(uid2) as any).toBeInAvailableState(expectedIdentity.advertising_token);
+      }
+    );
   });
 
   describe('new cookie path', () => {
@@ -459,11 +428,7 @@ describe('multiple init calls', () => {
     });
   });
 
-  describe('setting a new identity and make sure callback is called', () => {
-    const newIdentity = makeIdentity({
-      advertising_token: 'new_advertising_token',
-      identity_expires: Date.now() + 300000,
-    });
+  describe('make sure when identity and callback are sent together, that callback is called with identity', () => {
     beforeEach(() => {
       uid2.init({
         identity: identity,
@@ -473,13 +438,13 @@ describe('multiple init calls', () => {
         useCookie: true,
         callback: callback,
       });
-      uid2.init({
-        useCookie: false,
-        identity: newIdentity,
-      });
     });
     test('should contain one init callback', () => {
-      expect(callback).toHaveBeenCalled();
+      expect(callback).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          advertising_token: identity.advertising_token,
+        })
+      );
     });
   });
 
@@ -489,10 +454,10 @@ describe('multiple init calls', () => {
       identity_expires: Date.now() + 300000,
     });
     const callback2 = jest.fn(() => {
-      return 'testing one';
+      return 'testing two';
     });
     const callback3 = jest.fn(() => {
-      return 'testing two';
+      return 'testing three';
     });
 
     beforeEach(() => {
@@ -515,9 +480,21 @@ describe('multiple init calls', () => {
       });
     });
     test('should contain only one init callback function', () => {
-      expect(callback).toHaveBeenCalled();
-      expect(callback2).toHaveBeenCalled();
-      expect(callback3).toHaveBeenCalled();
+      expect(callback).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          advertising_token: newIdentity.advertising_token,
+        })
+      );
+      expect(callback2).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          advertising_token: newIdentity.advertising_token,
+        })
+      );
+      expect(callback3).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          advertising_token: newIdentity.advertising_token,
+        })
+      );
     });
   });
 });
