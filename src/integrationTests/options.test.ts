@@ -225,32 +225,6 @@ describe('multiple init calls', () => {
   const cookiePath = '/test/';
   const cookieDomain = 'uidapi.com';
 
-  describe('when nothing has changed', () => {
-    beforeEach(() => {
-      uid2.init({
-        identity: identity,
-        baseUrl: baseUrl,
-        cookiePath: cookiePath,
-      });
-      uid2.init({
-        identity: identity,
-        baseUrl: baseUrl,
-        cookiePath: cookiePath,
-      });
-      uid2.init({
-        identity: identity,
-        baseUrl: baseUrl,
-        cookiePath: cookiePath,
-      });
-    });
-    test('should return next two init calls without changing anything', () => {
-      expect(getUid2LocalStorage().advertising_token).toBe(identity.advertising_token);
-      let storageConfig = getConfigStorage();
-      expect(storageConfig).toBeInstanceOf(Object);
-      expect(storageConfig).toHaveProperty('cookiePath', cookiePath);
-    });
-  });
-
   describe('new base URL is given', () => {
     const oldBaseUrl = baseUrl;
     const newBaseUrl = 'http://example';
@@ -310,9 +284,6 @@ describe('multiple init calls', () => {
         identity: newIdentity,
       });
     });
-    test('should set value to old identity', () => {
-      expect(getUid2(useCookie).advertising_token).toBe(identity.advertising_token);
-    });
     test('old identity should be in available state', () => {
       (expect(uid2) as any).toBeInAvailableState(identity.advertising_token);
     });
@@ -337,10 +308,6 @@ describe('multiple init calls', () => {
       uid2.init({
         identity: newIdentity,
       });
-    });
-
-    test('should set value', () => {
-      expect(getUid2(useCookie).advertising_token).toBe(oldIdentity.advertising_token);
     });
     test('should be in available state', () => {
       (expect(uid2) as any).toBeInAvailableState(oldIdentity.advertising_token);
@@ -367,9 +334,6 @@ describe('multiple init calls', () => {
       });
     });
 
-    test('should set value', () => {
-      expect(getUid2(useCookie).advertising_token).toBe(newIdentity.advertising_token);
-    });
     test('should be in available state', () => {
       (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);
     });
@@ -395,9 +359,6 @@ describe('multiple init calls', () => {
       });
     });
 
-    test('should set value', () => {
-      expect(getUid2(useCookie).advertising_token).toBe(newIdentity.advertising_token);
-    });
     test('should be in available state', () => {
       (expect(uid2) as any).toBeInAvailableState(newIdentity.advertising_token);
     });

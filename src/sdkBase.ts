@@ -200,28 +200,25 @@ export abstract class SdkBase {
         this._logger.log('BaseUrl updated for ApiClient');
       }
 
-      if (opts.identity) {
-        if (
-          !previousOpts.identity ||
-          opts.identity.identity_expires > previousOpts.identity.identity_expires
-        ) {
-          this.handleNewIdentity(opts.identity);
-          this._logger.log('new identity set');
-        } else {
-          this._opts.identity = previousOpts.identity;
-          this._logger.log('new identity not set because expires before current identity');
+      if (opts.callback && opts.callback !== previousOpts.callback) {
+        this._initCallbackManager?.addInitCallback(opts.callback);
+        this._logger.log('init callback added to list');
+      }
+
+      const useNewIdentity =
+        opts.identity &&
+        (!previousOpts.identity ||
+          opts.identity.identity_expires > previousOpts.identity.identity_expires);
+      if (useNewIdentity || opts.callback) {
+        let identity = useNewIdentity ? opts.identity : previousOpts.identity ?? null;
+        if (identity) {
+          this.handleNewIdentity(identity);
         }
       }
 
       if (opts.refreshRetryPeriod && previousOpts.refreshRetryPeriod !== opts.refreshRetryPeriod) {
         this.setRefreshTimer();
         this._logger.log('new refresh period set and refresh timer set');
-      }
-
-      if (opts.callback && opts.callback !== previousOpts.callback) {
-        this._initCallbackManager?.addInitCallback(opts.callback);
-        if (this._opts.identity) this.validateAndSetIdentity(this._opts.identity);
-        this._logger.log('init callback added to list');
       }
 
       updateConfig(this._opts, this._product, previousOpts);
