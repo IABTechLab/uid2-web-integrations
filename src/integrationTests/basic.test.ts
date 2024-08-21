@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import * as mocks from '../mocks';
-import { sdkWindow, UID2 } from '../uid2Sdk';
-import { EventType } from '../callbackManager';
+import { __uid2InternalHandleScriptLoad, sdkWindow, UID2 } from '../uid2Sdk';
+import { CallbackHandler, EventType } from '../callbackManager';
 
 let callback: any;
 let uid2: UID2;
@@ -1012,5 +1012,52 @@ testCookieAndLocalStorage(() => {
       uid2.disconnect();
       (expect(uid2) as any).toBeInUnavailableState();
     });
+  });
+});
+
+describe('Include sdk script multiple times', () => {
+  const makeIdentity = mocks.makeIdentityV2;
+  let asyncCallback: jest.Mock<CallbackHandler>;
+  const debugOutput = false;
+
+  asyncCallback = jest.fn((event, payload) => {
+    if (debugOutput) {
+      console.log('Async Callback Event:', event);
+      console.log('Payload:', payload);
+    }
+  });
+
+  beforeEach(() => {
+    sdkWindow.__uid2 = new UID2();
+  });
+
+  afterEach(() => {
+    sdkWindow.__uid2 = undefined;
+  });
+
+  test('call init after script inclusion', async () => {
+    const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
+
+    __uid2InternalHandleScriptLoad();
+    __uid2InternalHandleScriptLoad();
+    __uid2InternalHandleScriptLoad();
+
+    (sdkWindow.__uid2 as UID2).init({ identity });
+
+    sdkWindow.__uid2!.callbacks!.push(asyncCallback);
+    expect(asyncCallback).toBeCalledWith(EventType.SdkLoaded, expect.anything());
+  });
+
+  test('call init prior to script inclusion', async () => {
+    const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
+
+    (sdkWindow.__uid2 as UID2).init({ identity });
+
+    __uid2InternalHandleScriptLoad();
+    __uid2InternalHandleScriptLoad();
+    __uid2InternalHandleScriptLoad();
+
+    sdkWindow.__uid2!.callbacks!.push(asyncCallback);
+    expect(asyncCallback).toBeCalledWith(EventType.SdkLoaded, expect.anything());
   });
 });

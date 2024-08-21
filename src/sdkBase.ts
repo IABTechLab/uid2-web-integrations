@@ -127,6 +127,10 @@ export abstract class SdkBase {
     return this._tokenPromiseHandler.createMaybeDeferredPromise(token ?? null);
   }
 
+  public initComplete(): boolean {
+    return this._initComplete;
+  }
+
   /**
    * Deprecated
    */
