@@ -74,10 +74,6 @@ export abstract class SdkBase {
     this.initInternal(opts);
   }
 
-  public isInitialized() {
-    return this._initComplete;
-  }
-
   private setInitComplete(isInitComplete: boolean) {
     this._initComplete = isInitComplete;
   }
