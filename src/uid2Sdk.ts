@@ -31,8 +31,15 @@ export class UID2Helper {
   }
 }
 
+const productDetails: ProductDetails = {
+  name: 'UID2',
+  defaultBaseUrl: 'https://prod.uidapi.com',
+  localStorageKey: 'UID2-sdk-identity',
+  cookieName: '__uid_2',
+};
+
 export class UID2 extends SdkBase {
-  private static cookieName = '__uid_2';
+  private static cookieName = productDetails.cookieName;
   // Deprecated. Integrators should never access the cookie directly!
   static get COOKIE_NAME() {
     console.warn(
@@ -40,13 +47,8 @@ export class UID2 extends SdkBase {
     );
     return UID2.cookieName;
   }
-  static get Uid2Details(): ProductDetails {
-    return {
-      name: 'UID2',
-      defaultBaseUrl: 'https://prod.uidapi.com',
-      localStorageKey: 'UID2-sdk-identity',
-      cookieName: UID2.cookieName,
-    };
+  private static get Uid2Details(): ProductDetails {
+    return productDetails;
   }
 
   static setupGoogleTag() {
@@ -122,7 +124,7 @@ export function __uid2InternalHandleScriptLoad() {
   window.__uid2Helper = new UID2Helper();
   if (callbackContainer.callback) callbackContainer.callback();
   if (window.__uid2 instanceof UID2) {
-    const config = loadConfig(UID2.Uid2Details);
+    const config = loadConfig(productDetails);
     if (config) {
       window.__uid2.init(config);
     }
