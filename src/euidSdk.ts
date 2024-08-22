@@ -1,6 +1,7 @@
 import { EventType, CallbackHandler } from './callbackManager';
 import { CallbackContainer, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
+import { UidSecureSignalProviderType } from './secureSignal_types';
 
 export * from './exports';
 
@@ -51,6 +52,7 @@ export class EUID extends SdkBase {
 declare global {
   interface Window {
     __euid: EUID | SDKSetup | undefined;
+    __euidSecureSignalProvider?: UidSecureSignalProviderType;
   }
 }
 export function assertEUID(sdk: typeof window.__euid): asserts sdk is EUID {
@@ -58,6 +60,11 @@ export function assertEUID(sdk: typeof window.__euid): asserts sdk is EUID {
 }
 
 export function __euidInternalHandleScriptLoad() {
+  if (window.__euid && 'init' in window.__euid) {
+    // This has already been run
+    return;
+  }
+
   const callbacks = window?.__euid?.callbacks || [];
   const callbackContainer: CallbackContainer = {};
   window.__euid = new EUID(callbacks, callbackContainer);

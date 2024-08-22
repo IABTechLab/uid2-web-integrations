@@ -21,24 +21,39 @@ export enum IdentityStatus {
   OPTOUT = -4,
 }
 
-export function notifyInitCallback(
-  options: InitCallbackOptions,
-  status: IdentityStatus,
-  statusText: string,
-  advertisingToken: string | undefined,
-  logger: Logger
-) {
-  if (options.callback) {
-    const payload = {
-      advertisingToken: advertisingToken,
-      advertising_token: advertisingToken,
-      status: status,
-      statusText: statusText,
-    };
-    try {
-      options.callback(payload);
-    } catch (exception) {
-      logger.warn('SDK init callback threw an exception', exception);
-    }
+export class InitCallbackManager {
+  private _initCallbacks: InitCallbackFunction[];
+
+  constructor(opts: InitCallbackOptions) {
+    this._initCallbacks = opts.callback ? [opts.callback] : [];
+  }
+
+  public addInitCallback(callback: InitCallbackFunction) {
+    this._initCallbacks.push(callback);
+  }
+
+  public getInitCallbacks() {
+    return this._initCallbacks;
+  }
+
+  public notifyInitCallbacks(
+    status: IdentityStatus,
+    statusText: string,
+    advertisingToken: string | undefined,
+    logger: Logger
+  ) {
+    this._initCallbacks.forEach((initCallback) => {
+      const payload = {
+        advertisingToken: advertisingToken,
+        advertising_token: advertisingToken,
+        status: status,
+        statusText: statusText,
+      };
+      try {
+        initCallback(payload);
+      } catch (exception) {
+        logger.warn('SDK init callback threw an exception', exception);
+      }
+    });
   }
 }

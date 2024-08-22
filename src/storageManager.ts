@@ -34,6 +34,18 @@ export class StorageManager {
     this.setValue(identity);
   }
 
+  public updateValue(opts: SdkOptions, cookieName: string, previousOpts: SdkOptions) {
+    if (opts.identity) {
+      if (previousOpts.useCookie === true) {
+        this._cookieManager.removeCookie(previousOpts);
+      } else if (!previousOpts || previousOpts.useCookie === false) {
+        this._localStorageManager.removeValue();
+      }
+      this._cookieManager = new CookieManager({ ...opts }, cookieName);
+      this.setValue(opts.identity);
+    }
+  }
+
   public setOptout() {
     const expiry = Date.now() + 72 * 60 * 60 * 1000; // 3 days - need to pick something
     const optout: OptoutIdentity = {
@@ -55,12 +67,12 @@ export class StorageManager {
       this._opts.useCookie === false &&
       this._localStorageManager.loadIdentityFromLocalStorage()
     ) {
-      this._cookieManager.removeCookie();
+      this._cookieManager.removeCookie(this._opts);
     }
   }
 
   public removeValues() {
-    this._cookieManager.removeCookie();
+    this._cookieManager.removeCookie(this._opts);
     this._localStorageManager.removeValue();
   }
 }
