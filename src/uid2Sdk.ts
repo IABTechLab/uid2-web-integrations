@@ -121,7 +121,7 @@ export function __uid2InternalHandleScriptLoad() {
   window.__uid2 = new UID2(callbacks, callbackContainer);
   window.__uid2Helper = new UID2Helper();
   if (callbackContainer.callback) callbackContainer.callback();
-  if (window.__uid2 instanceof UID2 && window.__uid2.isInitialized()) {
+  if (window.__uid2 instanceof UID2 && window.__uid2.isInitComplete()) {
     const config = loadConfig(UID2.Uid2Details);
     if (config) {
       window.__uid2.init(config);

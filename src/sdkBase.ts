@@ -133,7 +133,7 @@ export abstract class SdkBase {
     return this._tokenPromiseHandler.createMaybeDeferredPromise(token ?? null);
   }
 
-  public initComplete(): boolean {
+  public isInitComplete(): boolean {
     return this._initComplete;
   }
 
@@ -147,10 +147,6 @@ export abstract class SdkBase {
   public hasIdentity() {
     if (!this._initComplete) return undefined;
     return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
-  }
-
-  public isInitialized() {
-    return this._initComplete;
   }
 
   public hasOptedOut() {
@@ -195,7 +191,7 @@ export abstract class SdkBase {
       throw new TypeError('Calling init() once aborted or disconnected is not allowed');
     }
 
-    if (this.isInitialized()) {
+    if (this.isInitComplete()) {
       const previousOpts = { ...this._opts };
       Object.assign(this._opts, opts);
 
