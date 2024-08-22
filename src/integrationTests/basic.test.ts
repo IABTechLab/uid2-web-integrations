@@ -1067,15 +1067,8 @@ describe('Include sdk script multiple times', () => {
 
 describe('SDK bootstraps itself if init has already been completed', () => {
   const makeIdentity = mocks.makeIdentityV2;
-  let asyncCallback: jest.Mock<CallbackHandler>;
-  const debugOutput = false;
-
-  asyncCallback = jest.fn((event, payload) => {
-    if (debugOutput) {
-      console.log('Async Callback Event:', event);
-      console.log('Payload:', payload);
-    }
-  });
+  const email = 'test@test.com';
+  const emailHash = 'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=';
 
   beforeEach(() => {
     sdkWindow.__uid2 = new UID2();
@@ -1086,25 +1079,30 @@ describe('SDK bootstraps itself if init has already been completed', () => {
 
     uid2.init({ identity });
 
-    // mimicking closing the page
+    // mimicking closing the page, but not re-calling the UID2 constructor
     sdkWindow.__uid2 = undefined;
 
     __uid2InternalHandleScriptLoad();
 
     expect(uid2.getAdvertisingToken()).toBe(identity.advertising_token);
     expect(uid2.getIdentity()).toStrictEqual(identity);
-    // expect(() => uid2.setIdentityFromEmail('test@test.com', mocks.makeCstgOption())).not.toThrow(
-    //   error
-    // );
-    // expect(() =>
-    //   uid2.setIdentityFromEmailHash(
-    //     'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=',
-    //     mocks.makeCstgOption()
-    //   )
-    // ).not.toThrow(error);
+    expect(async () => {
+      await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
+    }).not.toThrow();
+    expect(async () => {
+      uid2.setIdentityFromEmailHash(emailHash, mocks.makeCstgOption());
+    }).not.toThrow();
   });
 
   test('sdk does not bootstrap if no init has occurred', async () => {
     __uid2InternalHandleScriptLoad();
+    expect(uid2.getAdvertisingToken()).toBe(undefined);
+    expect(uid2.getIdentity()).toStrictEqual(null);
+    expect(async () => {
+      await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
+    }).rejects.toThrow();
+    expect(async () => {
+      await uid2.setIdentityFromEmailHash(emailHash, mocks.makeCstgOption());
+    }).rejects.toThrow();
   });
 });

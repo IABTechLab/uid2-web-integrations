@@ -2,6 +2,7 @@ import { EventType, CallbackHandler } from './callbackManager';
 import { CallbackContainer, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
 import { UidSecureSignalProviderType } from './secureSignal_types';
+import { loadConfig } from './configManager';
 
 export * from './exports';
 
@@ -14,7 +15,7 @@ export class EUID extends SdkBase {
     );
     return EUID.cookieName;
   }
-  private static get EuidDetails(): ProductDetails {
+  static get EuidDetails(): ProductDetails {
     return {
       name: 'EUID',
       defaultBaseUrl: 'https://prod.euid.eu',
@@ -69,6 +70,12 @@ export function __euidInternalHandleScriptLoad() {
   const callbackContainer: CallbackContainer = {};
   window.__euid = new EUID(callbacks, callbackContainer);
   if (callbackContainer.callback) callbackContainer.callback();
+  if (window.__uid2 instanceof EUID) {
+    const config = loadConfig(EUID.EuidDetails);
+    if (config) {
+      window.__uid2.init(config);
+    }
+  }
 }
 __euidInternalHandleScriptLoad();
 

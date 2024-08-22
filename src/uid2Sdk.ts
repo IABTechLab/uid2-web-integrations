@@ -125,7 +125,6 @@ export function __uid2InternalHandleScriptLoad() {
     const config = loadConfig(UID2.Uid2Details);
     if (config) {
       window.__uid2.init(config);
-      console.log('bootstrapping');
     }
   }
 }
