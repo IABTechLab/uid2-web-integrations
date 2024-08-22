@@ -46,10 +46,6 @@ export class StorageManager {
     }
   }
 
-  public updateUseCookie(useCookie: boolean) {
-    this._opts.useCookie = useCookie;
-  }
-
   public setOptout() {
     const expiry = Date.now() + 72 * 60 * 60 * 1000; // 3 days - need to pick something
     const optout: OptoutIdentity = {
