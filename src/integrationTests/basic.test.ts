@@ -3,6 +3,9 @@ import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globa
 import * as mocks from '../mocks';
 import { __uid2InternalHandleScriptLoad, sdkWindow, UID2 } from '../uid2Sdk';
 import { CallbackHandler, EventType } from '../callbackManager';
+import { ProductDetails } from '../product';
+import { loadConfig } from '../configManager';
+import { error } from 'console';
 
 let callback: any;
 let uid2: UID2;
@@ -1059,5 +1062,49 @@ describe('Include sdk script multiple times', () => {
 
     sdkWindow.__uid2!.callbacks!.push(asyncCallback);
     expect(asyncCallback).toBeCalledWith(EventType.SdkLoaded, expect.anything());
+  });
+});
+
+describe('SDK bootstraps itself if init has already been completed', () => {
+  const makeIdentity = mocks.makeIdentityV2;
+  let asyncCallback: jest.Mock<CallbackHandler>;
+  const debugOutput = false;
+
+  asyncCallback = jest.fn((event, payload) => {
+    if (debugOutput) {
+      console.log('Async Callback Event:', event);
+      console.log('Payload:', payload);
+    }
+  });
+
+  beforeEach(() => {
+    sdkWindow.__uid2 = new UID2();
+  });
+
+  test('sdk bootstraps with config after init has already been called', async () => {
+    const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
+
+    uid2.init({ identity });
+
+    // mimicking closing the page
+    sdkWindow.__uid2 = undefined;
+
+    __uid2InternalHandleScriptLoad();
+
+    expect(uid2.getAdvertisingToken()).toBe(identity.advertising_token);
+    expect(uid2.getIdentity()).toStrictEqual(identity);
+    // expect(() => uid2.setIdentityFromEmail('test@test.com', mocks.makeCstgOption())).not.toThrow(
+    //   error
+    // );
+    // expect(() =>
+    //   uid2.setIdentityFromEmailHash(
+    //     'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=',
+    //     mocks.makeCstgOption()
+    //   )
+    // ).not.toThrow(error);
+  });
+
+  test('sdk does not bootstrap if no init has occurred', async () => {
+    __uid2InternalHandleScriptLoad();
   });
 });
