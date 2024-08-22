@@ -548,13 +548,8 @@ describe('Store config UID2', () => {
       let storageConfig = loadConfig(productDetails);
       expect(storageConfig).toBeInstanceOf(Object);
       expect(storageConfig).toHaveProperty('cookieDomain');
-<<<<<<< HEAD
-      removeConfig(options, productDetails);
-      storageConfig = loadConfig(productDetails);
-=======
       removeConfig(previousOptions, productDetails);
-      storageConfig = loadConfig(options, productDetails);
->>>>>>> main
+      storageConfig = loadConfig(productDetails);
       expect(storageConfig).toBeNull();
     });
   });
