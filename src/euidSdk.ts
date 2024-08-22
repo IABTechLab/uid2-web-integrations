@@ -70,10 +70,10 @@ export function __euidInternalHandleScriptLoad() {
   const callbackContainer: CallbackContainer = {};
   window.__euid = new EUID(callbacks, callbackContainer);
   if (callbackContainer.callback) callbackContainer.callback();
-  if (window.__uid2 instanceof EUID) {
+  if (window.__euid instanceof EUID) {
     const config = loadConfig(EUID.EuidDetails);
     if (config) {
-      window.__uid2.init(config);
+      window.__euid.init(config);
     }
   }
 }
