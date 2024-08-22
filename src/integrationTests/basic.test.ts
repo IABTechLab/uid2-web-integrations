@@ -1071,7 +1071,7 @@ describe('SDK bootstraps itself if init has already been completed', () => {
     sdkWindow.__uid2 = new UID2();
   });
 
-  test('sdk bootstraps with config after init has already been called', async () => {
+  test('should bootstrap therefore public functions should return the correct values without calling init again', async () => {
     const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
 
     uid2.init({ identity });
@@ -1091,7 +1091,7 @@ describe('SDK bootstraps itself if init has already been completed', () => {
     }).not.toThrow();
   });
 
-  test('sdk does not bootstrap if no init has occurred', async () => {
+  test('should not bootstrap therefore public functions error or return undefined/null', async () => {
     __uid2InternalHandleScriptLoad();
     expect(uid2.getAdvertisingToken()).toBe(undefined);
     expect(uid2.getIdentity()).toStrictEqual(null);
