@@ -36,9 +36,18 @@ export const loadConfig = (
   }
 };
 
-export const removeConfig = (options: SdkOptions, productDetails: ProductDetails) => {
-  if (options.useCookie) {
-    removeConfigCookie(options, productDetails);
+export const updateConfig = (
+  options: SdkOptions,
+  productDetails: ProductDetails,
+  previousOptions: SdkOptions
+) => {
+  removeConfig(previousOptions, productDetails);
+  storeConfig(options, productDetails);
+};
+
+export const removeConfig = (previousOptions: SdkOptions, productDetails: ProductDetails) => {
+  if (previousOptions.useCookie) {
+    removeConfigCookie(previousOptions, productDetails);
   } else {
     removeConfigFromLocalStorage(productDetails);
   }
@@ -56,9 +65,15 @@ const setConfigCookie = (options: SdkOptions, productDetails: ProductDetails) =>
   document.cookie = cookie;
 };
 
-const removeConfigCookie = (options: SdkOptions, productDetails: ProductDetails) => {
+const removeConfigCookie = (previousOptions: SdkOptions, productDetails: ProductDetails) => {
   document.cookie =
-    productDetails.cookieName + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
+    productDetails.cookieName +
+    '_config' +
+    '=;path=' +
+    (previousOptions.cookiePath ?? '/') +
+    ';domain=' +
+    (previousOptions.cookieDomain ?? '') +
+    ';expires=Tue, 1 Jan 1980 23:59:59 GMT';
 };
 
 const getConfigCookie = (productDetails: ProductDetails) => {

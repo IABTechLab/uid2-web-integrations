@@ -1,6 +1,6 @@
 import { version } from '../package.json';
 import { OptoutIdentity, Identity, isOptoutIdentity } from './Identity';
-import { IdentityStatus, notifyInitCallback } from './initCallbacks';
+import { IdentityStatus, InitCallbackManager } from './initCallbacks';
 import { SdkOptions, isSDKOptionsOrThrow } from './sdkOptions';
 import { Logger, MakeLogger } from './sdk/logger';
 import { ApiClient } from './apiClient';
@@ -15,7 +15,7 @@ import { PromiseHandler } from './promiseHandler';
 import { StorageManager } from './storageManager';
 import { hashAndEncodeIdentifier } from './encoding/hash';
 import { ProductDetails, ProductName } from './product';
-import { storeConfig } from './configManager';
+import { storeConfig, updateConfig } from './configManager';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -46,12 +46,14 @@ export abstract class SdkBase {
   // Dependencies initialised on call to init due to requirement for options
   private _storageManager: StorageManager | undefined;
   private _apiClient: ApiClient | undefined;
+  private _initCallbackManager: InitCallbackManager | undefined;
 
   // State
   protected _product: ProductDetails;
   private _opts: SdkOptions = {};
   private _identity: Identity | OptoutIdentity | null | undefined;
   private _initComplete = false;
+  private _hasAborted = false;
 
   // Sets up nearly everything, but does not run SdkLoaded callbacks - derived classes must run them.
   protected constructor(existingCallbacks: CallbackHandler[] | undefined, product: ProductDetails) {
@@ -70,6 +72,14 @@ export abstract class SdkBase {
 
   public init(opts: SdkOptions) {
     this.initInternal(opts);
+  }
+
+  public isInitialized() {
+    return this._initComplete;
+  }
+
+  private setInitComplete(isInitComplete: boolean) {
+    this._initComplete = isInitComplete;
   }
 
   public getAdvertisingToken() {
@@ -166,7 +176,7 @@ export abstract class SdkBase {
 
   // Note: This doesn't invoke callbacks. It's a hard, silent reset.
   public abort(reason?: string) {
-    this._initComplete = true;
+    this._hasAborted = true;
     this._tokenPromiseHandler.rejectAllPromises(
       reason ?? new Error(`${this._product.name} SDK aborted.`)
     );
@@ -178,33 +188,74 @@ export abstract class SdkBase {
   }
 
   private initInternal(opts: SdkOptions | unknown) {
-    if (this._initComplete) {
-      throw new TypeError('Calling init() more than once is not allowed');
-    }
     if (!isSDKOptionsOrThrow(opts))
       throw new TypeError(`Options provided to ${this._product.name} init couldn't be validated.`);
 
-    storeConfig(opts, this._product);
-
-    this._opts = opts;
-    this._storageManager = new StorageManager(
-      { ...opts },
-      this._product.cookieName,
-      this._product.localStorageKey
-    );
-    this._apiClient = new ApiClient(opts, this._product.defaultBaseUrl, this._product.name);
-    this._tokenPromiseHandler.registerApiClient(this._apiClient);
-
-    let identity;
-    if (this._opts.identity) {
-      identity = this._opts.identity;
-    } else {
-      identity = this._storageManager.loadIdentityWithFallback();
+    if (this._hasAborted) {
+      throw new TypeError('Calling init() once aborted or disconnected is not allowed');
     }
-    const validatedIdentity = this.validateAndSetIdentity(identity);
-    if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
-      this.triggerRefreshOrSetTimer(validatedIdentity);
-    this._initComplete = true;
+
+    if (this.isInitialized()) {
+      const previousOpts = { ...this._opts };
+      Object.assign(this._opts, opts);
+
+      if (opts.baseUrl && opts.baseUrl !== previousOpts.baseUrl) {
+        this._apiClient?.updateBaseUrl(opts.baseUrl);
+        this._logger.log('BaseUrl updated for ApiClient');
+      }
+
+      if (opts.callback && opts.callback !== previousOpts.callback) {
+        this._initCallbackManager?.addInitCallback(opts.callback);
+        this._logger.log('init callback added to list');
+      }
+
+      const useNewIdentity =
+        opts.identity &&
+        (!previousOpts.identity ||
+          opts.identity.identity_expires > previousOpts.identity.identity_expires);
+      if (useNewIdentity || opts.callback) {
+        let identity = useNewIdentity ? opts.identity : previousOpts.identity ?? null;
+        if (identity) {
+          this.handleNewIdentity(identity);
+        }
+      }
+
+      if (opts.refreshRetryPeriod && previousOpts.refreshRetryPeriod !== opts.refreshRetryPeriod) {
+        this.setRefreshTimer();
+        this._logger.log('new refresh period set and refresh timer set');
+      }
+
+      updateConfig(this._opts, this._product, previousOpts);
+      this._storageManager = new StorageManager(
+        this._opts,
+        this._product.cookieName,
+        this._product.localStorageKey
+      );
+      this._storageManager?.updateValue(this._opts, this._product.cookieName, previousOpts);
+    } else {
+      storeConfig(opts, this._product);
+      this._opts = opts;
+      this._storageManager = new StorageManager(
+        { ...opts },
+        this._product.cookieName,
+        this._product.localStorageKey
+      );
+
+      this._apiClient = new ApiClient(opts, this._product.defaultBaseUrl, this._product.name);
+      this._tokenPromiseHandler.registerApiClient(this._apiClient);
+
+      this._initCallbackManager = new InitCallbackManager(opts);
+
+      let identity;
+      if (this._opts.identity) {
+        identity = this._opts.identity;
+      } else {
+        identity = this._storageManager.loadIdentityWithFallback();
+      }
+      this.handleNewIdentity(identity);
+    }
+
+    this.setInitComplete(true);
     this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
     if (this.hasOptedOut()) this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
   }
@@ -323,9 +374,9 @@ export abstract class SdkBase {
       this.abort();
       this._storageManager.removeValues();
     }
+
     this._identity = this._storageManager.loadIdentity();
-    notifyInitCallback(
-      this._opts,
+    this._initCallbackManager?.notifyInitCallbacks(
       status ?? validity.status,
       statusText ?? validity.errorMessage,
       this.getAdvertisingToken(),
@@ -340,6 +391,12 @@ export abstract class SdkBase {
     } else {
       this.setRefreshTimer();
     }
+  }
+
+  private handleNewIdentity(identity: Identity | OptoutIdentity | null) {
+    const validatedIdentity = this.validateAndSetIdentity(identity);
+    if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
+      this.triggerRefreshOrSetTimer(validatedIdentity);
   }
 
   private _refreshTimerId: ReturnType<typeof setTimeout> | null = null;

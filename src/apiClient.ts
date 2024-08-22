@@ -127,6 +127,10 @@ export class ApiClient {
     return this._requestsInFlight.length > 0;
   }
 
+  public updateBaseUrl(newBaseUrl: string) {
+    this._baseUrl = newBaseUrl;
+  }
+
   private ResponseToRefreshResult(
     response: UnvalidatedRefreshResponse | unknown
   ): RefreshResult | string {

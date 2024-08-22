@@ -134,9 +134,9 @@ testCookieAndLocalStorage(() => {
     });
   });
 
-  test('init() should fail if called multiple times', () => {
-    uid2.init({ callback: () => {} });
-    expect(() => uid2.init({ callback: () => {} })).toThrow();
+  test('init() should not fail if called multiple times', () => {
+    uid2.init({ callback: () => {}, identity: makeIdentityV2() });
+    expect(() => uid2.init({ callback: () => {} })).not.toThrow();
   });
 
   describe('when initialised without identity', () => {
