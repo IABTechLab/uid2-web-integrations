@@ -62,6 +62,15 @@ export function assertEUID(sdk: typeof window.__euid): asserts sdk is EUID {
   if (!(sdk instanceof EUID)) throw new Error(sdkAssertErrorText('EUID', 'assertEUID'));
 }
 
+function bootStrapInit() {
+  if (window.__euid instanceof EUID) {
+    const config = loadConfig(productDetails);
+    if (config) {
+      window.__euid.init(config);
+    }
+  }
+}
+
 export function __euidInternalHandleScriptLoad() {
   if (window.__euid && 'init' in window.__euid) {
     // This has already been run
@@ -72,12 +81,7 @@ export function __euidInternalHandleScriptLoad() {
   const callbackContainer: CallbackContainer = {};
   window.__euid = new EUID(callbacks, callbackContainer);
   if (callbackContainer.callback) callbackContainer.callback();
-  if (window.__euid instanceof EUID) {
-    const config = loadConfig(productDetails);
-    if (config) {
-      window.__euid.init(config);
-    }
-  }
+  bootStrapInit();
 }
 __euidInternalHandleScriptLoad();
 
