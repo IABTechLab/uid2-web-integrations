@@ -6,8 +6,15 @@ import { loadConfig } from './configManager';
 
 export * from './exports';
 
+const productDetails: ProductDetails = {
+  name: 'EUID',
+  defaultBaseUrl: 'https://prod.euid.eu',
+  localStorageKey: 'EUID-sdk-identity',
+  cookieName: '__euid',
+};
+
 export class EUID extends SdkBase {
-  private static cookieName = '__euid';
+  private static cookieName = productDetails.cookieName;
   // Deprecated. Integrators should never access the cookie directly!
   static get COOKIE_NAME() {
     console.warn(
@@ -16,12 +23,7 @@ export class EUID extends SdkBase {
     return EUID.cookieName;
   }
   static get EuidDetails(): ProductDetails {
-    return {
-      name: 'EUID',
-      defaultBaseUrl: 'https://prod.euid.eu',
-      localStorageKey: 'EUID-sdk-identity',
-      cookieName: EUID.cookieName,
-    };
+    return productDetails;
   }
 
   static setupGoogleTag() {
@@ -71,7 +73,7 @@ export function __euidInternalHandleScriptLoad() {
   window.__euid = new EUID(callbacks, callbackContainer);
   if (callbackContainer.callback) callbackContainer.callback();
   if (window.__euid instanceof EUID) {
-    const config = loadConfig(EUID.EuidDetails);
+    const config = loadConfig(productDetails);
     if (config) {
       window.__euid.init(config);
     }
