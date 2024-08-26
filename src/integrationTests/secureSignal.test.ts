@@ -184,6 +184,9 @@ describe('Secure Signal Tests', () => {
     });
 
     describe('When SDK initialized after both SDK and SS script loaded - UID2', () => {
+      beforeEach(() => {
+        window.__uid2 = new UID2();
+      });
       test('should send identity to Google ESP', async () => {
         __uid2InternalHandleScriptLoad();
         __uid2SSProviderScriptLoad();

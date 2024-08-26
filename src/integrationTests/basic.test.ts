@@ -1061,3 +1061,45 @@ describe('Include sdk script multiple times', () => {
     expect(asyncCallback).toBeCalledWith(EventType.SdkLoaded, expect.anything());
   });
 });
+
+describe('SDK bootstraps itself if init has already been completed', () => {
+  const makeIdentity = mocks.makeIdentityV2;
+  const email = 'test@test.com';
+  const emailHash = 'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=';
+
+  beforeEach(() => {
+    sdkWindow.__uid2 = new UID2();
+  });
+
+  test('should bootstrap therefore public functions should return the correct values without calling init again', async () => {
+    const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
+
+    uid2.init({ identity });
+
+    // mimicking closing the page, but not re-calling the UID2 constructor
+    sdkWindow.__uid2 = undefined;
+
+    __uid2InternalHandleScriptLoad();
+
+    expect(uid2.getAdvertisingToken()).toBe(identity.advertising_token);
+    expect(uid2.getIdentity()).toStrictEqual(identity);
+    expect(async () => {
+      await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
+    }).not.toThrow();
+    expect(async () => {
+      uid2.setIdentityFromEmailHash(emailHash, mocks.makeCstgOption());
+    }).not.toThrow();
+  });
+
+  test('should not bootstrap therefore public functions error or return undefined/null', async () => {
+    __uid2InternalHandleScriptLoad();
+    expect(uid2.getAdvertisingToken()).toBe(undefined);
+    expect(uid2.getIdentity()).toStrictEqual(null);
+    expect(async () => {
+      await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
+    }).rejects.toThrow();
+    expect(async () => {
+      await uid2.setIdentityFromEmailHash(emailHash, mocks.makeCstgOption());
+    }).rejects.toThrow();
+  });
+});

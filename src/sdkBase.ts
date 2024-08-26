@@ -74,10 +74,6 @@ export abstract class SdkBase {
     this.initInternal(opts);
   }
 
-  public isInitialized() {
-    return this._initComplete;
-  }
-
   private setInitComplete(isInitComplete: boolean) {
     this._initComplete = isInitComplete;
   }
@@ -137,7 +133,7 @@ export abstract class SdkBase {
     return this._tokenPromiseHandler.createMaybeDeferredPromise(token ?? null);
   }
 
-  public initComplete(): boolean {
+  public isInitComplete(): boolean {
     return this._initComplete;
   }
 
@@ -195,7 +191,7 @@ export abstract class SdkBase {
       throw new TypeError('Calling init() once aborted or disconnected is not allowed');
     }
 
-    if (this.isInitialized()) {
+    if (this.isInitComplete()) {
       const previousOpts = { ...this._opts };
       Object.assign(this._opts, opts);
 

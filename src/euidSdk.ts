@@ -2,11 +2,19 @@ import { EventType, CallbackHandler } from './callbackManager';
 import { CallbackContainer, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
 import { UidSecureSignalProviderType } from './secureSignal_types';
+import { loadConfig } from './configManager';
 
 export * from './exports';
 
+const productDetails: ProductDetails = {
+  name: 'EUID',
+  defaultBaseUrl: 'https://prod.euid.eu',
+  localStorageKey: 'EUID-sdk-identity',
+  cookieName: '__euid',
+};
+
 export class EUID extends SdkBase {
-  private static cookieName = '__euid';
+  private static cookieName = productDetails.cookieName;
   // Deprecated. Integrators should never access the cookie directly!
   static get COOKIE_NAME() {
     console.warn(
@@ -14,13 +22,8 @@ export class EUID extends SdkBase {
     );
     return EUID.cookieName;
   }
-  private static get EuidDetails(): ProductDetails {
-    return {
-      name: 'EUID',
-      defaultBaseUrl: 'https://prod.euid.eu',
-      localStorageKey: 'EUID-sdk-identity',
-      cookieName: EUID.cookieName,
-    };
+  static get EuidDetails(): ProductDetails {
+    return productDetails;
   }
 
   static setupGoogleTag() {
@@ -59,6 +62,15 @@ export function assertEUID(sdk: typeof window.__euid): asserts sdk is EUID {
   if (!(sdk instanceof EUID)) throw new Error(sdkAssertErrorText('EUID', 'assertEUID'));
 }
 
+function bootstrapInit() {
+  if (window.__euid instanceof EUID) {
+    const config = loadConfig(productDetails);
+    if (config) {
+      window.__euid.init(config);
+    }
+  }
+}
+
 export function __euidInternalHandleScriptLoad() {
   if (window.__euid && 'init' in window.__euid) {
     // This has already been run
@@ -69,6 +81,7 @@ export function __euidInternalHandleScriptLoad() {
   const callbackContainer: CallbackContainer = {};
   window.__euid = new EUID(callbacks, callbackContainer);
   if (callbackContainer.callback) callbackContainer.callback();
+  bootstrapInit();
 }
 __euidInternalHandleScriptLoad();
 

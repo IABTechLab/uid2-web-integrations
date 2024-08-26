@@ -25,12 +25,10 @@ export const storeConfig = (options: SdkOptions, productDetails: ProductDetails)
   }
 };
 
-export const loadConfig = (
-  options: SdkOptions,
-  productDetails: ProductDetails
-): storedConfig | null => {
-  if (options.useCookie) {
-    return loadConfigFromCookie(productDetails);
+export const loadConfig = (productDetails: ProductDetails): storedConfig | null => {
+  const configCookie = loadConfigFromCookie(productDetails);
+  if (configCookie) {
+    return configCookie;
   } else {
     return loadConfigFromLocalStorage(productDetails);
   }
