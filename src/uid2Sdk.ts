@@ -112,7 +112,7 @@ export function assertUID2(sdk: typeof window.__uid2): asserts sdk is UID2 {
   if (!(sdk instanceof UID2)) throw new Error(sdkAssertErrorText('UID2', 'assertUID2'));
 }
 
-function bootStrapInit() {
+function bootstrapInit() {
   if (window.__uid2 instanceof UID2) {
     const config = loadConfig(productDetails);
     if (config) {
@@ -132,7 +132,7 @@ export function __uid2InternalHandleScriptLoad() {
   window.__uid2 = new UID2(callbacks, callbackContainer);
   window.__uid2Helper = new UID2Helper();
   if (callbackContainer.callback) callbackContainer.callback();
-  bootStrapInit();
+  bootstrapInit();
 }
 __uid2InternalHandleScriptLoad();
 
