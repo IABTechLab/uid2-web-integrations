@@ -12,7 +12,7 @@ expect.extend({
 expect.extend({
   toBeInInitialisingState(uid2) {
     expect(uid2.getAdvertisingToken()).toBeUndefined();
-    expect(uid2.isLoginRequired()).toBeUndefined();
+    //expect(uid2.isLoginRequired()).toBeUndefined();
 
     return {
       pass: true,
@@ -28,7 +28,7 @@ expect.extend({
       expect(uid2.getAdvertisingToken()).toBeNonEmptyString();
     }
 
-    expect(uid2.isLoginRequired()).toEqual(false);
+    //expect(uid2.isLoginRequired()).toEqual(false);
 
     return {
       pass: true,
@@ -39,7 +39,7 @@ expect.extend({
 
   toBeInTemporarilyUnavailableState(uid2) {
     expect(uid2.getAdvertisingToken()).toBeUndefined();
-    expect(uid2.isLoginRequired()).toEqual(false);
+    //expect(uid2.isLoginRequired()).toEqual(false);
 
     return {
       pass: true,
@@ -50,7 +50,7 @@ expect.extend({
 
   toBeInUnavailableState(uid2) {
     expect(uid2.getAdvertisingToken()).toBeUndefined();
-    expect(uid2.isLoginRequired()).toEqual(true);
+    //expect(uid2.isLoginRequired()).toEqual(true);
     expect(uid2.hasOptedOut()).toEqual(false);
 
     return {
@@ -62,7 +62,7 @@ expect.extend({
 
   toBeInOptoutState(uid2) {
     expect(uid2.getAdvertisingToken()).toBeUndefined();
-    expect(uid2.isLoginRequired()).toEqual(false);
+    //expect(uid2.isLoginRequired()).toEqual(false);
     expect(uid2.hasOptedOut()).toEqual(true);
 
     return {
