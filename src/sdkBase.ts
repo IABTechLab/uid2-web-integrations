@@ -121,6 +121,15 @@ export abstract class SdkBase {
   }
 
   public getIdentity(): Identity | null {
+    // let identity;
+    // if (this._identity) {
+    //   identity = this._identity;
+    // } else {
+    //   identity = this._storageManager?.loadIdentity();
+    // }
+    // return identity && !this.temporarilyUnavailable() && !isOptoutIdentity(identity)
+    //   ? identity
+    //   : null;
     return this._identity && !this.temporarilyUnavailable() && !isOptoutIdentity(this._identity)
       ? this._identity
       : null;
@@ -146,8 +155,7 @@ export abstract class SdkBase {
 
   public hasIdentity() {
     if (!this._initComplete) return undefined;
-    //return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
-    return !this.isLoggedIn();
+    return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
   }
 
   public hasOptedOut() {

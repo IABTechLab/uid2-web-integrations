@@ -1116,21 +1116,16 @@ describe('Public functions can be called without init', () => {
   test('should be able to find token from previous init', async () => {
     const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
 
+    //mocks.setUid2LocalStorage(identity);
     uid2.init({ identity });
 
     // mimicking closing the page, but not re-calling the UID2 constructor
     sdkWindow.__uid2 = undefined;
 
-    //__uid2InternalHandleScriptLoad();
-
-    const testToken = uid2.getAdvertisingToken();
-    const testIdentity = uid2.getIdentity();
-    const hasIdentity = uid2.hasIdentity();
-    const hasOptedOut = uid2.hasOptedOut();
-    //expect(uid2.getAdvertisingToken()).toBe(identity.advertising_token);
-    //expect(uid2.getIdentity()).toStrictEqual(identity);
-    //expect(uid2.hasIdentity()).toBe(true);
-    //expect(uid2.hasOptedOut()).toBe(true);
+    expect(uid2.getAdvertisingToken()).toBe(identity.advertising_token);
+    expect(uid2.getIdentity()).toStrictEqual(identity);
+    expect(uid2.getAdvertisingTokenAsync()).resolves.toBe(identity.advertising_token);
+    expect(uid2.isLoginRequired()).toBe(false);
     expect(async () => {
       await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
     }).not.toThrow();
