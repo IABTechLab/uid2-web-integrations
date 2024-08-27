@@ -38,7 +38,7 @@ export class PromiseHandler {
   // n.b. If this has seen an SDK init and there is no active request or a reject-all call, it'll reply immediately with the provided token or rejection.
   // Otherwise, it will ignore the provided token and resolve with the identity available when the init event arrives
   public createMaybeDeferredPromise(token: string | null) {
-    if (!this._seenInitOrRejectAll || (this._apiClient && this._apiClient.hasActiveRequests())) {
+    if (!this._seenInitOrRejectAll) {
       return new Promise<string>((resolve, reject) => {
         this._promises.push({
           resolve,
