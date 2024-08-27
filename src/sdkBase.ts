@@ -147,7 +147,7 @@ export abstract class SdkBase {
   public hasIdentity() {
     if (!this._initComplete) return undefined;
     //return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
-    return this.isLoggedIn();
+    return !this.isLoggedIn();
   }
 
   public hasOptedOut() {
