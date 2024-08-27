@@ -25,13 +25,17 @@ export class StorageManager {
   }
 
   public loadIdentity(): Identity | OptoutIdentity | null {
+    const cookieIdentity = this._cookieManager.loadIdentityFromCookie();
+    const localStorageIdentity = this._localStorageManager.loadIdentityFromLocalStorage();
+    if (cookieIdentity !== null) {
+      return this._cookieManager.loadIdentityFromCookie();
+    } else {
+      return this._localStorageManager.loadIdentityFromLocalStorage();
+    }
+
     // return this._opts.useCookie
     //   ? this._cookieManager.loadIdentityFromCookie()
     //   : this._localStorageManager.loadIdentityFromLocalStorage();
-    return (
-      this._cookieManager.loadIdentityFromCookie() ??
-      this._localStorageManager.loadIdentityFromLocalStorage()
-    );
   }
 
   public setIdentity(identity: Identity) {
@@ -67,10 +71,7 @@ export class StorageManager {
     }
 
     this._localStorageManager.setValue(value);
-    if (
-      this._opts.useCookie === false &&
-      this._localStorageManager.loadIdentityFromLocalStorage()
-    ) {
+    if (!this._opts.useCookie && this._localStorageManager.loadIdentityFromLocalStorage()) {
       this._cookieManager.removeCookie(this._opts);
     }
   }
