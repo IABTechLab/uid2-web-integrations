@@ -68,7 +68,7 @@ expect.extend({
     return {
       pass: true,
       message: () =>
-          'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns false',
+        'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns false',
     };
   },
 });

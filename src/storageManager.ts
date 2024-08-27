@@ -25,9 +25,13 @@ export class StorageManager {
   }
 
   public loadIdentity(): Identity | OptoutIdentity | null {
-    return this._opts.useCookie
-      ? this._cookieManager.loadIdentityFromCookie()
-      : this._localStorageManager.loadIdentityFromLocalStorage();
+    // return this._opts.useCookie
+    //   ? this._cookieManager.loadIdentityFromCookie()
+    //   : this._localStorageManager.loadIdentityFromLocalStorage();
+    return (
+      this._cookieManager.loadIdentityFromCookie() ??
+      this._localStorageManager.loadIdentityFromLocalStorage()
+    );
   }
 
   public setIdentity(identity: Identity) {
