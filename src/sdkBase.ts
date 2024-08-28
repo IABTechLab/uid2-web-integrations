@@ -85,7 +85,7 @@ export abstract class SdkBase {
 
   public async setIdentityFromEmail(email: string, opts: ClientSideIdentityOptions) {
     this._logger.log('Sending request', email);
-    this.throwIfInitNotComplete('Cannot set identity before calling init.');
+    //this.throwIfInitNotComplete('Cannot set identity before calling init.');
     isClientSideIdentityOptionsOrThrow(opts, this._product.name);
 
     const normalizedEmail = normalizeEmail(email);
@@ -98,7 +98,7 @@ export abstract class SdkBase {
   }
 
   public async setIdentityFromEmailHash(emailHash: string, opts: ClientSideIdentityOptions) {
-    this.throwIfInitNotComplete('Cannot set identity before calling init.');
+    //this.throwIfInitNotComplete('Cannot set identity before calling init.');
     isClientSideIdentityOptionsOrThrow(opts, this._product.name);
 
     if (!isBase64Hash(emailHash)) {
