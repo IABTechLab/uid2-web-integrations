@@ -461,6 +461,11 @@ export abstract class SdkBase {
     if (payload) {
       const result = JSON.parse(payload) as unknown;
       if (isValidIdentity(result) || isOptoutIdentity(result)) return result;
+      if (isLegacyCookie(result)) {
+        return enrichIdentity(result, Date.now());
+        //this.setCookie(newCookie);
+        //return newCookie;
+      }
     }
     return null;
   }
