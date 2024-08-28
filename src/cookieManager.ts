@@ -20,7 +20,7 @@ export function isLegacyCookie(cookie: unknown): cookie is LegacySDKCookie {
   return false;
 }
 
-function enrichIdentity(identity: LegacySDKCookie, now: number) {
+export function enrichIdentity(identity: LegacySDKCookie, now: number) {
   return {
     refresh_from: now,
     refresh_expires: now + 7 * 86400 * 1000, // 7 days

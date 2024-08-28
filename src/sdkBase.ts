@@ -1,5 +1,5 @@
 import { version } from '../package.json';
-import { OptoutIdentity, Identity, isOptoutIdentity } from './Identity';
+import { OptoutIdentity, Identity, isOptoutIdentity, isValidIdentity } from './Identity';
 import { IdentityStatus, InitCallbackManager } from './initCallbacks';
 import { SdkOptions, isSDKOptionsOrThrow } from './sdkOptions';
 import { Logger, MakeLogger } from './sdk/logger';
@@ -16,6 +16,7 @@ import { StorageManager } from './storageManager';
 import { hashAndEncodeIdentifier } from './encoding/hash';
 import { ProductDetails, ProductName } from './product';
 import { storeConfig, updateConfig } from './configManager';
+import { enrichIdentity, isLegacyCookie } from './cookieManager';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -121,19 +122,12 @@ export abstract class SdkBase {
   }
 
   public getIdentity(): Identity | null {
-    // let identity;
-    // if (this._identity) {
-    //   identity = this._identity;
-    // } else {
-    //   identity = this._storageManager?.loadIdentity();
-    // }
-    // return identity && !this.temporarilyUnavailable() && !isOptoutIdentity(identity)
-    //   ? identity
-    //   : null;
-    return this._identity && !this.temporarilyUnavailable() && !isOptoutIdentity(this._identity)
-      ? this._identity
+    const identity = this._identity ?? this.getIdentityNoInit();
+    return identity && !this.temporarilyUnavailable(identity) && !isOptoutIdentity(identity)
+      ? identity
       : null;
   }
+
   // When the SDK has been initialized, this function should return the token
   // from the most recent refresh request, if there is a request, wait for the
   // new token. Otherwise, returns a promise which will be resolved after init.
@@ -150,11 +144,11 @@ export abstract class SdkBase {
    * Deprecated
    */
   public isLoginRequired() {
-    return this.hasIdentity();
+    return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
   }
 
   public hasIdentity() {
-    if (!this._initComplete) return undefined;
+    //if (!this._initComplete) return undefined;
     return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
   }
 
@@ -269,13 +263,9 @@ export abstract class SdkBase {
     return this._identity && !hasExpired(this._identity.refresh_expires);
   }
 
-  private temporarilyUnavailable() {
-    if (!this._identity && this._apiClient?.hasActiveRequests()) return true;
-    if (
-      this._identity &&
-      hasExpired(this._identity.identity_expires) &&
-      !hasExpired(this._identity.refresh_expires)
-    )
+  private temporarilyUnavailable(identity: Identity | OptoutIdentity | null | undefined) {
+    if (!identity && this._apiClient?.hasActiveRequests()) return true;
+    if (identity && hasExpired(identity.identity_expires) && !hasExpired(identity.refresh_expires))
       return true;
     return false;
   }
@@ -464,6 +454,31 @@ export abstract class SdkBase {
         },
         (reason) => this._logger.warn(`Callbacks on identity event failed.`, reason)
       );
+  }
+
+  private getIdentityNoInit() {
+    let payload = this.getCookieNoInit() ?? this.getLocalStorageValueNoInit();
+    if (payload) {
+      const result = JSON.parse(payload) as unknown;
+      if (isValidIdentity(result) || isOptoutIdentity(result)) return result;
+    }
+    return null;
+  }
+
+  private getCookieNoInit() {
+    const docCookie = document.cookie;
+    if (docCookie) {
+      const payload = docCookie
+        .split('; ')
+        .find((row) => row.startsWith(this._product.cookieName + '='));
+      if (payload) {
+        return decodeURIComponent(payload.split('=')[1]);
+      }
+    }
+  }
+
+  private getLocalStorageValueNoInit() {
+    return localStorage.getItem(this._product.localStorageKey) ?? undefined;
   }
 
   protected async callCstgAndSetIdentity(

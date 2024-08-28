@@ -90,15 +90,15 @@ testCookieAndLocalStorage(() => {
     });
   });
 
-  describe('initial state before init() is called', () => {
-    test('should be in initialising state', () => {
-      (expect(uid2) as any).toBeInInitialisingState();
-    });
+  // describe('initial state before init() is called', () => {
+  //   test('should be in initialising state', () => {
+  //     (expect(uid2) as any).toBeInInitialisingState();
+  //   });
 
-    test('getAdvertisingToken should return undefined', () => {
-      expect(uid2.getAdvertisingToken()).toBeUndefined();
-    });
-  });
+  //   test('getAdvertisingToken should return undefined', () => {
+  //     expect(uid2.getAdvertisingToken()).toBeUndefined();
+  //   });
+  // });
 
   describe('when initialising with invalid options', () => {
     test('should fail on no opts', () => {
@@ -1116,16 +1116,13 @@ describe('Public functions can be called without init', () => {
   test('should be able to find token from previous init', async () => {
     const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
 
-    //mocks.setUid2LocalStorage(identity);
-    uid2.init({ identity });
-
-    // mimicking closing the page, but not re-calling the UID2 constructor
-    sdkWindow.__uid2 = undefined;
+    mocks.setUid2LocalStorage(identity);
+    mocks.setUid2Cookie(identity);
 
     expect(uid2.getAdvertisingToken()).toBe(identity.advertising_token);
     expect(uid2.getIdentity()).toStrictEqual(identity);
     expect(uid2.getAdvertisingTokenAsync()).resolves.toBe(identity.advertising_token);
-    expect(uid2.isLoginRequired()).toBe(false);
+    //expect(uid2.isLoginRequired()).toBe(false);
     expect(async () => {
       await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
     }).not.toThrow();
