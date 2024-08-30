@@ -145,7 +145,7 @@ export abstract class SdkBase {
    * Deprecated
    */
   public isLoginRequired() {
-    return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
+    return this.hasIdentity();
   }
 
   public hasIdentity() {
