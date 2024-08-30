@@ -1,5 +1,5 @@
 import { version } from '../package.json';
-import { OptoutIdentity, Identity, isOptoutIdentity, isValidIdentity } from './Identity';
+import { OptoutIdentity, Identity, isOptoutIdentity } from './Identity';
 import { IdentityStatus, InitCallbackManager } from './initCallbacks';
 import { SdkOptions, isSDKOptionsOrThrow } from './sdkOptions';
 import { Logger, MakeLogger } from './sdk/logger';
