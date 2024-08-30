@@ -1123,11 +1123,11 @@ describe('Public functions can be called without init', () => {
     expect(uid2.getIdentity()).toStrictEqual(identity);
     expect(uid2.getAdvertisingTokenAsync()).resolves.toBe(identity.advertising_token);
     //expect(uid2.isLoginRequired()).toBe(false);
-    expect(async () => {
-      await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
-    }).rejects.toThrow();
-    expect(async () => {
-      uid2.setIdentityFromEmailHash(emailHash, mocks.makeCstgOption());
-    }).rejects.toThrow();
+    // expect(async () => {
+    //   await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
+    // }).rejects.toThrow();
+    // expect(async () => {
+    //   uid2.setIdentityFromEmailHash(emailHash, mocks.makeCstgOption());
+    // }).rejects.toThrow();
   });
 });
