@@ -20,13 +20,36 @@ export function isLegacyCookie(cookie: unknown): cookie is LegacySDKCookie {
   return false;
 }
 
-export function enrichIdentity(identity: LegacySDKCookie, now: number) {
+function enrichIdentity(identity: LegacySDKCookie, now: number) {
   return {
     refresh_from: now,
     refresh_expires: now + 7 * 86400 * 1000, // 7 days
     identity_expires: now + 4 * 3600 * 1000, // 4 hours
     ...identity,
   };
+}
+
+function getCookie(cookieName: string) {
+  const docCookie = document.cookie;
+  if (docCookie) {
+    const payload = docCookie.split('; ').find((row) => row.startsWith(cookieName + '='));
+    if (payload) {
+      return decodeURIComponent(payload.split('=')[1]);
+    }
+  }
+}
+
+export function loadIdentityFromCookieNoInit(cookieName: string): Identity | OptoutIdentity | null {
+  const payload = getCookie(cookieName);
+  if (payload) {
+    const result = JSON.parse(payload) as unknown;
+    if (isValidIdentity(result)) return result;
+    if (isOptoutIdentity(result)) return result;
+    if (isLegacyCookie(result)) {
+      return enrichIdentity(result, Date.now());
+    }
+  }
+  return null;
 }
 
 export class CookieManager {
@@ -63,13 +86,7 @@ export class CookieManager {
       ';expires=Tue, 1 Jan 1980 23:59:59 GMT';
   }
   private getCookie() {
-    const docCookie = document.cookie;
-    if (docCookie) {
-      const payload = docCookie.split('; ').find((row) => row.startsWith(this._cookieName + '='));
-      if (payload) {
-        return decodeURIComponent(payload.split('=')[1]);
-      }
-    }
+    return getCookie(this._cookieName);
   }
 
   private migrateLegacyCookie(identity: LegacySDKCookie, now: number): Identity {

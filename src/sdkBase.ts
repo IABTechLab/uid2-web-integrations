@@ -16,7 +16,8 @@ import { StorageManager } from './storageManager';
 import { hashAndEncodeIdentifier } from './encoding/hash';
 import { ProductDetails, ProductName } from './product';
 import { storeConfig, updateConfig } from './configManager';
-import { enrichIdentity, isLegacyCookie } from './cookieManager';
+import { loadIdentityFromCookieNoInit } from './cookieManager';
+import { loadIdentityFromLocalStorage } from './localStorageManager';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -85,7 +86,7 @@ export abstract class SdkBase {
 
   public async setIdentityFromEmail(email: string, opts: ClientSideIdentityOptions) {
     this._logger.log('Sending request', email);
-    //this.throwIfInitNotComplete('Cannot set identity before calling init.');
+    this.throwIfInitNotComplete('Cannot set identity before calling init.');
     isClientSideIdentityOptionsOrThrow(opts, this._product.name);
 
     const normalizedEmail = normalizeEmail(email);
@@ -98,7 +99,7 @@ export abstract class SdkBase {
   }
 
   public async setIdentityFromEmailHash(emailHash: string, opts: ClientSideIdentityOptions) {
-    //this.throwIfInitNotComplete('Cannot set identity before calling init.');
+    this.throwIfInitNotComplete('Cannot set identity before calling init.');
     isClientSideIdentityOptionsOrThrow(opts, this._product.name);
 
     if (!isBase64Hash(emailHash)) {
@@ -148,7 +149,7 @@ export abstract class SdkBase {
   }
 
   public hasIdentity() {
-    //if (!this._initComplete) return undefined;
+    if (!this._initComplete) return undefined;
     return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
   }
 
@@ -457,33 +458,10 @@ export abstract class SdkBase {
   }
 
   private getIdentityNoInit() {
-    let payload = this.getCookieNoInit() ?? this.getLocalStorageValueNoInit();
-    if (payload) {
-      const result = JSON.parse(payload) as unknown;
-      if (isValidIdentity(result) || isOptoutIdentity(result)) return result;
-      if (isLegacyCookie(result)) {
-        return enrichIdentity(result, Date.now());
-        //this.setCookie(newCookie);
-        //return newCookie;
-      }
-    }
-    return null;
-  }
-
-  private getCookieNoInit() {
-    const docCookie = document.cookie;
-    if (docCookie) {
-      const payload = docCookie
-        .split('; ')
-        .find((row) => row.startsWith(this._product.cookieName + '='));
-      if (payload) {
-        return decodeURIComponent(payload.split('=')[1]);
-      }
-    }
-  }
-
-  private getLocalStorageValueNoInit() {
-    return localStorage.getItem(this._product.localStorageKey) ?? undefined;
+    return (
+      loadIdentityFromCookieNoInit(this._product.cookieName) ??
+      loadIdentityFromLocalStorage(this._product.localStorageKey)
+    );
   }
 
   protected async callCstgAndSetIdentity(
