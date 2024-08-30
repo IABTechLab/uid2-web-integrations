@@ -1094,18 +1094,13 @@ describe('SDK bootstraps itself if init has already been completed', () => {
   });
 });
 
-describe('Public functions can be called without init', () => {
+describe('Public functions working without init', () => {
   const makeIdentity = mocks.makeIdentityV2;
   const email = 'test@test.com';
   const emailHash = 'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=';
 
-  beforeEach(() => {
-    sdkWindow.__uid2 = new UID2();
-  });
-
-  test('should be able to find token from previous init', async () => {
+  test('should be able to find identity set without init', async () => {
     const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
-
     const identityStorageFunctions = [
       {
         setIdentity: () => mocks.setUid2LocalStorage(identity),
