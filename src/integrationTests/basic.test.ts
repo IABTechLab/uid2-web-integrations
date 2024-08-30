@@ -90,16 +90,6 @@ testCookieAndLocalStorage(() => {
     });
   });
 
-  // describe('initial state before init() is called', () => {
-  //   test('should be in initialising state', () => {
-  //     (expect(uid2) as any).toBeInInitialisingState();
-  //   });
-
-  //   test('getAdvertisingToken should return undefined', () => {
-  //     expect(uid2.getAdvertisingToken()).toBeUndefined();
-  //   });
-  // });
-
   describe('when initialising with invalid options', () => {
     test('should fail on no opts', () => {
       expect(() => (uid2 as any).init()).toThrow(TypeError);
