@@ -39,15 +39,14 @@ function getCookie(cookieName: string) {
   }
 }
 
-export function loadIdentityFromCookieNoInit(cookieName: string): Identity | OptoutIdentity | null {
+export function loadIdentityFromCookieNoLegacy(
+  cookieName: string
+): Identity | OptoutIdentity | null {
   const payload = getCookie(cookieName);
   if (payload) {
     const result = JSON.parse(payload) as unknown;
     if (isValidIdentity(result)) return result;
     if (isOptoutIdentity(result)) return result;
-    if (isLegacyCookie(result)) {
-      return enrichIdentity(result, Date.now());
-    }
   }
   return null;
 }

@@ -16,7 +16,7 @@ import { StorageManager } from './storageManager';
 import { hashAndEncodeIdentifier } from './encoding/hash';
 import { ProductDetails, ProductName } from './product';
 import { storeConfig, updateConfig } from './configManager';
-import { loadIdentityFromCookieNoInit } from './cookieManager';
+import { loadIdentityFromCookieNoLegacy } from './cookieManager';
 import { loadIdentityFromLocalStorage } from './localStorageManager';
 
 function hasExpired(expiry: number, now = Date.now()) {
@@ -459,7 +459,7 @@ export abstract class SdkBase {
 
   private getIdentityNoInit() {
     return (
-      loadIdentityFromCookieNoInit(this._product.cookieName) ??
+      loadIdentityFromCookieNoLegacy(this._product.cookieName) ??
       loadIdentityFromLocalStorage(this._product.localStorageKey)
     );
   }
