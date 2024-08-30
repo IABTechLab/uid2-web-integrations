@@ -1106,17 +1106,29 @@ describe('Public functions can be called without init', () => {
   test('should be able to find token from previous init', async () => {
     const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
 
-    mocks.setUid2LocalStorage(identity);
-    mocks.setUid2Cookie(identity);
+    const identityStorageFunctions = [
+      {
+        setIdentity: () => mocks.setUid2LocalStorage(identity),
+        removeIdentity: () => mocks.removeUid2LocalStorage(),
+      },
+      {
+        setIdentity: () => mocks.setUid2Cookie(identity),
+        removeIdentity: () => mocks.removeUid2Cookie(),
+      },
+    ];
 
-    expect(uid2.getAdvertisingToken()).toBe(identity.advertising_token);
-    expect(uid2.getIdentity()).toStrictEqual(identity);
-    expect(uid2.getAdvertisingTokenAsync()).resolves.toBe(identity.advertising_token);
-    expect(async () => {
-      await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
-    }).rejects.toThrow();
-    expect(async () => {
-      await uid2.setIdentityFromEmailHash(emailHash, mocks.makeCstgOption());
-    }).rejects.toThrow();
+    identityStorageFunctions.forEach((functions) => {
+      functions.setIdentity();
+      expect(uid2.getAdvertisingToken()).toBe(identity.advertising_token);
+      expect(uid2.getIdentity()).toStrictEqual(identity);
+      expect(uid2.getAdvertisingTokenAsync()).resolves.toBe(identity.advertising_token);
+      expect(async () => {
+        await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
+      }).rejects.toThrow();
+      expect(async () => {
+        await uid2.setIdentityFromEmailHash(emailHash, mocks.makeCstgOption());
+      }).rejects.toThrow();
+      functions.removeIdentity();
+    });
   });
 });
