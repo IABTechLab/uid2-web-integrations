@@ -77,7 +77,7 @@ export class UID2 extends SdkBase {
   }
 
   public async setIdentityFromPhone(phone: string, opts: ClientSideIdentityOptions) {
-    //this.throwIfInitNotComplete('Cannot set identity before calling init.');
+    this.throwIfInitNotComplete('Cannot set identity before calling init.');
     isClientSideIdentityOptionsOrThrow(opts, this._product.name);
 
     if (!isNormalizedPhone(phone)) {
@@ -89,7 +89,7 @@ export class UID2 extends SdkBase {
   }
 
   public async setIdentityFromPhoneHash(phoneHash: string, opts: ClientSideIdentityOptions) {
-    //this.throwIfInitNotComplete('Cannot set identity before calling init.');
+    this.throwIfInitNotComplete('Cannot set identity before calling init.');
     isClientSideIdentityOptionsOrThrow(opts, this._product.name);
 
     if (!isBase64Hash(phoneHash)) {
