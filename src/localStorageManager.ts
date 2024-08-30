@@ -24,7 +24,7 @@ export class LocalStorageManager {
     localStorage.setItem(this._storageKey, value);
   }
   public removeValue() {
-    return getValue(this._storageKey);
+    localStorage.removeItem(this._storageKey);
   }
   private getValue() {
     return getValue(this._storageKey);
