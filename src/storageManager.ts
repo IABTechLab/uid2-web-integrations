@@ -64,7 +64,7 @@ export class StorageManager {
     }
 
     this._localStorageManager.setValue(value);
-    if (!this._opts.useCookie && this._localStorageManager.loadIdentityFromLocalStorage()) {
+    if (this._localStorageManager.loadIdentityFromLocalStorage()) {
       this._cookieManager.removeCookie(this._opts);
     }
   }
