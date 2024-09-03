@@ -1,5 +1,19 @@
 import { isOptoutIdentity, isValidIdentity, OptoutIdentity, Identity } from './Identity';
 
+export function loadIdentityWithStorageKey(storageKey: string): Identity | OptoutIdentity | null {
+  const payload = getValue(storageKey);
+  if (payload) {
+    const result = JSON.parse(payload) as unknown;
+    if (isValidIdentity(result)) return result;
+    if (isOptoutIdentity(result)) return result;
+  }
+  return null;
+}
+
+function getValue(storageKey: string) {
+  return localStorage.getItem(storageKey);
+}
+
 export class LocalStorageManager {
   private _storageKey: string;
   constructor(storageKey: string) {
@@ -12,17 +26,8 @@ export class LocalStorageManager {
   public removeValue() {
     localStorage.removeItem(this._storageKey);
   }
-  private getValue() {
-    return localStorage.getItem(this._storageKey);
-  }
 
   public loadIdentityFromLocalStorage(): Identity | OptoutIdentity | null {
-    const payload = this.getValue();
-    if (payload) {
-      const result = JSON.parse(payload) as unknown;
-      if (isValidIdentity(result)) return result;
-      if (isOptoutIdentity(result)) return result;
-    }
-    return null;
+    return loadIdentityWithStorageKey(this._storageKey);
   }
 }

@@ -16,6 +16,8 @@ import { StorageManager } from './storageManager';
 import { hashAndEncodeIdentifier } from './encoding/hash';
 import { ProductDetails, ProductName } from './product';
 import { storeConfig, updateConfig } from './configManager';
+import { loadIdentityFromCookieNoLegacy } from './cookieManager';
+import { loadIdentityWithStorageKey } from './localStorageManager';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -121,10 +123,12 @@ export abstract class SdkBase {
   }
 
   public getIdentity(): Identity | null {
-    return this._identity && !this.temporarilyUnavailable() && !isOptoutIdentity(this._identity)
-      ? this._identity
+    const identity = this._identity ?? this.getIdentityNoInit();
+    return identity && !this.temporarilyUnavailable(identity) && !isOptoutIdentity(identity)
+      ? identity
       : null;
   }
+
   // When the SDK has been initialized, this function should return the token
   // from the most recent refresh request, if there is a request, wait for the
   // new token. Otherwise, returns a promise which will be resolved after init.
@@ -260,13 +264,10 @@ export abstract class SdkBase {
     return this._identity && !hasExpired(this._identity.refresh_expires);
   }
 
-  private temporarilyUnavailable() {
-    if (!this._identity && this._apiClient?.hasActiveRequests()) return true;
-    if (
-      this._identity &&
-      hasExpired(this._identity.identity_expires) &&
-      !hasExpired(this._identity.refresh_expires)
-    )
+  private temporarilyUnavailable(identity: Identity | OptoutIdentity | null | undefined) {
+    if (!identity && this._apiClient?.hasActiveRequests()) return true;
+    // returns true if identity is expired but refreshable
+    if (identity && hasExpired(identity.identity_expires) && !hasExpired(identity.refresh_expires))
       return true;
     return false;
   }
@@ -455,6 +456,13 @@ export abstract class SdkBase {
         },
         (reason) => this._logger.warn(`Callbacks on identity event failed.`, reason)
       );
+  }
+
+  private getIdentityNoInit() {
+    return (
+      loadIdentityFromCookieNoLegacy(this._product.cookieName) ??
+      loadIdentityWithStorageKey(this._product.localStorageKey)
+    );
   }
 
   protected async callCstgAndSetIdentity(

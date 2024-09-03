@@ -10,17 +10,6 @@ expect.extend({
 });
 
 expect.extend({
-  toBeInInitialisingState(uid2) {
-    expect(uid2.getAdvertisingToken()).toBeUndefined();
-    expect(uid2.isLoginRequired()).toBeUndefined();
-
-    return {
-      pass: true,
-      message: () =>
-        'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns undefined',
-    };
-  },
-
   toBeInAvailableState(uid2, expectedAdvertisingToken) {
     if (expectedAdvertisingToken) {
       expect(uid2.getAdvertisingToken()).toBe(expectedAdvertisingToken);
@@ -68,7 +57,7 @@ expect.extend({
     return {
       pass: true,
       message: () =>
-          'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns false',
+        'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns false',
     };
   },
 });

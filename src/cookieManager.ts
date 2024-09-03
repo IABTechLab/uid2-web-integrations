@@ -29,6 +29,28 @@ function enrichIdentity(identity: LegacySDKCookie, now: number) {
   };
 }
 
+function getCookie(cookieName: string) {
+  const docCookie = document.cookie;
+  if (docCookie) {
+    const payload = docCookie.split('; ').find((row) => row.startsWith(cookieName + '='));
+    if (payload) {
+      return decodeURIComponent(payload.split('=')[1]);
+    }
+  }
+}
+
+export function loadIdentityFromCookieNoLegacy(
+  cookieName: string
+): Identity | OptoutIdentity | null {
+  const payload = getCookie(cookieName);
+  if (payload) {
+    const result = JSON.parse(payload) as unknown;
+    if (isValidIdentity(result)) return result;
+    if (isOptoutIdentity(result)) return result;
+  }
+  return null;
+}
+
 export class CookieManager {
   private _opts: CookieOptions;
   private _cookieName: string;
@@ -62,15 +84,6 @@ export class CookieManager {
       (previousOptions.cookieDomain ?? '') +
       ';expires=Tue, 1 Jan 1980 23:59:59 GMT';
   }
-  private getCookie() {
-    const docCookie = document.cookie;
-    if (docCookie) {
-      const payload = docCookie.split('; ').find((row) => row.startsWith(this._cookieName + '='));
-      if (payload) {
-        return decodeURIComponent(payload.split('=')[1]);
-      }
-    }
-  }
 
   private migrateLegacyCookie(identity: LegacySDKCookie, now: number): Identity {
     const newCookie = enrichIdentity(identity, now);
@@ -79,7 +92,7 @@ export class CookieManager {
   }
 
   public loadIdentityFromCookie(): Identity | OptoutIdentity | null {
-    const payload = this.getCookie();
+    const payload = getCookie(this._cookieName);
     if (payload) {
       const result = JSON.parse(payload) as unknown;
       if (isValidIdentity(result)) return result;

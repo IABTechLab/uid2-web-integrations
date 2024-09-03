@@ -90,16 +90,6 @@ testCookieAndLocalStorage(() => {
     });
   });
 
-  describe('initial state before init() is called', () => {
-    test('should be in initialising state', () => {
-      (expect(uid2) as any).toBeInInitialisingState();
-    });
-
-    test('getAdvertisingToken should return undefined', () => {
-      expect(uid2.getAdvertisingToken()).toBeUndefined();
-    });
-  });
-
   describe('when initialising with invalid options', () => {
     test('should fail on no opts', () => {
       expect(() => (uid2 as any).init()).toThrow(TypeError);
@@ -1101,5 +1091,39 @@ describe('SDK bootstraps itself if init has already been completed', () => {
     expect(async () => {
       await uid2.setIdentityFromEmailHash(emailHash, mocks.makeCstgOption());
     }).rejects.toThrow();
+  });
+});
+
+describe('Token retrieval and related public functions working without init', () => {
+  const makeIdentity = mocks.makeIdentityV2;
+  const email = 'test@test.com';
+  const emailHash = 'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=';
+
+  test('should be able to find identity set without init', async () => {
+    const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
+    const identityStorageFunctions = [
+      {
+        setIdentity: () => mocks.setUid2LocalStorage(identity),
+        removeIdentity: () => mocks.removeUid2LocalStorage(),
+      },
+      {
+        setIdentity: () => mocks.setUid2Cookie(identity),
+        removeIdentity: () => mocks.removeUid2Cookie(),
+      },
+    ];
+
+    identityStorageFunctions.forEach((functions) => {
+      functions.setIdentity();
+      expect(uid2.getAdvertisingToken()).toBe(identity.advertising_token);
+      expect(uid2.getIdentity()).toStrictEqual(identity);
+      expect(uid2.getAdvertisingTokenAsync()).resolves.toBe(identity.advertising_token);
+      expect(async () => {
+        await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
+      }).rejects.toThrow();
+      expect(async () => {
+        await uid2.setIdentityFromEmailHash(emailHash, mocks.makeCstgOption());
+      }).rejects.toThrow();
+      functions.removeIdentity();
+    });
   });
 });
