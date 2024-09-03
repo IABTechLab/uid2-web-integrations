@@ -26,9 +26,6 @@ export class LocalStorageManager {
   public removeValue() {
     localStorage.removeItem(this._storageKey);
   }
-  private getValue() {
-    return getValue(this._storageKey);
-  }
 
   public loadIdentityFromLocalStorage(): Identity | OptoutIdentity | null {
     return loadIdentityWithStorageKey(this._storageKey);
