@@ -17,7 +17,7 @@ import { hashAndEncodeIdentifier } from './encoding/hash';
 import { ProductDetails, ProductName } from './product';
 import { storeConfig, updateConfig } from './configManager';
 import { loadIdentityFromCookieNoLegacy } from './cookieManager';
-import { loadIdentityFromLocalStorage } from './localStorageManager';
+import { loadIdentityWithStorageKey } from './localStorageManager';
 
 function hasExpired(expiry: number, now = Date.now()) {
   return expiry <= now;
@@ -266,6 +266,7 @@ export abstract class SdkBase {
 
   private temporarilyUnavailable(identity: Identity | OptoutIdentity | null | undefined) {
     if (!identity && this._apiClient?.hasActiveRequests()) return true;
+    // returns true if identity is expired but refreshable
     if (identity && hasExpired(identity.identity_expires) && !hasExpired(identity.refresh_expires))
       return true;
     return false;
@@ -460,7 +461,7 @@ export abstract class SdkBase {
   private getIdentityNoInit() {
     return (
       loadIdentityFromCookieNoLegacy(this._product.cookieName) ??
-      loadIdentityFromLocalStorage(this._product.localStorageKey)
+      loadIdentityWithStorageKey(this._product.localStorageKey)
     );
   }
 

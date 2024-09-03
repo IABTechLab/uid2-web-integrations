@@ -1094,7 +1094,7 @@ describe('SDK bootstraps itself if init has already been completed', () => {
   });
 });
 
-describe('Public functions working without init', () => {
+describe('Token retrieval and related public functions working without init', () => {
   const makeIdentity = mocks.makeIdentityV2;
   const email = 'test@test.com';
   const emailHash = 'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=';

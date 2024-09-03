@@ -1,6 +1,6 @@
 import { isOptoutIdentity, isValidIdentity, OptoutIdentity, Identity } from './Identity';
 
-export function loadIdentityFromLocalStorage(storageKey: string): Identity | OptoutIdentity | null {
+export function loadIdentityWithStorageKey(storageKey: string): Identity | OptoutIdentity | null {
   const payload = getValue(storageKey);
   if (payload) {
     const result = JSON.parse(payload) as unknown;
@@ -31,6 +31,6 @@ export class LocalStorageManager {
   }
 
   public loadIdentityFromLocalStorage(): Identity | OptoutIdentity | null {
-    return loadIdentityFromLocalStorage(this._storageKey);
+    return loadIdentityWithStorageKey(this._storageKey);
   }
 }

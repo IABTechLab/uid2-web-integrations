@@ -84,9 +84,6 @@ export class CookieManager {
       (previousOptions.cookieDomain ?? '') +
       ';expires=Tue, 1 Jan 1980 23:59:59 GMT';
   }
-  private getCookie() {
-    return getCookie(this._cookieName);
-  }
 
   private migrateLegacyCookie(identity: LegacySDKCookie, now: number): Identity {
     const newCookie = enrichIdentity(identity, now);
@@ -95,7 +92,7 @@ export class CookieManager {
   }
 
   public loadIdentityFromCookie(): Identity | OptoutIdentity | null {
-    const payload = this.getCookie();
+    const payload = getCookie(this._cookieName);
     if (payload) {
       const result = JSON.parse(payload) as unknown;
       if (isValidIdentity(result)) return result;
