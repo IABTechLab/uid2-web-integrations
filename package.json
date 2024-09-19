@@ -38,6 +38,10 @@
       "/dist/"
     ]
   },
+  "browserslist": [
+    "defaults and fully supports es6-module",
+    "maintained node versions"
+  ],
   "devDependencies": {
     "@jest/globals": "^29.2.2",
     "@types/jest": "^29.2.0",
