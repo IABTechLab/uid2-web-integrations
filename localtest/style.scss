@@ -1,0 +1,27 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+
+  line-height: 1.88889;
+  color: #0a1300;
+  background: #bacdd8;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+
+  .app {
+    width: 100%;
+  }
+
+  .header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .content {
+    padding: 20px;
+  }
+}

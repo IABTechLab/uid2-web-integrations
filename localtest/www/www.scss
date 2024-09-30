@@ -1,0 +1,19 @@
+.menu-bar {
+  background: #00041a;
+  line-height: 250%;
+  color: #dcf2ff;
+  display: flex;
+  justify-content: flex-end;
+  a,
+  span {
+    color: #dcf2ff;
+    text-decoration: none;
+    margin: 10px 20px;
+  }
+}
+
+.article {
+  border: solid;
+  padding: 10px;
+  margin: 10px 0;
+}
