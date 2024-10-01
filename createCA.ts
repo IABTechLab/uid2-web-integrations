@@ -43,15 +43,18 @@ const getOrCreateCA = async () => {
 
 async function createCerts() {
   const ca = await getOrCreateCA();
+  console.log(`Creating a certificate for ${domains.join(', ')}`);
   const cert = await createCert({
     ca: { key: ca.key, cert: ca.cert },
     domains,
     validity: 3650,
   });
+  console.log('Certificate created.');
+
   await fs.writeFile(certFile, `${cert.cert}${ca.cert}`, overwriteFileOptions);
   await fs.writeFile(certKey, cert.key, overwriteFileOptions);
 
-  console.log('New certificate saved.');
+  console.log('Certificate saved.');
 }
 
 createCerts();

@@ -7,6 +7,10 @@ const sites = [
     name: 'auth',
     domain: 'auth.uid2-local-dev-setup.com',
   },
+  {
+    name: 'thirdparty',
+    domain: 'www.unrelated-third-party-test.com',
+  },
 ];
 
 export const devSites = sites.map((s) => ({ ...s, url: `https://${s.domain}/` }));

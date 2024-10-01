@@ -1,14 +1,23 @@
+const fs = require('fs');
 const path = require('path');
 const HtmlBundlerPlugin = require('html-bundler-webpack-plugin');
 const { devSites } = require('./siteDetails');
 
 const siteEntries = Object.fromEntries(devSites.map((d) => [d.name, `./${d.name}/${d.name}.html`]));
+const allEntries = Object.fromEntries(
+  devSites.flatMap((s) =>
+    fs
+      .readdirSync(`./${s.name}/`)
+      .filter((fn) => fn.endsWith('.html'))
+      .map((fn) => [`${s.name}/${fn}`, `./${s.name}/${fn}`])
+  )
+);
 
 const sites = (module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
   devServer: {
-    static: './dist',
+    static: './static',
     watchFiles: {
       paths: ['./**/*.*'],
       options: {
