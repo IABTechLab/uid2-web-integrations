@@ -2,21 +2,15 @@
 <html lang="en">
   <head>
     <title>UID2 local dev setup: www</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.integ.uidapi.com/uid2-sdk-3.3.2.js"></script>
+    <%~ include("shared/googleFontTags.html") %> <%~ include("shared/uid2SdkTag.html") %>
     <link href="../style.scss" rel="stylesheet" />
     <script src="./www.tsx" defer="defer"></script>
-    <script src="https://www.unrelated-third-party-test.com/thirdparty.js"></script>
+    <script src="https://www.unrelated-third-party-test.com<%~ it.urlPortSuffix %>/thirdparty.js"></script>
   </head>
   <body>
     <div id="app"></div>
     <iframe
-      src="https://www.unrelated-third-party-test.com/"
+      src="https://www.unrelated-third-party-test.com<%~ it.urlPortSuffix %>/"
       title="third-party-iframe"
       id="third-party-iframe"
     ></iframe>

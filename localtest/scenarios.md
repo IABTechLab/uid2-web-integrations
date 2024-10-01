@@ -6,9 +6,9 @@ This file describes some scenarios you can test using this setup.
 
 This scenario is set up and ready to use. Visit https://www.uid2-local-dev-setup.com/ to see it working.
 
-You can follow the login link from the main page, which takes you to https://auth.uid2-local-dev-setup.com/ to log in (note this is a different sub-domain). Enter your email address here and click login and it will use CSTG to generate a token. The current CSTG key and subscription are set to an integ environment site that has `uid2-local-dev-setup.com` set as an allowed CSTG domain.
+You can follow the login link from the main page, which takes you to https://auth.uid2-local-dev-setup.com/ to log in (note this is a different sub-domain). Enter your email address here and click login and it will use CSTG to generate a token. The current CSTG key and subscription are set to an integ environment site that has `uid2-local-dev-setup.com` set as an allowed CSTG domain, so CSTG should just work with no need to run a local operator.
 
-That site stores the email address in a 1st-party cookie for `uid2-local-dev-setup.com` (meaning both `www.uid2-local-dev-setup.com` and `auth.uid2-local-dev-setup.com` can access it), and also configures the JS sdk to use cookie storage with that domain. See `initUid2Sdk()` in `./shared/uid2Helper.ts`.
+That site stores the email address in a 1st-party cookie with the domain set to `uid2-local-dev-setup.com` (meaning both `www.uid2-local-dev-setup.com` and `auth.uid2-local-dev-setup.com` can access it), and also configures the JS sdk to use cookie storage with that domain. See `initUid2Sdk()` in `./shared/uid2Helper.ts`.
 
 When you return to https://www.uid2-local-dev-setup.com/ it will have access to the email address and token via the shared 1st-party cookie.
 

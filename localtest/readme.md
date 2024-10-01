@@ -9,8 +9,12 @@ There are a few steps you need to take for this to work. Please see [setup.md](.
 
 ## Overview
 
-For details about how to start the server, how the files & folders are laid out, and how to use React, see [overview.md](./overview.md).
+For details about how to start the server, how the files & folders are laid out, how to use React, and HTML templating, see [overview.md](./overview.md).
 
 ## Scenarios
 
 For information about the kinds of scenarios you can test, see [scenarios.md](./scenarios.md).
+
+## Configuration
+
+For information about other things you can configure, see [configuration.md](./configuration.md).

@@ -1,7 +1,7 @@
 import Webpack from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
 import webpackConfig from './webpack.config.js';
-import { devSites } from './siteDetails.js';
+import { devSites, port, urlPortSuffix } from './siteDetails.js';
 
 // @ts-ignore
 const compiler = Webpack(webpackConfig);
@@ -17,14 +17,14 @@ const devServerOptions = {
       {
         from: /^[^.]+$/,
         to: (context: any) => {
-          const hostname = context.request.header('Host');
+          const hostname = context.request.header('Host').split(':')[0];
           return hosts[hostname].index;
         },
       },
     ],
   },
-  open: hostnames.map((host) => `https://${host}/`),
-  port: 443,
+  open: hostnames.map((host) => `https://${host}${urlPortSuffix}/`),
+  port,
   allowedHosts: hostnames,
   server: {
     type: 'https',

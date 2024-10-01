@@ -13,6 +13,10 @@ const sites = [
   },
 ];
 
+export const port = 40443;
+
+export const urlPortSuffix = port === 443 ? '' : `:${port}`;
+
 export const devSites = sites.map((s) => ({ ...s, url: `https://${s.domain}/` }));
 
 export const devDomains = Object.values(devSites).map((s) => s.domain);

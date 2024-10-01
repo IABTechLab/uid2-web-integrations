@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const HtmlBundlerPlugin = require('html-bundler-webpack-plugin');
-const { devSites } = require('./siteDetails');
+const { devSites, urlPortSuffix } = require('./siteDetails');
 
 const siteEntries = Object.fromEntries(devSites.map((d) => [d.name, `./${d.name}/${d.name}.html`]));
 const allEntries = Object.fromEntries(
@@ -52,6 +52,9 @@ const sites = (module.exports = {
   plugins: [
     new HtmlBundlerPlugin({
       entry: siteEntries,
+      data: {
+        urlPortSuffix,
+      },
     }),
   ],
   output: {

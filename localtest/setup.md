@@ -3,7 +3,7 @@
 You need to do these steps once on your machine - and you may need to repeat some of them in certain circumstances, for example:
 
 1. If a new domain name is added, you need to add the new entry to your hosts file and re-generate your CA. The `createCA` npm task will re-use the existing CA if it finds one, so you don't need to trust the CA certificate again.
-2. If you delete the `./ca` folder, you need to repeat the entire process of creating the CA, including trusting the new CA certificate.
+2. If you delete the `../ca` folder, you need to repeat the entire process of creating the CA, including trusting the new CA certificate.
 
 ## Add entries to your hosts file
 
@@ -35,24 +35,26 @@ The dependencies for this project are all defined in the root `package.json` in 
 
 ## Create your local trusted CA & site certificate
 
-A trusted CA can issue TLS certificates. We don't use a shared one, because if we did anyone who got the CA key could create certificates that our browser trusts, and possibly intercept our TLS traffic!
+A trusted CA can issue TLS certificates. We don't use a shared one, because anyone who gets the CA key could create certificates that our browser trusts, and possibly intercept our TLS traffic!
+
+**Do not share your `../ca/` folder with anyone!**
 
 There is an npm script that does all of this automatically. Just run:
 
 `npm run createCA`
 
-This should create several files in `./ca/`. You need to tell your browser or system to trust the CA certificate.
+This should create several files in `../ca/`. You need to tell your browser or system to trust the CA certificate.
 
 ### Windows
 
-1. Navigate to `./ca/` in explorer and double-click on `ca.crt`. If you aren't showing extensions, it should be the file of type 'Security Certificate'.
+1. Navigate to `../ca/` in explorer and double-click on `ca.crt`. If you aren't showing extensions, it should be the file of type 'Security Certificate'.
 2. Click `Install Certificate...`.
 3. Choose `Current User` and click `Next`.
 4. Choose `Place all certificates in the following store`, then click `Browse...`, then choose `Trusted Root Certification Authorities`, then click `OK`, then `Next`, then `Finish`.
 
-### MacOS
+### MacOS (untested)
 
-1. Navigate to `./ca/` in Finder and double-click on `ca.crt`.
+1. Navigate to `../ca/` in Finder and double-click on `ca.crt`.
 2. Enter your password and click `Modify Keychain`.
 3. Go to `spotlight` (the search icon in the top-right corner), search for Keychain Access, and then select Keychain Access from the search results.
 4. Under System, highlight the certificate that you added.
@@ -63,3 +65,7 @@ This should create several files in `./ca/`. You need to tell your browser or sy
 ### Linux
 
 It depends on your distribution - google `[Your distro] trust ca certificate` and follow the steps you find.
+
+## Ready to go
+
+That's it - you should be ready to run! Run `npm run localtest` and after a few seconds, the sites should all be launched in your default browser.
