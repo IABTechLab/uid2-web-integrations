@@ -1,16 +1,10 @@
-import { useEffect, useState } from 'react';
-import type { UID2, SDKSetup, CallbackHandler } from '../../src/uid2Sdk';
-
 import './www.scss';
 import { Layout } from '../shared/layout';
 import { createApp } from '../shared/createApp';
-import { useUid2Identity } from '../shared/uid2Identity';
-import { getEmailCookie } from '../shared/user';
 import { initUid2Sdk } from '../shared/uid2Helper';
-import { devSiteMap } from '../siteDetails';
+import { MenuBar } from './menubar';
 
 initUid2Sdk();
-const authSiteUrl = devSiteMap.auth.url;
 
 const articles = [
   {
@@ -23,25 +17,17 @@ const articles = [
   },
 ];
 
-function MenuBar() {
-  const user = useUid2Identity();
-  const email = getEmailCookie();
-  return (
-    <div className='menu-bar'>
-      <div className='user-details'>
-        <span>{email}</span>
-        <span>{!!user && `Token: ${user.advertising_token}`}</span>
-      </div>
-      <div>
-        {!user && <a href={authSiteUrl}>Login</a>}
-        {!!user && <a href={`${authSiteUrl}logout.html`}>Logout</a>}
-      </div>
-    </div>
-  );
-}
-
 createApp(
-  <Layout siteName='www' extraHeader={<MenuBar />}>
+  <Layout
+    siteName='www'
+    extraHeader={
+      <MenuBar>
+        <div>
+          <a href='/info.html'>Info</a>
+        </div>
+      </MenuBar>
+    }
+  >
     {articles.map((a) => (
       <div className='article' key={a.title}>
         {a.text}

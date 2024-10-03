@@ -1,7 +1,7 @@
 import Webpack from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
 import webpackConfig from './webpack.config.js';
-import { devSites, port, urlPortSuffix } from './siteDetails.js';
+import { devSiteMap, devSites, port, urlPortSuffix } from './siteDetails.js';
 
 // @ts-ignore
 const compiler = Webpack(webpackConfig);
@@ -23,7 +23,7 @@ const devServerOptions = {
       },
     ],
   },
-  open: hostnames.map((host) => `https://${host}${urlPortSuffix}/`),
+  open: devSiteMap['www'].url,
   port,
   allowedHosts: hostnames,
   server: {

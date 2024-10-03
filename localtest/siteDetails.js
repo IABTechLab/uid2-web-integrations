@@ -13,7 +13,7 @@ const sites = [
   },
 ];
 
-export const port = 40443;
+export const port = 443;
 
 export const urlPortSuffix = port === 443 ? '' : `:${port}`;
 
