@@ -4,11 +4,37 @@
   color: #dcf2ff;
   display: flex;
   justify-content: flex-end;
-  a,
-  span {
+  align-items: center;
+  width: 100%;
+  a {
     color: #dcf2ff;
     text-decoration: none;
+  }
+
+  div {
+    margin: 10px 40px;
+  }
+
+  .user-details {
     margin: 10px 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    span {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
+}
+
+.iframe-container {
+  width: 100%;
+  display: flex;
+  iframe {
+    margin: 0 20px;
+    flex-grow: 1;
   }
 }
 

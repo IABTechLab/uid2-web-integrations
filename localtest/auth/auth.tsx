@@ -13,14 +13,22 @@ const mainSiteUrl = devSiteMap.www.url;
 type LoggedInProps = Readonly<{ identity: Identity; email?: string }>;
 function LoggedIn({ identity, email }: LoggedInProps) {
   return (
-    <div>
-      <div>Advertising token: {identity.advertising_token}</div>
+    <div className='logged-in'>
       <div>
-        Email: {!!email && email}
-        {!email && '<Not logged in>'}
+        <span>Email</span>
+        <span>
+          {!!email && email}
+          {!email && '<Not logged in>'}
+        </span>
       </div>
       <div>
-        <a href={mainSiteUrl}>Back to the main site</a>
+        <span>Token</span>
+        <span className='token'>{identity.advertising_token}</span>
+      </div>
+      <div>
+        <span>
+          <a href={mainSiteUrl}>Back to the main site</a>
+        </span>
       </div>
     </div>
   );
@@ -43,7 +51,10 @@ function LoginForm({ setEmail }: LoginFormProps) {
   };
   return (
     <form onSubmit={handleSubmit}>
-      <input type='text' id='email' />
+      <div>
+        <span>Email</span>
+        <input type='text' id='email' />
+      </div>
       <button type='submit'>Log in</button>
     </form>
   );
@@ -53,17 +64,15 @@ function Auth() {
   const [email, setEmail] = useState(getEmailCookie());
   const identity = useUid2Identity();
   return (
-    <div>
+    <>
       {!!identity && <LoggedIn identity={identity} email={email} />}
       {!identity && <LoginForm setEmail={setEmail} />}
-    </div>
+    </>
   );
 }
 
 createApp(
   <Layout siteName='auth'>
-    <div className='content'>
-      <Auth />
-    </div>
+    <Auth />
   </Layout>
 );

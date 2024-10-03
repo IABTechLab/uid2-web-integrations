@@ -1,4 +1,3 @@
-
 # UID2 Local Dev Setup
 
 This setup is intended to allow developers to easily run local TLS services with apparently "real" DNS names and locally valid certificates. This allows testing of a variety of scenarios, such as 1st-party related-domain cookies, CSTG, and iframe behaviour.

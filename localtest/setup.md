@@ -52,15 +52,15 @@ This should create several files in `../ca/`. You need to tell your browser or s
 3. Choose `Current User` and click `Next`.
 4. Choose `Place all certificates in the following store`, then click `Browse...`, then choose `Trusted Root Certification Authorities`, then click `OK`, then `Next`, then `Finish`.
 
-### MacOS (untested)
+### MacOS
 
-1. Navigate to `../ca/` in Finder and double-click on `ca.crt`.
-2. Enter your password and click `Modify Keychain`.
-3. Go to `spotlight` (the search icon in the top-right corner), search for Keychain Access, and then select Keychain Access from the search results.
-4. Under System, highlight the certificate that you added.
-5. Right-click and choose Get Info from the context menu.
-6. Expand Trust to display the trust policies for the certificate.
-7. Under Secure Sockets Layers (SSL), select Always Trust.
+1. Navigate to `../ca/` in Finder and double-click on `ca.crt`. Keychain Access should open.
+2. In Keychain Access, find the new certificate called "UID2 local dev CA" (you might need to check different keychains).
+   - If you have installed one of these previously, look for the newest one.
+3. Double-click the certificate. A dialog should open.
+4. Expand Trust to display the trust policies for the certificate.
+5. Under Secure Sockets Layers (SSL), select Always Trust.
+6. If required, enter your password and click `Modify Keychain`.
 
 ### Linux
 

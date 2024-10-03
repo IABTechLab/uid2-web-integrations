@@ -28,11 +28,14 @@ function MenuBar() {
   const email = getEmailCookie();
   return (
     <div className='menu-bar'>
-      <span>
-        {email}
-        {!!user && `Token: ${user.advertising_token}`}
+      <div className='user-details'>
+        <span>{email}</span>
+        <span>{!!user && `Token: ${user.advertising_token}`}</span>
+      </div>
+      <div>
         {!user && <a href={authSiteUrl}>Login</a>}
-      </span>
+        {!!user && <a href={`${authSiteUrl}logout.html`}>Logout</a>}
+      </div>
     </div>
   );
 }
