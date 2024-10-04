@@ -30,6 +30,7 @@ createApp(
   >
     {articles.map((a) => (
       <div className='article' key={a.title}>
+        <h3>{a.title}</h3>
         {a.text}
       </div>
     ))}
