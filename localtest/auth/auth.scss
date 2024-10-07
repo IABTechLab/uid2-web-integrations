@@ -1,0 +1,31 @@
+.content {
+  background-color: aliceblue;
+  margin: 0 50px;
+  form {
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    span {
+      margin: 0 20px 0 0;
+    }
+    div {
+      display: flex;
+      input {
+        flex-grow: 1;
+      }
+    }
+    button {
+      margin: 20px auto 0 auto;
+    }
+  }
+
+  .logged-in {
+    div {
+      display: flex;
+      gap: 20px;
+    }
+    .token {
+      word-break: break-all;
+    }
+  }
+}

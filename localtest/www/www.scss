@@ -1,0 +1,17 @@
+.iframe-container {
+  width: 100%;
+  display: flex;
+  iframe {
+    margin: 0 20px;
+    flex-grow: 1;
+  }
+}
+
+.article {
+  border: solid;
+  padding: 10px;
+  margin: 10px 0;
+  h3 {
+    margin-top: 0;
+  }
+}

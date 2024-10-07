@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>UID2 local dev setup: www</title>
+    <%~ include("shared/googleFontTags.html") %> <%~ include("shared/uid2SdkTag.html") %>
+    <link href="../style.scss" rel="stylesheet" />
+    <script src="./www.tsx" defer="defer"></script>
+    <script src="https://www.unrelated-third-party-test.com<%~ it.urlPortSuffix %>/thirdparty.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <div class="iframe-container">
+      <iframe
+        src="https://www.unrelated-third-party-test.com<%~ it.urlPortSuffix %>/"
+        title="third-party-iframe"
+        id="third-party-iframe"
+      ></iframe>
+    </div>
+  </body>
+</html>
