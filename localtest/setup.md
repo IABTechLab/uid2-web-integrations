@@ -9,11 +9,13 @@ You need to do these steps once on your machine - and you may need to repeat som
 
 Your `hosts` file provides local DNS overrides. We use it so you can visit the fake domains in your browser using their domain names.
 
-On Windows:
-Open `C:\Windows\System32\drivers\etc\hosts` in a text editor. You might need admin permissions - you can either give your user write permission on the file or run your text editor as admin.
+### Windows
+- Open `C:\Windows\System32\drivers\etc\hosts` in a text editor.
+- You might need admin permissions - you can either give your user write permission on the file or run your text editor as admin.
 
-On Mac & Linux:
-Edit `/etc/hosts` using a text editor. You will probably need sudo access.
+### MacOS
+- Edit `/etc/hosts` using a text editor. 
+- You will probably need sudo access.
 
 Add one entry for each site defined in `siteDetails.js` pointing to `127.0.0.1`. Do not edit/remove other parts of the file! Currently, that looks like this:
 
