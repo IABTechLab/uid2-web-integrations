@@ -1048,6 +1048,8 @@ describe('SDK bootstraps itself if init has already been completed', () => {
   const makeIdentity = mocks.makeIdentityV2;
   const email = 'test@test.com';
   const emailHash = 'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=';
+  const phone = '+12345678901';
+  const phoneHash = 'EObwtHBUqDNZR33LNSMdtt5cafsYFuGmuY4ZLenlue4=';
 
   beforeEach(() => {
     sdkWindow.__uid2 = new UID2();
@@ -1066,10 +1068,16 @@ describe('SDK bootstraps itself if init has already been completed', () => {
     expect(uid2.getAdvertisingToken()).toBe(identity.advertising_token);
     expect(uid2.getIdentity()).toStrictEqual(identity);
     expect(async () => {
-      await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
+      await uid2.setIdentityFromEmail(email, mocks.makeUid2CstgOption());
     }).not.toThrow();
     expect(async () => {
-      uid2.setIdentityFromEmailHash(emailHash, mocks.makeCstgOption());
+      uid2.setIdentityFromEmailHash(emailHash, mocks.makeUid2CstgOption());
+    }).not.toThrow();
+    expect(async () => {
+      await uid2.setIdentityFromPhone(phone, mocks.makeUid2CstgOption());
+    }).not.toThrow();
+    expect(async () => {
+      uid2.setIdentityFromPhoneHash(phoneHash, mocks.makeUid2CstgOption());
     }).not.toThrow();
   });
 
@@ -1078,10 +1086,16 @@ describe('SDK bootstraps itself if init has already been completed', () => {
     expect(uid2.getAdvertisingToken()).toBe(undefined);
     expect(uid2.getIdentity()).toStrictEqual(null);
     expect(async () => {
-      await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
+      await uid2.setIdentityFromEmail(email, mocks.makeUid2CstgOption());
     }).rejects.toThrow();
     expect(async () => {
-      await uid2.setIdentityFromEmailHash(emailHash, mocks.makeCstgOption());
+      await uid2.setIdentityFromEmailHash(emailHash, mocks.makeUid2CstgOption());
+    }).rejects.toThrow();
+    expect(async () => {
+      await uid2.setIdentityFromPhone(phone, mocks.makeUid2CstgOption());
+    }).rejects.toThrow();
+    expect(async () => {
+      await uid2.setIdentityFromPhoneHash(phoneHash, mocks.makeUid2CstgOption());
     }).rejects.toThrow();
   });
 });
@@ -1090,6 +1104,8 @@ describe('Token retrieval and related public functions working without init', ()
   const makeIdentity = mocks.makeIdentityV2;
   const email = 'test@test.com';
   const emailHash = 'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=';
+  const phone = '+12345678901';
+  const phoneHash = 'EObwtHBUqDNZR33LNSMdtt5cafsYFuGmuY4ZLenlue4=';
 
   test('should be able to find identity set without init', async () => {
     const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
@@ -1110,10 +1126,16 @@ describe('Token retrieval and related public functions working without init', ()
       expect(uid2.getIdentity()).toStrictEqual(identity);
       expect(uid2.getAdvertisingTokenAsync()).resolves.toBe(identity.advertising_token);
       expect(async () => {
-        await uid2.setIdentityFromEmail(email, mocks.makeCstgOption());
+        await uid2.setIdentityFromEmail(email, mocks.makeUid2CstgOption());
       }).rejects.toThrow();
       expect(async () => {
-        await uid2.setIdentityFromEmailHash(emailHash, mocks.makeCstgOption());
+        await uid2.setIdentityFromEmailHash(emailHash, mocks.makeUid2CstgOption());
+      }).rejects.toThrow();
+      expect(async () => {
+        await uid2.setIdentityFromPhone(phone, mocks.makeUid2CstgOption());
+      }).rejects.toThrow();
+      expect(async () => {
+        await uid2.setIdentityFromPhoneHash(phoneHash, mocks.makeUid2CstgOption());
       }).rejects.toThrow();
       functions.removeIdentity();
     });

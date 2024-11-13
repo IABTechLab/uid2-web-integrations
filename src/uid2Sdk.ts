@@ -1,10 +1,5 @@
 import { EventType, CallbackHandler } from './callbackManager';
-import {
-  ClientSideIdentityOptions,
-  isClientSideIdentityOptionsOrThrow,
-} from './clientSideIdentityOptions';
 import { isNormalizedPhone, normalizeEmail } from './diiNormalization';
-import { isBase64Hash } from './hashedDii';
 import { hashAndEncodeIdentifier, hashIdentifier } from './encoding/hash';
 import { CallbackContainer, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
@@ -74,29 +69,6 @@ export class UID2 extends SdkBase {
       // Need to defer running callbacks until this is assigned to the window global
       callbackContainer.callback = runCallbacks;
     }
-  }
-
-  public async setIdentityFromPhone(phone: string, opts: ClientSideIdentityOptions) {
-    this.throwIfInitNotComplete('Cannot set identity before calling init.');
-    isClientSideIdentityOptionsOrThrow(opts, this._product.name);
-
-    if (!isNormalizedPhone(phone)) {
-      throw new Error('Invalid phone number');
-    }
-
-    const phoneHash = await hashAndEncodeIdentifier(phone);
-    await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
-  }
-
-  public async setIdentityFromPhoneHash(phoneHash: string, opts: ClientSideIdentityOptions) {
-    this.throwIfInitNotComplete('Cannot set identity before calling init.');
-    isClientSideIdentityOptionsOrThrow(opts, this._product.name);
-
-    if (!isBase64Hash(phoneHash)) {
-      throw new Error('Invalid hash');
-    }
-
-    await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
   }
 }
 
