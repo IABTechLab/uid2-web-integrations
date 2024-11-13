@@ -1,8 +1,7 @@
-import { NAME_CURVE, XhrMock, makeCstgOption, makeIdentityV2 } from '../mocks';
+import { NAME_CURVE, XhrMock, makeUid2CstgOption, makeIdentityV2 } from '../mocks';
 import { SuccessCstgResult, ApiClient } from '../apiClient';
 import { base64ToBytes, bytesToBase64 } from '../encoding/base64';
 import { sdkWindow } from '../uid2Sdk';
-import { Identity } from '../Identity';
 
 describe('UID2 API client tests', () => {
   let uid2ApiClient: ApiClient;
@@ -33,7 +32,7 @@ describe('UID2 API client tests', () => {
     const makeCstgApiCall = async () => {
       return uid2ApiClient.callCstgApi(
         { emailHash: 'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=' },
-        makeCstgOption({ serverPublicKey })
+        makeUid2CstgOption({ serverPublicKey })
       );
     };
 
@@ -70,7 +69,7 @@ describe('UID2 API client tests', () => {
         await expect(
           uid2ApiClient.callCstgApi(
             { emailHash: 'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=' },
-            makeCstgOption({ serverPublicKey })
+            makeUid2CstgOption({ serverPublicKey })
           )
         ).rejects.toContain('API error: Response body was invalid for HTTP status 200:');
       });
