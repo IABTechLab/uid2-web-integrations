@@ -9,7 +9,7 @@ import {
   ClientSideIdentityOptions,
   isClientSideIdentityOptionsOrThrow,
 } from './clientSideIdentityOptions';
-import { normalizeEmail } from './diiNormalization';
+import { isNormalizedPhone, normalizeEmail } from './diiNormalization';
 import { isBase64Hash } from './hashedDii';
 import { PromiseHandler } from './promiseHandler';
 import { StorageManager } from './storageManager';
@@ -106,6 +106,29 @@ export abstract class SdkBase {
     }
 
     await this.callCstgAndSetIdentity({ emailHash: emailHash }, opts);
+  }
+
+  public async setIdentityFromPhone(phone: string, opts: ClientSideIdentityOptions) {
+    this.throwIfInitNotComplete('Cannot set identity before calling init.');
+    isClientSideIdentityOptionsOrThrow(opts, this._product.name);
+
+    if (!isNormalizedPhone(phone)) {
+      throw new Error('Invalid phone number');
+    }
+
+    const phoneHash = await hashAndEncodeIdentifier(phone);
+    await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
+  }
+
+  public async setIdentityFromPhoneHash(phoneHash: string, opts: ClientSideIdentityOptions) {
+    this.throwIfInitNotComplete('Cannot set identity before calling init.');
+    isClientSideIdentityOptionsOrThrow(opts, this._product.name);
+
+    if (!isBase64Hash(phoneHash)) {
+      throw new Error('Invalid hash');
+    }
+
+    await this.callCstgAndSetIdentity({ phoneHash: phoneHash }, opts);
   }
 
   public setIdentity(identity: Identity | OptoutIdentity) {
