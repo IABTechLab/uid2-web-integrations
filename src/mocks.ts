@@ -6,6 +6,7 @@ import { base64ToBytes, bytesToBase64 } from './encoding/base64';
 import * as crypto from 'crypto';
 
 const uid2LocalStorageKeyName = 'UID2-sdk-identity';
+const euidLocalStorageKeyName = 'EUID-sdk-identity';
 
 export class CookieMock {
   jar: jsdom.CookieJar;
@@ -325,6 +326,14 @@ export function getUid2LocalStorage() {
   return value !== null ? JSON.parse(value) : null;
 }
 
+export function getEuid(useCookie?: boolean) {
+  return useCookie ? getEuidCookie() : getEuidLocalStorage();
+}
+
+export function setEuid(value: any, useCookie?: boolean) {
+  return useCookie ? setEuidCookie(value) : setEuidLocalStorage(value);
+}
+
 export function setEuidCookie(value: any) {
   document.cookie = '__euid' + '=' + encodeURIComponent(JSON.stringify(value));
 }
@@ -337,6 +346,20 @@ export function getEuidCookie() {
       return JSON.parse(decodeURIComponent(payload.split('=')[1]));
     }
   }
+}
+
+export function removeEuidLocalStorage() {
+  localStorage.removeItem(euidLocalStorageKeyName);
+}
+
+export function setEuidLocalStorage(identity: any) {
+  const value = JSON.stringify(identity);
+  localStorage.setItem(euidLocalStorageKeyName, value);
+}
+
+export function getEuidLocalStorage() {
+  const value = localStorage.getItem(euidLocalStorageKeyName);
+  return value !== null ? JSON.parse(value) : null;
 }
 
 export function makeIdentityV1(overrides?: any) {
@@ -362,10 +385,19 @@ export function makeIdentityV2(overrides = {}) {
   };
 }
 
-export function makeCstgOption(overrides?: any) {
+export function makeUid2CstgOption(overrides?: any) {
   return {
     serverPublicKey:
       'UID2-X-L-24B8a/eLYBmRkXA9yPgRZt+ouKbXewG2OPs23+ov3JC8mtYJBCx6AxGwJ4MlwUcguebhdDp2CvzsCgS9ogwwGA==',
+    subscriptionId: 'subscription-id',
+    ...(overrides || {}),
+  };
+}
+
+export function makeEuidCstgOption(overrides?: any) {
+  return {
+    serverPublicKey:
+      'EUID-X-L-24B8a/eLYBmRkXA9yPgRZt+ouKbXewG2OPs23+ov3JC8mtYJBCx6AxGwJ4MlwUcguebhdDp2CvzsCgS9ogwwGA==',
     subscriptionId: 'subscription-id',
     ...(overrides || {}),
   };
