@@ -1049,7 +1049,7 @@ describe('SDK bootstraps itself if init has already been completed', () => {
   const email = 'test@test.com';
   const emailHash = 'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=';
   const phone = '+12345678901';
-  const phoneHash = '10e6f0b47054a83359477dcb35231db6de5c69fb1816e1a6b98e192de9e5b9ee';
+  const phoneHash = 'EObwtHBUqDNZR33LNSMdtt5cafsYFuGmuY4ZLenlue4=';
 
   beforeEach(() => {
     sdkWindow.__uid2 = new UID2();
@@ -1105,7 +1105,7 @@ describe('Token retrieval and related public functions working without init', ()
   const email = 'test@test.com';
   const emailHash = 'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=';
   const phone = '+12345678901';
-  const phoneHash = '10e6f0b47054a83359477dcb35231db6de5c69fb1816e1a6b98e192de9e5b9ee';
+  const phoneHash = 'EObwtHBUqDNZR33LNSMdtt5cafsYFuGmuY4ZLenlue4=';
 
   test('should be able to find identity set without init', async () => {
     const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
