@@ -55,7 +55,7 @@ describe('Client-side token generation Tests', () => {
           'test@example.com',
           mocks.makeUid2CstgOption({ serverPublicKey })
         ),
-      getIdentity: mocks.getUid2(),
+      getIdentity: () => mocks.getUid2(),
     },
     {
       name: 'setIdentityFromEmailHash',
@@ -67,7 +67,7 @@ describe('Client-side token generation Tests', () => {
           'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=',
           mocks.makeUid2CstgOption({ serverPublicKey })
         ),
-      getIdentity: mocks.getUid2(),
+      getIdentity: () => mocks.getUid2(),
     },
     {
       name: 'setIdentityFromPhone',
@@ -76,7 +76,7 @@ describe('Client-side token generation Tests', () => {
         uid2.setIdentityFromPhone('12345678910', mocks.makeUid2CstgOption()),
       setIdentity: (serverPublicKey?: string) =>
         uid2.setIdentityFromPhone('+12345678910', mocks.makeUid2CstgOption({ serverPublicKey })),
-      getIdentity: mocks.getUid2(),
+      getIdentity: () => mocks.getUid2(),
     },
     {
       name: 'setIdentityFromPhoneHash',
@@ -88,7 +88,7 @@ describe('Client-side token generation Tests', () => {
           'kVJ+4ilhrqm3HZDDnCQy4niZknvCoM4MkoVzZrQSdJw=',
           mocks.makeUid2CstgOption({ serverPublicKey })
         ),
-      getIdentity: mocks.getUid2(),
+      getIdentity: () => mocks.getUid2(),
     },
     {
       name: 'setIdentityFromEmail',
@@ -99,7 +99,7 @@ describe('Client-side token generation Tests', () => {
           'test@example.com',
           mocks.makeEuidCstgOption({ serverPublicKey })
         ),
-      getIdentity: mocks.getEuid(),
+      getIdentity: () => mocks.getEuid(),
     },
     {
       name: 'setIdentityFromEmailHash',
@@ -111,7 +111,7 @@ describe('Client-side token generation Tests', () => {
           'lz3+Rj7IV4X1+Vr1ujkG7tstkxwk5pgkqJ6mXbpOgTs=',
           mocks.makeEuidCstgOption({ serverPublicKey })
         ),
-      getIdentity: mocks.getEuid(),
+      getIdentity: () => mocks.getEuid(),
     },
     {
       name: 'setIdentityFromPhone',
@@ -120,7 +120,7 @@ describe('Client-side token generation Tests', () => {
         euid.setIdentityFromPhone('12345678910', mocks.makeEuidCstgOption()),
       setIdentity: (serverPublicKey?: string) =>
         euid.setIdentityFromPhone('+12345678910', mocks.makeEuidCstgOption({ serverPublicKey })),
-      getIdentity: mocks.getEuid(),
+      getIdentity: () => mocks.getEuid(),
     },
     {
       name: 'setIdentityFromPhoneHash',
@@ -132,7 +132,7 @@ describe('Client-side token generation Tests', () => {
           'kVJ+4ilhrqm3HZDDnCQy4niZknvCoM4MkoVzZrQSdJw=',
           mocks.makeEuidCstgOption({ serverPublicKey })
         ),
-      getIdentity: mocks.getEuid(),
+      getIdentity: () => mocks.getEuid(),
     },
   ];
 
@@ -192,7 +192,7 @@ describe('Client-side token generation Tests', () => {
             await scenario.setIdentity(
               scenario.identityType === 'uid2' ? serverPublicKeyUid2 : serverPublicKeyEuid
             );
-            expect(scenario.getIdentity).toEqual(cstgToken);
+            expect(scenario.getIdentity()).toEqual(cstgToken);
           });
 
           test('UID2 or EUID should be in available state', async () => {
@@ -237,7 +237,7 @@ describe('Client-side token generation Tests', () => {
                 scenario.identityType === 'uid2' ? serverPublicKeyUid2 : serverPublicKeyEuid
               )
             ).rejects.toEqual('Client error: Here is a client error');
-            expect(scenario.getIdentity).toBeNull();
+            expect(scenario.getIdentity()).toBeNull();
           });
           test('should be in unavailable state', async () => {
             await expect(
