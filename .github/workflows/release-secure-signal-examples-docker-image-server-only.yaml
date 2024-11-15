@@ -22,7 +22,7 @@ jobs:
     secrets: inherit
 
   publishForSecureSignalsExampleSrvOnly:
-    uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-publish-to-docker-versioned.yaml@v2
+    uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-publish-to-docker-versioned.yaml@v3
     needs: incrementVersionNumber
     with: 
       new_version: ${{ needs.incrementVersionNumber.outputs.new_version }}
