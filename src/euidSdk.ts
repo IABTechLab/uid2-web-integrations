@@ -13,8 +13,6 @@ const productDetails: ProductDetails = {
   cookieName: '__euid',
 };
 
-type EUIDHelper = IdHelper;
-
 export class EUID extends SdkBase {
   private static cookieName = productDetails.cookieName;
   // Deprecated. Integrators should never access the cookie directly!
