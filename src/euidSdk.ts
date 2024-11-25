@@ -1,5 +1,5 @@
 import { EventType, CallbackHandler } from './callbackManager';
-import { CallbackContainer, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
+import { CallbackContainer, IdHelper, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
 import { UidSecureSignalProviderType } from './secureSignal_types';
 import { loadConfig } from './configManager';
@@ -12,6 +12,8 @@ const productDetails: ProductDetails = {
   localStorageKey: 'EUID-sdk-identity',
   cookieName: '__euid',
 };
+
+type EUIDHelper = IdHelper;
 
 export class EUID extends SdkBase {
   private static cookieName = productDetails.cookieName;
@@ -55,6 +57,7 @@ export class EUID extends SdkBase {
 declare global {
   interface Window {
     __euid: EUID | SDKSetup | undefined;
+    __euidHelper: IdHelper | undefined;
     __euidSecureSignalProvider?: UidSecureSignalProviderType;
   }
 }
@@ -80,6 +83,7 @@ export function __euidInternalHandleScriptLoad() {
   const callbacks = window?.__euid?.callbacks || [];
   const callbackContainer: CallbackContainer = {};
   window.__euid = new EUID(callbacks, callbackContainer);
+  window.__euidHelper = new IdHelper();
   if (callbackContainer.callback) callbackContainer.callback();
   bootstrapInit();
 }

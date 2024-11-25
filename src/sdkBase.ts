@@ -13,7 +13,7 @@ import { isNormalizedPhone, normalizeEmail } from './diiNormalization';
 import { isBase64Hash } from './hashedDii';
 import { PromiseHandler } from './promiseHandler';
 import { StorageManager } from './storageManager';
-import { hashAndEncodeIdentifier } from './encoding/hash';
+import { hashAndEncodeIdentifier, hashIdentifier } from './encoding/hash';
 import { ProductDetails, ProductName } from './product';
 import { storeConfig, updateConfig } from './configManager';
 import { loadIdentityFromCookieNoLegacy } from './cookieManager';
@@ -26,6 +26,24 @@ export type SDKSetup = {
   callbacks: CallbackHandler[] | undefined;
 };
 export type CallbackContainer = { callback?: () => void };
+
+export class IdHelper {
+  public normalizeEmail(email: string) {
+    return normalizeEmail(email);
+  }
+
+  public hashIdentifier(normalizedEmail: string) {
+    return hashIdentifier(normalizedEmail);
+  }
+
+  public async hashAndEncodeIdentifier(normalizedEmail: string) {
+    return await hashAndEncodeIdentifier(normalizedEmail);
+  }
+
+  public isNormalizedPhone(phone: string) {
+    return isNormalizedPhone(phone);
+  }
+}
 
 export abstract class SdkBase {
   static get VERSION() {
