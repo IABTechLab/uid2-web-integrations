@@ -1,30 +1,10 @@
 import { EventType, CallbackHandler } from './callbackManager';
-import { isNormalizedPhone, normalizeEmail } from './diiNormalization';
-import { hashAndEncodeIdentifier, hashIdentifier } from './encoding/hash';
-import { CallbackContainer, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
+import { CallbackContainer, UIDHelper, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
 import { loadConfig } from './configManager';
 import { UidSecureSignalProviderType } from './secureSignal_types';
 
 export * from './exports';
-
-export class UID2Helper {
-  public normalizeEmail(email: string) {
-    return normalizeEmail(email);
-  }
-
-  public hashIdentifier(normalizedEmail: string) {
-    return hashIdentifier(normalizedEmail);
-  }
-
-  public async hashAndEncodeIdentifier(normalizedEmail: string) {
-    return await hashAndEncodeIdentifier(normalizedEmail);
-  }
-
-  public isNormalizedPhone(phone: string) {
-    return isNormalizedPhone(phone);
-  }
-}
 
 const productDetails: ProductDetails = {
   name: 'UID2',
@@ -75,7 +55,7 @@ export class UID2 extends SdkBase {
 declare global {
   interface Window {
     __uid2: UID2 | SDKSetup | undefined;
-    __uid2Helper: UID2Helper | undefined;
+    __uid2Helper: UIDHelper | undefined;
     __uid2SecureSignalProvider?: UidSecureSignalProviderType;
   }
 }
@@ -102,7 +82,7 @@ export function __uid2InternalHandleScriptLoad() {
   const callbacks = window?.__uid2?.callbacks || [];
   const callbackContainer: CallbackContainer = {};
   window.__uid2 = new UID2(callbacks, callbackContainer);
-  window.__uid2Helper = new UID2Helper();
+  window.__uid2Helper = new UIDHelper();
   if (callbackContainer.callback) callbackContainer.callback();
   bootstrapInit();
 }
