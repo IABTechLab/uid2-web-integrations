@@ -1,5 +1,5 @@
 import { EventType, CallbackHandler } from './callbackManager';
-import { CallbackContainer, IdHelper, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
+import { CallbackContainer, UIDHelper, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
 import { loadConfig } from './configManager';
 import { UidSecureSignalProviderType } from './secureSignal_types';
@@ -55,7 +55,7 @@ export class UID2 extends SdkBase {
 declare global {
   interface Window {
     __uid2: UID2 | SDKSetup | undefined;
-    __uid2Helper: IdHelper | undefined;
+    __uid2Helper: UIDHelper | undefined;
     __uid2SecureSignalProvider?: UidSecureSignalProviderType;
   }
 }
@@ -82,7 +82,7 @@ export function __uid2InternalHandleScriptLoad() {
   const callbacks = window?.__uid2?.callbacks || [];
   const callbackContainer: CallbackContainer = {};
   window.__uid2 = new UID2(callbacks, callbackContainer);
-  window.__uid2Helper = new IdHelper();
+  window.__uid2Helper = new UIDHelper();
   if (callbackContainer.callback) callbackContainer.callback();
   bootstrapInit();
 }

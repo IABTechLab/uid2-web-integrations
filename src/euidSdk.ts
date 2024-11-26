@@ -1,5 +1,5 @@
 import { EventType, CallbackHandler } from './callbackManager';
-import { CallbackContainer, IdHelper, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
+import { CallbackContainer, UIDHelper, sdkAssertErrorText, SdkBase, SDKSetup } from './sdkBase';
 import { ProductDetails } from './product';
 import { UidSecureSignalProviderType } from './secureSignal_types';
 import { loadConfig } from './configManager';
@@ -55,7 +55,7 @@ export class EUID extends SdkBase {
 declare global {
   interface Window {
     __euid: EUID | SDKSetup | undefined;
-    __euidHelper: IdHelper | undefined;
+    __euidHelper: UIDHelper | undefined;
     __euidSecureSignalProvider?: UidSecureSignalProviderType;
   }
 }
@@ -81,7 +81,7 @@ export function __euidInternalHandleScriptLoad() {
   const callbacks = window?.__euid?.callbacks || [];
   const callbackContainer: CallbackContainer = {};
   window.__euid = new EUID(callbacks, callbackContainer);
-  window.__euidHelper = new IdHelper();
+  window.__euidHelper = new UIDHelper();
   if (callbackContainer.callback) callbackContainer.callback();
   bootstrapInit();
 }

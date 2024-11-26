@@ -27,7 +27,7 @@ export type SDKSetup = {
 };
 export type CallbackContainer = { callback?: () => void };
 
-export class IdHelper {
+export class UIDHelper {
   public normalizeEmail(email: string) {
     return normalizeEmail(email);
   }
