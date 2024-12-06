@@ -184,7 +184,7 @@ export abstract class SdkBase {
   /**
    * @deprecated in version 3.9.0.  Use noIdentityAvailable() instead
    */
-  public noIdentityAvailable() {
+  public isLoginRequired() {
     return this.noIdentityAvailable();
   }
 
@@ -192,11 +192,6 @@ export abstract class SdkBase {
     if (!this._initComplete) return undefined;
     return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
   }
-
-  // public hasIdentity() {
-  //   if (!this._initComplete) return undefined;
-  //   return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
-  // }
 
   public hasOptedOut() {
     if (!this._initComplete) return undefined;
