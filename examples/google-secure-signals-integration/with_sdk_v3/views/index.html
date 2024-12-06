@@ -17,11 +17,11 @@
             __uid2.getAdvertisingToken() ? "yes" : "no"
           );
           $("#advertising_token").html(String(__uid2.getAdvertisingToken()));
-          $("#login_required").html(__uid2.isLoginRequired() ? "yes" : "no");
+          $("#login_required").html(__uid2.noIdentityAvailable() ? "yes" : "no");
           $("#update_counter").html(callbackCounter);
           $("#identity_state").html(String(JSON.stringify(payload, null, 2)));
 
-          if (__uid2.isLoginRequired()) {
+          if (__uid2.noIdentityAvailable()) {
             $("#login_form").show();
             $("#logout_form").hide();
             $('#googleAdContainer').hide();
