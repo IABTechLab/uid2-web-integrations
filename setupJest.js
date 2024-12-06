@@ -17,47 +17,47 @@ expect.extend({
       expect(uid2.getAdvertisingToken()).toBeNonEmptyString();
     }
 
-    expect(uid2.isLoginRequired()).toEqual(false);
+    expect(uid2.noIdentityAvailable()).toEqual(false);
 
     return {
       pass: true,
       message: () =>
-        'Expected getAdvertisingToken() returns a token and isLoginRequired() returns false',
+        'Expected getAdvertisingToken() returns a token and noIdentityAvailable() returns false',
     };
   },
 
   toBeInTemporarilyUnavailableState(uid2) {
     expect(uid2.getAdvertisingToken()).toBeUndefined();
-    expect(uid2.isLoginRequired()).toEqual(false);
+    expect(uid2.noIdentityAvailable()).toEqual(false);
 
     return {
       pass: true,
       message: () =>
-        'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns false',
+        'Expected getAdvertisingToken() returns undefined and noIdentityAvailable() returns false',
     };
   },
 
   toBeInUnavailableState(uid2) {
     expect(uid2.getAdvertisingToken()).toBeUndefined();
-    expect(uid2.isLoginRequired()).toEqual(true);
+    expect(uid2.noIdentityAvailable()).toEqual(true);
     expect(uid2.hasOptedOut()).toEqual(false);
 
     return {
       pass: true,
       message: () =>
-        'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns true',
+        'Expected getAdvertisingToken() returns undefined and noIdentityAvailable() returns true',
     };
   },
 
   toBeInOptoutState(uid2) {
     expect(uid2.getAdvertisingToken()).toBeUndefined();
-    expect(uid2.isLoginRequired()).toEqual(false);
+    expect(uid2.noIdentityAvailable()).toEqual(false);
     expect(uid2.hasOptedOut()).toEqual(true);
 
     return {
       pass: true,
       message: () =>
-        'Expected getAdvertisingToken() returns undefined and isLoginRequired() returns false',
+        'Expected getAdvertisingToken() returns undefined and noIdentityAvailable() returns false',
     };
   },
 });

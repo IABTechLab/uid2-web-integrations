@@ -182,13 +182,13 @@ export abstract class SdkBase {
   }
 
   /**
-   * Deprecated
+   * @deprecated in version 3.9.0.  Use noIdentityAvailable() instead
    */
   public isLoginRequired() {
-    return this.hasIdentity();
+    return this.noIdentityAvailable();
   }
 
-  public hasIdentity() {
+  public noIdentityAvailable() {
     if (!this._initComplete) return undefined;
     return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
   }
@@ -439,7 +439,7 @@ export abstract class SdkBase {
       clearTimeout(this._refreshTimerId);
     }
     this._refreshTimerId = setTimeout(() => {
-      if (this.isLoginRequired()) return;
+      if (this.noIdentityAvailable()) return;
       const validatedIdentity = this.validateAndSetIdentity(
         this._storageManager?.loadIdentity() ?? null
       );
