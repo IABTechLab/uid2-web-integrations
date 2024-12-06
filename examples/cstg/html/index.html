@@ -27,7 +27,7 @@
         $('#targeted_advertising_ready').text(sdk.getAdvertisingToken() ? 'yes' : 'no');
         $('#advertising_token').text(String(sdk.getAdvertisingToken()));
         $('#login_required').text(
-          sdk.isLoginRequired() || sdk.isLoginRequired() === undefined ? 'yes' : 'no'
+          sdk.noIdentityAvailable() || sdk.noIdentityAvailable() === undefined ? 'yes' : 'no'
         );
         $(`#has_opted_out`).text(sdk.hasOptedOut() ? 'yes' : 'no');
         $('#update_counter').text(callbackCounter);
@@ -37,7 +37,7 @@
       }
 
       function updateSharedGuiElements() {
-        if (getUidSdk().isLoginRequired()) {
+        if (getUidSdk().noIdentityAvailable()) {
           $('#login_form').show();
           $('#logout_form').hide();
         } else {
