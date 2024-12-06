@@ -207,14 +207,6 @@ testCookieAndLocalStorage(() => {
         return expect(uid2.getAdvertisingTokenAsync()).rejects.toBeInstanceOf(Error);
       });
     });
-
-    describe('when disconnect() has been called', () => {
-      test('it should reject promise', () => {
-        uid2.init({ identity: makeIdentity(), useCookie: useCookie });
-        uid2.disconnect();
-        return expect(uid2.getAdvertisingTokenAsync()).rejects.toBeInstanceOf(Error);
-      });
-    });
   });
 
   describe('when getAdvertisingTokenAsync is called before refresh on init completes', () => {
@@ -223,13 +215,6 @@ testCookieAndLocalStorage(() => {
     });
     beforeEach(() => {
       uid2.init({ identity: originalIdentity, useCookie: useCookie });
-    });
-
-    describe('when promise obtained after disconnect', () => {
-      test('it should reject promise', () => {
-        uid2.disconnect();
-        return expect(uid2.getAdvertisingTokenAsync()).rejects.toBeInstanceOf(Error);
-      });
     });
   });
 

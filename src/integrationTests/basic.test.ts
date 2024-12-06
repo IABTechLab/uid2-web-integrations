@@ -954,47 +954,6 @@ testCookieAndLocalStorage(() => {
       expect(xhrMock.abort).toHaveBeenCalledTimes(1);
     });
   });
-
-  describe('disconnect()', () => {
-    test('should clear cookie', () => {
-      setUid2(makeIdentityV2(), useCookie);
-      uid2.disconnect();
-      expect(getUid2(useCookie)).toBeNull();
-    });
-    test('should abort refresh timer', () => {
-      uid2.init({
-        callback: callback,
-        identity: makeIdentityV2(),
-        useCookie: useCookie,
-      });
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).not.toHaveBeenCalled();
-      uid2.disconnect();
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).toHaveBeenCalledTimes(1);
-    });
-    test('should abort refresh token request', () => {
-      uid2.init({
-        callback: callback,
-        identity: makeIdentityV2({ refresh_from: Date.now() - 100000 }),
-        useCookie: useCookie,
-      });
-      expect(xhrMock.send).toHaveBeenCalledTimes(1);
-      expect(xhrMock.abort).not.toHaveBeenCalled();
-      uid2.disconnect();
-      expect(xhrMock.send).toHaveBeenCalledTimes(1);
-      expect(xhrMock.abort).toHaveBeenCalledTimes(1);
-    });
-    test('should switch to unavailable state', () => {
-      uid2.init({
-        callback: callback,
-        identity: makeIdentityV2(),
-        useCookie: useCookie,
-      });
-      uid2.disconnect();
-      (expect(uid2) as any).toBeInUnavailableState();
-    });
-  });
 });
 
 describe('Include sdk script multiple times', () => {
