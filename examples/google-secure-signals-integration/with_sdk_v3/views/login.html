@@ -18,7 +18,7 @@
           });
         }
         if (eventType === 'InitCompleted') {
-          if (__uid2.noIdentityAvailable()) __uid2.setIdentity(<%- JSON.stringify(identity) %>)
+          if (__uid2.isLoginRequired()) __uid2.setIdentity(<%- JSON.stringify(identity) %>)
         }
       });
     </script>

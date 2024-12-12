@@ -181,16 +181,20 @@ export abstract class SdkBase {
     return this._initComplete;
   }
 
-  /**
-   * @deprecated in version 3.9.0.  Use noIdentityAvailable() instead
-   */
   public isLoginRequired() {
-    return this.noIdentityAvailable();
+    return !this.isIdentityAvailable();
   }
 
-  public noIdentityAvailable() {
+  /**
+   * @deprecated in version 3.10.0. Will remove in June 2025. Use isIdentityAvailable() instead.
+   **/
+  public hasIdentity() {
     if (!this._initComplete) return undefined;
-    return !(this.isLoggedIn() || this._apiClient?.hasActiveRequests());
+    return !(this.isIdentityValid() || this._apiClient?.hasActiveRequests());
+  }
+
+  public isIdentityAvailable() {
+    return this.isIdentityValid() || this._apiClient?.hasActiveRequests();
   }
 
   public hasOptedOut() {
@@ -295,8 +299,9 @@ export abstract class SdkBase {
     if (this.hasOptedOut()) this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
   }
 
-  private isLoggedIn() {
-    return this._identity && !hasExpired(this._identity.refresh_expires);
+  private isIdentityValid() {
+    const identity = this._identity ?? this.getIdentityNoInit();
+    return identity && !hasExpired(identity.refresh_expires);
   }
 
   private temporarilyUnavailable(identity: Identity | OptoutIdentity | null | undefined) {
@@ -439,7 +444,7 @@ export abstract class SdkBase {
       clearTimeout(this._refreshTimerId);
     }
     this._refreshTimerId = setTimeout(() => {
-      if (this.noIdentityAvailable()) return;
+      if (this.isLoginRequired()) return;
       const validatedIdentity = this.validateAndSetIdentity(
         this._storageManager?.loadIdentity() ?? null
       );
