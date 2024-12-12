@@ -29,9 +29,7 @@
         $('#login_required').text(
           sdk.isLoginRequired() || sdk.isLoginRequired() === undefined ? 'yes' : 'no'
         );
-        $(`#has_opted_out`).text(
-                sdk.hasOptedOut() ? 'yes' : 'no'
-        );
+        $(`#has_opted_out`).text(sdk.hasOptedOut() ? 'yes' : 'no');
         $('#update_counter').text(callbackCounter);
         $('#identity_state').text(String(JSON.stringify(state, null, 2)));
 
