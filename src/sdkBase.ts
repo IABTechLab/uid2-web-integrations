@@ -198,9 +198,6 @@ export abstract class SdkBase {
     return isOptoutIdentity(this._identity);
   }
 
-  /**
-   * @deprecated disconnect() should no longer be used for anything
-   */
   public disconnect() {
     this.abort(`${this._product.name} SDK disconnected.`);
     // Note: This silently fails to clear the cookie if init hasn't been called and a cookieDomain is used!
