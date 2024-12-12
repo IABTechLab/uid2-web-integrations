@@ -199,7 +199,12 @@ export abstract class SdkBase {
   }
 
   public disconnect() {
-    this.abort(`${this._product.name} SDK disconnected.`);
+    this._tokenPromiseHandler.rejectAllPromises(new Error(`${this._product.name} SDK aborted.`));
+    if (this._refreshTimerId) {
+      clearTimeout(this._refreshTimerId);
+      this._refreshTimerId = null;
+    }
+    if (this._apiClient) this._apiClient.abortActiveRequests();
     // Note: This silently fails to clear the cookie if init hasn't been called and a cookieDomain is used!
     if (this._storageManager) this._storageManager.removeValues();
     else
@@ -216,7 +221,7 @@ export abstract class SdkBase {
 
   // Note: This doesn't invoke callbacks. It's a hard, silent reset.
   /**
-   * @deprecated abort() should no longer be used for anything
+   * @deprecated abort() is deprecated in version 3.10.0.  Will be removed in June 2025. Use disconnect() instead
    */
   public abort(reason?: string) {
     this._tokenPromiseHandler.rejectAllPromises(
@@ -406,8 +411,7 @@ export abstract class SdkBase {
     } else if (validity.status === IdentityStatus.OPTOUT || status === IdentityStatus.OPTOUT) {
       this._storageManager.setOptout();
     } else {
-      this.abort();
-      this._storageManager.removeValues();
+      this.disconnect();
     }
 
     this._identity = this._storageManager.loadIdentity();
