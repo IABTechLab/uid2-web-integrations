@@ -1,6 +1,5 @@
 import * as jsdom from 'jsdom';
 import { Cookie } from 'tough-cookie';
-import { UID2 } from './uid2Sdk';
 import { Identity } from './Identity';
 import { base64ToBytes, bytesToBase64 } from './encoding/base64';
 import * as crypto from 'crypto';

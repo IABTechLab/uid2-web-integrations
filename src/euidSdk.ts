@@ -22,7 +22,7 @@ export class EUID extends SdkBase {
     );
     return EUID.cookieName;
   }
-  static get EuidDetails(): ProductDetails {
+  private static get EuidDetails(): ProductDetails {
     return productDetails;
   }
 

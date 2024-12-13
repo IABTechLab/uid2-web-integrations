@@ -15,7 +15,7 @@ mocks.setupFakeTime();
 const mockDomain = 'www.uidapi.com';
 const mockUrl = `http://${mockDomain}/test/index.html`;
 
-const productDetails: ProductDetails = {
+const uid2ProductDetails: ProductDetails = {
   name: 'UID2',
   defaultBaseUrl: 'https://prod.uidapi.com',
   localStorageKey: 'UID2-sdk-identity',
@@ -41,13 +41,14 @@ const getUid2Cookie = mocks.getUid2Cookie;
 const getUid2LocalStorage = mocks.getUid2LocalStorage;
 const removeUid2Cookie = mocks.removeUid2Cookie;
 const removeUid2LocalStorage = mocks.removeUid2LocalStorage;
+const getUid2 = mocks.getUid2;
 
 const getConfigCookie = () => {
   const docCookie = document.cookie;
   if (docCookie) {
     const payload = docCookie
       .split('; ')
-      .find((row) => row.startsWith(productDetails.cookieName + '_config' + '='));
+      .find((row) => row.startsWith(uid2ProductDetails.cookieName + '_config' + '='));
     if (payload) {
       return JSON.parse(decodeURIComponent(payload.split('=')[1]));
     }
@@ -75,7 +76,7 @@ describe('cookieDomain option', () => {
     });
 
     test('should not mention domain in the cookie string', () => {
-      const cookie = cookieMock.getSetCookieString(productDetails.cookieName);
+      const cookie = cookieMock.getSetCookieString(uid2ProductDetails.cookieName);
       expect(cookie).not.toBe('');
       expect(cookie).not.toContain('Domain=');
     });
@@ -94,7 +95,7 @@ describe('cookieDomain option', () => {
     });
 
     test('should use domain in the cookie string', () => {
-      const cookie = cookieMock.getSetCookieString(productDetails.cookieName);
+      const cookie = cookieMock.getSetCookieString(uid2ProductDetails.cookieName);
       expect(cookie).toContain(`Domain=${domain};`);
     });
   });
@@ -111,7 +112,7 @@ describe('cookiePath option', () => {
     });
 
     test('should use the default path in the cookie string', () => {
-      const cookie = cookieMock.getSetCookieString(productDetails.cookieName) as string;
+      const cookie = cookieMock.getSetCookieString(uid2ProductDetails.cookieName) as string;
       expect(cookie + ';').toContain('Path=/;');
     });
   });
@@ -129,7 +130,7 @@ describe('cookiePath option', () => {
     });
 
     test('should use custom path in the cookie string', () => {
-      const cookie = cookieMock.getSetCookieString(productDetails.cookieName) as string;
+      const cookie = cookieMock.getSetCookieString(uid2ProductDetails.cookieName) as string;
       expect(cookie + ';').toContain(`Path=${path};`);
     });
   });
@@ -357,7 +358,7 @@ describe('multiple init calls', () => {
     });
 
     test('should update cookie manager', () => {
-      const cookie = cookieMock.getSetCookieString(productDetails.cookieName);
+      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
       expect(cookie).toContain(`Domain=${cookieDomain};`);
       expect(cookie + ';').toContain(`Path=${newCookiePath};`);
       const configCookie = getConfigCookie();
@@ -520,7 +521,7 @@ describe('Store config UID2', () => {
   beforeEach(() => {
     localStorage.removeItem('UID2-sdk-identity_config');
     document.cookie =
-      productDetails.cookieName + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
+      uid2ProductDetails.cookieName + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
   });
 
   describe('when useCookie is true', () => {
@@ -529,14 +530,14 @@ describe('Store config UID2', () => {
       const cookie = getConfigCookie();
       expect(cookie).toBeInstanceOf(Object);
       expect(cookie).toHaveProperty('cookieDomain');
-      const storageConfig = loadConfig(productDetails);
+      const storageConfig = getConfigStorage();
       expect(storageConfig).toBeNull();
     });
   });
   describe('when useCookie is false', () => {
     test('should store config in local storage', () => {
       uid2.init({ callback: callback, identity: identity, ...options });
-      const storageConfig = loadConfig(productDetails);
+      const storageConfig = getConfigStorage();
       expect(storageConfig).toBeInstanceOf(Object);
       expect(storageConfig).toHaveProperty('cookieDomain');
       const cookie = getConfigCookie();
@@ -546,11 +547,11 @@ describe('Store config UID2', () => {
   describe('when useCookie is false', () => {
     test('can successfully clear the config in storage', () => {
       uid2.init({ callback: callback, identity: identity, ...options });
-      let storageConfig = loadConfig(productDetails);
+      let storageConfig = loadConfig(uid2ProductDetails);
       expect(storageConfig).toBeInstanceOf(Object);
       expect(storageConfig).toHaveProperty('cookieDomain');
-      removeConfig(previousOptions, productDetails);
-      storageConfig = loadConfig(productDetails);
+      removeConfig(previousOptions, uid2ProductDetails);
+      storageConfig = loadConfig(uid2ProductDetails);
       expect(storageConfig).toBeNull();
     });
   });
