@@ -358,7 +358,7 @@ describe('multiple init calls', () => {
     });
 
     test('should update cookie manager', () => {
-      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
+      const cookie = cookieMock.getSetCookieString(uid2ProductDetails.cookieName);
       expect(cookie).toContain(`Domain=${cookieDomain};`);
       expect(cookie + ';').toContain(`Path=${newCookiePath};`);
       const configCookie = getConfigCookie();
