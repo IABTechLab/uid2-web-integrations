@@ -41,7 +41,6 @@ const getUid2Cookie = mocks.getUid2Cookie;
 const getUid2LocalStorage = mocks.getUid2LocalStorage;
 const removeUid2Cookie = mocks.removeUid2Cookie;
 const removeUid2LocalStorage = mocks.removeUid2LocalStorage;
-const getUid2 = mocks.getUid2;
 
 const getConfigCookie = () => {
   const docCookie = document.cookie;
@@ -520,7 +519,8 @@ describe('Store config UID2', () => {
 
   beforeEach(() => {
     localStorage.removeItem('UID2-sdk-identity_config');
-    document.cookie = productDetails + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
+    document.cookie =
+      productDetails.cookieName + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
   });
 
   describe('when useCookie is true', () => {
