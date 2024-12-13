@@ -26,12 +26,19 @@ jest.spyOn(document, 'URL', 'get').mockImplementation(() => mockUrl);
 
 const makeIdentity = mocks.makeIdentityV2;
 
+const productDetails: ProductDetails = {
+  name: 'EUID',
+  defaultBaseUrl: 'https://prod.euid.eu',
+  localStorageKey: 'EUID-sdk-identity',
+  cookieName: '__euid',
+};
+
 const getConfigCookie = () => {
   const docCookie = document.cookie;
   if (docCookie) {
     const payload = docCookie
       .split('; ')
-      .find((row) => row.startsWith(EUID.COOKIE_NAME + '_config' + '='));
+      .find((row) => row.startsWith(productDetails.cookieName + '_config' + '='));
     if (payload) {
       return JSON.parse(decodeURIComponent(payload.split('=')[1]));
     }
@@ -148,13 +155,6 @@ describe('Store config EUID', () => {
     cookieDomain: mockDomain,
     refreshRetryPeriod: 1000,
     useCookie: false,
-  };
-
-  const productDetails: ProductDetails = {
-    cookieName: '__euid',
-    defaultBaseUrl: 'http://test-host',
-    localStorageKey: 'EUID-sdk-identity',
-    name: 'EUID',
   };
 
   beforeEach(() => {

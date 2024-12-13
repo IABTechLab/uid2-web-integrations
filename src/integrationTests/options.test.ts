@@ -515,12 +515,7 @@ describe('Store config UID2', () => {
     refreshRetryPeriod: 1000,
     useCookie: false,
   };
-  const productDetails: ProductDetails = {
-    cookieName: '__uid2',
-    defaultBaseUrl: 'http://test-host',
-    localStorageKey: 'UID2-sdk-identity',
-    name: 'UID2',
-  };
+
   const previousOptions: SdkOptions = options;
 
   beforeEach(() => {

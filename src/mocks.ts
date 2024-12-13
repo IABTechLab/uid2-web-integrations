@@ -4,9 +4,17 @@ import { UID2 } from './uid2Sdk';
 import { Identity } from './Identity';
 import { base64ToBytes, bytesToBase64 } from './encoding/base64';
 import * as crypto from 'crypto';
+import { ProductDetails } from './product';
 
 const uid2LocalStorageKeyName = 'UID2-sdk-identity';
 const euidLocalStorageKeyName = 'EUID-sdk-identity';
+
+const uid2ProductDetails: ProductDetails = {
+  name: 'UID2',
+  defaultBaseUrl: 'https://prod.uidapi.com',
+  localStorageKey: 'UID2-sdk-identity',
+  cookieName: '__uid_2',
+};
 
 export class CookieMock {
   jar: jsdom.CookieJar;
@@ -281,7 +289,7 @@ export function setCookieMock(document: Document) {
 }
 
 export function setUid2Cookie(value: any) {
-  document.cookie = UID2.COOKIE_NAME + '=' + encodeURIComponent(JSON.stringify(value));
+  document.cookie = uid2ProductDetails.cookieName + '=' + encodeURIComponent(JSON.stringify(value));
 }
 
 export function removeUid2Cookie() {
@@ -304,7 +312,9 @@ export function setUid2(value: any, useCookie?: boolean) {
 export function getUid2Cookie() {
   const docCookie = document.cookie;
   if (docCookie) {
-    const payload = docCookie.split('; ').find((row) => row.startsWith(UID2.COOKIE_NAME + '='));
+    const payload = docCookie
+      .split('; ')
+      .find((row) => row.startsWith(uid2ProductDetails.cookieName + '='));
     if (payload) {
       return JSON.parse(decodeURIComponent(payload.split('=')[1]));
     }
