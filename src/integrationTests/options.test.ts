@@ -15,6 +15,13 @@ mocks.setupFakeTime();
 const mockDomain = 'www.uidapi.com';
 const mockUrl = `http://${mockDomain}/test/index.html`;
 
+const productDetails: ProductDetails = {
+  name: 'UID2',
+  defaultBaseUrl: 'https://prod.uidapi.com',
+  localStorageKey: 'UID2-sdk-identity',
+  cookieName: '__uid_2',
+};
+
 beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
@@ -41,7 +48,7 @@ const getConfigCookie = () => {
   if (docCookie) {
     const payload = docCookie
       .split('; ')
-      .find((row) => row.startsWith(UID2.COOKIE_NAME + '_config' + '='));
+      .find((row) => row.startsWith(productDetails.cookieName + '_config' + '='));
     if (payload) {
       return JSON.parse(decodeURIComponent(payload.split('=')[1]));
     }
@@ -69,7 +76,7 @@ describe('cookieDomain option', () => {
     });
 
     test('should not mention domain in the cookie string', () => {
-      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
+      const cookie = cookieMock.getSetCookieString(productDetails.cookieName);
       expect(cookie).not.toBe('');
       expect(cookie).not.toContain('Domain=');
     });
@@ -88,7 +95,7 @@ describe('cookieDomain option', () => {
     });
 
     test('should use domain in the cookie string', () => {
-      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
+      const cookie = cookieMock.getSetCookieString(productDetails.cookieName);
       expect(cookie).toContain(`Domain=${domain};`);
     });
   });
@@ -105,7 +112,7 @@ describe('cookiePath option', () => {
     });
 
     test('should use the default path in the cookie string', () => {
-      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME) as string;
+      const cookie = cookieMock.getSetCookieString(productDetails.cookieName) as string;
       expect(cookie + ';').toContain('Path=/;');
     });
   });
@@ -123,7 +130,7 @@ describe('cookiePath option', () => {
     });
 
     test('should use custom path in the cookie string', () => {
-      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME) as string;
+      const cookie = cookieMock.getSetCookieString(productDetails.cookieName) as string;
       expect(cookie + ';').toContain(`Path=${path};`);
     });
   });
@@ -351,7 +358,7 @@ describe('multiple init calls', () => {
     });
 
     test('should update cookie manager', () => {
-      const cookie = cookieMock.getSetCookieString(UID2.COOKIE_NAME);
+      const cookie = cookieMock.getSetCookieString(productDetails.cookieName);
       expect(cookie).toContain(`Domain=${cookieDomain};`);
       expect(cookie + ';').toContain(`Path=${newCookiePath};`);
       const configCookie = getConfigCookie();
@@ -518,8 +525,7 @@ describe('Store config UID2', () => {
 
   beforeEach(() => {
     localStorage.removeItem('UID2-sdk-identity_config');
-    document.cookie =
-      UID2.COOKIE_NAME + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
+    document.cookie = productDetails + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
   });
 
   describe('when useCookie is true', () => {

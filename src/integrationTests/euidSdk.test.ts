@@ -160,7 +160,7 @@ describe('Store config EUID', () => {
   beforeEach(() => {
     sdkWindow.__euid = new EUID();
     document.cookie =
-      EUID.COOKIE_NAME + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
+      productDetails.cookieName + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
   });
 
   afterEach(() => {
