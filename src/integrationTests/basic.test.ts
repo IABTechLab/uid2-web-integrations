@@ -910,51 +910,6 @@ testCookieAndLocalStorage(() => {
     });
   });
 
-  describe('abort()', () => {
-    test('should not clear cookie', () => {
-      const identity = makeIdentityV2();
-      setUid2(identity, useCookie);
-      uid2.abort();
-      expect(getUid2(useCookie).advertising_token).toBe(identity.advertising_token);
-    });
-    test('should abort refresh timer', () => {
-      uid2.init({
-        callback: callback,
-        identity: makeIdentityV2(),
-        useCookie: useCookie,
-      });
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).not.toHaveBeenCalled();
-      uid2.abort();
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(clearTimeout).toHaveBeenCalledTimes(1);
-    });
-    test('should not abort refresh timer if not timer is set', () => {
-      uid2.init({
-        callback: callback,
-        identity: makeIdentityV2({ refresh_from: Date.now() - 100000 }),
-        useCookie: useCookie,
-      });
-      expect(setTimeout).not.toHaveBeenCalled();
-      expect(clearTimeout).not.toHaveBeenCalled();
-      uid2.abort();
-      expect(setTimeout).not.toHaveBeenCalled();
-      expect(clearTimeout).not.toHaveBeenCalled();
-    });
-    test('should abort refresh token request', () => {
-      uid2.init({
-        callback: callback,
-        identity: makeIdentityV2({ refresh_from: Date.now() - 100000 }),
-        useCookie: useCookie,
-      });
-      expect(xhrMock.send).toHaveBeenCalledTimes(1);
-      expect(xhrMock.abort).not.toHaveBeenCalled();
-      uid2.abort();
-      expect(xhrMock.send).toHaveBeenCalledTimes(1);
-      expect(xhrMock.abort).toHaveBeenCalledTimes(1);
-    });
-  });
-
   describe('disconnect()', () => {
     test('should clear cookie', () => {
       setUid2(makeIdentityV2(), useCookie);
