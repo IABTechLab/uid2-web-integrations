@@ -5,12 +5,11 @@ import { sdkWindow, EUID, __euidInternalHandleScriptLoad, SdkOptions } from '../
 import { EventType, CallbackHandler } from '../callbackManager';
 import { __euidSSProviderScriptLoad } from '../secureSignalEuid';
 import { UidSecureSignalProvider } from '../secureSignal_shared';
-import { ProductDetails } from '../product';
 import { removeConfig } from '../configManager';
+import { ProductDetails } from '../product';
 
 let callback: any;
 let asyncCallback: jest.Mock<CallbackHandler>;
-let euid: EUID;
 let xhrMock: any;
 let uid2ESP: UidSecureSignalProvider;
 let secureSignalProvidersPushMock: jest.Mock<(p: any) => Promise<void>>;
@@ -26,12 +25,19 @@ jest.spyOn(document, 'URL', 'get').mockImplementation(() => mockUrl);
 
 const makeIdentity = mocks.makeIdentityV2;
 
+const euidProductDetails: ProductDetails = {
+  name: 'EUID',
+  defaultBaseUrl: 'https://prod.euid.eu',
+  localStorageKey: 'EUID-sdk-identity',
+  cookieName: '__euid',
+};
+
 const getConfigCookie = () => {
   const docCookie = document.cookie;
   if (docCookie) {
     const payload = docCookie
       .split('; ')
-      .find((row) => row.startsWith(EUID.COOKIE_NAME + '_config' + '='));
+      .find((row) => row.startsWith(euidProductDetails.cookieName + '_config' + '='));
     if (payload) {
       return JSON.parse(decodeURIComponent(payload.split('=')[1]));
     }
@@ -150,17 +156,10 @@ describe('Store config EUID', () => {
     useCookie: false,
   };
 
-  const productDetails: ProductDetails = {
-    cookieName: '__euid',
-    defaultBaseUrl: 'http://test-host',
-    localStorageKey: 'EUID-sdk-identity',
-    name: 'EUID',
-  };
-
   beforeEach(() => {
     sdkWindow.__euid = new EUID();
     document.cookie =
-      EUID.COOKIE_NAME + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
+      euidProductDetails.cookieName + '_config' + '=;expires=Tue, 1 Jan 1980 23:59:59 GMT;path=/';
   });
 
   afterEach(() => {
@@ -190,7 +189,7 @@ describe('Store config EUID', () => {
       });
       let cookie = getConfigCookie();
       expect(cookie).toBeInstanceOf(Object);
-      removeConfig({ ...options, useCookie: true }, productDetails);
+      removeConfig({ ...options, useCookie: true }, euidProductDetails);
       cookie = getConfigCookie();
       expect(cookie).toBeNull();
     });

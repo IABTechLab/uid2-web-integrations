@@ -14,15 +14,7 @@ const productDetails: ProductDetails = {
 };
 
 export class EUID extends SdkBase {
-  private static cookieName = productDetails.cookieName;
-  // Deprecated. Integrators should never access the cookie directly!
-  static get COOKIE_NAME() {
-    console.warn(
-      'Detected access to EUID.COOKIE_NAME. This is deprecated and will be removed in the future. Integrators should not access the cookie directly.'
-    );
-    return EUID.cookieName;
-  }
-  static get EuidDetails(): ProductDetails {
+  private static get EuidDetails(): ProductDetails {
     return productDetails;
   }
 
