@@ -215,21 +215,6 @@ export abstract class SdkBase {
     });
   }
 
-  // Note: This doesn't invoke callbacks. It's a hard, silent reset.
-  /**
-   * @deprecated abort() is deprecated in version 3.10.0.  Will be removed in June 2025. Use disconnect() instead
-   */
-  public abort(reason?: string) {
-    this._tokenPromiseHandler.rejectAllPromises(
-      reason ?? new Error(`${this._product.name} SDK aborted.`)
-    );
-    if (this._refreshTimerId) {
-      clearTimeout(this._refreshTimerId);
-      this._refreshTimerId = null;
-    }
-    if (this._apiClient) this._apiClient.abortActiveRequests();
-  }
-
   private initInternal(opts: SdkOptions | unknown) {
     if (!isSDKOptionsOrThrow(opts))
       throw new TypeError(`Options provided to ${this._product.name} init couldn't be validated.`);
