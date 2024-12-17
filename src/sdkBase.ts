@@ -185,14 +185,6 @@ export abstract class SdkBase {
     return !this.isIdentityAvailable();
   }
 
-  /**
-   * @deprecated in version 3.10.0. Will remove in June 2025. Use isIdentityAvailable() instead.
-   **/
-  public hasIdentity() {
-    if (!this._initComplete) return undefined;
-    return !(this.isIdentityValid() || this._apiClient?.hasActiveRequests());
-  }
-
   public isIdentityAvailable() {
     return this.isIdentityValid() || this._apiClient?.hasActiveRequests();
   }
