@@ -33,7 +33,7 @@ const makeIdentityV2 = mocks.makeIdentityV2;
 let useCookie: boolean | undefined = undefined;
 
 const UID2Version = 'uid2' + '-sdk-' + UID2.VERSION;
-const uid2RefreshUrl = `https://prod.uidapi.com/v2/token/refresh?version=${UID2Version}`;
+const uid2RefreshUrl = `https://prod.uidapi.com/v2/token/refresh?client=${UID2Version}`;
 
 const testCookieAndLocalStorage = (test: () => void, only = false) => {
   const describeFn = only ? describe.only : describe;
