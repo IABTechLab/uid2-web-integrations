@@ -149,7 +149,7 @@ export class ApiClient {
   }
 
   public callRefreshApi(refreshDetails: Identity): Promise<RefreshResult> {
-    const url = this._baseUrl + `/v2/token/refresh?version=${this._clientVersion}`;
+    const url = this._baseUrl + `/v2/token/refresh?client=${this._clientVersion}`;
     const req = new XMLHttpRequest();
     this._requestsInFlight.push(req);
     req.overrideMimeType('text/plain');
@@ -242,7 +242,7 @@ export class ApiClient {
       subscription_id: opts.subscriptionId,
     };
 
-    const url = this._baseUrl + `/v2/token/client-generate?version=${this._clientVersion}`;
+    const url = this._baseUrl + `/v2/token/client-generate?client=${this._clientVersion}`;
     const req = new XMLHttpRequest();
     this._requestsInFlight.push(req);
     req.overrideMimeType('text/plain');
