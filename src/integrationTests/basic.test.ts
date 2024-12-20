@@ -32,6 +32,9 @@ const makeIdentityV2 = mocks.makeIdentityV2;
 
 let useCookie: boolean | undefined = undefined;
 
+const UID2Version = 'uid2' + '-sdk-' + UID2.VERSION;
+const uid2RefreshUrl = `https://prod.uidapi.com/v2/token/refresh?client=${UID2Version}`;
+
 const testCookieAndLocalStorage = (test: () => void, only = false) => {
   const describeFn = only ? describe.only : describe;
   describeFn('Using default: ', () => {
@@ -292,8 +295,7 @@ testCookieAndLocalStorage(() => {
 
       test('should initiate token refresh', () => {
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
-        const url = 'https://prod.uidapi.com/v2/token/refresh';
-        expect(xhrMock.open).toHaveBeenLastCalledWith('POST', url, true);
+        expect(xhrMock.open).toHaveBeenLastCalledWith('POST', uid2RefreshUrl, true);
         expect(xhrMock.send).toHaveBeenLastCalledWith(identity.refresh_token);
         xhrMock.onreadystatechange();
         expect(cryptoMock.subtle.importKey).toHaveBeenCalled();
@@ -321,8 +323,7 @@ testCookieAndLocalStorage(() => {
       test('should initiate token refresh', () => {
         const cryptoMock = new mocks.CryptoMock(sdkWindow);
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
-        const url = 'https://prod.uidapi.com/v2/token/refresh';
-        expect(xhrMock.open).toHaveBeenLastCalledWith('POST', url, true);
+        expect(xhrMock.open).toHaveBeenLastCalledWith('POST', uid2RefreshUrl, true);
         expect(xhrMock.send).toHaveBeenLastCalledWith(identity.refresh_token);
         xhrMock.onreadystatechange();
         expect(cryptoMock.subtle.importKey).toHaveBeenCalledTimes(0);

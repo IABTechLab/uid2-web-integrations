@@ -149,12 +149,11 @@ export class ApiClient {
   }
 
   public callRefreshApi(refreshDetails: Identity): Promise<RefreshResult> {
-    const url = this._baseUrl + '/v2/token/refresh';
+    const url = this._baseUrl + `/v2/token/refresh?client=${this._clientVersion}`;
     const req = new XMLHttpRequest();
     this._requestsInFlight.push(req);
     req.overrideMimeType('text/plain');
     req.open('POST', url, true);
-    req.setRequestHeader('X-UID2-Client-Version', this._clientVersion); // N.B. EUID and UID2 currently both use the same header
     let resolvePromise: (result: RefreshResult) => void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let rejectPromise: (reason?: any) => void;
@@ -221,7 +220,7 @@ export class ApiClient {
     opts: ClientSideIdentityOptions
   ): Promise<CstgResult> {
     const request =
-        'emailHash' in data ? { email_hash: data.emailHash } : { phone_hash: data.phoneHash };
+      'emailHash' in data ? { email_hash: data.emailHash } : { phone_hash: data.phoneHash };
 
     const box = await CstgBox.build(stripPublicKeyPrefix(opts.serverPublicKey));
 
@@ -243,7 +242,7 @@ export class ApiClient {
       subscription_id: opts.subscriptionId,
     };
 
-    const url = this._baseUrl + '/v2/token/client-generate';
+    const url = this._baseUrl + `/v2/token/client-generate?client=${this._clientVersion}`;
     const req = new XMLHttpRequest();
     this._requestsInFlight.push(req);
     req.overrideMimeType('text/plain');
