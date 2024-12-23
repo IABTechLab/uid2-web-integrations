@@ -1,5 +1,5 @@
 name: Release Secure Signal Examples Docker Image
-run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} Secure Signal Examples Docker Image by @${{ github.actor }}  
+run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} Secure Signal Examples Docker Image by @${{ github.actor }}
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  build-server-only:
+  build-server-side:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,10 +29,10 @@ jobs:
           tags: |
             type=sha,format=short
             type=raw,value=latest
-      - name: Build and push Docker server_only image
+      - name: Build and push Docker server_side image
         uses: docker/build-push-action@v5
         with:
-          context: examples/google-secure-signals-integration/server_only
+          context: examples/google-secure-signals-integration/server_side
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
