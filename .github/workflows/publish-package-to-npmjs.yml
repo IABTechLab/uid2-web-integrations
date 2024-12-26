@@ -37,7 +37,7 @@ jobs:
     needs: [incrementVersionNumber]
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
         target: [development, production]
     steps:
@@ -56,16 +56,26 @@ jobs:
         run: npm install
       - name: Build script
         run: npm run build -- --mode=${{ matrix.target }}
+      # - uses: actions/upload-artifact@v4
+      #   if: inputs.publish_to_cdn
+      #   with:
+      #     name: uid2SDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
+      #     path: ./dist/uid2-sdk-${{ steps.version.outputs.package_version }}.js
       - uses: actions/upload-artifact@v4
         if: inputs.publish_to_cdn
         with:
-          name: uid2SDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
-          path: ./dist/uid2-sdk-${{ steps.version.outputs.package_version }}.js
+          name: uid2SDK-${{ matrix.target }}-latest
+          path: ./dist/uid2-sdk-latest.js
+      # - uses: actions/upload-artifact@v4
+      #   if: inputs.publish_to_cdn
+      #   with:
+      #     name: euidSDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
+      #     path: ./dist/euid-sdk-${{ steps.version.outputs.package_version }}.js
       - uses: actions/upload-artifact@v4
         if: inputs.publish_to_cdn
         with:
-          name: euidSDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
-          path: ./dist/euid-sdk-${{ steps.version.outputs.package_version }}.js
+          name: euidSDK-${{ matrix.target }}-latest
+          path: ./dist/euid-sdk-latest.js
     outputs:
       sdkVersion: ${{ steps.version.outputs.package_version }}
   publish-package:
@@ -78,26 +88,26 @@ jobs:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
           scope: uid2
       - run: npm ci
       - name: Build package
         run: npm run build-package
-      - name: Publish Latest package
-        if: ${{!github.event.inputs.with_tag}}
-        run: |
-          npm publish ./dist/uid2-npm --access public
-          npm publish ./dist/euid-npm --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Publish Latest package with tag
-        if: ${{github.event.inputs.with_tag}}
-        run: |
-          npm publish ./dist/uid2-npm --tag ${{github.event.inputs.with_tag}} --access public
-          npm publish ./dist/euid-npm --tag ${{github.event.inputs.with_tag}} --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # - name: Publish Latest package
+      #   if: ${{!github.event.inputs.with_tag}}
+      #   run: |
+      #     npm publish ./dist/uid2-npm --access public
+      #     npm publish ./dist/euid-npm --access public
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # - name: Publish Latest package with tag
+      #   if: ${{github.event.inputs.with_tag}}
+      #   run: |
+      #     npm publish ./dist/uid2-npm --tag ${{github.event.inputs.with_tag}} --access public
+      #     npm publish ./dist/euid-npm --tag ${{github.event.inputs.with_tag}} --access public
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   cdn-deployment-uid2:
     if: inputs.publish_to_cdn
     needs: [build, incrementVersionNumber]
@@ -112,11 +122,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
+      # - uses: ./.github/actions/cdn_deployment_aws
+      # with:
+      #   environment: ${{ matrix.environment }}
+      #   artifact: uid2SDK-${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
+      #   invalidate_paths: '/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js'
+      #   aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
+      #   aws_bucket_name: ${{ vars.S3_BUCKET }}
+      #   aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
       - uses: ./.github/actions/cdn_deployment_aws
         with:
           environment: ${{ matrix.environment }}
-          artifact: uid2SDK-${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
-          invalidate_paths: '/uid2-sdk-${{ needs.build.outputs.sdkVersion}}.js'
+          artifact: uid2SDK-${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}-latest
+          invalidate_paths: '/uid2-sdk-latest.js'
           aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
           aws_bucket_name: ${{ vars.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
@@ -134,11 +152,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
+      # - uses: ./.github/actions/cdn_deployment_aws
+      #   with:
+      #     environment: ${{ matrix.environment }}
+      #     artifact: euidSDK-${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
+      #     invalidate_paths: '/euid-sdk-${{ needs.build.outputs.sdkVersion}}.js'
+      #     aws_account_id: ${{ vars.EUID_AWS_ACCOUNT_ID }}
+      #     aws_bucket_name: ${{ vars.EUID_S3_BUCKET }}
+      #     aws_distribution_id: ${{ secrets.EUID_AWS_DISTRIBUTION_ID }}
       - uses: ./.github/actions/cdn_deployment_aws
         with:
           environment: ${{ matrix.environment }}
-          artifact: euidSDK-${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}-${{ needs.build.outputs.sdkVersion}}
-          invalidate_paths: '/euid-sdk-${{ needs.build.outputs.sdkVersion}}.js'
+          artifact: euidSDK-${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}-latest
+          invalidate_paths: '/euid-sdk-latest.js'
           aws_account_id: ${{ vars.EUID_AWS_ACCOUNT_ID }}
           aws_bucket_name: ${{ vars.EUID_S3_BUCKET }}
           aws_distribution_id: ${{ secrets.EUID_AWS_DISTRIBUTION_ID }}

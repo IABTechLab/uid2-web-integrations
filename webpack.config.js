@@ -31,9 +31,17 @@ module.exports = (env, argv) => {
             import: uid2Entrypoint,
             filename: `uid2-sdk-${process.env.npm_package_version}.js`,
           },
+          'uid2-sdk-latest': {
+            import: uid2Entrypoint,
+            filename: `uid2-sdk-latest.js`,
+          },
           'euid-sdk': {
             import: euidEntrypoint,
             filename: `euid-sdk-${process.env.npm_package_version}.js`,
+          },
+          'euid-sdk-latest': {
+            import: euidEntrypoint,
+            filename: `euid-sdk-latest.js`,
           },
           ...getExampleOutputs(env),
         }
