@@ -1,6 +1,6 @@
 {
   "name": "@uid2/uid2-sdk",
-  "version": "3.10.0",
+  "version": "3.10.14-SNAPSHOT",
   "description": "UID2 Client SDK",
   "author": "The Trade Desk",
   "repository": {
