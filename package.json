@@ -27,7 +27,7 @@
     "localtest": "cd localtest && tsx server.ts"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "jest": {
     "preset": "ts-jest",
