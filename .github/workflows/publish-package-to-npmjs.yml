@@ -37,7 +37,7 @@ jobs:
     needs: [incrementVersionNumber]
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
         target: [development, production]
     steps:
@@ -78,7 +78,7 @@ jobs:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
           scope: uid2
       - run: npm ci
