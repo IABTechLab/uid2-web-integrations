@@ -1,5 +1,5 @@
 name: Release Secure Signal Examples Docker Image for Standard
-run-name: ${{ inputs.release_type == 'Snapshot' && 'Publish Pre-release' || format('Release {0}', inputs.release_type)}} Secure Signal Examples Docker Image for Standard by @${{ github.actor }}  
+run-name: ${{ inputs.release_type == 'Snapshot' && 'Publish Pre-release' || format('Release {0}', inputs.release_type)}} Secure Signal Examples Docker Image for Standard by @${{ github.actor }}
 on:
   workflow_dispatch:
     inputs:
@@ -7,10 +7,11 @@ on:
         type: choice
         description: The type of release
         options:
-        - Major
-        - Minor
-        - Patch
-        - Snapshot
+          - Major
+          - Minor
+          - Patch
+          - Snapshot
+        required: true
 
 jobs:
   incrementVersionNumber:
@@ -23,7 +24,7 @@ jobs:
   publishForSecureSignalsExampleJssdk:
     uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-publish-to-docker-versioned.yaml@v3
     needs: incrementVersionNumber
-    with: 
+    with:
       new_version: ${{ needs.incrementVersionNumber.outputs.new_version }}
       image_tag: ${{ needs.incrementVersionNumber.outputs.image_tag }}
       release_type: ${{ inputs.release_type }}
