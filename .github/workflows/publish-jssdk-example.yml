@@ -9,7 +9,7 @@ env:
   IMAGE_NAME: iabtechlab/uid2-js-sdk-example
 
 jobs:
-  build-cstg-example:
+  build-js-sdk-example:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,7 +32,7 @@ jobs:
       - name: Build and push Docker JS SDK Example image
         uses: docker/build-push-action@v5
         with:
-          context: examples/cstg
+          context: examples/js-sdk
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
