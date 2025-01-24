@@ -1,0 +1,27 @@
+{
+  "name": "uid2-publisher",
+  "version": "1.0.9-fa449d0766",
+  "private": true,
+  "engineStrict": true,
+  "license": "BSD-2-Clause",
+  "scripts": {
+    "start": "node server.js",
+    "lint": "eslint server.js"
+  },
+  "engines": {
+    "node": "20.11.0"
+  },
+  "dependencies": {
+    "axios": "^0.23.0",
+    "body-parser": "^1.20.3",
+    "ejs": "^3.1.7",
+    "express": "^4.21.2",
+    "path-to-regexp": "^8.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.29.0",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "eslint-plugin-testing-library": "^4.6.0"
+  }
+}
