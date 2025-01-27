@@ -102,7 +102,6 @@ export abstract class SdkBase {
   }
 
   public async setIdentityFromEmail(email: string, opts: ClientSideIdentityOptions) {
-    this._logger.log('Sending request', email);
     this.throwIfInitNotComplete('Cannot set identity before calling init.');
     isClientSideIdentityOptionsOrThrow(opts, this._product.name);
 
@@ -225,12 +224,10 @@ export abstract class SdkBase {
 
       if (opts.baseUrl && opts.baseUrl !== previousOpts.baseUrl) {
         this._apiClient?.updateBaseUrl(opts.baseUrl);
-        this._logger.log('BaseUrl updated for ApiClient');
       }
 
       if (opts.callback && opts.callback !== previousOpts.callback) {
         this._initCallbackManager?.addInitCallback(opts.callback);
-        this._logger.log('init callback added to list');
       }
 
       const useNewIdentity =
@@ -246,7 +243,6 @@ export abstract class SdkBase {
 
       if (opts.refreshRetryPeriod && previousOpts.refreshRetryPeriod !== opts.refreshRetryPeriod) {
         this.setRefreshTimer();
-        this._logger.log('new refresh period set and refresh timer set');
       }
 
       updateConfig(this._opts, this._product, previousOpts);

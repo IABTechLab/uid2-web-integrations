@@ -10,6 +10,14 @@ let xhrMock: any;
 
 mocks.setupFakeTime();
 
+beforeAll(() => {
+  mocks.setWarnMock();
+});
+
+afterAll(() => {
+  mocks.clearWarnMock();
+});
+
 beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
@@ -1011,7 +1019,7 @@ describe('SDK bootstraps itself if init has already been completed', () => {
     sdkWindow.__uid2 = new UID2();
   });
 
-  test('should bootstrap therefore public functions should return the correct values without calling init again', async () => {
+  test.only('should bootstrap therefore public functions should return the correct values without calling init again', async () => {
     const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
 
     uid2.init({ identity });
@@ -1027,13 +1035,13 @@ describe('SDK bootstraps itself if init has already been completed', () => {
       await uid2.setIdentityFromEmail(email, mocks.makeUid2CstgOption());
     }).not.toThrow();
     expect(async () => {
-      uid2.setIdentityFromEmailHash(emailHash, mocks.makeUid2CstgOption());
+      await uid2.setIdentityFromEmailHash(emailHash, mocks.makeUid2CstgOption());
     }).not.toThrow();
     expect(async () => {
       await uid2.setIdentityFromPhone(phone, mocks.makeUid2CstgOption());
     }).not.toThrow();
     expect(async () => {
-      uid2.setIdentityFromPhoneHash(phoneHash, mocks.makeUid2CstgOption());
+      await uid2.setIdentityFromPhoneHash(phoneHash, mocks.makeUid2CstgOption());
     }).not.toThrow();
   });
 

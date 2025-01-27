@@ -11,6 +11,14 @@ let getAdvertisingTokenPromise: Promise<string | undefined>;
 
 mocks.setupFakeTime();
 
+beforeAll(() => {
+  mocks.setWarnMock();
+});
+
+afterAll(() => {
+  mocks.clearWarnMock();
+});
+
 beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
