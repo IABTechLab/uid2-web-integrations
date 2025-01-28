@@ -9,6 +9,14 @@ let uid2: UID2;
 let xhrMock: any;
 mocks.setupFakeTime();
 
+beforeAll(() => {
+  mocks.setWarnMock();
+});
+
+afterAll(() => {
+  mocks.clearWarnMock();
+});
+
 beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
@@ -238,14 +246,11 @@ testCookieAndLocalStorage(() => {
     // Reset window UID2 instance
     const callback = jest.fn((eventType: EventType) => {
       if (eventType === UID2.EventType.SdkLoaded) {
-        console.log('Trying');
         try {
           (sdkWindow.__uid2 as UID2).init({ identity, useCookie: useCookie });
         } catch (ex) {
-          console.log(ex);
           throw ex;
         }
-        console.log('Succeeded');
       }
     });
     test('the SDK should be initialized correctly', () => {
@@ -257,8 +262,6 @@ testCookieAndLocalStorage(() => {
       if (!(sdkWindow.__uid2 instanceof UID2))
         throw Error('UID2 should be ready to use by the time SdkLoaded is triggered.');
       expect(callback).toHaveBeenNthCalledWith(1, UID2.EventType.SdkLoaded, expect.anything());
-      console.log(sdkWindow.__uid2.getAdvertisingToken());
-      console.log(identity.advertising_token);
       expect(sdkWindow.__uid2.getAdvertisingToken()).toBe(identity.advertising_token);
     });
   });

@@ -4,7 +4,8 @@ import { Identity } from './Identity';
 import { base64ToBytes, bytesToBase64 } from './encoding/base64';
 import * as crypto from 'crypto';
 import { ProductDetails } from './product';
-
+import { MockInstance } from 'jest-mock';
+import { jest as jestGlobal } from '@jest/globals';
 const uid2LocalStorageKeyName = 'UID2-sdk-identity';
 const euidLocalStorageKeyName = 'EUID-sdk-identity';
 
@@ -418,4 +419,16 @@ export function resetCrypto(window: Window) {
       return require('crypto');
     },
   });
+}
+
+export let warnMock: MockInstance;
+export function setWarnMock() {
+  warnMock = jestGlobal.spyOn(console, 'warn');
+  warnMock.mockImplementation(() => {
+    return;
+  });
+}
+
+export function clearWarnMock() {
+  warnMock.mockRestore();
 }

@@ -9,6 +9,14 @@ let xhrMock: any;
 
 mocks.setupFakeTime();
 
+beforeAll(() => {
+  mocks.setWarnMock();
+});
+
+afterAll(() => {
+  mocks.clearWarnMock();
+});
+
 beforeEach(() => {
   callback = jest.fn();
   uid2 = new UID2();
