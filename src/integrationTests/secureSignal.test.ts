@@ -162,7 +162,7 @@ describe('Secure Signal Tests', () => {
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(0);
       });
 
-      test.skip('should send signal with updated identity to Google ESP', async () => {
+      test('should send signal with updated identity to Google ESP', async () => {
         const outdatedIdentity = mocks.makeIdentityV2({
           refresh_from: Date.now() - 1,
         });
