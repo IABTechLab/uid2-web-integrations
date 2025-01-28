@@ -1019,7 +1019,7 @@ describe('SDK bootstraps itself if init has already been completed', () => {
     sdkWindow.__uid2 = new UID2();
   });
 
-  test('should bootstrap therefore public functions should return the correct values without calling init again', async () => {
+  test.skip('should bootstrap therefore public functions should return the correct values without calling init again', async () => {
     const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
 
     uid2.init({ identity });

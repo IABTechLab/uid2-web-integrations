@@ -421,10 +421,12 @@ export function resetCrypto(window: Window) {
   });
 }
 
-let warnMock: MockInstance;
+export let warnMock: MockInstance;
 export function setWarnMock() {
   warnMock = jestGlobal.spyOn(console, 'warn');
-  warnMock.mockImplementation(() => {});
+  warnMock.mockImplementation(() => {
+    return;
+  });
 }
 
 export function clearWarnMock() {

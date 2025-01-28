@@ -3,8 +3,8 @@ import * as mocks from '../mocks';
 import { UidSecureSignalProvider } from '../secureSignal_shared';
 import { __uid2SSProviderScriptLoad } from '../secureSignalUid2';
 import { UID2, __uid2InternalHandleScriptLoad } from '../uid2Sdk';
+import { clearWarnMock, setWarnMock } from '../mocks';
 
-let consoleWarnMock: any;
 let getAdvertisingTokenMock: jest.Mock<() => Promise<string>>;
 let secureSignalProvidersPushMock: jest.Mock<(p: any) => Promise<void>>;
 let uid2ESP: UidSecureSignalProvider;
@@ -20,13 +20,11 @@ describe('Secure Signal Tests', () => {
         push: secureSignalProvidersPushMock,
       },
     };
-    consoleWarnMock = jest.spyOn(console, 'warn').mockImplementation(() => {
-      return;
-    });
+    setWarnMock();
   });
 
   afterEach(() => {
-    consoleWarnMock.mockRestore();
+    clearWarnMock();
     getAdvertisingTokenMock.mockRestore;
     secureSignalProvidersPushMock.mockRestore();
     window.getUid2AdvertisingToken = undefined;
@@ -61,7 +59,7 @@ describe('Secure Signal Tests', () => {
         test('should log warning message to console and not send message', () => {
           uid2ESP.registerSecureSignalProvider();
           expect(console.warn).toHaveBeenCalledTimes(1);
-          expect(consoleWarnMock).toHaveBeenCalledWith(
+          expect(mocks.warnMock).toHaveBeenCalledWith(
             'UidSecureSignal: Please implement `getUidAdvertisingToken`'
           );
           expect(secureSignalProvidersPushMock).not.toBeCalled();
