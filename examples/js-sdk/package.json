@@ -1,9 +1,9 @@
 {
   "name": "uid2-publisher",
-  "version": "1.4.0",
+  "version": "1.0.9-fa449d0766",
   "private": true,
-  "license": "BSD-2-Clause",
   "engineStrict": true,
+  "license": "BSD-2-Clause",
   "scripts": {
     "start": "node server.js",
     "lint": "eslint server.js"
@@ -13,11 +13,9 @@
   },
   "dependencies": {
     "axios": "^0.23.0",
-    "cookie-session": "^1.4.0",
+    "body-parser": "^1.20.3",
     "ejs": "^3.1.7",
     "express": "^4.21.2",
-    "minimist": "^1.2.6",
-    "nocache": "^3.0.1",
     "path-to-regexp": "^8.2.0"
   },
   "devDependencies": {
