@@ -41,7 +41,6 @@ jobs:
       image_tag: ${{ needs.incrementVersionNumber.outputs.image_tag }}
       github_token: ${{ secrets.GITHUB_TOKEN }}
       publish_platform: Docker
-      repo:
     secrets: inherit
   build:
     runs-on: ubuntu-latest
