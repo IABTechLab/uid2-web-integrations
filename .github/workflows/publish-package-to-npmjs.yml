@@ -32,6 +32,14 @@ jobs:
     with:
       release_type: ${{ inputs.release_type }}
     secrets: inherit
+  publishForJsSdk:
+    uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-publish-to-docker-versioned.yaml@v3
+    needs: incrementVersionNumber
+    with:
+      new_version: ${{ needs.incrementVersionNumber.outputs.new_version }}
+      image_tag: ${{ needs.incrementVersionNumber.outputs.image_tag }}
+      release_type: ${{ inputs.release_type }}
+    secrets: inherit
   build:
     runs-on: ubuntu-latest
     needs: [incrementVersionNumber]
