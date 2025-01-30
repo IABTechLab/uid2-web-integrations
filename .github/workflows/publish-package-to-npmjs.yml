@@ -70,14 +70,12 @@ jobs:
       sdkVersion: ${{ steps.version.outputs.package_version }}
   createNpmJsRelease:
     id: github_release
-    uses: IABTechLab/uid2-shared-actions/actions/shared_create_releases@v2
+    uses: softprops/action-gh-release@v2
     needs: [incrementVersionNumber, build]
     with:
-      is_release: true
-      new_version: ${{ needs.incrementVersionNumber.outputs.new_version }}
-      image_tag: ${{ needs.incrementVersionNumber.outputs.image_tag }}
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      publish_platform: Docker
+      with:
+        name: v${{ inputs.new_version }}
+        draft: true
     secrets: inherit
   publish-package:
     if: inputs.publish_to_npm
