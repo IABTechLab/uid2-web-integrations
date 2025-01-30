@@ -70,6 +70,7 @@ jobs:
       sdkVersion: ${{ steps.version.outputs.package_version }}
   createNpmJsRelease:
     needs: [incrementVersionNumber, build]
+    runs-on: ubuntu-latest
     steps:
       - name: Create Release Notes
         uses: softprops/action-gh-release@v2
