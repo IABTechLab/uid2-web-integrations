@@ -32,4 +32,5 @@ jobs:
       docker_context: examples/google-secure-signals-integration/server_side
       docker_image_name: iabtechlab/uid2-secure-signals-example-srvonly
       docker_registry: ghcr.io
+      force_release: no
     secrets: inherit
