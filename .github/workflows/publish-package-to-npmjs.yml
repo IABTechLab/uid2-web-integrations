@@ -68,6 +68,13 @@ jobs:
           path: ./dist/euid-sdk-${{ steps.version.outputs.package_version }}.js
     outputs:
       sdkVersion: ${{ steps.version.outputs.package_version }}
+  createNpmJsRelease:
+    id: github_release
+    uses: softprops/action-gh-release@v2
+    needs: [incrementVersionNumber, build]
+    with:
+      name: v${{ inputs.new_version }}
+      draft: true
   publish-package:
     if: inputs.publish_to_npm
     needs: [build, incrementVersionNumber]
