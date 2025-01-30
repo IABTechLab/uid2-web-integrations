@@ -69,10 +69,10 @@ jobs:
     outputs:
       sdkVersion: ${{ steps.version.outputs.package_version }}
   createNpmJsRelease:
+    needs: [incrementVersionNumber, build]
     steps:
       - name: Create Release Notes
         uses: softprops/action-gh-release@v2
-        needs: [incrementVersionNumber, build]
         with:
           name: v${{ inputs.new_version }}
           draft: true
