@@ -1,7 +1,7 @@
 const clientSideIdentityOptions = {
-  subscriptionId: 'QRtT141htm',
+  subscriptionId: 'LBk2xJsgrS',
   serverPublicKey:
-    'UID2-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEYla1YQ6N+surF4Yjaax46mPxCv7ixCR0zd3AYV5D8nhEVbQOuhs+GGxp0rUVpucJGQxNvkINwdSeCTpyzLMtFA==',
+    'UID2-X-L-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEWyCP9O/6ppffj8f5PUWsEhAoMNdTBnpnkiOPZBkVnLkxOyTjPsKzf5J3ApPHzutAGNGgKAzFc6TuCfo+BWsZtQ==',
 };
 
 function updateGuiElements(state) {
@@ -76,7 +76,7 @@ window.__uid2.callbacks.push(onUid2IdentityUpdated);
 window.__uid2.callbacks.push((eventType, payload) => {
   if (eventType === 'SdkLoaded') {
     window.__uid2.init({
-      baseUrl: 'https://operator-integ.uidapi.com/',
+      baseUrl: 'http://localhost:8080',
     });
     $(document).ready(onDocumentReady);
   }
