@@ -77,5 +77,8 @@
     "axios": "^1.7.9",
     "body-parser": "^1.20.3",
     "path-to-regexp": "^8.2.0"
-  }
+  },
+  "browserslist": [
+    "defaults"
+  ]
 }
