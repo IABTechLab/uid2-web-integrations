@@ -1,27 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-import './styles/app.css';
-import './styles/ads.css';
-
-interface global {
-  __uid2: any;
-}
-
-const clientSideIdentityOptions = {
-  subscriptionId: 'toPh8vgJgt',
-  serverPublicKey:
-    'UID2-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEKAbPfOz7u25g1fL6riU7p2eeqhjmpALPeYoyjvZmZ1xM2NM8UeOmDZmCIBnKyRZ97pz5bMCjrs38WM22O7LJuw==',
-};
-
-const App = () => {
+const UID2PublisherIntegration = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [secureSignalsLoaded, setSecureSignalsLoaded] = useState<string>('no');
+  const [secureSignalsLoaded, setSecureSignalsLoaded] = useState(false);
   const [secureSignalsValue, setSecureSignalsValue] = useState('');
-  const [targetedAdvertisingReady, setTargetedAdvertisingReady] = useState<string>('no');
-  const [advertisingToken, setAdvertisingToken] = useState<string>('undefined');
-  const [loginRequired, setLoginRequired] = useState<string>('yes');
+  const [targetedAdvertisingReady, setTargetedAdvertisingReady] = useState('');
+  const [advertisingToken, setAdvertisingToken] = useState('');
+  const [loginRequired, setLoginRequired] = useState('');
   const [identityState, setIdentityState] = useState('');
-  const [email, setEmail] = useState<string>('test@example.com');
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -39,18 +25,18 @@ const App = () => {
       document.body.appendChild(script2);
 
       // Ensure Secure Signals are loaded
-      script2.onload = () => setSecureSignalsLoaded('yes');
+      script2.onload = () => setSecureSignalsLoaded(true);
     };
     loadScripts();
   }, []);
 
   const handleLogin = () => {
-    //updateElements();
+    // Handle login logic here (this is just a placeholder)
     setIsLoggedIn(true);
   };
 
   const handleLogout = () => {
-    //updateElements();
+    // Handle logout logic here (this is just a placeholder)
     setIsLoggedIn(false);
   };
 
@@ -62,69 +48,16 @@ const App = () => {
     }
   };
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const updateElements = (status) => {
-    if (__uid2.getAdvertisingToken()) {
-      setTargetedAdvertisingReady('yes');
-    } else {
-      setTargetedAdvertisingReady('no');
-    }
-    const token = __uid2.getAdvertisingToken();
-    setAdvertisingToken(String(token));
-
-    if (!__uid2.isLoginRequired() || __uid2.isLoginRequired() === true) {
-      setLoginRequired('yes');
-    } else {
-      setLoginRequired('no');
-    }
-
-    setIdentityState(String(JSON.stringify(status, null, 2)));
-
-    const uid2LoginRequired = __uid2.isLoginRequired();
-    if (uid2LoginRequired) {
-      setIsLoggedIn(false);
-    } else {
-      setIsLoggedIn(true);
-    }
-
-    const secureSignalsStorage = localStorage['_GESPSK-uidapi.com'];
-    if (token && !secureSignalsStorage) {
-      //Token is valid but Secure Signals has not been refreshed. Reload the page.
-      location.reload();
-    }
-    const secureSignalsStorageJson = secureSignalsStorage && JSON.parse(secureSignalsStorage);
-    if (secureSignalsStorageJson && secureSignalsStorageJson[1]) {
-      setSecureSignalsLoaded('yes');
-      setSecureSignalsValue(JSON.stringify(secureSignalsStorageJson, null, 2));
-    } else {
-      setSecureSignalsLoaded('no');
-      setSecureSignalsValue('undefined');
-    }
-  };
-
-  const isEnabled = (product) => {
-    return $(`#${product}_state th input`)[0].checked;
-  };
-
-  function onUid2IdentityUpdated(eventType, payload) {
-    console.log('UID2 Callback', payload);
-    // allow secure signals time to load
-    setTimeout(() => updateElements(payload), 1000);
-  }
-
   return (
     <div>
       <h1>
         UID2 Publisher Client-Side Integration Example using UID2 JavaScript SDK, Secure Signals
       </h1>
       <p>
-        This example demonstrates how a content publisher can follow the{' '}
+        This example demonstrates how a content publisher can follow the
         <a href='https://unifiedid.com/docs/guides/integration-javascript-client-side'>
           Client-Side Integration Guide for JavaScript
-        </a>{' '}
+        </a>
         to implement UID2 integration and generate UID2 tokens. Secure Signals is updated when the
         page is reloaded. Reload the page in order to update Secure Signals in local storage.
       </p>
@@ -201,8 +134,7 @@ const App = () => {
               name='email'
               placeholder='Enter an email address'
               style={{ borderStyle: 'none' }}
-              value={email}
-              onChange={handleEmailChange}
+              value='test@example.com'
             />
           </div>
           <div>
@@ -232,4 +164,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default UID2PublisherIntegration;
