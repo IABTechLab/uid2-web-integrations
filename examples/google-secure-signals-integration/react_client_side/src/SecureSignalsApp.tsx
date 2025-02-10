@@ -291,7 +291,8 @@ const SecureSignalsApp = () => {
   return (
     <div>
       <h1>
-        UID2 Publisher Client-Side Integration Example using UID2 JavaScript SDK, Secure Signals
+        UID2 Publisher Client-Side Integration Example using React, UID2 JavaScript SDK, Secure
+        Signals
       </h1>
       <p>
         This example demonstrates how a content publisher can follow the{' '}
