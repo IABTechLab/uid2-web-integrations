@@ -93,3 +93,10 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      - name: Build and push Docker React image
+        uses: docker/build-push-action@v5
+        with:
+          context: examples/google-secure-signals-integration/react_client_side
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
