@@ -1,70 +1,33 @@
-# Getting Started with Create React App
+# UID2 React Secure Signals Integration Example
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This example demonstrates how a content publisher who is working with [Google Interactive Media Ads(IMA) SDKs](https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side) can use [Google Secure Signal](https://support.google.com/admanager/answer/10488752) and the [UID2 SDK for JavaScript](https://unifiedid.com/docs/sdks/sdk-ref-javascript) to share UID2 directly with bidders, in an implementation that uses this JS SDK on the client side in a React App.
 
-## Available Scripts
+## Build and Run the Example Application
 
-In the project directory, you can run:
+The easiest way to try the example is to use the following docker build command:
 
-### `npm start`
+```
+docker build . -t uid2-secure-signals-react
+docker run -it --rm -p 3000:3000 uid2-secure-signals-react
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The example app will be up and running at localhost:3000
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+If needed, to close the application, terminate the docker container or use the `Ctrl+C` keyboard shortcut.
 
-### `npm test`
+## Test the Example Application
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The example application illustrates the steps documented in the [Google Ad Manager Secure Signals Integration Guide](https://unifiedid.com/docs/guides/integration-google-ss). For an overview of the high-level workflow for establishing UID2 identity, API reference, and explanation of the UID2 cookie format, see [UID2 SDK for JavaScript](https://unifiedid.com/docs/sdks/client-side-identity).
 
-### `npm run build`
+The following table outlines and annotates the steps you may take to test and explore the example application.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+| Step | Description                                                                                                                                     | Comments                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| :--: | :---------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  1   | In your browser, navigate to the application main page at `http://localhost:3000`.                                                              | The displayed main ([app](src/SecureSignalsApp.tsx)) page of the example application provides a login form for the user to complete the UID2 login process.</br>IMPORTANT: A real-life application must also display a form for the user to express their consent to targeted advertising.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|  2   | In the text field at the bottom, enter the user email address that you want to use for testing and click **Log In**.                            | The click calls the Secure Signal [`clearAllCache()`](https://developers.google.com/publisher-tag/reference#googletag.secureSignals.SecureSignalProvidersArray_clearAllCache) function, to clear all cached signals from local storage. Then, it makes a call on the client side to the `setIdentityFromEmail` function of the JS SDK ([Configuring the SDK for Javascript](https://unifiedid.com/docs/guides/integration-javascript-client-side#configure-the-sdk-for-javascript)).                                                                                                                                                                                                                                                                                                                           |
+|      | A confirmation message appears with the established UID2 identity information.                                                                  | The displayed identity information is the `body` property of the [JSON response payload](https://unifiedid.com/docs/endpoints/post-token-generate#decrypted-json-response-format) from the `POST /token/generate` response. Next, the identity information is passed to the UID2 SDK [`setIdentity()`](https://unifiedid.com/docs/sdks/sdk-ref-javascript#setidentityidentity-identity-void) function. If the identity is valid, the SDK stores it either in local storage or a first-party UID2 cookie (see [UID2 Storage Format](https://unifiedid.com/docs/sdks/sdk-ref-javascript#uid2-storage-format) for use on subsequent page loads.)                                                                                                                                                                  |
+|  3   | Click the **Back to the main page** link.                                                                                                       | On the updated application main page, note the newly populated **UID2 Advertising Token** value and a video player. While the [page view](src/SecureSignalsApp.tsx) is loading, [GPT](https://developers.google.com/publisher-tag/reference#googletag) auto-loads the Secure Signal UID2 script which pushes the advertising token to GPT local storage, and the [IMA](https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side) makes an ad request which transmits the encoded signal in the request. The [page view](views/index.html) calls the [init()](https://unifiedid.com/docs/sdks/sdk-ref-javascript#initopts-object-void) function again, but this time without passing an explicit identity. Instead, the identity is loaded from the first-party cookie or local storage. |
+|  4   | Click **Play**.                                                                                                                                 | This triggers AdsManager to insert the ad returned from the ad request, for display. The ad tag used in this example contains a 10-second pre-roll ad.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+|  5   | (Optional) Right-click the main page to inspect the source code.                                                                                | When the UID2 SDK initialization is complete, the SDK invokes the passed [callback function](https://unifiedid.com/docs/sdks/client-side-identity#callback-function) (`onUid2IdentityUpdated()` in this example).</br>IMPORTANT: The callback updates the page elements with the state of UID2 identity: this is the place where you should define your logic for initiating targeted advertising.                                                                                                                                                                                                                                                                                                                                                                                                             |
+|  6   | Keep the application main page open or refresh it after awhile and note the UID2 identity state, updated counter, and login information values. | In the background, the UID2 SDK continuously validates whether the advertising token is up-to-date and refreshes it automatically when needed. If the refresh succeeds, the user opts out, or the refresh token expires, the callback function is invoked and the UI elements are updated with the current state of the UID2 identity. For details, see [Workflow States and Transitions](https://unifiedid.com/docs/sdks/client-side-identity#workflow-states-and-transitions) and [Background Token Auto-Refresh](https://unifiedid.com/docs/sdks/client-side-identity#background-token-auto-refresh).                                                                                                                                                                                                       |
+|  7   | To exit the application, click **Log Out**.                                                                                                     | This calls the UID2 SDK [`disconnect()`](https://unifiedid.com/docs/sdks/sdk-ref-javascript#disconnect-void) function, which clears the UID2 session and the first-party cookie and calls the Secure Signal [`clearAllCache()`](https://developers.google.com/publisher-tag/reference#googletag.secureSignals.SecureSignalProvidersArray_clearAllCache) function to clear all cached signals. This call also makes the UID2 SDK [`isLoginRequired()`](https://unifiedid.com/docs/sdks/sdk-ref-javascript#isloginrequired-boolean) function return `true`, which presents the user with the login form again.<br/> NOTE: The page displays the **Log Out** button as long as the user identity is valid and refreshable.                                                                                        |

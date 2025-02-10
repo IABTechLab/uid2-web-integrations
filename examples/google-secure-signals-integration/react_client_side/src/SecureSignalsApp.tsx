@@ -31,7 +31,6 @@ const SecureSignalsApp = () => {
   const [adsLoaded, setAdsLoaded] = useState<boolean>(false);
 
   // useRef hook to directly access DOM elements on the page
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
   const playButtonRef = useRef<HTMLButtonElement | null>(null);
   const adContainerRef = useRef<HTMLDivElement | null>(null);
@@ -266,8 +265,7 @@ const SecureSignalsApp = () => {
 
   const handlePlay = () => {
     // Handle play button functionality for video
-    // Use ref to play the video element
-    videoRef.current!.play();
+    videoElementRef.current!.play();
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
