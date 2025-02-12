@@ -12,9 +12,9 @@ declare global {
 }
 
 const clientSideIdentityOptions = {
-  subscriptionId: 'toPh8vgJgt',
+  subscriptionId: 'LBk2xJsgrS',
   serverPublicKey:
-    'UID2-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEKAbPfOz7u25g1fL6riU7p2eeqhjmpALPeYoyjvZmZ1xM2NM8UeOmDZmCIBnKyRZ97pz5bMCjrs38WM22O7LJuw==',
+    'UID2-X-L-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEWyCP9O/6ppffj8f5PUWsEhAoMNdTBnpnkiOPZBkVnLkxOyTjPsKzf5J3ApPHzutAGNGgKAzFc6TuCfo+BWsZtQ==',
 };
 
 const SecureSignalsApp = () => {
@@ -32,14 +32,12 @@ const SecureSignalsApp = () => {
 
   // useRef hook to directly access DOM elements on the page
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
-  const playButtonRef = useRef<HTMLButtonElement | null>(null);
   const adContainerRef = useRef<HTMLDivElement | null>(null);
+  const adDisplayContainerRef = useRef<google.ima.AdDisplayContainer | null>(null);
+  const adsLoaderRef = useRef<google.ima.AdsLoader | null>(null);
+  const adsManagerRef = useRef<google.ima.AdsManager | null>(null);
 
-  let adDisplayContainer;
-  let adsLoader;
-  let adsManager;
-
-  const updateElements = (status) => {
+  const updateElements = useCallback((status) => {
     if (window.__uid2.getAdvertisingToken()) {
       setTargetedAdvertisingReady(true);
     } else {
@@ -59,7 +57,7 @@ const SecureSignalsApp = () => {
 
     // allow secure signals time to load
     setTimeout(updateSecureSignals, 500);
-  };
+  }, []);
 
   const isEnabled = (product: string): boolean => {
     if (product === 'uid2') {
@@ -76,54 +74,31 @@ const SecureSignalsApp = () => {
     [updateElements]
   );
 
-  useEffect(() => {
-    // Add callbacks for UID2 JS SDK
-    window.__uid2.callbacks.push(onUid2IdentityUpdated);
-    window.__uid2.callbacks.push((eventType, payload) => {
-      let __uid2 = window.__uid2;
-      if (eventType === 'SdkLoaded') {
-        __uid2.init({
-          baseUrl: 'https://operator-integ.uidapi.com',
-        });
-      }
-      if (eventType === 'InitCompleted') {
-        if (__uid2.isLoginRequired()) {
-          __uid2.setIdentity(identity);
-          setIdentity(identity);
-        }
-      }
-    });
-
-    // initialize ads manager
-    let videoElement = videoElementRef.current!;
-    let playButton = playButtonRef.current!;
-
-    initializeIMA();
-    videoElement.addEventListener('play', function (event) {
-      loadAds(event);
-    });
-    playButton.addEventListener('click', function (event) {
-      videoElement.play();
-    });
-
-    // add event listener for resize
-    window.addEventListener('resize', function (event) {
-      console.log('window resized');
-      if (adsManager) {
-        let width = videoElement.clientWidth;
-        let height = videoElement.clientHeight;
-        adsManager.resize(width, height, google.ima.ViewMode.NORMAL);
-      }
-    });
-  }, []);
-
-  function initializeIMA() {
+  const initializeIMA = useCallback(() => {
     console.log('initializing IMA');
-    let adContainer = adContainerRef.current!;
-    let videoElement = videoElementRef.current!;
-    adContainer.addEventListener('click', adContainerClick);
-    adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, videoElement);
-    adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+
+    function onAdsManagerLoaded(adsManagerLoadedEvent) {
+      // Instantiate the AdsManager from the adsLoader response and pass it the video element.
+      let adsManager = adsManagerLoadedEvent.getAdsManager(videoElementRef.current);
+      adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
+      adsManager.addEventListener(
+        google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
+        onContentPauseRequested
+      );
+      adsManager.addEventListener(
+        google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
+        onContentResumeRequested
+      );
+      adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, onAdLoaded);
+      adsManagerRef.current = adsManager;
+    }
+
+    //adContainerRef.current!.addEventListener('click', adContainerClick);
+    adDisplayContainerRef.current = new google.ima.AdDisplayContainer(
+      adContainerRef.current!,
+      videoElementRef.current!
+    );
+    let adsLoader = new google.ima.AdsLoader(adDisplayContainerRef.current);
     adsLoader.addEventListener(
       google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
       onAdsManagerLoaded,
@@ -132,7 +107,7 @@ const SecureSignalsApp = () => {
     adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError, false);
 
     // Let the AdsLoader know when the video has ended
-    videoElement.addEventListener('ended', function () {
+    videoElementRef.current!.addEventListener('ended', function () {
       adsLoader.contentComplete();
     });
 
@@ -145,66 +120,89 @@ const SecureSignalsApp = () => {
 
     // Specify the linear and nonlinear slot sizes. This helps the SDK to
     // select the correct creative if multiple are returned.
-    adsRequest.linearAdSlotWidth = videoElement.clientWidth;
-    adsRequest.linearAdSlotHeight = videoElement.clientHeight;
-    adsRequest.nonLinearAdSlotWidth = videoElement.clientWidth;
-    adsRequest.nonLinearAdSlotHeight = videoElement.clientHeight / 3;
+    adsRequest.linearAdSlotWidth = videoElementRef.current!.clientWidth;
+    adsRequest.linearAdSlotHeight = videoElementRef.current!.clientHeight;
+    adsRequest.nonLinearAdSlotWidth = videoElementRef.current!.clientWidth;
+    adsRequest.nonLinearAdSlotHeight = videoElementRef.current!.clientHeight / 3;
 
     // Pass the request to the adsLoader to request ads
     adsLoader.requestAds(adsRequest);
-  }
+    adsLoaderRef.current = adsLoader;
+  }, []);
 
-  function loadAds(event) {
-    // Prevent this function from running on if there are already ads loaded
-    if (adsLoaded) {
-      return;
-    }
-    setAdsLoaded(true);
+  const loadAds = useCallback(
+    (event) => {
+      // Prevent this function from running on if there are already ads loaded
+      if (adsLoaded) {
+        return;
+      }
+      setAdsLoaded(true);
 
-    // Prevent triggering immediate playback when ads are loading
-    event.preventDefault();
+      // Prevent triggering immediate playback when ads are loading
+      event.preventDefault();
 
-    console.log('loading ads');
+      console.log('loading ads');
 
-    let videoElement = videoElementRef.current!;
+      // Initialize the container. Must be done via a user action on mobile devices.
+      videoElementRef.current!.load();
+      adDisplayContainerRef.current!.initialize();
 
-    // Initialize the container. Must be done via a user action on mobile devices.
-    videoElement.load();
-    adDisplayContainer.initialize();
+      let width = videoElementRef.current!.clientWidth;
+      let height = videoElementRef.current!.clientHeight;
+      try {
+        adsManagerRef.current!.init(width, height, google.ima.ViewMode.NORMAL);
+        adsManagerRef.current!.start();
+      } catch (adError) {
+        // Play the video without ads, if an error occurs
+        console.log('AdsManager could not be started');
+        videoElementRef.current!.play();
+      }
+    },
+    [adsLoaded]
+  );
 
-    let width = videoElement.clientWidth;
-    let height = videoElement.clientHeight;
-    try {
-      adsManager.init(width, height, google.ima.ViewMode.NORMAL);
-      adsManager.start();
-    } catch (adError) {
-      // Play the video without ads, if an error occurs
-      console.log('AdsManager could not be started');
-      videoElement.play();
-    }
-  }
+  useEffect(() => {
+    // Add callbacks for UID2 JS SDK
+    window.__uid2.callbacks.push(onUid2IdentityUpdated);
+    window.__uid2.callbacks.push((eventType, payload) => {
+      let __uid2 = window.__uid2;
+      if (eventType === 'SdkLoaded') {
+        __uid2.init({
+          baseUrl: 'http://localhost:8080',
+        });
+      }
+      if (eventType === 'InitCompleted') {
+        if (__uid2.isLoginRequired()) {
+          __uid2.setIdentity(identity);
+          setIdentity(identity);
+        }
+      }
+    });
+  }, [identity, onUid2IdentityUpdated]);
 
-  function onAdsManagerLoaded(adsManagerLoadedEvent) {
-    // Instantiate the AdsManager from the adsLoader response and pass it the video element.
-    let videoElement = videoElementRef.current!;
-    adsManager = adsManagerLoadedEvent.getAdsManager(videoElement);
-    adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
-    adsManager.addEventListener(
-      google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
-      onContentPauseRequested
-    );
-    adsManager.addEventListener(
-      google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
-      onContentResumeRequested
-    );
-    adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, onAdLoaded);
-  }
+  useEffect(() => {
+    // initialize ads manager
+    initializeIMA();
+    // videoElementRef.current!.addEventListener('play', function (event) {
+    //   loadAds(event);
+    // });
+
+    // add event listener for resize
+    window.addEventListener('resize', function (event) {
+      console.log('window resized');
+      if (adsManagerRef.current) {
+        let width = videoElementRef.current!.clientWidth;
+        let height = videoElementRef.current!.clientHeight;
+        adsManagerRef.current.resize(width, height, google.ima.ViewMode.NORMAL);
+      }
+    });
+  }, [initializeIMA, loadAds]);
 
   function onAdError(adErrorEvent) {
     // Handle the error logging.
     console.log(adErrorEvent.getError());
-    if (adsManager) {
-      adsManager.destroy();
+    if (adsManagerRef.current) {
+      adsManagerRef.current.destroy();
     }
   }
 
@@ -216,13 +214,12 @@ const SecureSignalsApp = () => {
     videoElementRef.current!.play();
   }
 
-  function adContainerClick(event) {
+  function handleAdContainerClick(event) {
     console.log('ad container clicked');
-    let videoElement = videoElementRef.current!;
-    if (videoElement.paused) {
-      videoElement.play();
+    if (videoElementRef.current!.paused) {
+      videoElementRef.current!.play();
     } else {
-      videoElement.pause();
+      videoElementRef.current!.pause();
     }
   }
 
@@ -291,8 +288,7 @@ const SecureSignalsApp = () => {
   return (
     <div>
       <h1>
-        UID2 Publisher Client-Side Integration Example using React, UID2 JavaScript SDK, Secure
-        Signals
+        UID2 Publisher Client-Side Integration Example using UID2 JavaScript SDK, Secure Signals
       </h1>
       <p>
         This example demonstrates how a content publisher can follow the{' '}
@@ -305,13 +301,13 @@ const SecureSignalsApp = () => {
 
       <div id='page-content'>
         <div id='video-container'>
-          <video id='video-element' ref={videoElementRef}>
+          <video id='video-element' ref={videoElementRef} onClick={handlePlay}>
             <source src='https://storage.googleapis.com/interactive-media-ads/media/android.mp4' />
             <source src='https://storage.googleapis.com/interactive-media-ads/media/android.webm' />
           </video>
-          <div id='ad-container' ref={adContainerRef}></div>
+          <div id='ad-container' ref={adContainerRef} onClick={handleAdContainerClick}></div>
         </div>
-        <button id='play-button' ref={playButtonRef} onClick={handlePlay}>
+        <button id='play-button' onClick={handlePlay}>
           Play
         </button>
       </div>
