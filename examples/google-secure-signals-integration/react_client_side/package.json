@@ -13,6 +13,9 @@
     "react-scripts": "^5.0.1",
     "svgo": "^3.3.2"
   },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.0"
+  },
   "overrides": {
     "nth-check": "^2.0.1"
   },
