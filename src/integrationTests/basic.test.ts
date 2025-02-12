@@ -142,6 +142,7 @@ testCookieAndLocalStorage(() => {
 
   describe('when initialised without identity', () => {
     describe('when uid2 value is not available', () => {
+      let asyncCallback: jest.Mock<CallbackHandler>;
       beforeEach(() => {
         uid2.init({ callback: callback, useCookie: useCookie });
       });
@@ -165,6 +166,20 @@ testCookieAndLocalStorage(() => {
       });
       test('should be in unavailable state', () => {
         (expect(uid2) as any).toBeInUnavailableState();
+      });
+      test.only('should invoke NoIdentityAvailable callback', () => {
+        asyncCallback = jest.fn((event, payload) => {
+          if (event === EventType.NoIdentityAvailable) {
+            return { event: 'No Identity Available' };
+          }
+        });
+        uid2!.callbacks!.push(asyncCallback);
+        expect(asyncCallback).toBeCalledWith(EventType.NoIdentityAvailable, expect.anything());
+        // expect(callback).toHaveBeenNthCalledWith(
+        //   3,
+        //   expect.objectContaining({ test: EventType.NoIdentityAvailable })
+        // );
+        //expect(uid2.callbacks).toBeCalledWith(EventType.NoIdentityAvailable, expect.anything());
       });
     });
 

@@ -158,6 +158,9 @@ export abstract class SdkBase {
         this.triggerRefreshOrSetTimer(validatedIdentity);
       }
       this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
+    } else {
+      console.log('new event goes here');
+      this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
     }
   }
 
@@ -412,8 +415,12 @@ export abstract class SdkBase {
 
   private handleNewIdentity(identity: Identity | OptoutIdentity | null) {
     const validatedIdentity = this.validateAndSetIdentity(identity);
-    if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
+    if (validatedIdentity && !isOptoutIdentity(validatedIdentity)) {
       this.triggerRefreshOrSetTimer(validatedIdentity);
+    } else if (!validatedIdentity) {
+      this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
+      console.log('new event goes here');
+    }
   }
 
   private _refreshTimerId: ReturnType<typeof setTimeout> | null = null;
@@ -424,12 +431,20 @@ export abstract class SdkBase {
       clearTimeout(this._refreshTimerId);
     }
     this._refreshTimerId = setTimeout(() => {
-      if (this.isLoginRequired()) return;
+      if (this.isLoginRequired()) {
+        this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
+        console.log('new event goes here');
+        return;
+      }
       const validatedIdentity = this.validateAndSetIdentity(
         this._storageManager?.loadIdentity() ?? null
       );
-      if (validatedIdentity && !isOptoutIdentity(validatedIdentity))
+      if (validatedIdentity && !isOptoutIdentity(validatedIdentity)) {
         this.triggerRefreshOrSetTimer(validatedIdentity);
+      } else if (!validatedIdentity) {
+        this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
+        console.log('new event goes here');
+      }
       this._refreshTimerId = null;
     }, timeout);
   }
