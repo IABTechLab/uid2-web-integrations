@@ -619,5 +619,16 @@ describe('Store config UID2', () => {
         identity: null,
       });
     });
+    test('runs NoIdentityAvailable event', () => {
+      uid2.init({});
+      let expiredIdentity = makeIdentity({
+        identity_expires: Date.now() - 5000,
+        refresh_expires: Date.now() - 5000,
+      });
+      uid2.setIdentity(expiredIdentity);
+      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+        identity: null,
+      });
+    });
   });
 });
