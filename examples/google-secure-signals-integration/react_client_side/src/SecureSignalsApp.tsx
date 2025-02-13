@@ -12,9 +12,9 @@ declare global {
 }
 
 const clientSideIdentityOptions = {
-  subscriptionId: 'LBk2xJsgrS',
+  subscriptionId: 'toPh8vgJgt',
   serverPublicKey:
-    'UID2-X-L-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEWyCP9O/6ppffj8f5PUWsEhAoMNdTBnpnkiOPZBkVnLkxOyTjPsKzf5J3ApPHzutAGNGgKAzFc6TuCfo+BWsZtQ==',
+    'UID2-X-I-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEKAbPfOz7u25g1fL6riU7p2eeqhjmpALPeYoyjvZmZ1xM2NM8UeOmDZmCIBnKyRZ97pz5bMCjrs38WM22O7LJuw==',
 };
 
 const SecureSignalsApp = () => {
