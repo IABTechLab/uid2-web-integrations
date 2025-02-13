@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
 import './styles/app.css';
 import './styles/ads.css';
 
