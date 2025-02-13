@@ -578,5 +578,35 @@ describe('Store config UID2', () => {
         identity: expiredIdentity,
       });
     });
+    test('runs NoIdentityAvailable event', () => {
+      let expiredIdentity = makeIdentity({
+        identity_expires: Date.now() - 100000,
+        refresh_expires: Date.now() - 100000,
+      });
+      uid2.init({
+        identity: expiredIdentity,
+      });
+      uid2.init({});
+      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+        identity: expiredIdentity,
+      });
+    });
+    test('runs NoIdentityAvailable event', () => {
+      let expiredIdentity1 = makeIdentity({
+        identity_expires: Date.now() - 5000,
+        refresh_expires: Date.now() - 5000,
+      });
+      let expiredIdentity2 = makeIdentity({
+        identity_expires: Date.now() - 100000,
+        refresh_expires: Date.now() - 100000,
+      });
+      uid2.init({
+        identity: expiredIdentity1,
+      });
+      uid2.init({ identity: expiredIdentity2 });
+      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+        identity: expiredIdentity2,
+      });
+    });
   });
 });
