@@ -158,6 +158,8 @@ export abstract class SdkBase {
         this.triggerRefreshOrSetTimer(validatedIdentity);
       }
       this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
+    } else {
+      this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
     }
   }
 
