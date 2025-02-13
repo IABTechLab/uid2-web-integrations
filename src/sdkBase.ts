@@ -185,7 +185,14 @@ export abstract class SdkBase {
   }
 
   public isIdentityAvailable() {
-    return this.isIdentityValid() || this._apiClient?.hasActiveRequests();
+    const identityAvailable = this.isIdentityValid() || this._apiClient?.hasActiveRequests();
+    if (!identityAvailable) {
+      if (this._callbackManager) {
+        this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
+      }
+      return false;
+    }
+    return true;
   }
 
   public hasOptedOut() {
@@ -230,10 +237,14 @@ export abstract class SdkBase {
         this._initCallbackManager?.addInitCallback(opts.callback);
       }
 
-      const useNewIdentity =
-        opts.identity &&
-        (!previousOpts.identity ||
-          opts.identity.identity_expires > previousOpts.identity.identity_expires);
+      let useNewIdentity;
+      if (!opts.identity) useNewIdentity = true;
+      else {
+        useNewIdentity =
+          !previousOpts.identity ||
+          opts.identity.identity_expires > previousOpts.identity.identity_expires;
+      }
+
       if (useNewIdentity || opts.callback) {
         let identity = useNewIdentity ? opts.identity : previousOpts.identity ?? null;
         if (identity) {
@@ -277,6 +288,7 @@ export abstract class SdkBase {
 
     this.setInitComplete(true);
     this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
+    this.isIdentityAvailable();
     if (this.hasOptedOut()) this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
   }
 

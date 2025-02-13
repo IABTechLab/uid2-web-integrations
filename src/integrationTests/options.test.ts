@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import * as mocks from '../mocks';
-import { SdkOptions, sdkWindow, UID2 } from '../uid2Sdk';
+import { EventType, SdkOptions, sdkWindow, UID2 } from '../uid2Sdk';
 import { loadConfig, removeConfig } from '../configManager';
 import { ProductDetails } from '../product';
 
@@ -553,6 +553,30 @@ describe('Store config UID2', () => {
       removeConfig(previousOptions, uid2ProductDetails);
       storageConfig = loadConfig(uid2ProductDetails);
       expect(storageConfig).toBeNull();
+    });
+  });
+
+  describe('when no identity is sent in init', () => {
+    let handler: ReturnType<typeof jest.fn>;
+    beforeEach(() => {
+      handler = jest.fn();
+      uid2.callbacks.push(handler);
+    });
+    test('runs NoIdentityAvailable event', () => {
+      uid2.init({});
+      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
+      uid2.init({});
+      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
+      let expiredIdentity = makeIdentity({
+        identity_expires: Date.now() - 100000,
+        refresh_expires: Date.now() - 100000,
+      });
+      uid2.init({
+        identity: expiredIdentity,
+      });
+      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+        identity: expiredIdentity,
+      });
     });
   });
 });
