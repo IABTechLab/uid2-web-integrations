@@ -168,7 +168,7 @@ const SecureSignalsApp = () => {
       let __uid2 = window.__uid2;
       if (eventType === 'SdkLoaded') {
         __uid2.init({
-          baseUrl: 'http://localhost:8080',
+          baseUrl: 'https://operator-integ.uidapi.com',
         });
       }
       if (eventType === 'InitCompleted') {
