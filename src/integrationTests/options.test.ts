@@ -660,13 +660,10 @@ describe('does not call NoIdentityAvailable event', () => {
     handler = jest.fn();
 
     uid2.setIdentity(validIdentity);
-    expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
-
     uid2.getIdentity();
-    expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
-
     uid2.getAdvertisingToken();
-    expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
+
+    expect(handler).not.toHaveBeenCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
   test('when identity is set with opted out identity', () => {
     uid2.init({ identity: makeIdentity({ status: 'optout' }) });
