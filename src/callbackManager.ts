@@ -53,7 +53,6 @@ export class CallbackManager {
   public runCallbacks(event: EventType, payload: CallbackPayload) {
     if (event === EventType.InitCompleted) this._sentInit = true;
     if (event === EventType.SdkLoaded) CallbackManager._sentSdkLoaded[this._productName] = true;
-    if (!this._sentInit && event !== EventType.SdkLoaded) return;
 
     const enrichedPayload = {
       ...payload,

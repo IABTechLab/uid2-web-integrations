@@ -555,122 +555,123 @@ describe('Store config UID2', () => {
       expect(storageConfig).toBeNull();
     });
   });
+});
 
-  describe('calls the NoIdentityAvailable event', () => {
-    let handler: ReturnType<typeof jest.fn>;
-    beforeEach(() => {
-      handler = jest.fn();
-      uid2.callbacks.push(handler);
-    });
-
-    test('when init is called for the first time with no identity', () => {
-      uid2.init({});
-      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
-    });
-    test('when init is already complete and called again with no identity', () => {
-      uid2.init({});
-      uid2.init({});
-      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
-    });
-    test('when init is already complete and called again with an expired identity', () => {
-      uid2.init({});
-      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
-      let expiredIdentity = makeIdentity({
-        identity_expires: Date.now() - 100000,
-        refresh_expires: Date.now() - 100000,
-      });
-      uid2.init({
-        identity: expiredIdentity,
-      });
-      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
-        identity: expiredIdentity,
-      });
-    });
-    test('when init is already complete but the existing identity is expired', () => {
-      let expiredIdentity = makeIdentity({
-        identity_expires: Date.now() - 100000,
-        refresh_expires: Date.now() - 100000,
-      });
-      uid2.init({
-        identity: expiredIdentity,
-      });
-      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
-        identity: expiredIdentity,
-      });
-      uid2.init({});
-      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
-        identity: expiredIdentity,
-      });
-    });
-    test('when identity is expired but refreshable', () => {
-      let expiredRefreshableIdentity = makeIdentity({
-        identity_expires: Date.now() - 10000,
-        refresh_expires: Date.now() + 10000,
-      });
-      uid2.setIdentity(expiredRefreshableIdentity);
-
-      // in this case, identity is temporarily unavailable but still unavailable
-      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
-        identity: null,
-      });
-    });
-    test('when login is required', () => {
-      uid2.isLoginRequired();
-
-      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
-        identity: null,
-      });
-    });
-    test('when get identity returns null or get advertising token returns undefined', () => {
-      const nullIdentity = uid2.getIdentity();
-
-      expect(nullIdentity).toBeNull();
-      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
-        identity: null,
-      });
-    });
-    test('when there is no advertising token', () => {
-      const token = uid2.getAdvertisingToken();
-
-      expect(token).toBeUndefined();
-      expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
-        identity: null,
-      });
-    });
+describe('calls the NoIdentityAvailable event', () => {
+  let handler: ReturnType<typeof jest.fn>;
+  beforeEach(() => {
+    handler = jest.fn();
+    uid2.callbacks.push(handler);
   });
 
-  describe('does not call NoIdentityAvailable event', () => {
-    let handler: ReturnType<typeof jest.fn>;
-    beforeEach(() => {
-      handler = jest.fn();
-      uid2.callbacks.push(handler);
+  test('when init is called for the first time with no identity', () => {
+    uid2.init({});
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
+  });
+  test('when init is already complete and called again with no identity', () => {
+    uid2.init({});
+    uid2.init({});
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
+  });
+  test('when init is already complete and called again with an expired identity', () => {
+    uid2.init({});
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
+    let expiredIdentity = makeIdentity({
+      identity_expires: Date.now() - 100000,
+      refresh_expires: Date.now() - 100000,
+    });
+    uid2.init({
+      identity: expiredIdentity,
+    });
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: expiredIdentity,
+    });
+  });
+  test('when init is already complete but the existing identity is expired', () => {
+    let expiredIdentity = makeIdentity({
+      identity_expires: Date.now() - 100000,
+      refresh_expires: Date.now() - 100000,
+    });
+    uid2.init({
+      identity: expiredIdentity,
+    });
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
+    });
+    uid2.init({});
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: expiredIdentity,
+    });
+  });
+  test('when identity is expired but refreshable', () => {
+    let expiredRefreshableIdentity = makeIdentity({
+      identity_expires: Date.now() - 10000,
+      refresh_expires: Date.now() + 10000,
+    });
+    uid2.init({ identity: expiredRefreshableIdentity });
+
+    // in this case, identity is temporarily unavailable but still unavailable
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
+    });
+  });
+  test('when login is required', () => {
+    uid2.isLoginRequired();
+
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
+    });
+  });
+  test('when get identity returns null or get advertising token returns undefined', () => {
+    const nullIdentity = uid2.getIdentity();
+
+    expect(nullIdentity).toBeNull();
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
+    });
+  });
+  test('when there is no advertising token', () => {
+    const token = uid2.getAdvertisingToken();
+
+    expect(token).toBeUndefined();
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
+    });
+  });
+});
+
+describe('does not call NoIdentityAvailable event', () => {
+  let handler: ReturnType<typeof jest.fn>;
+  beforeEach(() => {
+    handler = jest.fn();
+    uid2.callbacks.push(handler);
+  });
+
+  test('when setIdentity is run with a valid identity, should not call NoIdentityAvailable on set or get', () => {
+    uid2.init({});
+    handler = jest.fn();
+    let validIdentity = makeIdentity();
+    uid2.setIdentity(validIdentity);
+    expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
     });
 
-    test('when setIdentity is run with a valid identity, should not call NoIdentityAvailable on set or get', () => {
-      uid2.init({});
-      let validIdentity = makeIdentity();
-      uid2.setIdentity(validIdentity);
-      expect(handler).not.toHaveBeenCalledWith(EventType.NoIdentityAvailable, {
-        identity: null,
-      });
-
-      uid2.getIdentity();
-      expect(handler).not.toHaveBeenCalledWith(EventType.NoIdentityAvailable, {
-        identity: null,
-      });
-
-      uid2.getAdvertisingToken();
-      expect(handler).not.toHaveBeenCalledWith(EventType.NoIdentityAvailable, {
-        identity: null,
-      });
+    uid2.getIdentity();
+    expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
     });
-    test('when identity is set with opted out identity', () => {
-      uid2.init({});
-      let optedOutIdentity = makeIdentity({ status: 'optout' });
-      uid2.setIdentity(optedOutIdentity);
-      expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
-        identity: null,
-      });
+
+    uid2.getAdvertisingToken();
+    expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
+    });
+  });
+  test('when identity is set with opted out identity', () => {
+    uid2.init({});
+    let optedOutIdentity = makeIdentity({ status: 'optout' });
+    uid2.setIdentity(optedOutIdentity);
+    expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
     });
   });
 });

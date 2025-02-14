@@ -175,7 +175,7 @@ export abstract class SdkBase {
     }
   }
 
-  // When the SDK has been initialized, this vfunction should return the token
+  // When the SDK has been initialized, this function should return the token
   // from the most recent refresh request, if there is a request, wait for the
   // new token. Otherwise, returns a promise which will be resolved after init.
   public getAdvertisingTokenAsync() {
@@ -192,7 +192,11 @@ export abstract class SdkBase {
   }
 
   public isIdentityAvailable() {
-    const identityAvailable = this.isIdentityValid() || this._apiClient?.hasActiveRequests();
+    const identity = this._identity ?? this.getIdentityNoInit();
+    const identityAvailable =
+      (this.isIdentityValid(identity) && !this.temporarilyUnavailable(identity)) ||
+      this._apiClient?.hasActiveRequests();
+
     if (!identityAvailable) {
       if (this._callbackManager) {
         this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
@@ -299,8 +303,7 @@ export abstract class SdkBase {
     if (this.hasOptedOut()) this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
   }
 
-  private isIdentityValid() {
-    const identity = this._identity ?? this.getIdentityNoInit();
+  private isIdentityValid(identity: Identity | OptoutIdentity | null | undefined) {
     return identity && !hasExpired(identity.refresh_expires);
   }
 
