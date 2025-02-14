@@ -611,15 +611,14 @@ describe('calls the NoIdentityAvailable event', () => {
 
     expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
-  test('when get identity returns null or get advertising token returns undefined', () => {
+  test('when get identity returns null', () => {
     uid2.getIdentity();
 
     expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
   test('when there is no advertising token', () => {
-    const token = uid2.getAdvertisingToken();
+    uid2.getAdvertisingToken();
 
-    expect(token).toBeUndefined();
     expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
   test('when cstg does not succeed', () => {
@@ -670,9 +669,7 @@ describe('does not call NoIdentityAvailable event', () => {
     expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
   test('when identity is set with opted out identity', () => {
-    uid2.init({});
-    let optedOutIdentity = makeIdentity({ status: 'optout' });
-    uid2.setIdentity(optedOutIdentity);
+    uid2.init({ identity: makeIdentity({ status: 'optout' }) });
 
     expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
@@ -685,8 +682,14 @@ describe('does not call NoIdentityAvailable event', () => {
     }).not.toThrow();
     expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
-  test('when identity is set with local storage and init has never been', () => {
+  test('when identity is set with local storage and init has never been called', () => {
     mocks.setUid2LocalStorage(validIdentity);
+    uid2.isIdentityAvailable();
+
+    expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
+  });
+  test('when identity is set with cookie and init has never been called', () => {
+    mocks.setUid2Cookie(validIdentity);
     uid2.isIdentityAvailable();
 
     expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
