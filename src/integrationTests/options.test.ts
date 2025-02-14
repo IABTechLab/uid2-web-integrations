@@ -725,4 +725,13 @@ describe('does not call NoIdentityAvailable event', () => {
       identity: null,
     });
   });
+  test('when identity is set with local storage', () => {
+    let validIdentity = makeIdentity();
+    mocks.setUid2LocalStorage(validIdentity);
+    uid2.init({});
+
+    expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
+    });
+  });
 });
