@@ -84,7 +84,7 @@ export abstract class SdkBase {
     this._callbackManager = new CallbackManager(
       this,
       this._product.name,
-      () => this.getIdentity(true),
+      () => this.getIdentityForCallback(),
       this._logger
     );
   }
@@ -161,18 +161,23 @@ export abstract class SdkBase {
     this.isIdentityAvailable();
   }
 
-  public getIdentity(isForCallback?: boolean): Identity | null {
+  public getIdentity(): Identity | null {
     const identity = this._identity ?? this.getIdentityNoInit();
     const isValid =
       identity && !this.temporarilyUnavailable(identity) && !isOptoutIdentity(identity);
     if (!isValid) {
-      if (!isForCallback) {
-        this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
-      }
+      this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
       return null;
     } else {
       return identity;
     }
+  }
+
+  private getIdentityForCallback(): Identity | null {
+    const identity = this._identity ?? this.getIdentityNoInit();
+    return identity && !this.temporarilyUnavailable(identity) && !isOptoutIdentity(identity)
+      ? identity
+      : null;
   }
 
   // When the SDK has been initialized, this function should return the token
