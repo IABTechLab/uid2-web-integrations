@@ -638,6 +638,46 @@ describe('calls the NoIdentityAvailable event', () => {
       identity: null,
     });
   });
+  test('when cstg does not succeed', () => {
+    uid2.init({});
+    expect(uid2.setIdentityFromEmail('a', mocks.makeUid2CstgOption())).rejects.toThrow(
+      'Invalid email address'
+    );
+
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
+    });
+  });
+  test('when an identity was valid but has since expired', () => {
+    uid2.init({});
+    expect(uid2.setIdentityFromEmail('a', mocks.makeUid2CstgOption())).rejects.toThrow(
+      'Invalid email address'
+    );
+
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
+    });
+  });
+  test('when identity was valid on init but has since expired', () => {
+    const refreshFrom = Date.now() + 100;
+    const originalIdentity = makeIdentity({
+      advertising_token: 'original_advertising_token',
+      identity_expires: refreshFrom,
+      //refresh_from: refreshFrom,
+    });
+
+    uid2.init({ identity: originalIdentity });
+    expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
+
+    // set time to an expired date for this identity
+    jest.setSystemTime(originalIdentity.refresh_expires * 1000 + 1);
+
+    uid2.isIdentityAvailable();
+
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: originalIdentity,
+    });
+  });
 });
 
 describe('does not call NoIdentityAvailable event', () => {
@@ -670,6 +710,17 @@ describe('does not call NoIdentityAvailable event', () => {
     uid2.init({});
     let optedOutIdentity = makeIdentity({ status: 'optout' });
     uid2.setIdentity(optedOutIdentity);
+    expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
+    });
+  });
+  test('when cstg is successful', async () => {
+    uid2.init({});
+    handler = jest.fn();
+    expect(async () => {
+      await uid2.setIdentityFromEmail('test@test.com', mocks.makeUid2CstgOption());
+    }).not.toThrow();
+
     expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
       identity: null,
     });

@@ -157,6 +157,7 @@ export abstract class SdkBase {
       } else {
         this.triggerRefreshOrSetTimer(validatedIdentity);
       }
+      this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
     }
     this.isIdentityAvailable();
   }
@@ -193,6 +194,11 @@ export abstract class SdkBase {
   }
 
   public isLoginRequired() {
+    const identity = this._identity ?? this.getIdentityNoInit();
+    // if identity temporarily unavailable, login is not required
+    if (this.temporarilyUnavailable(identity)) {
+      return false;
+    }
     return !this.isIdentityAvailable();
   }
 
@@ -526,6 +532,7 @@ export abstract class SdkBase {
     } else {
       const errorText = 'Unexpected status received from CSTG endpoint.';
       this._logger.warn(errorText);
+      this.isIdentityAvailable();
       throw new Error(errorText);
     }
   }
