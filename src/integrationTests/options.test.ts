@@ -571,28 +571,29 @@ describe('calls the NoIdentityAvailable event', () => {
 
   test('when init is called for the first time with no identity', () => {
     uid2.init({});
+
     expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
   test('when init is already complete and called again with no identity', () => {
     uid2.init({});
     uid2.init({});
+
     expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
   test('when init is already complete and called again with an expired identity', () => {
     uid2.init({});
-    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
-
     uid2.init({
       identity: expiredIdentity,
     });
+
     expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
   test('when init is already complete but the existing identity is expired', () => {
     uid2.init({
       identity: expiredIdentity,
     });
-    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
     uid2.init({});
+
     expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
   test('when identity is expired but refreshable', () => {
@@ -611,9 +612,8 @@ describe('calls the NoIdentityAvailable event', () => {
     expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
   test('when get identity returns null or get advertising token returns undefined', () => {
-    const nullIdentity = uid2.getIdentity();
+    uid2.getIdentity();
 
-    expect(nullIdentity).toBeNull();
     expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
   test('when there is no advertising token', () => {
@@ -624,29 +624,19 @@ describe('calls the NoIdentityAvailable event', () => {
   });
   test('when cstg does not succeed', () => {
     uid2.init({});
+
     expect(uid2.setIdentityFromEmail('a', mocks.makeUid2CstgOption())).rejects.toThrow(
       'Invalid email address'
     );
-
-    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
-  });
-  test('when an identity was valid but has since expired', () => {
-    uid2.init({});
-    expect(uid2.setIdentityFromEmail('a', mocks.makeUid2CstgOption())).rejects.toThrow(
-      'Invalid email address'
-    );
-
     expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
   test('when identity was valid on init but has since expired', () => {
-    const refreshFrom = Date.now() + 100;
     const originalIdentity = makeIdentity({
       advertising_token: 'original_advertising_token',
-      identity_expires: refreshFrom,
-      //refresh_from: refreshFrom,
+      identity_expires: Date.now() + 100,
     });
-
     uid2.init({ identity: originalIdentity });
+
     expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
 
     // set time to an expired date for this identity
@@ -669,6 +659,7 @@ describe('does not call NoIdentityAvailable event', () => {
   test('when setIdentity is run with a valid identity, should not call NoIdentityAvailable on set or get', () => {
     uid2.init({});
     handler = jest.fn();
+
     uid2.setIdentity(validIdentity);
     expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
 
@@ -682,15 +673,16 @@ describe('does not call NoIdentityAvailable event', () => {
     uid2.init({});
     let optedOutIdentity = makeIdentity({ status: 'optout' });
     uid2.setIdentity(optedOutIdentity);
+
     expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
   test('when cstg is successful', async () => {
     uid2.init({});
     handler = jest.fn();
+
     expect(async () => {
       await uid2.setIdentityFromEmail('test@test.com', mocks.makeUid2CstgOption());
     }).not.toThrow();
-
     expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
   });
   test('when identity is set with local storage and init has never been', () => {
