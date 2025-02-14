@@ -559,6 +559,11 @@ describe('Store config UID2', () => {
 
 describe('calls the NoIdentityAvailable event', () => {
   let handler: ReturnType<typeof jest.fn>;
+  let expiredIdentity = makeIdentity({
+    identity_expires: Date.now() - 100000,
+    refresh_expires: Date.now() - 100000,
+  });
+
   beforeEach(() => {
     handler = jest.fn();
     uid2.callbacks.push(handler);
@@ -576,10 +581,7 @@ describe('calls the NoIdentityAvailable event', () => {
   test('when init is already complete and called again with an expired identity', () => {
     uid2.init({});
     expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
-    let expiredIdentity = makeIdentity({
-      identity_expires: Date.now() - 100000,
-      refresh_expires: Date.now() - 100000,
-    });
+
     uid2.init({
       identity: expiredIdentity,
     });
@@ -588,10 +590,6 @@ describe('calls the NoIdentityAvailable event', () => {
     });
   });
   test('when init is already complete but the existing identity is expired', () => {
-    let expiredIdentity = makeIdentity({
-      identity_expires: Date.now() - 100000,
-      refresh_expires: Date.now() - 100000,
-    });
     uid2.init({
       identity: expiredIdentity,
     });
@@ -681,6 +679,7 @@ describe('calls the NoIdentityAvailable event', () => {
 });
 
 describe('does not call NoIdentityAvailable event', () => {
+  let validIdentity = makeIdentity();
   let handler: ReturnType<typeof jest.fn>;
   beforeEach(() => {
     handler = jest.fn();
@@ -690,7 +689,6 @@ describe('does not call NoIdentityAvailable event', () => {
   test('when setIdentity is run with a valid identity, should not call NoIdentityAvailable on set or get', () => {
     uid2.init({});
     handler = jest.fn();
-    let validIdentity = makeIdentity();
     uid2.setIdentity(validIdentity);
     expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
       identity: null,
@@ -725,10 +723,9 @@ describe('does not call NoIdentityAvailable event', () => {
       identity: null,
     });
   });
-  test('when identity is set with local storage', () => {
-    let validIdentity = makeIdentity();
+  test('when identity is set with local storage and init has never been', () => {
     mocks.setUid2LocalStorage(validIdentity);
-    uid2.init({});
+    uid2.isIdentityAvailable();
 
     expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
       identity: null,
