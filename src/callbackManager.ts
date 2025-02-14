@@ -19,14 +19,14 @@ export type PayloadWithIdentity = {
 };
 
 export class CallbackManager {
-  private _getIdentity: () => Identity | null | undefined;
+  private _getIdentity: (isForCallback: boolean) => Identity | null | undefined;
   private _logger: Logger;
   private _sdk: SdkBase;
   private _productName: string;
   constructor(
     sdk: SdkBase,
     productName: string,
-    getIdentity: () => Identity | null | undefined,
+    getIdentity: (isForCallback: boolean) => Identity | null | undefined,
     logger: Logger
   ) {
     this._productName = productName;
@@ -44,7 +44,7 @@ export class CallbackManager {
         this.safeRunCallback(c, EventType.SdkLoaded, {});
       if (this._sentInit)
         this.safeRunCallback(c, EventType.InitCompleted, {
-          identity: this._getIdentity() ?? null,
+          identity: this._getIdentity(true) ?? null,
         });
     }
     return Array.prototype.push.apply(this._sdk.callbacks, args);
@@ -57,7 +57,7 @@ export class CallbackManager {
 
     const enrichedPayload = {
       ...payload,
-      identity: this._getIdentity() ?? null,
+      identity: this._getIdentity(true) ?? null,
     };
     for (const callback of this._sdk.callbacks) {
       this.safeRunCallback(callback, event, enrichedPayload);

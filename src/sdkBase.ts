@@ -84,7 +84,7 @@ export abstract class SdkBase {
     this._callbackManager = new CallbackManager(
       this,
       this._product.name,
-      () => this.getIdentity(),
+      () => this.getIdentity(true),
       this._logger
     );
   }
@@ -157,20 +157,25 @@ export abstract class SdkBase {
       } else {
         this.triggerRefreshOrSetTimer(validatedIdentity);
       }
-      this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
+    }
+    this.isIdentityAvailable();
+  }
+
+  public getIdentity(isForCallback?: boolean): Identity | null {
+    const identity = this._identity ?? this.getIdentityNoInit();
+    const isValid =
+      identity && !this.temporarilyUnavailable(identity) && !isOptoutIdentity(identity);
+    if (!isValid) {
+      if (!isForCallback) {
+        this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
+      }
+      return null;
     } else {
-      this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
+      return identity;
     }
   }
 
-  public getIdentity(): Identity | null {
-    const identity = this._identity ?? this.getIdentityNoInit();
-    return identity && !this.temporarilyUnavailable(identity) && !isOptoutIdentity(identity)
-      ? identity
-      : null;
-  }
-
-  // When the SDK has been initialized, this function should return the token
+  // When the SDK has been initialized, this vfunction should return the token
   // from the most recent refresh request, if there is a request, wait for the
   // new token. Otherwise, returns a promise which will be resolved after init.
   public getAdvertisingTokenAsync() {
