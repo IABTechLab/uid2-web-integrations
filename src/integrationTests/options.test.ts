@@ -586,7 +586,9 @@ describe('calls the NoIdentityAvailable event', () => {
       identity: expiredIdentity,
     });
 
-    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: expiredIdentity,
+    });
   });
   test('when init is already complete but the existing identity is expired', () => {
     uid2.init({
@@ -594,7 +596,9 @@ describe('calls the NoIdentityAvailable event', () => {
     });
     uid2.init({});
 
-    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: expiredIdentity,
+    });
   });
   test('when identity is expired but refreshable', () => {
     let expiredRefreshableIdentity = makeIdentity({
@@ -636,14 +640,18 @@ describe('calls the NoIdentityAvailable event', () => {
     });
     uid2.init({ identity: originalIdentity });
 
-    expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
+    expect(handler).not.toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: null,
+    });
 
     // set time to an expired date for this identity
     jest.setSystemTime(originalIdentity.refresh_expires * 1000 + 1);
 
     uid2.isIdentityAvailable();
 
-    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, { identity: null });
+    expect(handler).toHaveBeenLastCalledWith(EventType.NoIdentityAvailable, {
+      identity: originalIdentity,
+    });
   });
 });
 
