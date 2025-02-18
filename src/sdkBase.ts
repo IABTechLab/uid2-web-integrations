@@ -1,5 +1,5 @@
 import { version } from '../package.json';
-import { OptoutIdentity, Identity, isOptoutIdentity } from './Identity';
+import { OptoutIdentity, Identity, isOptoutIdentity, isValidIdentity } from './Identity';
 import { IdentityStatus, InitCallbackManager } from './initCallbacks';
 import { SdkOptions, isSDKOptionsOrThrow } from './sdkOptions';
 import { Logger, MakeLogger } from './sdk/logger';
@@ -164,21 +164,16 @@ export abstract class SdkBase {
 
   public getIdentity(): Identity | null {
     const identity = this._identity ?? this.getIdentityNoInit();
-    const isValid =
-      identity && !this.temporarilyUnavailable(identity) && !isOptoutIdentity(identity);
-    if (!isValid) {
+    if (!isValidIdentity(identity) || this.temporarilyUnavailable(identity)) {
       this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
       return null;
-    } else {
-      return identity;
     }
+    return identity;
   }
 
   private getIdentityForCallback(): Identity | null {
     const identity = this._identity ?? this.getIdentityNoInit();
-    return identity && !this.temporarilyUnavailable(identity) && !isOptoutIdentity(identity)
-      ? identity
-      : null;
+    return isValidIdentity(identity) && !this.temporarilyUnavailable(identity) ? identity : null;
   }
 
   // When the SDK has been initialized, this function should return the token
