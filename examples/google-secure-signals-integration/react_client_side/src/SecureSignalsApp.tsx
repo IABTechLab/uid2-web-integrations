@@ -24,7 +24,7 @@ const SecureSignalsApp = () => {
   const [advertisingToken, setAdvertisingToken] = useState<string>('undefined');
   const [loginRequired, setLoginRequired] = useState<boolean>(true);
   const [identityState, setIdentityState] = useState('');
-  const [email, setEmail] = useState<string>('test@example.com');
+  const [email, setEmail] = useState<string>('validate@example.com');
   const [identity, setIdentity] = useState(null);
   const [isUid2Enabled, setIsUid2Enabled] = useState<boolean>(true);
   const [adsLoaded, setAdsLoaded] = useState<boolean>(false);
@@ -287,7 +287,8 @@ const SecureSignalsApp = () => {
   return (
     <div>
       <h1>
-        UID2 Publisher Client-Side Integration Example using UID2 JavaScript SDK, Secure Signals
+        UID2 Publisher Client-Side Integration Example using React, UID2 JavaScript SDK, Secure
+        Signals
       </h1>
       <p>
         This example demonstrates how a content publisher can follow the{' '}
