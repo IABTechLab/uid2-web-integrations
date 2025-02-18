@@ -60,10 +60,6 @@ export class CallbackManager {
       ...payload,
       identity: this._getIdentity() ?? null,
     };
-    if (event === EventType.NoIdentityAvailable && enrichedPayload.identity) {
-      enrichedPayload.identity = null;
-    }
-
     for (const callback of this._sdk.callbacks) {
       this.safeRunCallback(callback, event, enrichedPayload);
     }
