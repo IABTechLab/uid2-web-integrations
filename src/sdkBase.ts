@@ -189,6 +189,11 @@ export abstract class SdkBase {
   }
 
   public isLoginRequired() {
+    const identity = this._identity ?? this.getIdentityNoInit();
+    // if identity temporarily unavailable, login is not required
+    if (this.temporarilyUnavailable(identity)) {
+      return false;
+    }
     return !this.isIdentityAvailable();
   }
 
