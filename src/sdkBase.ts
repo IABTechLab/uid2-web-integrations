@@ -165,7 +165,6 @@ export abstract class SdkBase {
   public getIdentity(): Identity | null {
     const identity = this._identity ?? this.getIdentityNoInit();
     if (!isValidIdentity(identity) || this.temporarilyUnavailable(identity)) {
-      this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
       return null;
     }
     return identity;
@@ -199,17 +198,10 @@ export abstract class SdkBase {
 
   public isIdentityAvailable() {
     const identity = this._identity ?? this.getIdentityNoInit();
-    const identityAvailable =
-      (this.isIdentityValid(identity) && !this.temporarilyUnavailable(identity)) ||
-      this._apiClient?.hasActiveRequests();
-
-    if (!identityAvailable) {
-      if (this._callbackManager) {
-        this._callbackManager.runCallbacks(EventType.NoIdentityAvailable, {});
-      }
-      return false;
-    }
-    return true;
+    return (
+      (identity && !hasExpired && !this.temporarilyUnavailable(identity)) ||
+      this._apiClient?.hasActiveRequests()
+    );
   }
 
   public hasOptedOut() {
@@ -307,10 +299,6 @@ export abstract class SdkBase {
     this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
     this.isIdentityAvailable();
     if (this.hasOptedOut()) this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
-  }
-
-  private isIdentityValid(identity: Identity | OptoutIdentity | null | undefined) {
-    return identity && !hasExpired(identity.refresh_expires);
   }
 
   private temporarilyUnavailable(identity: Identity | OptoutIdentity | null | undefined) {
