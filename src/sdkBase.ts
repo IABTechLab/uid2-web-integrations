@@ -190,8 +190,11 @@ export abstract class SdkBase {
 
   public isIdentityAvailable() {
     const identity = this._identity ?? this.getIdentityNoInit();
+    // available if identity exists and has not expired or if there active requests
     return (
-      (identity && !hasExpired && !this.temporarilyUnavailable(identity)) ||
+      (identity &&
+        !hasExpired(identity.refresh_expires) &&
+        !this.temporarilyUnavailable(identity)) ||
       this._apiClient?.hasActiveRequests()
     );
   }
