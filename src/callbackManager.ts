@@ -52,7 +52,8 @@ export class CallbackManager {
   public runCallbacks(event: EventType, payload: CallbackPayload) {
     if (event === EventType.InitCompleted) this._sentInit = true;
     if (event === EventType.SdkLoaded) CallbackManager._sentSdkLoaded[this._productName] = true;
-    if (!this._sentInit && event !== EventType.SdkLoaded) return;
+    // if SDK has not been loaded yet, callbacks should not run
+    if (!CallbackManager._sentSdkLoaded[this._productName]) return;
 
     const enrichedPayload = {
       ...payload,

@@ -1,5 +1,5 @@
 import { version } from '../package.json';
-import { OptoutIdentity, Identity, isOptoutIdentity } from './Identity';
+import { OptoutIdentity, Identity, isOptoutIdentity, isValidIdentity } from './Identity';
 import { IdentityStatus, InitCallbackManager } from './initCallbacks';
 import { SdkOptions, isSDKOptionsOrThrow } from './sdkOptions';
 import { Logger, MakeLogger } from './sdk/logger';
@@ -163,9 +163,8 @@ export abstract class SdkBase {
 
   public getIdentity(): Identity | null {
     const identity = this._identity ?? this.getIdentityNoInit();
-    return identity && !this.temporarilyUnavailable(identity) && !isOptoutIdentity(identity)
-      ? identity
-      : null;
+    // if identity is valid (includes not opted out) and available, return it
+    return isValidIdentity(identity) && !this.temporarilyUnavailable(identity) ? identity : null;
   }
 
   // When the SDK has been initialized, this function should return the token
@@ -181,11 +180,23 @@ export abstract class SdkBase {
   }
 
   public isLoginRequired() {
+    const identity = this._identity ?? this.getIdentityNoInit();
+    // if identity temporarily unavailable, login is not required
+    if (this.temporarilyUnavailable(identity)) {
+      return false;
+    }
     return !this.isIdentityAvailable();
   }
 
   public isIdentityAvailable() {
-    return this.isIdentityValid() || this._apiClient?.hasActiveRequests();
+    const identity = this._identity ?? this.getIdentityNoInit();
+    // available if identity exists and has not expired or if there active requests
+    return (
+      (identity &&
+        !hasExpired(identity.refresh_expires) &&
+        !this.temporarilyUnavailable(identity)) ||
+      this._apiClient?.hasActiveRequests()
+    );
   }
 
   public hasOptedOut() {
@@ -230,10 +241,14 @@ export abstract class SdkBase {
         this._initCallbackManager?.addInitCallback(opts.callback);
       }
 
-      const useNewIdentity =
-        opts.identity &&
-        (!previousOpts.identity ||
-          opts.identity.identity_expires > previousOpts.identity.identity_expires);
+      let useNewIdentity;
+      if (!opts.identity) useNewIdentity = true;
+      else {
+        useNewIdentity =
+          !previousOpts.identity ||
+          opts.identity.identity_expires > previousOpts.identity.identity_expires;
+      }
+
       if (useNewIdentity || opts.callback) {
         let identity = useNewIdentity ? opts.identity : previousOpts.identity ?? null;
         if (identity) {
@@ -278,11 +293,6 @@ export abstract class SdkBase {
     this.setInitComplete(true);
     this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
     if (this.hasOptedOut()) this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
-  }
-
-  private isIdentityValid() {
-    const identity = this._identity ?? this.getIdentityNoInit();
-    return identity && !hasExpired(identity.refresh_expires);
   }
 
   private temporarilyUnavailable(identity: Identity | OptoutIdentity | null | undefined) {
