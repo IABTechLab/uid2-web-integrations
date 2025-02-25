@@ -159,7 +159,6 @@ export abstract class SdkBase {
       }
       this._callbackManager.runCallbacks(EventType.IdentityUpdated, {});
     }
-    this.isIdentityAvailable();
   }
 
   public getIdentity(): Identity | null {
@@ -292,7 +291,6 @@ export abstract class SdkBase {
 
     this.setInitComplete(true);
     this._callbackManager?.runCallbacks(EventType.InitCompleted, {});
-    this.isIdentityAvailable();
     if (this.hasOptedOut()) this._callbackManager.runCallbacks(EventType.OptoutReceived, {});
   }
 
@@ -510,7 +508,6 @@ export abstract class SdkBase {
     } else {
       const errorText = 'Unexpected status received from CSTG endpoint.';
       this._logger.warn(errorText);
-      this.isIdentityAvailable();
       throw new Error(errorText);
     }
   }
