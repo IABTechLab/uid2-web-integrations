@@ -163,10 +163,7 @@ export abstract class SdkBase {
 
   public getIdentity(): Identity | null {
     const identity = this._identity ?? this.getIdentityNoInit();
-    if (!isValidIdentity(identity) || this.temporarilyUnavailable(identity)) {
-      return null;
-    }
-    return identity;
+    return isValidIdentity(identity) && !this.temporarilyUnavailable(identity) ? identity : null;
   }
 
   // When the SDK has been initialized, this function should return the token
