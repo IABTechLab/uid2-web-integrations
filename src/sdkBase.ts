@@ -163,6 +163,7 @@ export abstract class SdkBase {
 
   public getIdentity(): Identity | null {
     const identity = this._identity ?? this.getIdentityNoInit();
+    // if identity is valid (includes not opted out) and available, return it
     return isValidIdentity(identity) && !this.temporarilyUnavailable(identity) ? identity : null;
   }
 
