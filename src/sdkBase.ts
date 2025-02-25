@@ -84,7 +84,7 @@ export abstract class SdkBase {
     this._callbackManager = new CallbackManager(
       this,
       this._product.name,
-      () => this.getIdentityForCallback(),
+      () => this.getIdentity(),
       this._logger
     );
   }
@@ -168,11 +168,6 @@ export abstract class SdkBase {
       return null;
     }
     return identity;
-  }
-
-  private getIdentityForCallback(): Identity | null {
-    const identity = this._identity ?? this.getIdentityNoInit();
-    return isValidIdentity(identity) && !this.temporarilyUnavailable(identity) ? identity : null;
   }
 
   // When the SDK has been initialized, this function should return the token
