@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import * as mocks from '../mocks';
-import { SdkOptions, sdkWindow, UID2 } from '../uid2Sdk';
+import { EventType, SdkOptions, sdkWindow, UID2 } from '../uid2Sdk';
 import { loadConfig, removeConfig } from '../configManager';
 import { ProductDetails } from '../product';
 
