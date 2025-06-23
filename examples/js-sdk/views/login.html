@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>UID2 Publisher Standard Integration Example Login Result</title>
     <link rel="stylesheet" type="text/css" href="/stylesheets/app.css" />
     <link rel="shortcut icon" href="/images/favicon.png" />
-    <script src="https://cdn.integ.uidapi.com/uid2-sdk-3.9.0.js"></script>
+    <script src="https://cdn.integ.uidapi.com/uid2-sdk-4.0.1.js"></script>
     <script>
       function onUid2IdentityUpdated(state) {
         // can automatically redirect user to index page here
@@ -17,13 +17,16 @@
       });
       __uid2.callbacks.push(onUid2IdentityUpdated);
     </script>
-</head>
-<body>
-<%- include('intro.html'); -%>
-<p class="message">Login completed</p>
-<p>UID2 identity:</p>
-<pre><%- JSON.stringify(identity, null, 2) %></pre>
-<p><a href="/">Back to the main page</a></p>
-<p>Normally user would be redirected automatically, but this example demonstrates one way UID2 login could be handled.</p>
-</body>
+  </head>
+  <body>
+    <%- include('intro.html'); -%>
+    <p class="message">Login completed</p>
+    <p>UID2 identity:</p>
+    <pre><%- JSON.stringify(identity, null, 2) %></pre>
+    <p><a href="/">Back to the main page</a></p>
+    <p>
+      Normally user would be redirected automatically, but this example demonstrates one way UID2
+      login could be handled.
+    </p>
+  </body>
 </html>
