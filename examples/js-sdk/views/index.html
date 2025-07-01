@@ -49,6 +49,11 @@
   </head>
   <body>
     <%- include('intro.html'); -%>
+    <p>
+      <strong>Note:</strong> This is a <em>test-only</em> integration environment—not for production
+      use. It does not perform real user authentication or generate production-level tokens. Do not
+      use real user data on this page.
+    </p>
     <table id="uid2_state">
       <tr>
         <td class="label">Ready for Targeted Advertising:</td>
@@ -82,12 +87,12 @@
             style="border-style: none"
           />
         </div>
-        <div><input type="submit" value="Log In" class="button" /></div>
+        <div><input type="submit" value="Generate UID2" class="button" /></div>
       </form>
     </div>
     <div id="logout_form" style="display: none" class="form">
       <form>
-        <button type="button" class="button" id="logout">Log Out</button>
+        <button type="button" class="button" id="logout">Clear UID2</button>
       </form>
     </div>
   </body>
