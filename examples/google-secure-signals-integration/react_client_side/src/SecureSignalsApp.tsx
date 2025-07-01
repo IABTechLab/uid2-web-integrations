@@ -383,7 +383,7 @@ const SecureSignalsApp = () => {
           </div>
           <div>
             <button type='button' className='button' onClick={handleLogin}>
-              Log In
+              Generate UID2
             </button>
           </div>
         </div>
@@ -391,7 +391,7 @@ const SecureSignalsApp = () => {
         <div id='logout_form' className='form'>
           <form>
             <button type='button' className='button' onClick={handleLogout}>
-              Log Out
+              Clear UID2
             </button>
           </form>
         </div>
