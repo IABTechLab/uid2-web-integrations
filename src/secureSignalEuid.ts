@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { isDebugModeOn, UidSecureSignalProvider } from './secureSignal_shared';
 import { UidSecureSignalProviderType } from './secureSignal_types';
 
@@ -15,14 +16,20 @@ export function __euidSSProviderScriptLoad() {
     isDebugModeOn(INTEG_BASE_URL),
     true
   );
-  // For UID2 SDK integration
+  // For EUID SDK integration
   window.__euid = window.__euid || {
     callbacks: [],
   };
   window.__euid.callbacks?.push((eventType) => {
-    //@ts-ignore
     if (eventType === 'SdkLoaded') {
-      window.__euidSecureSignalProvider!.registerSecureSignalProvider();
+      if (window.__euid?.getIdentity()) {
+        window.__euidSecureSignalProvider.registerSecureSignalProvider();
+      }
+    }
+    if (eventType === 'IdentityUpdated') {
+      if (window.__euid.getIdentity()) {
+        window.__euidSecureSignalProvider.registerSecureSignalProvider();
+      }
     }
   });
 }
