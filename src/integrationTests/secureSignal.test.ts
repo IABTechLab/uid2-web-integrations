@@ -100,6 +100,7 @@ describe('Secure Signal Tests', () => {
 
       afterEach(() => {
         mocks.resetFakeTime();
+        mocks.removeUid2LocalStorage();
       });
 
       test('should send signal to Google ESP when SDK initialized', async () => {
@@ -107,6 +108,57 @@ describe('Secure Signal Tests', () => {
         __uid2InternalHandleScriptLoad();
         (window.__uid2 as UID2).init({ identity });
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
+        await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 'uidapi.com',
+          })
+        );
+        await mocks.flushPromises();
+        expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
+          identity.advertising_token
+        );
+      });
+
+      test('should send signal to Google ESP when SDK initialized and Identity is available', async () => {
+        mocks.setUid2LocalStorage(identity);
+        __uid2SSProviderScriptLoad();
+        __uid2InternalHandleScriptLoad();
+        (window.__uid2 as UID2).init({});
+        expect(secureSignalProvidersPushMock).toHaveBeenCalled();
+        await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 'uidapi.com',
+          })
+        );
+        await mocks.flushPromises();
+        expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
+          identity.advertising_token
+        );
+      });
+
+      test('should send signal to Google ESP when SDK initialized and Identity is set after', async () => {
+        __uid2SSProviderScriptLoad();
+        __uid2InternalHandleScriptLoad();
+        (window.__uid2 as UID2).init({});
+        (window.__uid2 as UID2).setIdentity(identity);
+        expect(secureSignalProvidersPushMock).toHaveBeenCalled();
+        await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 'uidapi.com',
+          })
+        );
+        await mocks.flushPromises();
+        expect(await secureSignalProvidersPushMock.mock.results[0].value).toBe(
+          identity.advertising_token
+        );
+      });
+
+      test('should send signal to Google ESP when SDK initialized and SS script is included later', async () => {
+        __uid2InternalHandleScriptLoad();
+        (window.__uid2 as UID2).init({ identity });
+        __uid2SSProviderScriptLoad();
+        // will fire on both InitCompleted and SdkLoaded
+        expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(2);
         await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
           expect.objectContaining({
             id: 'uidapi.com',
@@ -184,6 +236,7 @@ describe('Secure Signal Tests', () => {
     describe('When SDK initialized after both SDK and SS script loaded - UID2', () => {
       beforeEach(() => {
         window.__uid2 = new UID2();
+        mocks.removeUid2LocalStorage();
       });
       test('should send identity to Google ESP', async () => {
         __uid2InternalHandleScriptLoad();

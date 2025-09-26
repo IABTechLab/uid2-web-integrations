@@ -17,14 +17,13 @@ export function __uid2SSProviderScriptLoad() {
   window.__uid2 = window.__uid2 || {
     callbacks: [],
   };
-  window.__uid2.callbacks?.push((eventType) => {
-    if (eventType === 'SdkLoaded') {
-      if (window.__uid2?.getIdentity()) {
-        window.__uid2SecureSignalProvider.registerSecureSignalProvider();
-      }
-    }
-    if (eventType === 'IdentityUpdated') {
-      if (window.__uid2?.getIdentity()) {
+  window.__uid2.callbacks.push((eventType) => {
+    if (
+      eventType === 'InitCompleted' ||
+      eventType === 'SdkLoaded' ||
+      eventType === 'IdentityUpdated'
+    ) {
+      if (window.__uid2.getIdentity()) {
         window.__uid2SecureSignalProvider.registerSecureSignalProvider();
       }
     }

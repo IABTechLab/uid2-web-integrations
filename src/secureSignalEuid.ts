@@ -20,13 +20,12 @@ export function __euidSSProviderScriptLoad() {
   window.__euid = window.__euid || {
     callbacks: [],
   };
-  window.__euid.callbacks?.push((eventType) => {
-    if (eventType === 'SdkLoaded') {
-      if (window.__euid?.getIdentity()) {
-        window.__euidSecureSignalProvider.registerSecureSignalProvider();
-      }
-    }
-    if (eventType === 'IdentityUpdated') {
+  window.__euid.callbacks.push((eventType) => {
+    if (
+      eventType === 'InitCompleted' ||
+      eventType === 'SdkLoaded' ||
+      eventType === 'IdentityUpdated'
+    ) {
       if (window.__euid.getIdentity()) {
         window.__euidSecureSignalProvider.registerSecureSignalProvider();
       }
