@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { isDebugModeOn, UidSecureSignalProvider } from './secureSignal_shared';
 import { UidSecureSignalProviderType } from './secureSignal_types';
 
@@ -20,14 +19,14 @@ export function __euidSSProviderScriptLoad() {
   window.__euid = window.__euid || {
     callbacks: [],
   };
-  window.__euid.callbacks.push((eventType) => {
+  window.__euid.callbacks?.push((eventType) => {
     if (
       eventType === 'InitCompleted' ||
       eventType === 'SdkLoaded' ||
       eventType === 'IdentityUpdated'
     ) {
-      if (window.__euid.getIdentity()) {
-        window.__euidSecureSignalProvider.registerSecureSignalProvider();
+      if ('getIdentity' in window.__euid! && window.__euid!.getIdentity()) {
+        window.__euidSecureSignalProvider?.registerSecureSignalProvider();
       }
     }
   });
