@@ -124,7 +124,7 @@ describe('Secure Signal Tests', () => {
         __uid2SSProviderScriptLoad();
         __uid2InternalHandleScriptLoad();
         (window.__uid2 as UID2).init({});
-        expect(secureSignalProvidersPushMock).toHaveBeenCalled();
+        expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
         await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
           expect.objectContaining({
             id: 'uidapi.com',
@@ -141,7 +141,7 @@ describe('Secure Signal Tests', () => {
         __uid2InternalHandleScriptLoad();
         (window.__uid2 as UID2).init({});
         (window.__uid2 as UID2).setIdentity(identity);
-        expect(secureSignalProvidersPushMock).toHaveBeenCalled();
+        expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
         await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
           expect.objectContaining({
             id: 'uidapi.com',
@@ -157,8 +157,7 @@ describe('Secure Signal Tests', () => {
         __uid2InternalHandleScriptLoad();
         (window.__uid2 as UID2).init({ identity });
         __uid2SSProviderScriptLoad();
-        // will fire on both InitCompleted and SdkLoaded
-        expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(2);
+        expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
         await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
           expect.objectContaining({
             id: 'uidapi.com',
