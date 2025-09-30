@@ -102,6 +102,11 @@ export class UidSecureSignalProvider implements UidSecureSignalProviderType {
       attempt();
     });
   };
+
+  public resetSecureSignalsCache = () => {
+    window.googletag.secureSignalProviders.clearAllCache();
+    this.hasRegisteredSecureSignals = false;
+  };
 }
 
 declare global {
