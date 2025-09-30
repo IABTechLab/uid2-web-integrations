@@ -1,4 +1,4 @@
-name: Release SDK Package to NPM and CDN (Consolidated)
+name: Release SDK Package to NPM and CDN (v2)
 run-name: ${{ inputs.release_type == 'Snapshot' && 'Publish Pre-release' || format('Release {0}', inputs.release_type)}} SDK Package to NPM and CDN by @${{ github.actor }}
 
 on:
