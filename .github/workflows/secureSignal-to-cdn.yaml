@@ -1,0 +1,159 @@
+name: Release UID2/EUID Secure Signal Package to CDN (Five Environments)
+run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} UID2/EUID Secure Signal Package to CDN (Five Environments) by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+
+env:
+  WORKING_DIR: ./
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    outputs:
+      uid2_modified: ${{ steps.verify_uid2.outputs.any_modified }}
+      euid_modified: ${{ steps.verify_euid.outputs.any_modified }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for change to src/secureSignalUid2.ts
+        id: verify_uid2
+        uses: tj-actions/changed-files@v41
+        with:
+          files: src/secureSignalUid2.ts
+      - name: Check for change to src/secureSignalEuid.ts
+        id: verify_euid
+        uses: tj-actions/changed-files@v41
+        with:
+          files: src/secureSignalEuid.ts
+
+  build:
+    needs: [verify]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        target: [development, production]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build:esp -- --mode=${{ matrix.target }}
+      - name: Upload UID2 Secure Signals Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}Uid2SecureSignalScript
+          path: ./dist/uid2SecureSignal.js
+      - name: Upload EUID Secure Signals Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}EuidSecureSignalScript
+          path: ./dist/euidSecureSignal.js
+
+  # Test Environment - UID2 only (first deployment)
+  deployment-test:
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    environment: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy UID2 Secure Signals to Test CDN
+        uses: ./.github/actions/cdn_deployment_aws
+        with:
+          artifact: developmentUid2SecureSignalScript
+          invalidate_paths: '/uid2SecureSignal.js'
+          aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws_bucket_name: ${{ secrets.S3_BUCKET }}
+          aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+
+  approval-to-deploy:
+    name: Approval To Deploy to All Environments
+    needs: [deployment-test]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Approval to deploy
+        shell: bash
+        run: echo "Approved for deployment to all environments"
+
+  # UID2 Integration Environment
+  deployment-uid2-integ:
+    needs: [build, approval-to-deploy]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    environment: uid2-integ
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy UID2 Secure Signals to Integration CDN
+        uses: ./.github/actions/cdn_deployment_aws
+        with:
+          artifact: developmentUid2SecureSignalScript
+          invalidate_paths: '/uid2SecureSignal.js'
+          aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws_bucket_name: ${{ secrets.S3_BUCKET }}
+          aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+
+  # UID2 Production Environment
+  deployment-uid2-prod:
+    needs: [build, approval-to-deploy]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    environment: uid2-prod
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy UID2 Secure Signals to Production CDN
+        uses: ./.github/actions/cdn_deployment_aws
+        with:
+          artifact: productionUid2SecureSignalScript
+          invalidate_paths: '/uid2SecureSignal.js'
+          aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws_bucket_name: ${{ secrets.S3_BUCKET }}
+          aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+
+  # EUID Integration Environment
+  deployment-euid-integ:
+    needs: [build, approval-to-deploy]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    environment: euid-integ
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy EUID Secure Signals to Integration CDN
+        uses: ./.github/actions/cdn_deployment_aws
+        with:
+          artifact: developmentEuidSecureSignalScript
+          invalidate_paths: '/euidSecureSignal.js'
+          aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws_bucket_name: ${{ secrets.S3_BUCKET }}
+          aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+
+  # EUID Production Environment
+  deployment-euid-prod:
+    needs: [build, approval-to-deploy]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    environment: euid-prod
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy EUID Secure Signals to Production CDN
+        uses: ./.github/actions/cdn_deployment_aws
+        with:
+          artifact: productionEuidSecureSignalScript
+          invalidate_paths: '/euidSecureSignal.js'
+          aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws_bucket_name: ${{ secrets.S3_BUCKET }}
+          aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
