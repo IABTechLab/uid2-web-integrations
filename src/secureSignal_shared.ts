@@ -35,6 +35,7 @@ export class UidSecureSignalProvider implements UidSecureSignalProviderType {
     window.googletag.secureSignalProviders = window.googletag.secureSignalProviders || [];
 
     if (!this.hasRegisteredSecureSignals) {
+      this.hasRegisteredSecureSignals = true;
       window.googletag.secureSignalProviders.push({
         id: this.isEuid ? 'euid.eu' : 'uidapi.com',
         collectorFunction: async () => {
@@ -45,7 +46,6 @@ export class UidSecureSignalProvider implements UidSecureSignalProviderType {
         },
       });
     }
-    this.hasRegisteredSecureSignals = true;
   };
 
   public logging = (message: string) => {
