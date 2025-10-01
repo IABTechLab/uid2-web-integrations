@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-    environment: test
+    environment: uid2-test
     steps:
       - uses: actions/checkout@v4
       - name: Deploy UID2 Secure Signals to Test CDN
@@ -80,7 +80,7 @@ jobs:
     name: Approval To Deploy to All Environments
     needs: [deployment-test]
     runs-on: ubuntu-latest
-    environment: production
+    environment: approve-deployment
     steps:
       - name: Approval to deploy
         shell: bash

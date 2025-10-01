@@ -140,6 +140,7 @@ jobs:
           aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
           aws_bucket_name: ${{ secrets.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+          deploy_index_html: 'true'
 
   approval-to-deploy:
     name: Approval To Deploy
@@ -187,3 +188,4 @@ jobs:
           aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
           aws_bucket_name: ${{ secrets.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+          deploy_index_html: 'true'
