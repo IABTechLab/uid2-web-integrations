@@ -26,6 +26,9 @@ export function __euidSSProviderScriptLoad() {
       eventType === 'IdentityUpdated'
     ) {
       if ('getIdentity' in window.__euid! && window.__euid!.getIdentity()) {
+        if (eventType === 'IdentityUpdated') {
+          window.__euidSecureSignalProvider?.resetProviderRegistration();
+        }
         window.__euidSecureSignalProvider?.registerSecureSignalProvider();
       }
     }

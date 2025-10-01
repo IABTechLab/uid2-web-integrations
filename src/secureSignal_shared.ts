@@ -28,8 +28,11 @@ export class UidSecureSignalProvider implements UidSecureSignalProviderType {
       return;
     }
 
-    window.googletag = window.googletag || {};
-    window.googletag.secureSignalProviders = window.googletag.secureSignalProviders || {};
+    window.googletag = window.googletag || {
+      cmd: [],
+    };
+
+    window.googletag.secureSignalProviders = window.googletag.secureSignalProviders || [];
 
     if (!this.hasRegisteredSecureSignals) {
       this.hasRegisteredSecureSignals = true;
@@ -100,8 +103,7 @@ export class UidSecureSignalProvider implements UidSecureSignalProviderType {
     });
   };
 
-  public resetSecureSignalsCache = () => {
-    window.googletag.secureSignalProviders.clearAllCache();
+  public resetProviderRegistration = () => {
     this.hasRegisteredSecureSignals = false;
   };
 }
