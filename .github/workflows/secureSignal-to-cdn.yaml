@@ -87,7 +87,7 @@ jobs:
         run: echo "Approved for deployment to all environments"
 
   # Matrix Deployment for All Environments
-  deployment-matrix:
+  ssignal-cdn-deployment:
     needs: [build, approval-to-deploy]
     runs-on: ubuntu-latest
     permissions:
