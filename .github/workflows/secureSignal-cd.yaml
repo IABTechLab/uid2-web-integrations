@@ -74,7 +74,6 @@ jobs:
       - name: Deploy UID2 Secure Signals to CDN
         uses: ./.github/actions/cdn_deployment_aws
         with:
-          environment: ${{ matrix.environment }}
           artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}Uid2SecureSignalScript
           invalidate_paths: '/uid2SecureSignal.js'
           aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
@@ -83,7 +82,6 @@ jobs:
       - name: Deploy EUID Secure Signals to CDN
         uses: ./.github/actions/cdn_deployment_aws
         with:
-          environment: ${{ matrix.environment }}
           artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}EuidSecureSignalScript
           invalidate_paths: '/euidSecureSignal.js'
           aws_account_id: ${{ vars.EUID_AWS_ACCOUNT_ID }}

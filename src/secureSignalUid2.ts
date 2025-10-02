@@ -17,9 +17,17 @@ export function __uid2SSProviderScriptLoad() {
     callbacks: [],
   };
   window.__uid2.callbacks?.push((eventType) => {
-    //@ts-ignore
-    if (eventType === 'SdkLoaded') {
-      window.__uid2SecureSignalProvider!.registerSecureSignalProvider();
+    if (
+      eventType === 'InitCompleted' ||
+      eventType === 'SdkLoaded' ||
+      eventType === 'IdentityUpdated'
+    ) {
+      if ('getIdentity' in window.__uid2! && window.__uid2!.getIdentity()) {
+        if (eventType === 'IdentityUpdated') {
+          window.__uid2SecureSignalProvider?.resetProviderRegistration();
+        }
+        window.__uid2SecureSignalProvider?.registerSecureSignalProvider();
+      }
     }
   });
 }

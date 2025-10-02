@@ -1,9 +1,6 @@
 name: CDN Deployment for AWS
 description: Deploys to AWS CDN and optionally invalidates the path in CloudFront
 inputs:
-  environment:
-    description: Environment to deploy to
-    default: 'integ'
   artifact:
     description: Name of the artifact
     required: true
@@ -19,6 +16,9 @@ inputs:
   aws_bucket_name:
     description: The AWS bucket to sync
     required: true
+  deploy_index_html:
+    description: Deploy a simple index.html file to S3 root
+    default: 'false'
 runs:
   using: 'composite'
 
@@ -41,6 +41,40 @@ runs:
     - name: Deploy
       shell: bash
       run: aws s3 sync ./download s3://${{ inputs.aws_bucket_name }}
+
+    - name: Create and Deploy Index HTML
+      if: ${{ inputs.deploy_index_html == 'true' }}
+      shell: bash
+      run: |
+        echo '<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>UID2/EUID SDK Files</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 40px; }
+                h1 { color: #333; }
+                .file-list { margin: 20px 0; }
+                .file-item { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px; }
+                .file-link { text-decoration: none; color: #0066cc; font-weight: bold; }
+                .file-link:hover { text-decoration: underline; }
+            </style>
+        </head>
+        <body>
+            <h1>UID2/EUID SDK Files</h1>
+            <p>This directory contains the latest SDK files for UID2 and EUID integration.</p>
+            <div class="file-list">
+                <div class="file-item">
+                    <strong>SDK Files:</strong> Available in this directory
+                </div>
+                <div class="file-item">
+                    <strong>Documentation:</strong> <a href="https://unifiedid.com/docs/guides/summary-guides" target="_blank" class="file-link">Visit Documentation</a>
+                </div>
+            </div>
+        </body>
+        </html>' > index.html
+        aws s3 cp index.html s3://${{ inputs.aws_bucket_name }}/index.html
 
     - name: Invalidate CloudFront
       uses: chetan/invalidate-cloudfront-action@v2

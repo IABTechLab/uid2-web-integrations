@@ -30,7 +30,7 @@ jobs:
       release_type: ${{ inputs.release_type }}
       docker_file: examples/google-secure-signals-integration/with_sdk_v3/Dockerfile
       docker_context: examples/google-secure-signals-integration/with_sdk_v3
-      docker_image_name: iabtechlab/uid2-secure-signals-example-jssdk
+      docker_image_name: iabtechlab/uid2-esp-example-jssdk
       docker_registry: ghcr.io
       force_release: no
     secrets: inherit
