@@ -80,5 +80,5 @@ runs:
       uses: chetan/invalidate-cloudfront-action@v2
       env:
         DISTRIBUTION: ${{ inputs.aws_distribution_id }}
-        PATHS: ${{ inputs.deploy_index_html == 'true' && format('{0} /index.html', inputs.invalidate_paths) || inputs.invalidate_paths }}
+        PATHS: ${{ inputs.invalidate_paths }}
         AWS_REGION: us-east-2
