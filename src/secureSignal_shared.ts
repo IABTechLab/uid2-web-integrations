@@ -4,10 +4,12 @@ const MAXIMUM_RETRY = 3;
 export class UidSecureSignalProvider implements UidSecureSignalProviderType {
   debug: boolean;
   isEuid: boolean;
+  hasRegisteredSecureSignals: boolean;
 
   constructor(debug = false, isEuid = false) {
     this.debug = debug;
     this.isEuid = isEuid;
+    this.hasRegisteredSecureSignals = false;
 
     if (
       (!this.isEuid && typeof window.getUid2AdvertisingToken === 'function') ||
@@ -31,15 +33,19 @@ export class UidSecureSignalProvider implements UidSecureSignalProviderType {
     };
 
     window.googletag.secureSignalProviders = window.googletag.secureSignalProviders || [];
-    window.googletag.secureSignalProviders.push({
-      id: this.isEuid ? 'euid.eu' : 'uidapi.com',
-      collectorFunction: async () => {
-        this.logging('collectorFunction invoked');
-        const uidAdvertisingToken = await this.getUidAdvertisingTokenWithRetry(uidHandler);
-        this.logging(`collectorFunction pushes: ${uidAdvertisingToken}`);
-        return uidAdvertisingToken;
-      },
-    });
+
+    if (!this.hasRegisteredSecureSignals) {
+      this.hasRegisteredSecureSignals = true;
+      window.googletag.secureSignalProviders.push({
+        id: this.isEuid ? 'euid.eu' : 'uidapi.com',
+        collectorFunction: async () => {
+          this.logging('collectorFunction invoked');
+          const uidAdvertisingToken = await this.getUidAdvertisingTokenWithRetry(uidHandler);
+          this.logging(`collectorFunction pushes: ${uidAdvertisingToken}`);
+          return uidAdvertisingToken;
+        },
+      });
+    }
   };
 
   public logging = (message: string) => {
@@ -95,6 +101,10 @@ export class UidSecureSignalProvider implements UidSecureSignalProviderType {
 
       attempt();
     });
+  };
+
+  public resetProviderRegistration = () => {
+    this.hasRegisteredSecureSignals = false;
   };
 }
 

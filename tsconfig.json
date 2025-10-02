@@ -3,9 +3,9 @@
   "display": "Node 16",
 
   "compilerOptions": {
-    "lib": ["es2021"],
+    "lib": ["DOM", "es2022"],
     "module": "commonjs",
-    "target": "es6",
+    "target": "es2022",
     "allowJs": true,
     "strict": true,
     "esModuleInterop": true,

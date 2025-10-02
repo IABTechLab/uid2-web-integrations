@@ -15,14 +15,22 @@ export function __euidSSProviderScriptLoad() {
     isDebugModeOn(INTEG_BASE_URL),
     true
   );
-  // For UID2 SDK integration
+  // For EUID SDK integration
   window.__euid = window.__euid || {
     callbacks: [],
   };
   window.__euid.callbacks?.push((eventType) => {
-    //@ts-ignore
-    if (eventType === 'SdkLoaded') {
-      window.__euidSecureSignalProvider!.registerSecureSignalProvider();
+    if (
+      eventType === 'InitCompleted' ||
+      eventType === 'SdkLoaded' ||
+      eventType === 'IdentityUpdated'
+    ) {
+      if ('getIdentity' in window.__euid! && window.__euid!.getIdentity()) {
+        if (eventType === 'IdentityUpdated') {
+          window.__euidSecureSignalProvider?.resetProviderRegistration();
+        }
+        window.__euidSecureSignalProvider?.registerSecureSignalProvider();
+      }
     }
   });
 }
