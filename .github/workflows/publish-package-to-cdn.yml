@@ -1,4 +1,4 @@
-name: Release SDK Package to NPM and CDN (v2)
+name: Release SDK to NPM and CDN (v2)
 run-name: ${{ inputs.release_type == 'Snapshot' && 'Publish Pre-release' || format('Release {0}', inputs.release_type)}} SDK Package to NPM and CDN by @${{ github.actor }}
 
 on:
@@ -128,7 +128,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-    environment: test
+    environment: uid2-test
     steps:
       - uses: actions/checkout@v4
         with:
@@ -140,12 +140,13 @@ jobs:
           aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
           aws_bucket_name: ${{ secrets.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+          deploy_index_html: 'true'
 
   approval-to-deploy:
     name: Approval To Deploy
     needs: [cdn-deployment-test]
     runs-on: ubuntu-latest
-    environment: production
+    environment: approve-deployment
     steps:
       - name: Approval to deploy
         shell: bash
@@ -187,3 +188,4 @@ jobs:
           aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
           aws_bucket_name: ${{ secrets.S3_BUCKET }}
           aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+          deploy_index_html: 'true'

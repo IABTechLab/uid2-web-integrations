@@ -1,4 +1,4 @@
-name: Release UID2/EUID Secure Signal Package to CDN (Five Environments)
+name: Release Secure Signal Package to CDN (v2)
 run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} UID2/EUID Secure Signal Package to CDN (Five Environments) by @${{ github.actor }}
 
 on:
@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-    environment: test
+    environment: uid2-test
     steps:
       - uses: actions/checkout@v4
       - name: Deploy UID2 Secure Signals to Test CDN
@@ -80,14 +80,14 @@ jobs:
     name: Approval To Deploy to All Environments
     needs: [deployment-test]
     runs-on: ubuntu-latest
-    environment: production
+    environment: approve-deployment
     steps:
       - name: Approval to deploy
         shell: bash
         run: echo "Approved for deployment to all environments"
 
   # Matrix Deployment for All Environments
-  deployment-matrix:
+  cdn-deployment:
     needs: [build, approval-to-deploy]
     runs-on: ubuntu-latest
     permissions:
