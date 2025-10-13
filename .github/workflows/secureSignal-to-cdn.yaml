@@ -1,4 +1,4 @@
-name: Release Secure Signal Package to CDN (v2)
+name: Release Secure Signal to CDN (v2)
 run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} UID2/EUID Secure Signal Package to CDN (Five Environments) by @${{ github.actor }}
 
 on:
