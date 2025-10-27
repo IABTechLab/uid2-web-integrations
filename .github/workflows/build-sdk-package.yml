@@ -1,0 +1,128 @@
+name: Build SDK Package
+run-name: ${{ inputs.release_type == 'Snapshot' && 'Build Pre-release' || format('Build {0}', inputs.release_type)}} SDK Package by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        type: choice
+        description: The type of release
+        options:
+          - Major
+          - Minor
+          - Patch
+          - Snapshot
+        required: true
+
+jobs:
+  incrementVersionNumber:
+    uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-increase-version-number.yaml@v2
+    with:
+      release_type: ${{ inputs.release_type }}
+    secrets: inherit
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [incrementVersionNumber]
+    strategy:
+      matrix:
+        node-version: [20.x]
+        target: [development, production]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Get Package Version
+        id: version
+        run: |
+          echo "package_version=$(cat package.json | jq -r '.version')" >> $GITHUB_OUTPUT
+      - name: Install dependencies
+        run: npm install
+      - name: Build SDK for CDN
+        run: npm run build -- --mode=${{ matrix.target }}
+      - name: Build NPM Package
+        if: matrix.target == 'production'
+        run: npm run build-package
+
+      # Upload SDK artifacts for CDN
+      - name: Upload UID2 SDK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: uid2SDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
+          path: ./dist/uid2-sdk-${{ steps.version.outputs.package_version }}.js
+          retention-days: 30
+
+      - name: Upload EUID SDK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: euidSDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
+          path: ./dist/euid-sdk-${{ steps.version.outputs.package_version }}.js
+          retention-days: 30
+
+      # Upload NPM package artifacts
+      - name: Upload UID2 NPM package
+        if: matrix.target == 'production'
+        uses: actions/upload-artifact@v4
+        with:
+          name: uid2-npm-package-${{ steps.version.outputs.package_version }}
+          path: ./dist/uid2-npm/
+          retention-days: 30
+
+      - name: Upload EUID NPM package
+        if: matrix.target == 'production'
+        uses: actions/upload-artifact@v4
+        with:
+          name: euid-npm-package-${{ steps.version.outputs.package_version }}
+          path: ./dist/euid-npm/
+          retention-days: 30
+
+    outputs:
+      sdkVersion: ${{ steps.version.outputs.package_version }}
+      git_tag: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
+      new_version: ${{ needs.incrementVersionNumber.outputs.new_version }}
+
+  createNpmJsRelease:
+    needs: [incrementVersionNumber, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Changelog
+        id: github_release_changelog
+        uses: mikepenz/release-changelog-builder-action@v4
+        with:
+          toTag: v${{ needs.incrementVersionNumber.outputs.new_version }}
+          configurationJson: |
+            {
+              "pr_template": " - #{{TITLE}} - ( PR: ##{{NUMBER}} )"
+            }
+      - name: Create Release Notes
+        uses: softprops/action-gh-release@v2
+        with:
+          name: v${{ needs.incrementVersionNumber.outputs.new_version }}
+          body: ${{ steps.github_release_changelog.outputs.changelog }}
+          draft: true
+
+  build-summary:
+    needs: [build, incrementVersionNumber]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Summary
+        run: |
+          echo "## Build Complete! 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ needs.build.outputs.sdkVersion }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Git Tag:** ${{ needs.build.outputs.git_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts Built:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ uid2SDK-development-${{ needs.build.outputs.sdkVersion }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ uid2SDK-production-${{ needs.build.outputs.sdkVersion }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ euidSDK-development-${{ needs.build.outputs.sdkVersion }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ euidSDK-production-${{ needs.build.outputs.sdkVersion }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ uid2-npm-package-${{ needs.build.outputs.sdkVersion }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ euid-npm-package-${{ needs.build.outputs.sdkVersion }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "Run the **Publish SDK Package** workflow in the private repo to deploy these artifacts." >> $GITHUB_STEP_SUMMARY

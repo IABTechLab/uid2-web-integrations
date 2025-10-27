@@ -1,0 +1,85 @@
+name: Build Secure Signal Package
+run-name: Build Secure Signal Package by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+
+env:
+  WORKING_DIR: ./
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    outputs:
+      uid2_modified: ${{ steps.verify_uid2.outputs.any_modified }}
+      euid_modified: ${{ steps.verify_euid.outputs.any_modified }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for change to src/secureSignalUid2.ts
+        id: verify_uid2
+        uses: tj-actions/changed-files@v41
+        with:
+          files: src/secureSignalUid2.ts
+      - name: Check for change to src/secureSignalEuid.ts
+        id: verify_euid
+        uses: tj-actions/changed-files@v41
+        with:
+          files: src/secureSignalEuid.ts
+
+  build:
+    needs: [verify]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+        target: [development, production]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build:esp -- --mode=${{ matrix.target }}
+
+      # Upload UID2 Secure Signals Files
+      - name: Upload UID2 Secure Signals Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}Uid2SecureSignalScript
+          path: ./dist/uid2SecureSignal.js
+          retention-days: 30
+
+      # Upload EUID Secure Signals Files
+      - name: Upload EUID Secure Signals Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}EuidSecureSignalScript
+          path: ./dist/euidSecureSignal.js
+          retention-days: 30
+
+  build-summary:
+    needs: [build, verify]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Summary
+        run: |
+          echo "## Secure Signal Build Complete! 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Files Modified:" >> $GITHUB_STEP_SUMMARY
+          echo "- UID2 Modified: ${{ needs.verify.outputs.uid2_modified }}" >> $GITHUB_STEP_SUMMARY
+          echo "- EUID Modified: ${{ needs.verify.outputs.euid_modified }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts Built:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ developmentUid2SecureSignalScript" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ productionUid2SecureSignalScript" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ developmentEuidSecureSignalScript" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ productionEuidSecureSignalScript" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "Run the **Publish Secure Signal Package** workflow in the private repo to deploy these artifacts." >> $GITHUB_STEP_SUMMARY
