@@ -3,10 +3,6 @@ server {
     server_name localhost;
     root /usr/share/nginx/html;
 
-    log_format path_status '$request_uri $status $remote_addr';
-
-    access_log /var/log/nginx/access.log path_status;
-
     location / {
         sub_filter '{{ UID_JS_SDK_URL }}' '${UID_JS_SDK_URL}';
         sub_filter '{{ UID_JS_SDK_NAME }}' '${UID_JS_SDK_NAME}';
