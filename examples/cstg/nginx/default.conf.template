@@ -1,21 +1,15 @@
-http {
-    log_format path_status '$request_uri $status $remote_addr';
+server {
+    listen 80;
+    server_name localhost;
+    root /usr/share/nginx/html;
 
-    server {
-        listen 80;
-        server_name localhost;
-        root /usr/share/nginx/html;
-
-        access_log /var/log/nginx/access.log path_status;
-
-        location / {
-            sub_filter '{{ UID_JS_SDK_URL }}' '${UID_JS_SDK_URL}';
-            sub_filter '{{ UID_JS_SDK_NAME }}' '${UID_JS_SDK_NAME}';
-            sub_filter '{{ UID_BASE_URL }}' '${UID_BASE_URL}';
-            sub_filter '{{ SERVER_PUBLIC_KEY }}' '${SERVER_PUBLIC_KEY}';
-            sub_filter '{{ SUBSCRIPTION_ID }}' '${SUBSCRIPTION_ID}';
-            sub_filter_types *;
-            sub_filter_once off;
-        }
+    location / {
+        sub_filter '{{ UID_JS_SDK_URL }}' '${UID_JS_SDK_URL}';
+        sub_filter '{{ UID_JS_SDK_NAME }}' '${UID_JS_SDK_NAME}';
+        sub_filter '{{ UID_BASE_URL }}' '${UID_BASE_URL}';
+        sub_filter '{{ SERVER_PUBLIC_KEY }}' '${SERVER_PUBLIC_KEY}';
+        sub_filter '{{ SUBSCRIPTION_ID }}' '${SUBSCRIPTION_ID}';
+        sub_filter_types *;
+        sub_filter_once off;
     }
 }
