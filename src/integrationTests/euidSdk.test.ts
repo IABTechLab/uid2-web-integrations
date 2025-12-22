@@ -11,7 +11,7 @@ import { ProductDetails } from '../product';
 let callback: any;
 let asyncCallback: jest.Mock<CallbackHandler>;
 let xhrMock: any;
-let uid2ESP: UidSecureSignalProvider;
+let uid2SecureSignals: UidSecureSignalProvider;
 let secureSignalProvidersPushMock: jest.Mock<(p: any) => Promise<void>>;
 let getAdvertisingTokenMock: jest.Mock<() => Promise<string>>;
 getAdvertisingTokenMock = jest.fn<() => Promise<string>>();
@@ -115,11 +115,11 @@ describe('when a callback is provided', () => {
     });
   });
 
-  describe('when getUid2AdvertisingToken exists and returns valid advertisingToken', () => {
-    test('should send signal to Google ESP', async () => {
+  describe('when getuid2SecureSignalsAdvertisingToken exists and returns valid advertisingToken', () => {
+    test('should send signal to Google Secure Signals', async () => {
       window.getEuidAdvertisingToken = getAdvertisingTokenMock;
       getAdvertisingTokenMock.mockReturnValue(Promise.resolve('testToken'));
-      uid2ESP = new UidSecureSignalProvider(false, true);
+      uid2SecureSignals = new UidSecureSignalProvider(false, true);
       expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
       expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -131,7 +131,7 @@ describe('when a callback is provided', () => {
   });
 
   describe('When SDK initialized after both SDK and SS script loaded - EUID', () => {
-    test('should send identity to Google ESP', async () => {
+    test('should send identity to Google Secure Signals', async () => {
       __euidInternalHandleScriptLoad();
       __euidSSProviderScriptLoad();
       (sdkWindow.__euid as EUID).init({ identity });

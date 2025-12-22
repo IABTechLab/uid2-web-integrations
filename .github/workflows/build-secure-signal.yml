@@ -45,7 +45,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build
-        run: npm run build:esp -- --mode=${{ matrix.target }}
+        run: npm run build:secureSignals -- --mode=${{ matrix.target }}
 
       # Upload UID2 Secure Signals Files
       - name: Upload UID2 Secure Signals Files
