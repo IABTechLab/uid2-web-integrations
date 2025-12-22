@@ -11,7 +11,7 @@ import { ProductDetails } from '../product';
 let callback: any;
 let asyncCallback: jest.Mock<CallbackHandler>;
 let xhrMock: any;
-let uid2SecureSignals: UidSecureSignalProvider;
+let euidSecureSignals: UidSecureSignalProvider;
 let secureSignalProvidersPushMock: jest.Mock<(p: any) => Promise<void>>;
 let getAdvertisingTokenMock: jest.Mock<() => Promise<string>>;
 getAdvertisingTokenMock = jest.fn<() => Promise<string>>();
@@ -115,11 +115,11 @@ describe('when a callback is provided', () => {
     });
   });
 
-  describe('when getuid2SecureSignalsAdvertisingToken exists and returns valid advertisingToken', () => {
+  describe('when geteuidSecureSignalsAdvertisingToken exists and returns valid advertisingToken', () => {
     test('should send signal to Google Secure Signals', async () => {
       window.getEuidAdvertisingToken = getAdvertisingTokenMock;
       getAdvertisingTokenMock.mockReturnValue(Promise.resolve('testToken'));
-      uid2SecureSignals = new UidSecureSignalProvider(false, true);
+      euidSecureSignals = new UidSecureSignalProvider(false, true);
       expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
       expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
         expect.objectContaining({
