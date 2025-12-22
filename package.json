@@ -22,7 +22,7 @@
     "watch": "webpack watch --mode=development",
     "webpack-dev-server": "webpack-dev-server --config webpack-dev-server.config.js --hot --port 9091",
     "uid2-examples": "webpack --mode=development --env outputToExamples=true",
-    "build:esp": "webpack --env espOnly=true",
+    "build:secureSignals": "webpack --env secureSignalsOnly=true",
     "createCA": "tsx createCA.ts",
     "localtest": "cd localtest && tsx server.ts"
   },
