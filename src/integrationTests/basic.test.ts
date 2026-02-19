@@ -306,7 +306,7 @@ testCookieAndLocalStorage(() => {
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
         expect(xhrMock.open).toHaveBeenLastCalledWith('POST', uid2RefreshUrl, true);
         expect(xhrMock.send).toHaveBeenLastCalledWith(identity.refresh_token);
-        xhrMock.onreadystatechange();
+        xhrMock.onreadystatechange(new Event(''));
         expect(cryptoMock.subtle.importKey).toHaveBeenCalled();
       });
 
@@ -334,7 +334,7 @@ testCookieAndLocalStorage(() => {
         expect(xhrMock.send).toHaveBeenCalledTimes(1);
         expect(xhrMock.open).toHaveBeenLastCalledWith('POST', uid2RefreshUrl, true);
         expect(xhrMock.send).toHaveBeenLastCalledWith(identity.refresh_token);
-        xhrMock.onreadystatechange();
+        xhrMock.onreadystatechange(new Event(''));
         expect(cryptoMock.subtle.importKey).toHaveBeenCalledTimes(0);
         mocks.resetCrypto(sdkWindow);
       });
@@ -479,7 +479,7 @@ testCookieAndLocalStorage(() => {
         identity: originalIdentity,
         useCookie: useCookie,
       });
-      let cryptoMock = new mocks.CryptoMock(sdkWindow);
+      new mocks.CryptoMock(sdkWindow);
     });
     afterEach(() => {
       mocks.resetCrypto(sdkWindow);
@@ -755,7 +755,7 @@ testCookieAndLocalStorage(() => {
         identity: originalIdentity,
         useCookie: useCookie,
       });
-      let cryptoMock = new mocks.CryptoMock(sdkWindow);
+      new mocks.CryptoMock(sdkWindow);
     });
     afterEach(() => {
       mocks.resetCrypto(sdkWindow);
@@ -1016,14 +1016,20 @@ describe('SDK bootstraps itself if init has already been completed', () => {
   const phone = '+12345678901';
   const phoneHash = 'EObwtHBUqDNZR33LNSMdtt5cafsYFuGmuY4ZLenlue4=';
 
+  let callCstgApiSpy: jest.SpiedFunction<ApiClient['callCstgApi']>;
+
   beforeEach(() => {
     sdkWindow.__uid2 = new UID2();
+  });
+
+  afterEach(() => {
+    callCstgApiSpy?.mockRestore();
   });
 
   test('should bootstrap therefore public functions should return the correct values without calling init again', async () => {
     const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
 
-    jest
+    callCstgApiSpy = jest
       .spyOn(ApiClient.prototype, 'callCstgApi')
       .mockResolvedValue({ status: 'success', identity });
 
