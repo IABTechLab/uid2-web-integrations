@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
+import { ApiClient } from '../apiClient';
 import * as mocks from '../mocks';
 import { __uid2InternalHandleScriptLoad, sdkWindow, UID2 } from '../uid2Sdk';
 import { CallbackHandler, EventType } from '../callbackManager';
@@ -127,7 +128,7 @@ testCookieAndLocalStorage(() => {
       expect(() =>
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        uid2.init({ callback: () => {}, refreshRetryPeriod: 'abc' })
+        uid2.init({ callback: () => {}, refreshRetryPeriod: 'abc' }),
       ).toThrow(TypeError);
     });
     test('should fail on refreshRetryPeriod being less than 1 second', () => {
@@ -153,7 +154,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.NO_IDENTITY,
-          })
+          }),
         );
       });
       test('should not set value', () => {
@@ -181,7 +182,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.NO_IDENTITY,
-          })
+          }),
         );
       });
       test('should clear value', () => {
@@ -211,7 +212,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: identity.advertising_token,
             advertising_token: identity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          })
+          }),
         );
       });
       test('should set value', () => {
@@ -243,7 +244,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          })
+          }),
         );
       });
       test('should clear value', () => {
@@ -375,7 +376,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.INVALID,
-          })
+          }),
         );
       });
       test('should clear value', () => {
@@ -408,7 +409,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: identity.advertising_token,
             advertising_token: identity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          })
+          }),
         );
       });
       test('should set value', () => {
@@ -447,7 +448,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: initIdentity.advertising_token,
             advertising_token: initIdentity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          })
+          }),
         );
       });
       test('should set value', () => {
@@ -496,7 +497,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: updatedIdentity.advertising_token,
             advertising_token: updatedIdentity.advertising_token,
             status: UID2.IdentityStatus.REFRESHED,
-          })
+          }),
         );
       });
       test('should set value', () => {
@@ -524,7 +525,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: originalIdentity.advertising_token,
             advertising_token: originalIdentity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          })
+          }),
         );
       });
       test('should set value', () => {
@@ -551,7 +552,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.OPTOUT,
-          })
+          }),
         );
       });
       test('should set cookie to optout', () => {
@@ -579,7 +580,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          })
+          }),
         );
       });
       test('should not set cookie', () => {
@@ -610,7 +611,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: originalIdentity.advertising_token,
             advertising_token: originalIdentity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          })
+          }),
         );
       });
       test('should set value', () => {
@@ -638,7 +639,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: originalIdentity.advertising_token,
             advertising_token: originalIdentity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          })
+          }),
         );
       });
       test('should set value', () => {
@@ -666,7 +667,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: originalIdentity.advertising_token,
             advertising_token: originalIdentity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          })
+          }),
         );
       });
       test('should set value', () => {
@@ -694,7 +695,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: originalIdentity.advertising_token,
             advertising_token: originalIdentity.advertising_token,
             status: UID2.IdentityStatus.ESTABLISHED,
-          })
+          }),
         );
       });
       test('should set value', () => {
@@ -722,7 +723,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          })
+          }),
         );
       });
       test('should not set cookie', () => {
@@ -773,7 +774,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: updatedIdentity.advertising_token,
             advertising_token: updatedIdentity.advertising_token,
             status: UID2.IdentityStatus.REFRESHED,
-          })
+          }),
         );
       });
       test('should set value', () => {
@@ -796,7 +797,7 @@ testCookieAndLocalStorage(() => {
         xhrMock.responseText = btoa(
           JSON.stringify({
             status: 'optout',
-          })
+          }),
         );
         xhrMock.onreadystatechange(new Event(''));
       });
@@ -807,7 +808,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.OPTOUT,
-          })
+          }),
         );
       });
       test('should invoke the callback with no identity', () => {
@@ -843,7 +844,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          })
+          }),
         );
       });
       test('should not set cookie', () => {
@@ -874,7 +875,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.EXPIRED,
-          })
+          }),
         );
       });
       test('should set value', () => {
@@ -903,7 +904,7 @@ testCookieAndLocalStorage(() => {
             advertisingToken: undefined,
             advertising_token: undefined,
             status: UID2.IdentityStatus.REFRESH_EXPIRED,
-          })
+          }),
         );
       });
       test('should not set cookie', () => {
@@ -1019,8 +1020,12 @@ describe('SDK bootstraps itself if init has already been completed', () => {
     sdkWindow.__uid2 = new UID2();
   });
 
-  test.skip('should bootstrap therefore public functions should return the correct values without calling init again', async () => {
+  test('should bootstrap therefore public functions should return the correct values without calling init again', async () => {
     const identity = { ...makeIdentity(), refresh_from: Date.now() + 100 };
+
+    jest
+      .spyOn(ApiClient.prototype, 'callCstgApi')
+      .mockResolvedValue({ status: 'success', identity });
 
     uid2.init({ identity });
 
@@ -1031,36 +1036,32 @@ describe('SDK bootstraps itself if init has already been completed', () => {
 
     expect(uid2.getAdvertisingToken()).toBe(identity.advertising_token);
     expect(uid2.getIdentity()).toStrictEqual(identity);
-    expect(async () => {
-      await uid2.setIdentityFromEmail(email, mocks.makeUid2CstgOption());
-    }).not.toThrow();
-    expect(async () => {
-      await uid2.setIdentityFromEmailHash(emailHash, mocks.makeUid2CstgOption());
-    }).not.toThrow();
-    expect(async () => {
-      await uid2.setIdentityFromPhone(phone, mocks.makeUid2CstgOption());
-    }).not.toThrow();
-    expect(async () => {
-      await uid2.setIdentityFromPhoneHash(phoneHash, mocks.makeUid2CstgOption());
-    }).not.toThrow();
+    await expect(
+      uid2.setIdentityFromEmail(email, mocks.makeUid2CstgOption()),
+    ).resolves.toBeUndefined();
+    await expect(
+      uid2.setIdentityFromEmailHash(emailHash, mocks.makeUid2CstgOption()),
+    ).resolves.toBeUndefined();
+    await expect(
+      uid2.setIdentityFromPhone(phone, mocks.makeUid2CstgOption()),
+    ).resolves.toBeUndefined();
+    await expect(
+      uid2.setIdentityFromPhoneHash(phoneHash, mocks.makeUid2CstgOption()),
+    ).resolves.toBeUndefined();
   });
 
   test('should not bootstrap therefore public functions error or return undefined/null', async () => {
     __uid2InternalHandleScriptLoad();
     expect(uid2.getAdvertisingToken()).toBe(undefined);
     expect(uid2.getIdentity()).toStrictEqual(null);
-    expect(async () => {
-      await uid2.setIdentityFromEmail(email, mocks.makeUid2CstgOption());
-    }).rejects.toThrow();
-    expect(async () => {
-      await uid2.setIdentityFromEmailHash(emailHash, mocks.makeUid2CstgOption());
-    }).rejects.toThrow();
-    expect(async () => {
-      await uid2.setIdentityFromPhone(phone, mocks.makeUid2CstgOption());
-    }).rejects.toThrow();
-    expect(async () => {
-      await uid2.setIdentityFromPhoneHash(phoneHash, mocks.makeUid2CstgOption());
-    }).rejects.toThrow();
+    await expect(uid2.setIdentityFromEmail(email, mocks.makeUid2CstgOption())).rejects.toThrow();
+    await expect(
+      uid2.setIdentityFromEmailHash(emailHash, mocks.makeUid2CstgOption()),
+    ).rejects.toThrow();
+    await expect(uid2.setIdentityFromPhone(phone, mocks.makeUid2CstgOption())).rejects.toThrow();
+    await expect(
+      uid2.setIdentityFromPhoneHash(phoneHash, mocks.makeUid2CstgOption()),
+    ).rejects.toThrow();
   });
 });
 
@@ -1084,24 +1085,21 @@ describe('Token retrieval and related public functions working without init', ()
       },
     ];
 
-    identityStorageFunctions.forEach((functions) => {
+    for (const functions of identityStorageFunctions) {
       functions.setIdentity();
       expect(uid2.getAdvertisingToken()).toBe(identity.advertising_token);
       expect(uid2.getIdentity()).toStrictEqual(identity);
+      // Without init, getAdvertisingTokenAsync() returns a deferred promise that only resolves after init; do not await to avoid timeout.
       expect(uid2.getAdvertisingTokenAsync()).resolves.toBe(identity.advertising_token);
-      expect(async () => {
-        await uid2.setIdentityFromEmail(email, mocks.makeUid2CstgOption());
-      }).rejects.toThrow();
-      expect(async () => {
-        await uid2.setIdentityFromEmailHash(emailHash, mocks.makeUid2CstgOption());
-      }).rejects.toThrow();
-      expect(async () => {
-        await uid2.setIdentityFromPhone(phone, mocks.makeUid2CstgOption());
-      }).rejects.toThrow();
-      expect(async () => {
-        await uid2.setIdentityFromPhoneHash(phoneHash, mocks.makeUid2CstgOption());
-      }).rejects.toThrow();
+      await expect(uid2.setIdentityFromEmail(email, mocks.makeUid2CstgOption())).rejects.toThrow();
+      await expect(
+        uid2.setIdentityFromEmailHash(emailHash, mocks.makeUid2CstgOption()),
+      ).rejects.toThrow();
+      await expect(uid2.setIdentityFromPhone(phone, mocks.makeUid2CstgOption())).rejects.toThrow();
+      await expect(
+        uid2.setIdentityFromPhoneHash(phoneHash, mocks.makeUid2CstgOption()),
+      ).rejects.toThrow();
       functions.removeIdentity();
-    });
+    }
   });
 });
