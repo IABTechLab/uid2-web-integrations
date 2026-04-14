@@ -17,12 +17,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check for change to src/secureSignalUid2.ts
         id: verify_uid2
-        uses: tj-actions/changed-files@v41
+        uses: tj-actions/changed-files@716b1e13042866565e00e85fd4ec490e186c4a2f # v41
         with:
           files: src/secureSignalUid2.ts
       - name: Check for change to src/secureSignalEuid.ts
         id: verify_euid
-        uses: tj-actions/changed-files@v41
+        uses: tj-actions/changed-files@716b1e13042866565e00e85fd4ec490e186c4a2f # v41
         with:
           files: src/secureSignalEuid.ts
 
