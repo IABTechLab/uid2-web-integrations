@@ -13,7 +13,7 @@ jobs:
     outputs:
       is_any_file_modified: ${{ steps.verify.outputs.any_modified }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Check for change to src/secureSignalUid2.ts
         id: verify_uid2
         uses: tj-actions/changed-files@v41
@@ -34,7 +34,7 @@ jobs:
         target: [development, production]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -69,7 +69,7 @@ jobs:
     environment: ${{ matrix.environment }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Deploy UID2 Secure Signals to CDN
         uses: ./.github/actions/cdn_deployment_aws

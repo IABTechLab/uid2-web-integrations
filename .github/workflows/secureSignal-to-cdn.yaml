@@ -14,7 +14,7 @@ jobs:
       uid2_modified: ${{ steps.verify_uid2.outputs.any_modified }}
       euid_modified: ${{ steps.verify_euid.outputs.any_modified }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Check for change to src/secureSignalUid2.ts
         id: verify_uid2
         uses: tj-actions/changed-files@v41
@@ -36,7 +36,7 @@ jobs:
         target: [development, production]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -66,7 +66,7 @@ jobs:
       id-token: write
     environment: uid2-test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Deploy UID2 Secure Signals to Test CDN
         uses: ./.github/actions/cdn_deployment_aws
         with:
@@ -115,7 +115,7 @@ jobs:
             file_name: euidSecureSignal.js
     environment: ${{ matrix.github_env }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Deploy ${{ matrix.product == 'uid2' && 'UID2' || 'EUID' }} Secure Signals to ${{ matrix.build_type == 'development' && 'Integration' || 'Production' }} CDN
         uses: ./.github/actions/cdn_deployment_aws
         with:

@@ -41,7 +41,7 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
         target: [development, production]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - name: Use Node.js ${{ matrix.node-version }}
@@ -92,7 +92,7 @@ jobs:
     needs: [build, incrementVersionNumber]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - uses: actions/setup-node@v4
@@ -128,7 +128,7 @@ jobs:
         environment: [integ, production]
     environment: ${{ matrix.environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - uses: ./.github/actions/cdn_deployment_aws
@@ -150,7 +150,7 @@ jobs:
         environment: [integ, production]
     environment: ${{ matrix.environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - uses: ./.github/actions/cdn_deployment_aws
