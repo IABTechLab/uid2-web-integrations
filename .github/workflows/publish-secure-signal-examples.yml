@@ -30,7 +30,7 @@ jobs:
             type=sha,format=short
             type=raw,value=latest
       - name: Build and push Docker server_side image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: examples/google-secure-signals-integration/server_side
           push: true
@@ -59,7 +59,7 @@ jobs:
             type=sha,format=short
             type=raw,value=latest
       - name: Build and push Docker standard image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: examples/google-secure-signals-integration/with_sdk_v3
           push: true
@@ -87,14 +87,14 @@ jobs:
             type=sha,format=short
             type=raw,value=latest
       - name: Build and push Docker client_side image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: examples/google-secure-signals-integration/client_side
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       - name: Build and push Docker React image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: examples/google-secure-signals-integration/react_client_side
           push: true
