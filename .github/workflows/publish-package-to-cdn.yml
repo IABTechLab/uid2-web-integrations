@@ -42,7 +42,7 @@ jobs:
         node-version: [20.x]
         target: [development, production]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - name: Use Node.js ${{ matrix.node-version }}
@@ -95,7 +95,7 @@ jobs:
     needs: [build, incrementVersionNumber]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - uses: actions/setup-node@v4
@@ -130,7 +130,7 @@ jobs:
       id-token: write
     environment: uid2-test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - uses: ./.github/actions/cdn_deployment_aws
@@ -178,7 +178,7 @@ jobs:
             build_type: production
     environment: ${{ matrix.github_env }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - uses: ./.github/actions/cdn_deployment_aws
