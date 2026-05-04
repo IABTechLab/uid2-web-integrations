@@ -57,12 +57,12 @@ jobs:
         run: npm install
       - name: Build script
         run: npm run build -- --mode=${{ matrix.target }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: inputs.publish_to_cdn
         with:
           name: uid2SDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
           path: ./dist/uid2-sdk-${{ steps.version.outputs.package_version }}.js
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: inputs.publish_to_cdn
         with:
           name: euidSDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
