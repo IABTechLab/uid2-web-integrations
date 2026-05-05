@@ -46,7 +46,7 @@ jobs:
         with:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
       - name: Get Package Version
@@ -98,7 +98,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
