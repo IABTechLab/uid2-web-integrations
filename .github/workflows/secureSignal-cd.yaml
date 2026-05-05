@@ -13,7 +13,7 @@ jobs:
     outputs:
       is_any_file_modified: ${{ steps.verify.outputs.any_modified }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Check for change to src/secureSignalUid2.ts
         id: verify_uid2
         uses: tj-actions/changed-files@v41
@@ -34,7 +34,7 @@ jobs:
         target: [development, production]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
@@ -46,12 +46,12 @@ jobs:
       - name: Build
         run: npm run build:esp -- --mode=${{ matrix.target }}
       - name: Upload UID2 Secure Signals Files
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.target }}Uid2SecureSignalScript
           path: ./dist/uid2SecureSignal.js
       - name: Upload EUID Secure Signals Files
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.target }}EuidSecureSignalScript
           path: ./dist/euidSecureSignal.js
@@ -69,7 +69,7 @@ jobs:
     environment: ${{ matrix.environment }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Deploy UID2 Secure Signals to CDN
         uses: ./.github/actions/cdn_deployment_aws

@@ -77,7 +77,7 @@ runs:
         aws s3 cp index.html s3://${{ inputs.aws_bucket_name }}/index.html
 
     - name: Invalidate CloudFront
-      uses: chetan/invalidate-cloudfront-action@v2
+      uses: chetan/invalidate-cloudfront-action@6adb1f613f4102ad81cd08a7ba83b8abe490cb8d # v2
       env:
         DISTRIBUTION: ${{ inputs.aws_distribution_id }}
         PATHS: ${{ inputs.invalidate_paths }}
