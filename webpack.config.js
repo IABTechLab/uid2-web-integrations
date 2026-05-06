@@ -1,21 +1,21 @@
 const uid2Entrypoint = './src/uid2Sdk.ts';
 const euidEntrypoint = './src/euidSdk.ts';
-const espEntryPointUid2 = './src/secureSignalUid2.ts';
-const espEntryPointEuid = './src/secureSignalEuid.ts';
+const secureSignalsEntryPointUid2 = './src/secureSignalUid2.ts';
+const secureSignalsEntryPointEuid = './src/secureSignalEuid.ts';
 
-const espOutput = {
+const secureSignalsOutput = {
   'uid2-secureSignals': {
-    import: espEntryPointUid2,
+    import: secureSignalsEntryPointUid2,
     filename: `uid2SecureSignal.js`,
   },
   'euid-secureSignals': {
-    import: espEntryPointEuid,
+    import: secureSignalsEntryPointEuid,
     filename: `euidSecureSignal.js`,
   },
 };
 
 // n.b. if you add more outputs, the path is relative to the dist folder.
-const getExampleOutputs = (env) => (!env.outputToExamples ? {} : espOutput);
+const getExampleOutputs = (env) => (!env.outputToExamples ? {} : secureSignalsOutput);
 
 module.exports = (env, argv) => {
   const buildMode = argv.mode;
@@ -25,7 +25,7 @@ module.exports = (env, argv) => {
   return {
     mode: buildMode,
     devtool: prodSourceMaps ? 'source-map' : false,
-    entry: !env.espOnly
+    entry: !env.secureSignalsOnly
       ? {
           'uid2-sdk': {
             import: uid2Entrypoint,
@@ -37,7 +37,7 @@ module.exports = (env, argv) => {
           },
           ...getExampleOutputs(env),
         }
-      : espOutput,
+      : secureSignalsOutput,
     module: {
       rules: [
         {

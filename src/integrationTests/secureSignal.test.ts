@@ -7,7 +7,7 @@ import { clearWarnMock, setWarnMock } from '../mocks';
 
 let getAdvertisingTokenMock: jest.Mock<() => Promise<string>>;
 let secureSignalProvidersPushMock: jest.Mock<(p: any) => Promise<void>>;
-let uid2ESP: UidSecureSignalProvider;
+let uid2SecureSignals: UidSecureSignalProvider;
 let xhrMock: any;
 mocks.setupFakeTime();
 
@@ -35,10 +35,10 @@ describe('Secure Signal Tests', () => {
     window.__uid2 = undefined;
 
     describe('when getUid2AdvertisingToken exists and returns valid advertisingToken', () => {
-      test('should send signal to Google ESP', async () => {
+      test('should send signal to Google Secure Signals', async () => {
         window.getUid2AdvertisingToken = getAdvertisingTokenMock;
         getAdvertisingTokenMock.mockReturnValue(Promise.resolve('testToken'));
-        uid2ESP = new UidSecureSignalProvider();
+        uid2SecureSignals = new UidSecureSignalProvider();
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(1);
         await expect(secureSignalProvidersPushMock).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -50,14 +50,14 @@ describe('Secure Signal Tests', () => {
     });
 
     describe('when getUid2AdvertisingToken is not defined', () => {
-      test('should not send signal to ESP', () => {
-        uid2ESP = new UidSecureSignalProvider();
+      test('should not send signal to Google Secure Signals', () => {
+        uid2SecureSignals = new UidSecureSignalProvider();
         expect(secureSignalProvidersPushMock).not.toBeCalled();
       });
 
       describe('when publisher trigger registerSecureSignalProvider', () => {
         test('should log warning message to console and not send message', () => {
-          uid2ESP.registerSecureSignalProvider();
+          uid2SecureSignals.registerSecureSignalProvider();
           expect(console.warn).toHaveBeenCalledTimes(1);
           expect(mocks.warnMock).toHaveBeenCalledWith(
             'UidSecureSignal: Please implement `getUidAdvertisingToken`'
@@ -68,7 +68,7 @@ describe('Secure Signal Tests', () => {
     });
 
     describe('when getUid2AdvertisingToken exists and returns invalid token', () => {
-      test('should not send signal to ESP', () => {
+      test('should not send signal to Google Secure Signals', () => {
         getAdvertisingTokenMock.mockReturnValue(Promise.resolve(''));
         new UidSecureSignalProvider();
         expect(secureSignalProvidersPushMock).not.toBeCalled();
@@ -103,7 +103,7 @@ describe('Secure Signal Tests', () => {
         mocks.removeUid2LocalStorage();
       });
 
-      test('should send signal to Google ESP when SDK initialized', async () => {
+      test('should send signal to Google Secure Signals when SDK initialized', async () => {
         __uid2SSProviderScriptLoad();
         __uid2InternalHandleScriptLoad();
         (window.__uid2 as UID2).init({ identity });
@@ -119,7 +119,7 @@ describe('Secure Signal Tests', () => {
         );
       });
 
-      test('should send signal to Google ESP when SDK initialized and Identity is available', async () => {
+      test('should send signal to Google Secure Signals when SDK initialized and Identity is available', async () => {
         mocks.setUid2LocalStorage(identity);
         __uid2SSProviderScriptLoad();
         __uid2InternalHandleScriptLoad();
@@ -136,7 +136,7 @@ describe('Secure Signal Tests', () => {
         );
       });
 
-      test('should send signal to Google ESP when SDK initialized and Identity is set after', async () => {
+      test.only('should send signal to Google Secure Signals when SDK initialized and Identity is set after', async () => {
         __uid2SSProviderScriptLoad();
         __uid2InternalHandleScriptLoad();
         (window.__uid2 as UID2).init({});
@@ -153,7 +153,7 @@ describe('Secure Signal Tests', () => {
         );
       });
 
-      test('should send signal to Google ESP when SDK initialized and SS script is included later', async () => {
+      test('should send signal to Google Secure Signals when SDK initialized and SS script is included later', async () => {
         __uid2InternalHandleScriptLoad();
         (window.__uid2 as UID2).init({ identity });
         __uid2SSProviderScriptLoad();
@@ -186,7 +186,7 @@ describe('Secure Signal Tests', () => {
         window.__uid2SecureSignalProvider = undefined;
       });
 
-      test('should send signal to Google ESP once loaded', async () => {
+      test('should send signal to Google Secure Signals once loaded', async () => {
         uid2.init({ identity });
         window.__uid2SecureSignalProvider = new UidSecureSignalProvider();
         UID2.setupGoogleSecureSignals();
@@ -211,7 +211,7 @@ describe('Secure Signal Tests', () => {
         expect(secureSignalProvidersPushMock).toHaveBeenCalledTimes(0);
       });
 
-      test('should send signal with updated identity to Google ESP', async () => {
+      test('should send signal with updated identity to Google Secure Signals', async () => {
         const outdatedIdentity = mocks.makeIdentityV2({
           refresh_from: Date.now() - 1,
         });
@@ -237,7 +237,7 @@ describe('Secure Signal Tests', () => {
         window.__uid2 = new UID2();
         mocks.removeUid2LocalStorage();
       });
-      test('should send identity to Google ESP', async () => {
+      test('should send identity to Google Secure Signals', async () => {
         __uid2InternalHandleScriptLoad();
         __uid2SSProviderScriptLoad();
         (window.__uid2 as UID2).init({ identity });
