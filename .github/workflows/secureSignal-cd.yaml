@@ -1,0 +1,89 @@
+name: Release UID2/EUID Secure Signal Package to CDN
+run-name: ${{ github.action_ref == 'refs/head/main' && 'Release' || 'Publish Pre-release' }} UID2/EUID Secure Signal Package to CDN by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+
+env:
+  WORKING_DIR: ./
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    outputs:
+      is_any_file_modified: ${{ steps.verify.outputs.any_modified }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Check for change to src/secureSignalUid2.ts
+        id: verify_uid2
+        uses: tj-actions/changed-files@v41
+        with:
+          files: src/secureSignalUid2.ts
+      - name: Check for change to src/secureSignalEuid.ts
+        id: verify_euid
+        uses: tj-actions/changed-files@v41
+        with:
+          files: src/secureSignalEuid.ts
+  build:
+    needs: [verify]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        target: [development, production]
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build:esp -- --mode=${{ matrix.target }}
+      - name: Upload UID2 Secure Signals Files
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ matrix.target }}Uid2SecureSignalScript
+          path: ./dist/uid2SecureSignal.js
+      - name: Upload EUID Secure Signals Files
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ matrix.target }}EuidSecureSignalScript
+          path: ./dist/euidSecureSignal.js
+
+  deployment:
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    strategy:
+      matrix:
+        environment: [integ, production]
+
+    environment: ${{ matrix.environment }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Deploy UID2 Secure Signals to CDN
+        uses: ./.github/actions/cdn_deployment_aws
+        with:
+          artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}Uid2SecureSignalScript
+          invalidate_paths: '/uid2SecureSignal.js'
+          aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
+          aws_bucket_name: ${{ vars.S3_BUCKET }}
+          aws_distribution_id: ${{ secrets.AWS_DISTRIBUTION_ID }}
+      - name: Deploy EUID Secure Signals to CDN
+        uses: ./.github/actions/cdn_deployment_aws
+        with:
+          artifact: ${{ (matrix.environment == 'integ' && 'development') || matrix.environment }}EuidSecureSignalScript
+          invalidate_paths: '/euidSecureSignal.js'
+          aws_account_id: ${{ vars.EUID_AWS_ACCOUNT_ID }}
+          aws_bucket_name: ${{ vars.EUID_S3_BUCKET }}
+          aws_distribution_id: ${{ secrets.EUID_AWS_DISTRIBUTION_ID }}
