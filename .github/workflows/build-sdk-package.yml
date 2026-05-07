@@ -16,7 +16,7 @@ on:
 
 jobs:
   incrementVersionNumber:
-    uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-increase-version-number.yaml@sch-UID2-6742-update-node20-actions
+    uses: IABTechLab/uid2-shared-actions/.github/workflows/shared-increase-version-number.yaml@v3
     with:
       release_type: ${{ inputs.release_type }}
       merge_environment: ${{ github.ref_protected && 'ci-auto-merge' || '' }}
