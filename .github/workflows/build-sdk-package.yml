@@ -30,11 +30,11 @@ jobs:
         node-version: [20.x]
         target: [development, production]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           ref: ${{ needs.incrementVersionNumber.outputs.git_tag_or_hash }}
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ matrix.node-version }}
       - name: Get Package Version
@@ -51,14 +51,14 @@ jobs:
 
       # Upload SDK artifacts for CDN
       - name: Upload UID2 SDK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: uid2SDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
           path: ./dist/uid2-sdk-${{ steps.version.outputs.package_version }}.js
           retention-days: 30
 
       - name: Upload EUID SDK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: euidSDK-${{ matrix.target }}-${{ steps.version.outputs.package_version }}
           path: ./dist/euid-sdk-${{ steps.version.outputs.package_version }}.js
@@ -67,7 +67,7 @@ jobs:
       # Upload NPM package artifacts
       - name: Upload UID2 NPM package
         if: matrix.target == 'production'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: uid2-npm-package-${{ steps.version.outputs.package_version }}
           path: ./dist/uid2-npm/
@@ -75,7 +75,7 @@ jobs:
 
       - name: Upload EUID NPM package
         if: matrix.target == 'production'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: euid-npm-package-${{ steps.version.outputs.package_version }}
           path: ./dist/euid-npm/
@@ -92,7 +92,7 @@ jobs:
     steps:
       - name: Build Changelog
         id: github_release_changelog
-        uses: mikepenz/release-changelog-builder-action@32e3c96f29a6532607f638797455e9e98cfc703d # v4
+        uses: mikepenz/release-changelog-builder-action@348e88fab4c37338b1e803ceb2d4a7a5db6c0833 # v6.2.2
         with:
           toTag: v${{ needs.incrementVersionNumber.outputs.new_version }}
           configurationJson: |
@@ -100,7 +100,7 @@ jobs:
               "pr_template": " - #{{TITLE}} - ( PR: ##{{NUMBER}} )"
             }
       - name: Create Release Notes
-        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           name: v${{ needs.incrementVersionNumber.outputs.new_version }}
           body: ${{ steps.github_release_changelog.outputs.changelog }}
