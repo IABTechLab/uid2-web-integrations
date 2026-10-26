@@ -11,3 +11,7 @@ CVE-2026-111755 exp:2027-10-21
 # CVE-2026-111756 — follow-redirects (HIGH). Not vulnerable.
 # See: UID2-8120
 CVE-2026-111756 exp:2027-10-21
+
+# CVE-2026-111181 — body-parser (HIGH). Not vulnerable.
+# See: UID2-8175
+CVE-2026-111181
